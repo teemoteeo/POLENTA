@@ -107,6 +107,129 @@ Tariffa usata: 47 €/h (costo standard MIMIT, livello medio nelle imprese) × 1
 
 ---
 
+## I tre tipi di test: dove si fanno oggi
+
+Ricerca web del 2026-11-14 sera. Il flusso del prodotto: test da fare + sito Artemis di destinazione → punto analogo sulla Terra. Qui c'è, per ognuno dei tre tipi di test (rover, volo, tute), dove e come si fa oggi. [NV] = non verificato. Dettaglio dei parametri del rover in `docs/requisiti-test.md`; profilo volo in `docs/finaliste.md`.
+
+**In una riga per tipo:**
+- **Rover:** all'aperto su vulcani e deserti (Etna, Teide, Arizona, Meteor Crater, Kumtag, Tottori); al chiuso in vasche di simulante (LUNA a Colonia, ALTEC a Torino, NASA Glenn e KSC).
+- **Volo (lander, hopper, droni):** quasi sempre su **campi di crateri costruiti** a mano copiando il Polo Sud (KSC, Astrobotic a Mojave, Huailai in Cina, Challakere in India); i sensori si provano da elicottero su deserti naturali (Death Valley, Mojave, Edwards); l'1/6 g solo con cavi, gru o voli suborbitali.
+- **Tute ed EVA:** all'aperto sui campi vulcanici dell'Arizona, di notte per avere il sole radente (JETT3, JETT5); in Europa la formazione geologica PANGAEA (Lanzarote, Ries, Bletterbach, Lofoten); al chiuso piscina NBL, gru ARGOS e Chamber B a Houston, voli parabolici a Bordeaux.
+
+**Cosa ci dice per il prodotto:** per il volo si spendono soldi per costruire campi di crateri artificiali, anche se esistono campi naturali (Cinder Lake è nato così negli anni '60). È lo spazio del secondo profilo di Edo: trovare il campo di crateri **naturale** che somiglia al sito Artemis. Per le tute il vincolo forte è la luce: oggi si simula di notte con lampade.
+
+### Rover
+
+Sintesi da `docs/requisiti-test.md` §5-6.
+
+| Dove | Chi | Tipo | Cosa | Perché lì |
+|---|---|---|---|---|
+| Etna (Piano delle Concazze, Cisternazza) | TAS-I + ASI (ULS 2026); DLR + ESA (ARCHES 2022) | naturale | rover, ISRU, drone scout | pendenze ~20°, depositi eolici, rocce, crateri, niente vegetazione |
+| Teide, Tenerife | ESA + GMV (LUCID 2017) | naturale | traversate lunghe, visione notturna | percorribile per > 13 km, la notte imita la luce polare |
+| San Francisco Volcanic Field / Black Point (Arizona) | NASA (D-RATS, JETT) | naturale | rover pressurizzato | strada sterrata, logistica a Flagstaff, varietà geologica |
+| Meteor Crater (Arizona) | Intuitive Machines (2024) | naturale | LTV | cratere da impatto |
+| Rye (Colorado) | Lunar Outpost (2025) | naturale | LTV | pendenze fino a 20° |
+| Kumtag (Cina) | CAST (Yutu, 2011-13) | naturale | rover | sabbia a 70 µm. Il sito vero era più roccioso: danni al rover |
+| Dune di Tottori (Giappone) | ispace, amulapo | naturale | ruote, SLAM | meccanica della sabbia |
+| Mauna Kea (Hawaii) | NASA + CSA (PISCES 2008, 2012) | naturale | ISRU, trivella | suolo vulcanico |
+| LUNA, Colonia | DLR + ESA (dal 2024) | indoor | rover, EVA | 700 m² di basalto di cava, vasca profonda 3 m |
+| Mars Terrain Simulator, Torino | ALTEC | indoor | rover ExoMars | terreno riconfigurabile; centro lunare in arrivo (rampa a 25°, luci a ~8°) |
+| SLOPE (NASA Glenn), Swamp Works (KSC) | NASA | indoor | VIPER, scavo | simulanti GRC-1, LHS-1, BP-1 |
+
+**Requisito chiave:** pendenza di 20° (TAS-I e NASA). **Non si riproduce:** 1/6 g (si usano rover alleggeriti o l'offload di LUNA), vuoto, polvere elettrostatica.
+
+### Volo: lander, hopper, droni
+
+**Cosa si testa:** guida e navigazione di discesa (GNC), navigazione sul terreno (TRN: la camera confronta il suolo con una mappa), rilevamento e scansamento dei pericoli (HDA: lidar che vede rocce e pendenze), dinamica dell'appoggio a 1/6 g, gambe del lander, getto del motore sulla regolite.
+
+| Campagna | Chi | Dove (tipo) | Anni | Cosa | Perché lì | Fonte |
+|---|---|---|---|---|---|---|
+| Morpheus + ALHAT | NASA JSC/KSC | Shuttle Landing Facility, KSC, Florida (**costruito**) | 2012-14 | HDA con flash lidar, TRN, lidar Doppler; 5 voli sul campo, 1 di notte | campo di ~100×100 m con crateri e rocce distribuiti come nei dati LRO del Polo Sud; spazio aereo controllato | [NTRS](https://ntrs.nasa.gov/api/citations/20140000960/downloads/20140000960.pdf) |
+| ALHAT su elicottero | NASA | Rogers Lakebed, Edwards AFB, California (naturale + ostacoli posati) | 2008-12 | flash lidar: vedere ostacoli di 30 cm da 500 m | fondo piatto, ostacoli noti = verità a terra facile | [NTRS](https://ntrs.nasa.gov/api/citations/20130013472/downloads/20130013472.pdf) |
+| COBALT / Draper TRN su Xodiac | NASA Flight Opportunities, Masten (oggi Astrobotic), Draper | Mojave, California (aeroporto nel deserto) | 2017-19 | lidar Doppler, Lander Vision System, TRN | deserto, voli verticali a bassa quota, GPS come riferimento | [NASA](https://www.nasa.gov/directorates/spacetech/flightopportunities/One_Giant_Leap_for_Lunar_Landing_Navigation) |
+| Lunar Surface Proving Ground (LSPG) | Astrobotic, NASA | Mojave (**costruito**, ~100×100 m) + Death Valley (naturale) | dal 2024, campagna chiusa apr 2025 | TRN e HDA per il lander Griffin, da elicottero e Xodiac; ostacoli fino a 15 cm, TRN entro 50 m, voli notturni | replica topografia e proprietà ottiche di un'area del Polo Sud e la luce polare | [Astrobotic](https://www.astrobotic.com/astrobotic-tech-passes-critical-tests-for-safe-moon-landings/) |
+| SPLICE su New Shepard | NASA + Blue Origin | volo suborbitale, West Texas | 2020 | TRN, lidar Doppler, computer di discesa | il rientro del booster somiglia in parte a una discesa lunare | [NASA](https://www.nasa.gov/centers-and-facilities/langley/nasa-matures-lunar-landing-tech-through-suborbital-flights/) |
+| New Shepard a gravità lunare | Blue Origin, NASA | volo suborbitale | feb 2025 | ~2 min a 1/6 g facendo ruotare la capsula; 30 payload | l'unico 1/6 g "vero" oltre ai voli parabolici | [Space.com](https://www.space.com/space-exploration/human-spaceflight/blue-origin-to-simulate-moon-gravity-on-jan-28-new-shepard-suborbital-launch) |
+| LLRV/LLTV, Lunar Landing Research Facility | NASA | Edwards, Ellington (Houston), Langley (gantry **costruito**) | 1964-72 | pilotaggio degli ultimi metri di discesa: turbofan o cavi che tolgono 5/6 del peso | spazio aereo militare | [NASA](https://www.nasa.gov/history/lunar-landing-training-vehicle/) |
+| Cinder Lake Crater Fields | USGS + NASA | Flagstaff, Arizona (naturale + crateri fatti con esplosivo) | 1967-72 | addestramento Apollo | replica del sito di Apollo 11 | [Universe Today](https://www.universetoday.com/115895/making-the-moon-the-practice-crater-fields-of-flagstaff-arizona/) |
+| Huailai | CASC (Cina) | Hebei (**costruito**) | Marte 2019; lander Lanyue ago 2025 | hover, riconoscimento del terreno, scansamento ostacoli; 1/6 g con torri e cavi | campo di crateri artificiale con un solo punto sicuro | [SCMP](https://www.scmp.com/news/china/science/article/3321150/china-completes-key-lander-test-preparation-crewed-moon-mission-2030) |
+| Chandrayaan-2/3 | ISRO | Challakere, Karnataka, India (crateri **costruiti**) | 2019-23 | sensori su elicottero dell'aeronautica indiana (Integrated Cold Test); gru a torre (Hot Test); drop test delle gambe a Bengaluru | crateri di ~10 m di diametro [NV] | [ISRO](https://www.isro.gov.in/Making_Chandrayaan3_ISRO_culture.html) |
+| ARCHES | DLR, KIT, ESA | Etna (naturale) | giu-lug 2022 | lander, 2 rover, drone ARDEA come scout | superficie granulare e lave simili alla geologia lunare. **Il vento ha bloccato alcuni voli del drone** | [DLR](https://www.dlr.de/en/latest/news/2022/03/20220701_robotics-team-practises-lunar-exploration-on-mount-etna) |
+| Lander Vision System di Mars 2020 | NASA JPL | Death Valley (naturale) | 2019, 17 voli in elicottero in 3 settimane | TRN visiva | terreno brullo e montuoso; è per Marte, ma il metodo vale per la Luna | [JPL](https://www.jpl.nasa.gov/news/nasas-mars-2020-mission-drops-in-on-death-valley/) |
+
+**Europa e Torino:**
+- **Argonaut (ESA):** TAS-I guida assemblaggio, integrazione e test del modulo di discesa (contratto da 862 M€, gen 2025, lancio 2030). Piani pubblici di test di volo o drop test: nessuno [NV]. È l'aggancio per il pitch: dovranno farli.
+- **Themis (Esrange, Svezia) e Callisto (Kourou):** atterraggio verticale di booster riutilizzabili. Utili solo per la GNC di atterraggio, non sono lander lunari.
+- **DLR LAMA (Brema):** facility con offload di gravità e suolo inclinabile fino a 30° per l'appoggio dei lander.
+- Intuitive Machines, ispace, JAXA SLIM: test aerei a terra non pubblici [NV]. ispace M2 è fallita per un guasto del telemetro laser e l'azienda promette più test in condizioni diverse.
+
+**Cosa deve avere un sito naturale per il volo:**
+- ostacoli alla scala del requisito: rocce da 30 cm e pendenze da 5° (ALHAT), Astrobotic è scesa a 15 cm;
+- crateri e rocce con una distribuzione per dimensione simile al sito Artemis (KSC e LSPG la copiano dai dati LRO); soglie numeriche pubblicate di densità di massi: [NV];
+- pendenze: l'area di atterraggio è < 10° su ~100 m di raggio, il tilt del lander ≤ 8°;
+- luce radente: la TRN con camera ne dipende, il lidar no (per questo si vola anche di notte);
+- albedo e tessitura: basalto e ceneri danno un contrasto vicino a quello lunare; le dune lisce rompono la visione;
+- spazio aereo e permessi (in Italia zone UAS di ENAC/d-flight), vento per i droni.
+
+**Solo in facility:** 1/6 g sul veicolo intero (cavi, gantry, LAMA, New Shepard), getto del motore sulla regolite nel vuoto (sfera da 60 ft a NASA Langley, camera a NASA Marshall), drop test delle gambe su simulante.
+
+**Costi e durate pubbliche:** Morpheus ~14 M$ di procurement in 4 anni con ~40 persone in media ([NTRS](https://ntrs.nasa.gov/citations/20140017130)); campagna in elicottero ALHAT 2 settimane; LVS 3 settimane; ARCHES ~4 settimane. Tariffe di LSPG, Xodiac, Huailai: [NV].
+
+### Tute ed EVA (astronauti in superficie)
+
+**Cosa si testa:** mobilità della tuta, camminata su pendenze e regolite, polvere, termica, luce radente con ombre lunghe, procedure di campionamento geologico, tempi delle EVA, gravità parziale.
+
+**Campagne sul campo (siti naturali):**
+
+| Campagna | Chi | Dove | Anno | Cosa | Perché lì | Fonte |
+|---|---|---|---|---|---|---|
+| JETT1 | NASA | Kilbourne Hole, vicino a El Paso (Texas) | 2022 [NV] | prima uscita delle tute mockup, stazioni di campionamento | cratere vulcanico | [NTRS](https://ntrs.nasa.gov/citations/20230006762) |
+| JETT2 | NASA | altopiani dell'Islanda | 2022 | EVA completa di 4 h | terreno lunare con poca vegetazione | idem |
+| JETT3 | NASA + Draper + USGS | SP Crater e Black Point Lava Flow, ~40 km a nord di Flagstaff (Arizona) | ott 2022 | EVA di Artemis III: **4 EVA notturne con un "sole" artificiale su carrello** che fa ombre dure; navigatore di Draper | cono di scorie e colata basaltica; strada, alloggi, copertura cellulare, varietà geologica entro 2 km | [NASA](https://www.nasa.gov/humans-in-space/nasa-to-practice-artemis-moonwalking-roving-operations-in-arizona-desert) |
+| JETT5 | NASA + USGS | San Francisco Volcanic Field (Arizona) | 13-17 mag 2024 | 4 moonwalk simulati di Artemis III, di giorno e di notte, supporto collegato da Houston | sito analogo già consolidato | [USGS](https://www.usgs.gov/centers/astrogeology-science-center/news/artemis-iii-mission-tests-san-francisco-volcanic-field) |
+| Desert RATS | NASA (dal 2022 con JAXA) | Black Point Lava Flow (Arizona) | anni '90-2011, ott 2022 | rover pressurizzato, traversate, soccorso | colata lavica, terreno difficile | [NASA](https://www.nasa.gov/analogs/desert-rats) |
+| Addestramento geologico Apollo | NASA + USGS | Meteor Crater, Cinder Lake (Arizona), Hawaii, Islanda | 1963-72 | geologia di campo, campionamento | l'Islanda era considerata "la più lunare" | [USGS](https://www.usgs.gov/media/images/cinder-lake-crater-field-2jpg) |
+| PANGAEA | ESA EAC | **Bletterbach (Alto Adige)**, Ries (Germania), Lanzarote (Spagna), Lofoten (Norvegia) | dal 2016 circa | formazione geologica degli astronauti (anche NASA e JAXA) | Lofoten: anortosite come gli altopiani lunari; Ries: impatto, studiato dagli equipaggi di Apollo 14 e 17 | [ESA](https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/CAVES_and_Pangaea/What_is_Pangaea) |
+| CAVES | ESA EAC | grotta Sa Grutta (**Sardegna**) | dal 2011 circa | lavoro di squadra al buio, ~6 giorni sottoterra | isolamento, buio, rischio reale | [ESA](https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Going_underground) |
+| ARCHES / Analog-1 | DLR + ESA | Etna, ~2.600 m | giu-lug 2022 | un astronauta guida il rover da Catania come se fosse sul Gateway | criteri geologici di una missione lunare vera | [ESA](https://esa.int/ESA_Multimedia/Images/2022/06/Lunar_science_stirring_on_Mount_Etna) |
+| AMADEE (tuta Aouda) | Forum Spaziale Austriaco (OeWF) | Dhofar (Oman) 2018, Ramon Crater (Israele) 2021, Armenia 2024 | 3-4 settimane ciascuna | simulatore di tuta pesante con sensi limitati | aridità, geologia. Pensati per Marte. AMADEE-24 ha cambiato sito durante la preparazione | [OeWF](https://oewf.org/en/amadee-program/) |
+| MDRS, HI-SEAS | Mars Society (Utah); IMA + EuroMoonMars (Mauna Loa, Hawaii) | rotazioni di 2 settimane | simulatori di tuta, ISRU sul basalto | deserto (Utah), basalto e quota (Hawaii) | [HI-SEAS](https://pacificspacecenter.com/2020/02/03/analog-astronauts-explore-moon-during-two-week-simulation-at-hi-seas/) |
+
+**Strutture al chiuso:**
+
+| Struttura | Dove | Cosa fa |
+|---|---|---|
+| NBL, Neutral Buoyancy Lab | JSC, Houston | piscina profonda 12 m con fondale lunare; 1/6 g con zavorra; EVA del Polo Sud a luci spente. Primo test con equipaggio della tuta Axiom AxEMU a mag 2025 ([Axiom](https://axiomspace.com/news/axiom-space-next-gen-spacesuit-is-crew-tested-for-first-time-in-nasa-neutral-buoyancy-lab)) |
+| ARGOS | JSC, Houston | gru robotica che toglie peso (1/6 g, Marte, 0 g); 23 test della AxEMU ([NTRS](https://ntrs.nasa.gov/citations/20230002430)) |
+| Rock Yard | JSC, Houston | terreno lunare all'aperto con lampade e pareti nere, per gli attrezzi |
+| Flat Floor Facility | NASA Marshall, Huntsville | luce del Polo Sud: sole radente, ombre lunghe ([NASA](https://www.nasa.gov/wp-content/uploads/2023/03/artemis-lighting-considerations-overview-technical-brief-ochmo.pdf)) |
+| Chamber B | JSC, Houston | unica camera termo-vuoto NASA certificata per l'uomo; pavimento ad azoto liquido; requisito 93 K nei punti freddi del Polo Sud ([NTRS](https://ntrs.nasa.gov/citations/20240004521)) |
+| LUNA | DLR + ESA, Colonia | sala da 700 m² con simulante EAC-1A; offload di gravità e rampa regolabile previsti [stato NV] |
+| Voli parabolici | Novespace, Bordeaux | 20-30 s a 1/6 g per parabola; nel 2025 una campagna ESA tutta lunare ([ESA](https://www.esa.int/ESA_Multimedia/Images/2025/11/Flying_for_the_Moon)) |
+| NEEMO (Aquarius) | habitat sottomarino, Florida Keys | barella LESA con peso equivalente lunare (2017, 2019) |
+
+**Cosa deve avere un sito naturale per le EVA** ([NASA, overview Artemis per Space Apps 2025](https://ntrs.nasa.gov/api/citations/20250009323/downloads/ArtemisOverview2025IntSPAPPSChallenge.pdf)):
+- pendenze fino a **20°** entro 2 km dal lander (la tuta deve salire, scendere e traversare un pendio di 20°); al Polo Sud ci sono tratti a 21-25°;
+- raggio delle escursioni fino a 2 km (TBR), da 2 a 5 EVA in 6,5 giorni, fino a 8 h in tuta;
+- regolite fine o scorie, massi, crateri, basalto o anortosite, poca vegetazione;
+- varietà geologica entro 2 km, accesso, alloggi vicini, copertura per le comunicazioni (criteri JETT3);
+- luce radente: oggi si lavora di notte con luce artificiale (JETT3, JETT5, NBL al buio).
+
+**Solo al chiuso:** vuoto, 1/6 g prolungato, termo-vuoto, terreno a temperature criogeniche.
+
+**Italia e Torino:** nessun hardware per tute ed EVA trovato da TAS-I, ALTEC o Argotec. Prada (Milano) fa lo strato esterno e il sottotuta della AxEMU con Axiom. TAS-I e ALTEC lavorano sull'habitat MPH, dove gli astronauti vivranno tra un'EVA e l'altra. Siti italiani già usati: Bletterbach, Sa Grutta, Etna.
+
+**Costi:** nessun costo pubblico per JETT, NBL, ARGOS, LUNA o i voli Novespace [NV].
+
+### Lacune
+
+- Nessuna campagna JETT pubblica dopo il 2024 [NV].
+- Test di volo del lander Argonaut: nessun piano pubblico.
+- Test di Chang'e 3/4/5 proprio a Huailai: [NV].
+- Data dell'allunaggio Artemis: le fonti si contraddicono.
+
+---
+
 ## Da verificare prima del pitch
 - Tutti i passi [A] del modello: chiedere un ordine di grandezza a qualcuno di TAS-I o ALTEC in sala.
 - Il ruolo di AIKO sul rover ETNA.
