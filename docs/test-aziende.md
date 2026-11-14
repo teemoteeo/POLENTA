@@ -23,6 +23,26 @@ Autore: Timo (per Rocco), copia della nota nella vault. Ricerca web del 2026-11-
 
 ---
 
+## Giuria e sponsor all'hackathon (Space Apps Torino 2026)
+
+Fonti: banner dei premi sulla [pagina ufficiale dell'evento](https://www.spaceappschallenge.org/2026/local-events/turin/) e registrazione del welcome. **I nomi sono trascritti dall'audio: la grafia va verificata**, tranne quelli confermati sul web (✓).
+
+| Azienda o ente | Premio | Persone citate al welcome | Ruolo |
+|---|---|---|---|
+| **Thales Alenia Space** | Premio speciale "Thales Alenia Space Award" | Tania Gress (ingegnera aerospaziale, cofondatrice di WIA Torino) · Carolina Morteni (system engineering) | **Giuria**: "they will judge you tomorrow" |
+| **Argotec** | Premio speciale "Argotec Award" | Serena Campioli (system engineer, PhD in MBSE, WIA) · Francesco Ferrari · Rosario Basile | **Giuria** (Campioli tramite WIA; Ferrari e Basile presentati come i giurati Argotec) |
+| **I3P / ESA BIC Turin** | 3° posto, 500 € | **Leo Italiano** ✓ (Program Manager di ESA BIC Turin) · Roberta Guglietti ✓ (Local Lead, organizzazione) | Italiano è "il giurato più severo" |
+| **ORiS** ✓ (startup I3P, energia via laser in orbita) | 1° posto, 1.000 € | **Andrea Villa** ✓ (CEO) · **Francesco Lopez** ✓ (COO) | Sponsor principale e mentor. In giuria probabilmente sì, ma non detto esplicitamente. ORiS ha fatto uno studio di fattibilità per TAS sull'energia wireless ai rover lunari |
+| **Merani Amministrativisti** (studio legale) | 2° posto, 750 € | — | Sponsor |
+| **Center for Near Space** | Premio speciale "The Next Possible Future" | — | Sponsor |
+| Women in Aerospace Europe, Torino | — | Campioli, Gress, Morteni | Workshop sul pitch. Sono le stesse persone della giuria TAS e Argotec |
+
+Mentor delle startup ESA BIC citate al welcome (grafia incerta): Roberto Morano (startup "COURSE"), Alberto Rovera e Giovanni Ningoya (sala Agorà).
+
+**Per il pitch:** in giuria ci sono TAS-I, cioè il buyer principale, e Argotec. ORiS lavora già con TAS sui rover lunari. Leo Italiano guarda il potenziale da startup: business model e mercato.
+
+---
+
 ## Business: come fanno i test oggi
 
 **Test più costosi**
