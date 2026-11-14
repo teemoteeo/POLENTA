@@ -60,9 +60,10 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .foot{margin-top:4px}
 
 /* modello 3D a puntini dentro il pannello */
-.panel-model{height:200px;margin:-4px -8px 0;display:flex;flex-direction:column;align-items:center;border-radius:20px;
-  background:radial-gradient(circle,var(--line) 1px,transparent 1.2px) 0 0/10px 10px}
-.panel-model figcaption{font-size:11px;padding-bottom:6px}
+.panel-model{height:200px;margin:-4px -8px 0;display:flex;flex-direction:column;align-items:center}
+/* la griglia di puntini sta solo dietro il modello: la didascalia sotto non ha fondo */
+.panel-model .dotmodel{border-radius:20px;background:radial-gradient(circle,var(--line) 1px,transparent 1.2px) 0 0/10px 10px}
+.panel-model figcaption{font-size:11px;padding:6px 0 2px;background:none}
 
 /* scrollbar a puntini */
 .panel::-webkit-scrollbar{width:10px}
