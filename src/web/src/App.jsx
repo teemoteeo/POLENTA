@@ -32,6 +32,7 @@ const PLANETS = { mars: { name: 'Marte', what: '2 siti di atterraggio', size: 1 
 // durate (ms) dei passaggi, uguali in andata e ritorno; curve: OUT rallenta alla fine, IN è la stessa rovesciata
 const T = { planet: 2600, site: 4500, siteBack: 2600, warp: 3000, card: 1600, next: 2200 } // siteBack: il ritorno dal sito è più corto dell'andata
 const OUT = t => 1 - (1 - t) ** 3, IN = t => t ** 3
+const SOFT = t => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2) // parte e arriva piano: uguale nei due versi
 
 const STYLE = {
   version: 8,
@@ -217,14 +218,14 @@ export default function App() {
     const start = likePicker(w)
     pickZoom.current[w] = start.zoom
     map.current.jumpTo(start)
-    await wait(400) // dissolvenza incrociata a pianeti sovrapposti, poi il pianeta si espande
-    await fly({ ...HOME[w], duration: T.planet, easing: OUT })
+    // parte subito e piano: la dissolvenza incrociata (0,4 s) avviene mentre il pianeta è ancora quasi fermo
+    await fly({ ...HOME[w], duration: T.planet, easing: SOFT })
     spinning.current = true
   })
   const toPlanets = act(async () => { // anche "Ricomincia", da qualsiasi passo: un solo zoom indietro, la mappa sfuma alla fine
     if (step === 'planet') return
     // da Luna o Marte la mappa si rimpicciolisce fino a ricalcare il suo pianeta della prima pagina; dalla Terra si allontana e sfuma
-    await fly({ ...(world === 'earth' ? { zoom: 0.5, pitch: 0 } : likePicker(world, performance.now() + T.planet)), duration: T.planet, easing: IN })
+    await fly({ ...(world === 'earth' ? { zoom: 0.5, pitch: 0 } : likePicker(world, performance.now() + T.planet)), duration: T.planet, easing: world === 'earth' ? IN : SOFT })
     setStep('planet'); setSite(null); setTestId(null)
     await wait(400)
   })
