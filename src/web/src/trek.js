@@ -19,10 +19,7 @@ worker.onmessage = ({ data }) => {
   calls.delete(data.id)
   if (data.error) c[1](new Error(data.error)); else c[0](data.result)
 }
-function call(msg, signal) {
-  const id = ++seq
-  signal?.addEventListener('abort', () => worker.postMessage({ cancel: id })) // tile uscita dalla vista
-  return new Promise((res, rej) => { calls.set(id, [res, rej]); worker.postMessage({ ...msg, id }) })
-}
-
-addProtocol('trek', async ({ url }, abort) => ({ data: await call({ tile: url }, abort.signal) }))
+addProtocol('trek', ({ url }) => new Promise((res, rej) => {
+  calls.set(++seq, [d => res({ data: d }), rej])
+  worker.postMessage({ tile: url, id: seq })
+}))

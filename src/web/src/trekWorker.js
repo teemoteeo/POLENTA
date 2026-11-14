@@ -12,33 +12,20 @@ const LAYERS = {
 // il mosaico lunare al polo è scuro (sole radente): curva che apre le ombre e schiarisce
 const BRIGHT = Uint8ClampedArray.from({ length: 256 }, (_, v) => 255 * Math.min(1, 1.2 * (v / 255) ** 0.75))
 
-// Download: al massimo 6 per server (HTTP/1.1), prima i più recenti (la vista attuale).
-// Le tile scaricate restano nella Cache Storage del browser: al secondo caricamento arrivano subito.
-const store = self.caches ? caches.open('trek-v1').catch(() => null) : Promise.resolve(null)
-const slots = {}
-async function limited(host, fn) {
-  const s = (slots[host] ||= { active: 0, waiting: [] })
-  while (s.active >= 6) await new Promise(r => s.waiting.push(r))
-  s.active++
-  try { return await fn() } finally { s.active--; s.waiting.pop()?.() }
-}
+// tile sorgente decodificate (RGBA); la coda dei download e la cache su disco le gestisce il browser
 const mem = new Map()
 function source(url, size) {
   if (!mem.has(url)) {
     if (mem.size > 800) mem.delete(mem.keys().next().value) // ponytail: FIFO, LRU se servisse
     mem.set(url, (async () => {
-      const cache = await store
-      let res = await cache?.match(url)
-      if (!res) res = await limited(new URL(url).host, async () => {
-        for (let k = 0; k < 4; k++) { // sotto carico i server rispondono a volte con errori: si riprova con attesa crescente
-          const r = await fetch(url).catch(() => null)
-          if (r?.status === 404) return null // fuori copertura: resta trasparente
-          if (r?.ok) { cache?.put(url, r.clone()).catch(() => {}); return r }
-          await new Promise(w => setTimeout(w, 500 * 2 ** k))
-        }
-        throw new Error('il server non risponde: ' + url)
-      })
-      if (!res) return null
+      let res
+      for (let k = 0; !res; k++) { // sotto carico Trek risponde a volte con errori: si riprova con attesa crescente
+        const r = await fetch(url).catch(() => null)
+        if (r?.status === 404) return null // fuori copertura: resta trasparente
+        if (r?.ok) res = r
+        else if (k === 3) throw new Error('Trek non risponde: ' + url)
+        else await new Promise(w => setTimeout(w, 500 * 2 ** k))
+      }
       const g = new OffscreenCanvas(size, size).getContext('2d', { willReadFrequently: true })
       g.drawImage(await createImageBitmap(await res.blob()), 0, 0, size, size)
       return g.getImageData(0, 0, size, size).data
@@ -48,11 +35,11 @@ function source(url, size) {
 }
 
 // livello della sorgente: pixel al massimo 1,4 volte più grandi di quelli richiesti (fino a 4 volte meno tile che con il più fine)
-const level = (layer, R, mpp) => Math.max(0, Math.min(layer.max, Math.round(Math.log2((layer.polar ? 2 * HALF : Math.PI * R) / layer.size / mpp))))
+const level = (layer, mpp) => Math.max(0, Math.min(layer.max, Math.round(Math.log2((layer.polar ? 2 * HALF : Math.PI * R) / layer.size / mpp))))
 
 // punto (lat, lon in radianti) → tile sorgente (P.r, P.c) e posizione dentro, in pixel della sorgente (P.u, P.v)
 const P = { r: 0, c: 0, u: 0, v: 0 }
-function at(layer, l, R, lat, lon) {
+function at(layer, l, lat, lon) {
   let fx, fy
   if (layer.polar) { const m = (2 * HALF) / 2 ** l, rho = 2 * R * Math.tan(Math.PI / 4 + lat / 2); fx = (HALF + rho * Math.sin(lon)) / m; fy = (HALF - rho * Math.cos(lon)) / m }
   else { const span = Math.PI / 2 ** l; fx = (lon + Math.PI) / span; fy = (Math.PI / 2 - lat) / span }
@@ -67,8 +54,7 @@ function read(s, S, u, v, ch) {
   return (s[o] * (1 - ax) + s[o + 4] * ax) * (1 - ay) + (s[o + row] * (1 - ax) + s[o + row + 4] * ax) * ay
 }
 
-const cancelled = new Set()
-async function tile(id, z, tx, ty) {
+async function tile(z, tx, ty) {
   const n = 256 * 2 ** z, LL = [0, 0]
   // pixel della tile (anche frazionario) → lat, lon reali; la Luna è ruotata: mappa (x', y', z') → reale (z', y', -x')
   const ll = (px, py) => {
@@ -78,25 +64,24 @@ async function tile(id, z, tx, ty) {
   }
   const mpp = ((2 * Math.PI * R) / n) * Math.cos(Math.atan(Math.sinh(Math.PI * (1 - (2 * (ty + 0.5)) / 2 ** z)))) // m/px al centro
   // sotto i -61° la mosaica polare, sopra quella globale
-  const plan = [[LAYERS.moonSp, level(LAYERS.moonSp, R, mpp)], [LAYERS.moonEq, level(LAYERS.moonEq, R, mpp)]]
+  const plan = [[LAYERS.moonSp, level(LAYERS.moonSp, mpp)], [LAYERS.moonEq, level(LAYERS.moonEq, mpp)]]
   const pick = la => (la < -61 * D ? 0 : 1), key = (k, r, c) => (k * 16384 + r) * 16384 + c
 
   // 1) sorgenti necessarie, da una griglia di 33×33 punti (le tile sorgente coprono sempre più di 8 pixel)
   const needed = new Map()
   for (let gy = 0; gy <= 256; gy += 8) for (let gx = 0; gx <= 256; gx += 8) {
     const [la, lo] = ll(gx, gy), k = pick(la), [layer, l] = plan[k]
-    at(layer, l, R, la, lo)
+    at(layer, l, la, lo)
     const kk = key(k, P.r, P.c)
     if (!needed.has(kk)) needed.set(kk, source(layer.url(l, P.r, P.c), layer.size))
   }
   const got = await Promise.all(needed.values()), data = new Map([...needed.keys()].map((k, i) => [k, got[i]]))
-  if (cancelled.has(id)) throw new Error('annullata') // niente calcolo per una tile uscita dalla vista
 
   // 2) pixel
   const out = new Uint8ClampedArray(65536 * 4)
   for (let py = 0; py < 256; py++) for (let px = 0; px < 256; px++) {
     const [la, lo] = ll(px + 0.5, py + 0.5), k = pick(la), [layer, l] = plan[k], o = (py * 256 + px) * 4
-    at(layer, l, R, la, lo)
+    at(layer, l, la, lo)
     const s = data.get(key(k, P.r, P.c)), g = read(s, layer.size, P.u, P.v, 0)
     if (g < 0) continue
     out[o] = out[o + 1] = out[o + 2] = BRIGHT[g | 0]; out[o + 3] = read(s, layer.size, P.u, P.v, 3)
@@ -105,12 +90,11 @@ async function tile(id, z, tx, ty) {
 }
 
 self.onmessage = async ({ data: m }) => {
-  if (m.cancel) return cancelled.add(m.cancel)
   try {
     const [z, x, y] = m.tile.slice(12).split('/') // 'trek://moon/z/x/y'
-    const bmp = await tile(m.id, +z, +x, +y)
+    const bmp = await tile(+z, +x, +y)
     self.postMessage({ id: m.id, result: bmp }, [bmp])
   } catch (e) {
     self.postMessage({ id: m.id, error: String(e.message || e) })
-  } finally { cancelled.delete(m.id) }
+  }
 }

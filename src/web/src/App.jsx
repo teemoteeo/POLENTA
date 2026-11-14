@@ -6,7 +6,7 @@ import { ScatterplotLayer } from '@deck.gl/layers'
 import DotModel from './DotModel.jsx'
 import DotPlanet from './DotPlanet.jsx'
 import './trek.js' // registra il protocollo trek:// prima della mappa
-import { SITES, TESTS, FACILITIES, MODELS, buildMoonDots, buildMarsDots, getResults } from './data.js'
+import { SITES, TESTS, FACILITIES, MODELS, loadDots, getResults } from './data.js'
 
 const PARAM_LABEL = {
   slope_p90: 'Pendenza', roughness: 'Rugosità', crater_density: 'Crateri', rock_cover: 'Rocce',
@@ -84,9 +84,7 @@ export default function App() {
   const pal = PALETTE[theme]
 
   useEffect(() => {
-    fetch('/earth-dots.json').then(r => r.json()).then(addDots('earth'))
-    buildMoonDots().then(addDots('moon'))
-    buildMarsDots().then(addDots('mars'))
+    for (const w of ['moon', 'mars', 'earth']) loadDots(w).then(addDots(w))
     const m = new maplibregl.Map({ container: box.current, style: STYLE, ...HOME.moon, maxPitch: 70, minZoom: -1.5, attributionControl: { compact: true } })
     map.current = m
     overlay.current = new MapboxOverlay({ interleaved: false, layers: [] }) // interleaved non disegna H3 sul globo
