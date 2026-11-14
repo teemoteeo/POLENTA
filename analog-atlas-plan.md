@@ -4,8 +4,9 @@
 > Read it before implementing anything. When code and this file disagree, ask the team before changing either.
 >
 > - **Challenge:** *Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars* (NASA Space Apps 2026)
-> - **Team:** Edo (ML, backend and scoring), Timoteo (software, data infra and app), Rocco (nanotech engineering, physics and content)
-> - **Event window:** Sat 2026-11-14 15:30 → Sun 2026-11-15 17:00 (submission planned by 16:30)
+> - **Team:** Edo (ML, data pipeline and scoring), Timoteo (frontend, app and deploy), Rocco (nanotech engineering, physics and content)
+> - **Event window (official Turin schedule):** hacking Sat 2026-11-14 16:00 → submission deadline Sun 2026-11-15 16:00; pitch 16:15. We submit by 15:30 (§9)
+> - **Other docs:** `AGENTS.md` (agent rules and scopes), `clipboard/findings.md` (live log), `clipboard/fonti/BRIEFING-DIVISIONE.md` (skills per member). They point here for plan, roles and timeline
 > - **Last updated:** 2026-11-14
 
 ---
@@ -18,6 +19,30 @@ We build **Analog Atlas**: a global map that scores every land area on Earth aga
 - **Differentiator:** most teams will output one blended score. We keep a per-dimension fingerprint, so a site can read "strong terrain and mineral analog, weak thermal analog". That is exactly what the challenge asks for.
 - **Known analogs are our test set, not our answer.** Atacama, Haughton, the Dry Valleys and others check that the method works. The headline result is high-scoring places that are *not* already known analogs.
 - **Scope:** Mars (Jezero) is the MVP; Moon targets are a stretch goal. Explainable scoring plus ML-fitted weights. Deliverables: a web app and a short written report.
+- **Twist:** not decided yet. Candidates in §1b; we pick one or a combination by Sat 17:00.
+
+## 1b. Twist candidates (decide by Sat 17:00)
+
+The core (per-dimension scores, Analog Card, validation) is the same for every twist, so nothing before Sat 17:00 depends on this choice. We decide on site, after the in-person briefing, and can combine several. The Space Apps rules ask that the idea is the team's own and that any AI use is declared in the submission form: this list is a menu, not a decision.
+
+Judges score each project 1–5 on **Impact, Creativity, Validity, Relevance, Presentation** (Judging & Awards Guide).
+
+| # | Twist | Pitch line | What it adds | Who and cost | Helps most on | Risk |
+| --- | --- | --- | --- | --- | --- | --- |
+| T1 | **Analog Kit** | "No place on Earth is Mars. But three places, together, are." | Smallest set of 2–4 sites that together cover every dimension, optionally within R km of a chosen base (Turin, FVG, a research station). The spaceship flies the itinerary and lands at each stop | Edo ~2 h (greedy); Timoteo itinerary; Rocco a story per stop | Creativity, Presentation | Low |
+| T2 | Reachable analogs | "The best analog you can actually get to." | Second axis: access cost (distance to roads and airports, NASA SEDAC population, VIIRS Black Marble night lights; access to verify). Show the Pareto front of analog score vs access cost | Edo ~2 h, 1–2 extra global rasters | Impact, Validity | Low–medium |
+| T3 | Mars through time | "Jezero was a lake. Where on Earth is Jezero-then, and Jezero-now?" | 2–3 target profiles per epoch (wet Noachian → cold, dry Amazonian); a slider morphs the map. Matches the challenge's "processes as well as places" | Rocco 2–3 profiles; Timoteo slider; no pipeline change | Creativity, Relevance | Medium (old-epoch profiles are uncertain) |
+| T4 | Changing Earth | "Climate change is creating new analogs, and erasing the ones we use." | Same scoring on two periods (e.g. 2001–05 vs 2020–24, MODIS): which places are becoming more or less Mars-like (drying, glacier and permafrost loss) | Edo: features on two periods; Rocco: interpretation | Impact | Medium (data volume) |
+| T5 | Train from Turin | "The ExoMars rover will be driven from Turin. Where should its team train?" | Target Oxia Planum, landing site of ESA's Rosalind Franklin rover, whose operations centre is at ALTEC in Turin (verify current mission status). Same method, new profile | Rocco: profile and checks | Relevance (local jury), Impact | Low |
+| T6 | Underground Moon base | "The safest Moon base may be underground." | Lunar pits and lava tubes as base sites (Diviner shows stable temperatures in some pit shadows; verify, Horvath et al. 2022); Earth lava tubes and caves as analogs. Site-level story, Moon target | Rocco story; Edo light | Creativity, Relevance | Medium (no global cave data) |
+| T7 | Twin of any point | "Pick any spot on Mars. We find its twin on Earth." | Global Mars feature grids (MOLA, TES, THEMIS) instead of one profile, then nearest-neighbour search. Light version: 5–10 preset Mars and Moon sites | Edo heavy (full); light version cheap | Presentation | High (full), low (light) |
+| T8 | How Martian is your home? | "Drop a pin: how Martian is your town?" | Click or geolocate any place → its Analog Card, as a shareable image. Uses the precomputed scores | Timoteo only | Impact (outreach), Presentation | Low |
+| T9 | Lunar Lander mode | "Land on the best analog." | Arcade mode in the retro style: pilot the spaceship and land; the landing score is the analog score | Timoteo heavy | Presentation | Medium |
+| T10 | Mission planner | "Tell us what you want to test; we tell you where." | Start from the technology (drill, wheels, dust coatings, ice extraction, habitat construction) → preset weights → ranked sites with "what to test here" | Rocco presets and texts; Timoteo UI | Impact, Validity | Low (presets exist) |
+
+Combinations that fit together: T1 + T5 (a kit for Oxia Planum, reachable from Turin); T1 + T8 + T9 (the spaceship flies the kit, or lands anywhere you pick); T2 + T10 (practical test planning). Rule of thumb: at most one item marked heavy, and the twist must give the pitch one line and one number.
+
+T1 math: log C(K) = Σ_d w_d · max_{i∈K} log s_id is a facility-location objective (monotone submodular after shifting by −log ε), so greedy selection reaches at least (1 − 1/e) of the optimum. Pitch number: coverage of the best single site vs the kit.
 
 ## 2. Targets
 
@@ -29,6 +54,7 @@ Each target is a profile config file with one target range per sub-feature and a
 | Gale crater | Mars | Curiosity site | Layered sediments, clays, sulfates, hematite; dunes |
 | Arcadia Planitia | Mars | Candidate human landing region with shallow ground ice | Flat plains, ice-rich ground, periglacial landforms |
 | Artemis III south-pole regions (e.g. Malapert Massif, Haworth, Nobile Rim) | Moon | Candidate sites for landing and a permanent base | Rugged highland terrain, anorthosite rock, extreme cold, low sun angle, ice in shadowed craters |
+| Oxia Planum (only with twist T5) | Mars | ExoMars Rosalind Franklin landing site, operated from ALTEC, Turin | Ancient flat plains, Fe/Mg clays, remnant fan deposits; cold, dry, dusty |
 
 The traits come from memory and must be checked against PDS and mission pages when building the profiles.
 
@@ -220,7 +246,9 @@ Leave-one-site-out must use **spatial blocks** (~500 km) so tiles next to a know
 
 The demo is a web map: pick a target and a use case, then click any place to get its Analog Card. Results are precomputed; the app needs no backend for scoring.
 
-**Flow:** choose target → choose use-case preset → global heat map → click a cell → Analog Card.
+**Flow:** spaceship intro (retro style, `clipboard/references.md`) → choose target → choose use-case preset → global heat map → click a cell → descent onto the site → Analog Card.
+
+Each dimension can be switched off (dropped from the mean) or given a minimum score in the UI, so every active parameter still narrows the results as in the original idea.
 
 **Analog Card**
 
@@ -233,11 +261,13 @@ The demo is a web map: pick a target and a use case, then click any place to get
 
 **Written report (2–3 pages):** method, validation numbers, top 3 new candidates described in depth.
 
-**Stack:** Python pipeline (xarray, rasterio, h3, scikit-learn or LightGBM) → map tiles / GeoJSON → React with MapLibre or deck.gl → static hosting. Per-dimension scores can ship to the browser as uint8 so weight sliders recompute client-side.
+**Stack:** Python pipeline (xarray, rasterio, h3, scikit-learn or LightGBM) → export files in `data/export/` (§7) → React with deck.gl `H3HexagonLayer` on MapLibre (default) → static hosting. Per-dimension scores ship to the browser as uint8 so weight sliders recompute client-side. Timoteo may switch to CesiumJS (notes in `clipboard/findings.md`) if his Sat 16:00–17:00 prototype runs ~600k H3 cells, the flyTo landing and the retro post-process smoothly; decision by Sat 17:00.
 
 ## 7. Repo contracts (config and data files)
 
 Proposed file formats. Keep the pipeline **target-agnostic**: a new target must only require a new profile file.
+
+Paths: config files in `data/config/` (owner Rocco: `weights.yaml`, `analogs.csv`, `targets/<target>.yaml`, `minerals.yaml`, `texts.yaml`); app exports in `data/export/<target>/` (owner Edo, read by the app). Changes to the export format go in `clipboard/findings.md` (AGENTS.md rule).
 
 **`weights.yaml`** — preset (dimension) weights and fixed sub-feature weights (owner: Rocco)
 
@@ -257,8 +287,9 @@ Placeholder presets (Rocco to replace):
 | Rover mobility | 0.40 | 0.15 | 0.15 | 0.10 | 0.15 | 0.05 |
 | Mineral resources (ISRU) | 0.10 | 0.10 | 0.15 | 0.40 | 0.05 | 0.20 |
 | Astrobiology | 0.05 | 0.20 | 0.30 | 0.25 | 0.05 | 0.15 |
+| Construction | 0.35 | 0.20 | 0.10 | 0.15 | 0.10 | 0.10 |
 
-**`analogs.csv`** — known-analog catalog, the answer key (owner: Rocco). Include 3–5 true negatives (rainforests).
+**`analogs.csv`** — known-analog catalog, the answer key (owner: Rocco). Start from the USGS Known Terrestrial Analog Sites layer (link in `clipboard/findings.md`). Include 3–5 true negatives (rainforests).
 
 ```csv
 name,lat,lon,radius_km,body,target,analog_for,source_url
@@ -268,50 +299,69 @@ name,lat,lon,radius_km,body,target,analog_for,source_url
 
 **Mineral classes** (owner: Rocco) — ~8 shared classes (e.g. basalt/olivine, clays, carbonates, sulfates, iron oxides, anorthosite) and how EMIT, the lithology map and CRISM map into them.
 
-**Pipeline outputs** (owner: Edo) — `features.parquet` (cell × ~20 sub-features), per-target per-dimension scores per cell, fitted weights, site list with novelty flag.
+**Pipeline outputs** (owner: Edo) — internal: `features.parquet` (cell × ~20 sub-features). For the app, in `data/export/<target>/`:
+
+- `scores.csv`: one row per H3 cell, `h3,terrain,thermal,aridity,composition,dust,ice`, each 0–255, empty = no data
+- `sites.json`: candidate sites (id, lat, lon, H3 cells, dimension scores, total, `new` flag)
+- `target.json`: target profile and the "breaks down" gaps
+- `weights.json`: presets and fitted weights
+- twist outputs, added here once the twist is chosen
+
+A small test export is due Sat 18:00 so the app can start on real files.
 
 ## 8. Roles
 
 | Who | Owns | Delivers |
 | --- | --- | --- |
-| Rocco (nanotech engineering) | Physics of the analogy | Target profiles with citations; mineral-class mapping; known-analog catalog; "breaks down" text; "what you could test here" ideas (materials, dust, ISRU); science part of the pitch |
-| Edo (ML) | Backend, features, scoring, weight fitting | Feature pipeline for Earth and targets; per-dimension scoring; weight fitting; validation numbers; candidate site list |
-| Timoteo (software) | Data infrastructure and app | Data downloads and storage; tile generation; map app and Analog Card UI; deployment; demo video |
-| Possible 4th member | Depends on skills | GIS / remote sensing: help Edo with the pipeline. Design: help Timoteo with UI and pitch visuals |
+| Rocco (nanotech engineering) | Physics of the analogy | Target profiles with citations; mineral-class mapping; known-analog catalog; "breaks down" text; "what you could test here" ideas (materials, dust, ISRU); twist content; report, the 7 demo slides and the science part of the pitch |
+| Edo (ML) | Data pipeline, features, scoring, weight fitting | Data downloads; feature pipeline for Earth and targets; per-dimension scoring; weight fitting; validation numbers; candidate site list; export files for the app (§7); twist computation |
+| Timoteo (software) | App, demo and deploy | Map app and Analog Card UI; spaceship intro and twist UI; deployment; ≤30 s demo video; project page and submission |
+
+The whole team picks the twist by Sat 17:00 (§1b).
 
 **Rocco's deadlines**
 
-- [ ] Sat 18:30 — Known-analog catalog (`analogs.csv`), with negatives
+- [ ] Sat 18:30 — Known-analog catalog (`analogs.csv`, starting from the USGS layer), with negatives
 - [ ] Sat 22:00 — Jezero target profile
 - [ ] Sat 22:00 — Preset weights
 - [ ] Sat 22:00 — Sub-feature weights
 - [ ] Sat 23:30 — Mineral classes
 - [ ] Sun 10:00 — Sanity check of fitted weights and top sites
+- [ ] Sun 14:30 — Report and the 7 slides
 
-## 9. Timeline (Sat 15:30 – Sun 17:00)
+## 9. Timeline (official Turin schedule)
 
-~25 hours, ~19 working after dinner and 6 h sleep. MVP = **Jezero only**. Rule: a ranked map before anyone sleeps. If a gate slips by more than 2 hours, cut scope in the order listed in Risks.
+Turin event page: reception Sat 13:00, team composition 14:30, intro 15:00, **hacking starts Sat 16:00**, dinner 20:00–21:00, breakfast Sun 09:00, lunch 13:00, finalization phase 15:00, **submission deadline Sun 16:00**, **pitch session 16:15**, awards 17:30. The page lists its timezone as "Greenwich": confirm at the 15:00 intro that these are Rome times. The global deadline in the Submission Guide (Sun 23:59 local time) is later, but the local one binds us.
+
+24 hours of hacking, ~16 working after meals and 6 h sleep. MVP = **Jezero only**. Rule: a ranked map before anyone sleeps. If a gate slips by more than 2 hours, cut scope in the order listed in Risks.
+
+**Submission requirements** (Project Submission Guide): project page (name, summary, details, NASA data used, partner data and references, AI use); a demo that is **either 7 slides (title included) or a video of 30 seconds or less** (over the limit = out of global judging); a public link to the final project, no login; at least one NASA dataset.
 
 **Gates**
 
 | Gate | When |
 | --- | --- |
+| Twist chosen (§1b) and map engine chosen (§6) | Sat 17:00 |
+| Test export in `data/export/` (§7) | Sat 18:00 |
 | Vertical slice (2 dimensions end-to-end on the map) | Sat 20:00 |
 | First ranked map (all available dimensions, Jezero) | Sun 01:00 |
-| Feature freeze | Sun 12:00 |
-| Submit (deadline assumed 17:00) | Sun 16:30 |
+| Feature freeze | Sun 11:00 |
+| Submitted ("Submit for Judging") | Sun 15:30 |
+| Deadline / pitch | Sun 16:00 / 16:15 |
 
-| When | Edo: backend and scoring | Timoteo: data infra and app | Rocco: physics and content |
+| When | Edo: data, scoring, ML | Timoteo: app, demo, deploy | Rocco: physics and content |
 | --- | --- | --- | --- |
-| **Sat 15:30–16:30** Kickoff | Agree on scope; set up Python env and H3 grid | Create repo; Earthdata and Copernicus logins working | Start known-analog catalog |
-| **Sat 16:30–20:00** Data + vertical slice | Terrain and aridity features; percentile scoring vs rough Jezero target | Download scripts for coarse global products; map app drawing H3 cells from a test file | Finish catalog by 18:30 (with negatives); then Jezero profile |
-| **Sat 20:00–20:45** | Dinner | Dinner | Dinner |
-| **Sat 20:45–01:00** Full scoring | Add thermal and composition, then dust and ice if data ready; geometric mean with preset weights | Heat-map layer; target and preset selector; weight sliders recomputing in browser | Preset and sub-feature weights by 22:00; mineral classes by 23:30; text templates for "breaks down" and "what to test" |
-| **Before sleep** | Start leave-one-site-out and robustness runs overnight | Push a working build | Hand over all config files |
+| **Sat 13:00–16:00** On site: reception, team confirmation, intro (prep only) | Python env; Earthdata and Copernicus logins working; list of download links | Map keys (Cesium ion, Maps) in `.env`; Space Apps project page created | Note on-site info (challenge updates, pitch format, timezone); get the USGS known-analog layer |
+| **Sat 16:00–17:00** Kickoff | H3 grid; start coarse downloads (DEM, NDVI, rainfall) | Map engine prototype, decision by 17:00 | Start `analogs.csv`. **All: pick the twist by 17:00** |
+| **Sat 17:00–20:00** Data + vertical slice | Terrain and aridity features; percentile scoring vs rough Jezero target; test export by 18:00 | Map drawing H3 cells from the test export; target selector | Finish catalog by 18:30 (with negatives); then Jezero profile |
+| **Sat 20:00–21:00** | Dinner | Dinner | Dinner |
+| **Sat 21:00–01:00** Full scoring + twist | Add thermal and composition, then dust and ice if data ready; geometric mean with preset weights; twist computation | Heat-map layer; preset selector; weight sliders and thresholds in browser; twist UI skeleton | Preset and sub-feature weights by 22:00; mineral classes by 23:30; text templates for "breaks down" and "what to test"; twist content |
+| **Before sleep** | Start weight fitting (random search) and leave-one-site-out overnight | Push a working build | Hand over all config files |
 | **Sun 01:00–07:00** | Sleep | Sleep | Sleep |
-| **Sun 07:00–12:00** ML + app | Fit weights (random search); read overnight validation; negative controls; extract top sites, flag new ones | Analog Card UI (radar chart, strong / breaks-down lists, images); first deploy by 12:00 | Sanity-check weights and top sites by 10:00; pick 3 best new candidates; gather Earth vs Mars images. Stretch: Artemis profile |
-| **Sun 12:00–15:30** Polish + pitch | Final numbers and one validation figure; method section of report; bug fixes | Final deploy; record demo video | Write report (2–3 pages) and pitch slides |
-| **Sun 15:30–17:00** Submit | Rehearse together | Submit by 16:30 | Keep 30 min buffer |
+| **Sun 07:00–11:00** ML + app (breakfast 09:00) | Read overnight fit and validation; robustness with the fitted weights; negative controls; top sites, flag new ones; twist outputs | Analog Card UI (radar chart, strong / breaks-down lists, images); twist UI; first deploy by 11:00 | Sanity-check weights and top sites by 10:00; pick 3 best new candidates; gather Earth vs target images. Stretch: Artemis profile |
+| **Sun 11:00–14:30** Polish + materials (lunch 13:00) | Final numbers and one validation figure; method text for report and project page; bug fixes | Final deploy; record the ≤30 s demo video | Report (2–3 pages); the 7 slides, also used for the pitch; project page texts |
+| **Sun 14:30–15:30** Submission | Check numbers and the NASA data list | Fill the project page; test every link in a private window; **submit by 15:30** | Proofread texts and slides |
+| **Sun 15:30–16:15** Pitch | Rehearse together | Rehearse together | Rehearse together |
 
 ## 10. Risks and cuts
 
@@ -323,12 +373,14 @@ The biggest risk is data wrangling eating the whole weekend: coarse global data 
 | Moon/Mars values not comparable to Earth's | Clip targets to Earth's range; state the gap as "breaks down" |
 | ML only rediscovers known sites | Rank on the physics score too; filter cells near known analogs; report honestly |
 | Mineral mapping too hard in time | Fall back to coarse rock classes from the lithology map |
-| Too much scope | Cut in this order: radar dimension → extra Moon targets → image embeddings → weight fitting (the score with preset weights alone is still a full entry) |
+| Too much scope | Cut in this order: radar dimension → extra Moon targets → image embeddings → weight fitting (the score with preset weights alone is still a full entry). The chosen twist is never cut whole: simplify its UI instead |
 
 **Open questions**
 
+- Which twist, or which combination (§1b)? Decide by Sat 17:00.
 - Moon stretch goal: try the Artemis profile on Sunday morning, or skip it?
-- Is a 4th member joining, and with what skills?
+- A 4th member at team composition (Sat 14:30)? If so: GIS help for Edo, or design help for Timoteo.
+- Ask at the 15:00 intro: are the schedule times Rome time, what are the pitch format and length, and who is the Team Owner who submits?
 - Were new datasets added to the challenge Resources tab?
 
 ## 11. Sources

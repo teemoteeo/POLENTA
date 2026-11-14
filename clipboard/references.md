@@ -2,6 +2,8 @@
 
 Direzione: sito d'impatto, interattivo, estetica arcade anni '80. Il menu iniziale è una navicella che vola nello spazio e sceglie tra Luna e Marte, poi si passa alla mappa con i filtri.
 
+Twist candidati che toccano l'esperienza visiva: itinerario del kit (T1), "quanto è marziano casa tua?" (T8), modalità Lunar Lander (T9). Dettagli in `analog-atlas-plan.md` §1b.
+
 Nota sullo stile: una navicella che vola libera e ruota è più vicina ad *Asteroids* (Atari 1979, grafica vettoriale a linee luminose) che a *Space Invaders* (pixel, navicella che si muove solo in orizzontale). Per la transizione verso la Luna, il riferimento naturale è *Lunar Lander* (Atari 1979). Sono ispirazioni di linguaggio visivo, non giochi da ricreare.
 
 ## 1. Strumenti ufficiali (cosa fanno i "seri")
