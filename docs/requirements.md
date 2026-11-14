@@ -3,7 +3,7 @@
 Autore: Timo · 2026-11-14. Raccoglie tutto ciò che è dato come requisito, con la fonte di ogni punto.
 
 Fonti:
-- **[C]** testo ufficiale della challenge (`clipboard/fonti/challenge.txt`)
+- **[C]** testo ufficiale della challenge (`docs/fonti/challenge.txt`)
 - **[W]** welcome di I3P registrato il 14/11 (trascrizione automatica: nomi propri storpiati, due tratti persi)
 - **[S]** slide proiettate al welcome (foto del 14/11)
 - **[G]** Project Submission Guide, già riportata in `AGENTS.md`
