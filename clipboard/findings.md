@@ -93,6 +93,10 @@ Lista completa in `clipboard/references.md`. Aperte nel browser cmux: NASA Trek,
 
 ## Log aggiornamenti
 
+- **2026-11-14 16:40 (Timo):** `clipboard/requirements.md` raccoglie i requisiti da challenge, welcome, slide e Submission Guide. Novità: pitch di 4 minuti cronometrato e tagliato; la struttura di pitch consigliata include Market Size, Business Model e Competition; per l'Impact basta anche "a select few", quindi la nicchia B2B non è penalizzata. Women in Aerospace (Thales Alenia, Argotec) è in giuria.
+
+- **2026-11-14 16:20 (Timo):** ricerca di mercato in `clipboard/ricerca-mercato.md`. Verdetto: nicchia B2B (test di hardware, agenzie, università), con l'education come vista secondaria. La mentor dice che il mercato privato è soprattutto lunare e che il pubblico non ha soldi. Cliente locale: ALTEC (Torino) costruisce un centro di simulazione lunare con regolite e ha un MoU con ispace-Europe (12/10/2026). Thales Alenia e Argotec danno premi speciali. Rischio dati: SRTM copre solo 60N-56S, quindi Islanda e Haughton sono fuori (serve Copernicus DEM).
+
 - **2026-11-14 12:37 (Edo):** documenti allineati al piano `analog-atlas-plan.md`. Orari presi dalla pagina evento di Torino (inizio sab 16:00, deadline dom 16:00, pitch 16:15) e requisiti dalla Submission Guide. Download dati spostati a Edo; formato dei file per l'app in `data/export/`; 10 twist candidati da scegliere sab entro le 17:00.
 - **2026-11-14 12:10:** repo riorganizzata in `data/`, `src/web/`, `src/pipeline/`, `clipboard/`. In `AGENTS.md` ogni agent identifica il membro via `git config user.name` e scrive solo nel suo scope (frontend = Timo, pipeline = Edo, `data/` = Edo e Rocco, `clipboard/` = tutti).
 - **2026-11-14 02:40:** provata la demo Sandcastle "Google Photorealistic 3D Tiles" (https://sandcastle.cesium.com/?id=google-photorealistic-3d-tiles): città 3D come Google Earth, zoom fluido, gira **via Cesium ion** (attribuzione "Cesium ion · Google Maps"). Quindi probabilmente basta il token ion, senza chiave Google. Da confermare col nostro token.
