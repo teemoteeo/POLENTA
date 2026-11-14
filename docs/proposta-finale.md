@@ -17,8 +17,9 @@ Legenda: ✅ = fonte NASA o portale ufficiale della challenge · ➕ = fonte est
 | Coming soon | ISRU/anortosite, trivella |
 | **Dati lunari** (set minimo di Rocco) | **LOLA, Diviner, LEND, LROC, GRAIL** incrociati |
 | Dati della Terra | dati NASA come base (NASADEM, ASTER GDEM, MODIS, VIIRS, MERRA-2), elaborati su **Google Earth Engine** |
-| Fonti esterne ammesse | **SoilGrids**, **GVP + Earth Impact Database**, **Google Earth Engine** (piattaforma) |
-| Non ammesse, per ora | Natura 2000 / WDPA, ArcticDEM, Copernicus DEM per lo zoom (vedi §17: senza aree protette il pilastro "permessi" si indebolisce) |
+| Fonti esterne ammesse | **SoilGrids**, **GVP + Earth Impact Database**, **WDPA** (aree protette, via GEE; decisa alle 19:50), **Google Earth Engine** (piattaforma) |
+| Vento | `wind_10m` da MERRA-2 su GEE, nel dossier dei test di volo (decisa alle 19:50) |
+| Non ammesse, per ora | ArcticDEM, Copernicus DEM per lo zoom |
 | Parametri e pesi | `data/config/params.csv` e `data/config/tests.yaml` v0 (Timo); i pesi li corregge Rocco |
 
 ## 1. In una frase
@@ -50,7 +51,7 @@ Fonti: `test-aziende.md`, `requisiti-test.md`, `mercato.md`.
    - **combacia / si rompe** (`s < 0,3`, più i limiti `indoor` del test);
    - **struttura indoor** che chiude ciascun buco;
    - flag **nuovo**;
-   - dossier: mesi senza neve, accesso (luci notturne), vento;
+   - dossier: mesi senza neve, accesso (luci notturne), aree protette (WDPA), vento (per il volo);
    - immagini Terra (Sentinel-2) e Luna (LROC) affiancate;
    - fonti dei dati.
 5. **Vista benchmark** (anche slide del pitch): matrice 9 siti × 3 test, con miglior sito naturale e struttura indoor per ogni casella.
@@ -71,7 +72,7 @@ Nel campione dei repo di Space Apps 2026 (~47 sugli analoghi, ricerche delle 17:
 1. **Copertura natura → strutture indoor.** Ogni buco dell'analogia richiama la struttura che lo chiude: "il terreno te lo dà questo sito; il vuoto e la luce a 1,5–7° no (il letto di ALTEC ha le luci a ~8°): per quelli vai lì".
 2. **La scelta reale di TAS-I rifatta.** Validiamo su una decisione industriale vera: Piano delle Concazze e Cisternazza devono uscire in alto.
 3. **Il campo di crateri naturale per i voli di test,** al posto di quelli costruiti.
-4. **Il dossier di campagna:** stagione, accesso, vento. È più debole senza le aree protette (§17).
+4. **Il dossier di campagna:** stagione, accesso, aree protette, vento. Attacca il dolore vero di TAS-I: 4-5 mesi di permessi per l'area Natura 2000 dell'Etna.
 
 ## 5. Clienti e giudici
 
@@ -95,10 +96,18 @@ Regole comuni: `tau 0.1`, `eps 0.01`, `break_below 0.3`.
 | Test | Stato | Pesi | Filtri | Indoor (copertura) | Validazione |
 |---|---|---|---|---|---|
 | `rover_mobility` | **MVP** | `slope_p90` 0,30 · `roughness` 0,15 · `grain_proxy` 0,15 · `rock_cover` 0,10 · `bulk_density` 0,10 · `low_sun_frac` 0,10 · `crater_density` 0,05 · `rock_class` 0,05 | `ndvi < 0,1`, `slope_p90 ≥ 15` | gravità 1/6, vuoto, polvere elettrostatica | `etna_piano_concazze`, `etna_cisternazza` (+ Teide, SFVF, Meteor Crater) |
-| `flight_hda_lidar` | **MVP** | `crater_density` 0,30 · `rock_cover` 0,25 · `slope_p90` 0,20 · `roughness` 0,15 · `albedo` 0,05 · `rock_class` 0,05 | `ndvi < 0,1` | gravità 1/6, getto del motore nel vuoto, vuoto | `cinder_lake`, ~~`ksc_alhat_field`~~ → **proposta: `rogers_lakebed`** (il campo di KSC è costruito e i dati satellitari non lo vedono) |
+| `flight_hda_lidar` | **MVP** | `crater_density` 0,30 · `rock_cover` 0,25 · `slope_p90` 0,20 · `roughness` 0,15 · `albedo` 0,05 · `rock_class` 0,05 | `ndvi < 0,1` | gravità 1/6, getto del motore nel vuoto, vuoto | `cinder_lake`, ~~`ksc_alhat_field`~~ → **proposta: `death_valley`** (vedi la nota sotto la tabella) |
 | `flight_trn_camera` | **MVP** | `low_sun_frac` 0,30 · `albedo` 0,20 · `crater_density` 0,20 · `roughness` 0,15 · `slope_p90` 0,10 · `rock_class` 0,05 | `ndvi < 0,1` | gravità 1/6, vuoto | `death_valley`, `mojave` |
 | `eva_traverse` | **anteprima** | `slope_p90` 0,30 · `low_sun_frac` 0,20 · `roughness` 0,15 · `rock_class` 0,15 · `grain_proxy` 0,10 · `rock_cover` 0,10 | `ndvi < 0,1`, `slope_p90 ≤ 25` | gravità 1/6, vuoto, polvere, PSR criogeniche | `sf_volcanic_field`, `black_point_lava_flow` |
 | `isru_anorthosite` | coming soon | (in `tests.yaml`, non calcolato) | — | — | — |
+
+**Perché togliere `ksc_alhat_field` dalla validazione.** È un campo di crateri **costruito** (~100×100 m sulla pista di atterraggio di KSC, Florida). La validazione chiede che il sito esca in alto nei dati satellitari, ma:
+1. a 1 km e su celle H3 da ~250 km² un campo da un ettaro non si vede;
+2. intorno ci sono zone umide e vegetazione, quindi la cella viene scartata dal filtro `ndvi < 0,1`.
+
+Fallirebbe sempre, e ci farebbe credere che i pesi siano sbagliati quando non lo sono. I campi costruiti (KSC, LSPG a Mojave, Huailai, Challakere) vanno invece in `facilities.csv`, con `covers: constructed_hazard_field`: sono strutture, e fanno parte della copertura.
+
+Al loro posto, **Death Valley**: naturale, usata da Astrobotic (LSPG) e dal Lander Vision System proprio per TRN e HDA. Rogers Lakebed, che avevo proposto prima, non va bene: è un lago secco piatto e ALHAT ci aveva **posato** gli ostacoli, quindi avrebbe crateri e rocce bassi.
 
 **Perché questi pesi** (dettaglio in `requisiti-test.md` e `test-aziende.md`):
 - **rover:** 20° è il requisito di TAS-I e NASA; rocce ≥ 0,2-0,3 m; regolite fine.
@@ -115,11 +124,55 @@ Servono a riempire `data/config/targets/artemis.csv`, uno per sito, e la card lu
 | Strumento | Prodotto (PDS) | Cosa ricaviamo | Parametro | Note |
 |---|---|---|---|---|
 | **LOLA** (altimetro laser) | DEM polari ad alta risoluzione ⚠ (5-20 m/px a sud di 80°S); riflettanza a 1064 nm; mappe di illuminazione polare ⚠ | pendenze e rugosità **ricampionate alla baseline della Terra**; albedo; quota; frazione di luce | `slope_p90`, `roughness`, `albedo`, `low_sun_frac`, `elevation_m` | la base del terreno; `low_sun_frac` ≈ 1 al Polo Sud |
-| **Diviner** (radiometro) | prodotti polari (temperature massime e medie); abbondanza di rocce ⚠; parametro H della regolite ⚠ | temperature; rocce in superficie; densità e inerzia termica della regolite | `t_min_c`, `t_max_c`, `rock_cover`, `grain_proxy`, `bulk_density` | un altro team non ha trovato l'abbondanza di rocce scaricabile: piano B = rugosità LOLA + conteggi LROC |
+| **Diviner** (radiometro) | prodotti polari (temperature massime e medie); abbondanza di rocce ⚠; parametro H della regolite (mappe solo a ±70°) | temperature; rocce in superficie; profilo di densità della regolite (H ~7 cm medio) | `t_min_c`, `t_max_c`, `rock_cover`, `grain_proxy`, `bulk_density` | un altro team non ha trovato l'abbondanza di rocce scaricabile: piano B = rugosità LOLA + conteggi LROC. H non copre i siti Artemis: per loro il profilo standard (vedi sotto) |
 | **LROC** (camere NAC e WAC) | immagini NAC (~0,5 m); mosaici WAC; DTM NAC dove esistono ⚠ | conteggi di crateri e massi sui siti demo (o dalla letteratura); immagini della card | `crater_density`, `rock_cover` | i crateri 10-100 m si vedono solo qui |
 | **LEND** (neutroni) | mappe dell'idrogeno polare ⚠ | idrogeno, cioè possibile ghiaccio vicino | `h_wt_pct` (card) | serve alla trivella (coming soon) e alla card |
-| **GRAIL** (gravità) | modelli di gravità e densità della crosta | densità e porosità della crosta sotto il sito (scala chilometrica) | `grail_density` (card) | **non ha un parametro terrestre corrispondente**: va solo nella card come caratterizzazione del sito (§17) |
+| **GRAIL** (gravità) | modelli di gravità e densità della crosta | densità (2550 kg/m³ negli altopiani) e porosità (~12%) della crosta sotto il sito | `grail_density` (card) | **non corrisponde a SoilGrids `bdod`**: vedi la nota sotto la tabella |
 | Mappa geologica USGS (➕, già in `data/raw/lunar_geology/`) | `GeoUnits.shp` | unità geologica → classe terrestre (anortosite, breccia da impatto) | `geo_unit`, `rock_class` | |
+
+**GRAIL e SoilGrids: la verifica** (14/11, 19:50, fonti consultate con il browser):
+- **GRAIL** misura la densità media dell'**intera crosta**: 2550 kg/m³ negli altopiani, porosità ~12%, su decine di km di spessore (Wieczorek et al., *Science* 2013; LPSC 2013: "an average over the entire crust").
+- **SoilGrids `bdod`** è la densità della **frazione fine del suolo** (< 2 mm), in cg/cm³, su 6 profondità da 0-5 a 100-200 cm (ISRIC).
+
+Stessa grandezza, cioè densità apparente, ma su materiale e scala diversi: roccia fratturata su km contro suolo nei primi 2 m. Il confronto non regge, e un giudice di geofisica lo noterebbe.
+
+Il **corrispondente giusto di `bdod`** è il profilo della **regolite** misurato nei carotaggi Apollo (Carrier, *Lunar Sourcebook*): 1,30 g/cm³ in superficie, 1,52 a 10 cm, 1,83 a 100 cm, ~1,92 sotto. Proposta: confrontare `bdod` a 0-5, 30-60 e 100-200 cm con quel profilo. Le profondità di SoilGrids lo permettono, e diventa un confronto del **profilo**, non di un solo numero.
+
+GRAIL resta nella card, come caratterizzazione del sottosuolo del sito Artemis (porosità, crosta fratturata): non ha un parametro terrestre nei nostri dati.
+
+**Si può filtrare GRAIL ai primi 2 m? No** (verificato alle 20:00):
+- **Risoluzione:** il modello migliore, GRGM1200A (grado 1200), arriva a blocchi di ~4,5-5 km (NASA PGDA; LPSC 2016).
+- **La gravità somma tutto:** il segnale integra tutte le masse sotto il satellite, e l'inversione non può assegnare una massa a una profondità precisa.
+- **Il segnale è minuscolo:** uno strato di 2 m con contrasto di ~0,7 g/cm³ vale ~0,06 mGal (stima: 2πGΔρh). Se lo strato è uniforme, è solo una costante e non si vede.
+
+**Cosa dà i primi metri sulla Luna:**
+- **Parametro H di Diviner** (LRO, ✅): è la profondità di e-folding del profilo di densità. La regolite va da **1100 kg/m³ in superficie a 1800 kg/m³ a 1 m**, con H medio di ~7 cm (Hayne et al., *JGR* 2017; mappe a 128 pixel/grado). **Limite:** le mappe coprono solo **±70° di latitudine**, quindi non i siti Artemis (84-90°S).
+- **Carote Apollo** (misure in situ, siti equatoriali): 1,30 → 1,92 g/cm³ nel primo metro.
+
+**Quindi, per i siti Artemis:**
+- `bulk_density` è un profilo standard (Hayne/Apollo), uguale per tutti e 9, dichiarato come tale.
+- Sulla Terra si confronta con SoilGrids `bdod` a 0-5, 30-60 e 100-200 cm.
+- Non distingue tra i siti Artemis, ma distingue i siti terrestri, che è quello che serve.
+
+### A cosa servono questi dati: la portanza del suolo
+
+Per il rover, e per l'appoggio dei lander, conta **quanto affonda la ruota e quanto fa presa**: portanza e resistenza al taglio. La rigidità del suolo ne è una parte. Per il volo con lidar e con camera, invece, il suolo conta poco: contano geometria, luce e contrasto.
+
+Da satellite la portanza non si misura: si stima con indicatori.
+
+| Grandezza di terramecanica | Luna (Polo Sud) | Indicatore sulla Terra | Parametro |
+|---|---|---|---|
+| Densità e compattazione con la profondità | profilo Hayne/Apollo (1,1-1,3 → 1,8-1,9 g/cm³ nel primo metro; H ~7 cm) | profilo SoilGrids `bdod`; **proposta:** stimare un "H terrestre" adattando la stessa esponenziale alle 6 profondità di SoilGrids | `bulk_density` |
+| Granulometria | regolite fine, D50 ~60-80 µm [NV] | inerzia termica apparente MODIS; SoilGrids `sand`/`silt`/`clay` | `grain_proxy` |
+| Coesione | 0,1-1 kPa | argilla e umidità (l'umidità dà coesione apparente: sulla Terra "si rompe") | (`clay`: proposta) |
+| Angolo d'attrito | 30-50° | cresce con densità e angolarità; l'angolarità da satellite non si vede ("si rompe") | indiretto da `bulk_density` |
+| Sassi e gradini | rocce ≥ 0,2-0,3 m | SoilGrids `cfvo`, rugosità | `rock_cover`, `roughness` |
+| Effetto della gravità | 1/6 g | non si riproduce → rover alleggerito, offload (copertura); terramecanica a 1 g contro 1/6 g (Rocco, facoltativa) | `indoor: gravity_1_6` |
+
+Limiti da dichiarare sulla card:
+- SoilGrids è un modello di **suolo**, debole su roccia nuda, lave giovani e dune attive;
+- la prima profondità di SoilGrids (0-5 cm) è grossolana rispetto a H ~7 cm;
+- i grani terrestri sono arrotondati, quelli lunari taglienti.
 
 **Chi e come:**
 - **Rocco:** compila `artemis.csv` dalla letteratura e dai prodotti pronti (valori, fonte per ogni cella).
@@ -147,13 +200,14 @@ Gli ID del catalogo sono scritti a memoria: **verificarli tutti prima dell'uso**
 | `low_sun_frac` | score | calcolo + neve MODIS ✅ | `MODIS/061/MOD10A1` (neve giornaliera) | frazione delle ore di luce con Sole < 7° nel mese migliore senza neve (pvlib o astropy, in locale per cella) | R T E |
 | `albedo` | score | MODIS `MCD43A3` ✅ | `MODIS/061/MCD43A3` | albedo white-sky a banda larga, mediana annua | H T |
 | `grain_proxy` | score | MODIS `MOD11A2` + `MCD43A3` ✅ | `MODIS/061/MOD11A2` | inerzia termica apparente = (1 − albedo)/(T_giorno − T_notte), mediana dei mesi senza neve | R E |
-| `bulk_density` | score | SoilGrids `bdod` ➕ | `projects/soilgrids-isric/bdod_mean` ⚠ | media 0-5 cm | R |
+| `bulk_density` | score | SoilGrids `bdod` ➕ | `projects/soilgrids-isric/bdod_mean` ⚠ | profilo a 0-5, 30-60 e 100-200 cm, confrontato con il profilo Apollo della regolite (§7) | R |
 | `rock_class` | score | `materials.csv` a mano; ASTER emissività ✅ facoltativa | — | classe da litologia nota; vuoto dove non c'è | R H T E |
 | `ndvi` | filtro | MODIS `MOD13A3` ✅ | `MODIS/061/MOD13A3` | massimo annuo (filtro < 0,1) | tutti |
 | `t_min_c`, `t_max_c` | card | MODIS `MOD11A2` ✅ | `MODIS/061/MOD11A2` | minimo notturno e massimo diurno annui | tutti |
 | `snow_free_months` | dossier | MODIS neve ✅ | `MODIS/061/MOD10A1` | mesi con copertura < 10% | tutti |
 | `night_lights` | dossier | VIIRS Black Marble ✅ | `NASA/VIIRS/002/VNP46A2` ⚠ (in alternativa `NOAA/VIIRS/DNB/ANNUAL_V21`) | media annua | tutti |
-| `wind_10m` (proposta) | dossier | MERRA-2 ✅ | `NASA/GSFC/MERRA/slv/2` | velocità media a 10 m | H T |
+| `protected_area` | dossier | WDPA (UNEP-WCMC) ➕ | `WCMC/WDPA/current/polygons` ⚠ | quota della cella in area protetta; per i top siti, nome e tipo dell'area | tutti |
+| `wind_10m` | dossier | MERRA-2 ✅ | `NASA/GSFC/MERRA/slv/2` (variabili `U10M`, `V10M`) ⚠ | velocità media a 10 m, anche per mese | H T |
 | filtro Italia/Europa | UI | confini nazionali | `USDOS/LSIB_SIMPLE/2017` | paese per cella | tutti |
 | immagini della card | card | Sentinel-2 ✅ | `COPERNICUS/S2_SR_HARMONIZED` | composito senza nuvole sui top siti | tutti |
 
@@ -173,17 +227,23 @@ Gli ID del catalogo sono scritti a memoria: **verificarli tutti prima dell'uso**
 
 **Scala:** le pendenze dipendono dalla risoluzione, quindi Terra e Luna vanno confrontate alla stessa baseline. Rocce da 0,3 m e crateri da 10 m non si vedono a 30-90 m: si usano proxy, dichiarati.
 
+**Filtri sui pixel, non sulle celle.** Una cella H3 da ~250 km² attorno all'Etna o a Cinder Lake contiene anche boschi e paesi: con la mediana della cella, il filtro `ndvi < 0,1` la scarterebbe, e con lei i siti di validazione. Quindi:
+1. i filtri si applicano ai **pixel da 1 km**;
+2. i parametri della cella si calcolano **solo sui pixel che passano i filtri**;
+3. si salva anche la quota di pixel validi (`valid_share`), che misura l'area utile;
+4. la validazione guarda la cella che contiene il sito noto, calcolata così.
+
 ## 10. File e contratti
 
 **Config (`data/config/`, scritti a mano):**
 
 | File | Stato | Contenuto | Chi | Entro |
 |---|---|---|---|---|
-| `params.csv` | v0 | aggiungere `wind_10m` (dossier), `h_wt_pct` e `grail_density` (card) | Timo, Rocco | sab 22:30 |
-| `tests.yaml` | v0 | rivedere i pesi; `ksc_alhat_field` → `rogers_lakebed` | Rocco | sab 22:30 |
+| `params.csv` | v0 | aggiungere `wind_10m` (dossier), `h_wt_pct` e `grail_density` (card), `valid_share`; `protected_area` da stretch a MVP | Timo, Rocco | sab 22:30 |
+| `tests.yaml` | v0 | rivedere i pesi; `ksc_alhat_field` → `death_valley` | Rocco | sab 22:30 |
 | `targets/artemis.csv` | da fare | 9 siti (§7) | Rocco + Edo (LOLA) | 1 sito per le 22:30, 9 per le 01:00 |
-| `facilities.csv` | da fare | `name,lat,lon,type,simulant,covers,url`: LUNA, ALTEC (MTS e centro lunare), SLOPE, KSC Swamp Works, Ames Lunar Lab, Langley (sfera a vuoto), Marshall (Flat Floor e camera), DLR LAMA, Huailai, Astrobotic LSPG, ESTEC (TVAC e vibrazioni), Argotec (TVAC), NBL, ARGOS, Chamber B, Novespace | Rocco, aiuta Timo | dom 01:00 |
-| `known_sites.csv` | da fare | `name,lat,lon,test,campaign,source`: gli id di `tests.yaml` + Teide, Meteor Crater, Rogers Lakebed | Rocco | dom 01:00 |
+| `facilities.csv` | da fare | `name,lat,lon,type,simulant,covers,url`: LUNA, ALTEC (MTS e centro lunare), SLOPE, KSC Swamp Works, Ames Lunar Lab, Langley (sfera a vuoto), Marshall (Flat Floor e camera), DLR LAMA, ESTEC (TVAC e vibrazioni), Argotec (TVAC), NBL, ARGOS, Chamber B, Novespace; campi di crateri costruiti (KSC/ALHAT, Astrobotic LSPG, Huailai, Challakere) con `covers: constructed_hazard_field` | Rocco, aiuta Timo | dom 01:00 |
+| `known_sites.csv` | da fare | `name,lat,lon,test,campaign,source`: gli id di `tests.yaml` (con `death_valley` al posto di `ksc_alhat_field`) + Teide, Meteor Crater | Rocco | dom 01:00 |
 | `materials.csv` | da fare | `name,lat,lon,rock_class,evidence_url` (per `rock_class`) | Rocco | dom mattina |
 
 **Export (`data/export/`, pipeline):**
@@ -209,6 +269,8 @@ Chi cambia un contratto lo scrive in un suo file in `docs/` e lo dice a Rocco (r
 
 `data/interim/` va aggiunto a `.gitignore`, come `data/raw/`.
 
+**Ispirazione:** `docs/reference-codice.md` (Timo) raccoglie il codice di repo simili. Prima di riusare codice va controllata la licenza: senza licenza si studia ma non si copia, come per `2005-Citadel`. Il codice riusato va elencato nella submission.
+
 ## 12. App (Timo, `src/web/`)
 
 Schermate del §3. Stack di `requirements-tecnici.md` §7: React, deck.gl `H3HexagonLayer` su MapLibre, statica, senza backend.
@@ -229,7 +291,7 @@ Componenti:
 | Test | Prova | Soglia proposta |
 |---|---|---|
 | rover | Piano delle Concazze e Cisternazza nel 5% migliore delle celle, per il sito Artemis più simile | se fallisce: controllare scala e pesi, e dirlo comunque |
-| volo lidar | Cinder Lake e Rogers Lakebed in alto | idem |
+| volo lidar | Cinder Lake e Death Valley in alto | idem |
 | volo camera | Death Valley e Mojave in alto | idem |
 | EVA (anteprima) | SFVF e Black Point | solo indicativo |
 | tutti | foreste pluviali (Amazzonia, Congo, Borneo) in basso | mediana sotto il 50° percentile |
@@ -281,14 +343,18 @@ Componenti:
 - [ ] demo: 7 slide **oppure** video ≤ 30 s;
 - [ ] link pubblici senza login (app e repo);
 - [ ] dati NASA elencati: NASADEM, ASTER GDEM, MODIS (`MOD44W`, `MOD13A3`, `MOD11A2`, `MCD43A3`, `MOD10A1`), VIIRS, MERRA-2, LRO (LOLA, Diviner, LEND, LROC), GRAIL;
-- [ ] fonti esterne dichiarate: SoilGrids, GVP, Earth Impact Database, mappa geologica USGS, Google Earth Engine (piattaforma);
+- [ ] fonti esterne dichiarate: SoilGrids, GVP, Earth Impact Database, WDPA, mappa geologica USGS, Google Earth Engine (piattaforma), codice di repo terzi riusato;
 - [ ] uso dell'AI dichiarato nel form.
 
-## 17. Decisioni ancora aperte (da chiudere presto)
+## 17. Decisioni
 
-1. **Aree protette.** Senza Natura 2000 / WDPA il pilastro "permessi" (4-5 mesi di TAS-I) si riduce a stagione, accesso e vento. WDPA è già nel catalogo di GEE (`WCMC/WDPA/current/polygons` ⚠): basterebbe ammetterlo e dichiararlo.
-2. **`ksc_alhat_field` → `rogers_lakebed`** in `tests.yaml`.
-3. **`wind_10m`** come dossier per il volo.
-4. **GRAIL:** solo card (densità della crosta), oppure Rocco vede un uso nel punteggio?
+Chiuse alle 19:50:
+1. **Aree protette:** sì, con WDPA via GEE (`protected_area` nel dossier).
+2. **`ksc_alhat_field`:** da sostituire con `death_valley` (motivo nel §6). Da applicare in `tests.yaml`: Rocco o Timo.
+3. **Vento:** `wind_10m` da MERRA-2 su GEE.
+4. **GRAIL:** non corrisponde a SoilGrids (verificato, §7). Resta nella card; `bdod` si confronta con il profilo Apollo della regolite.
+
+Ancora aperte, non urgenti:
+
 5. **Nome del prodotto:** "Analog Atlas" è già preso da un altro team.
-6. **Account GEE:** chi lo apre e con quale progetto Cloud.
+6. **Account GEE:** chi lo apre e con quale progetto Cloud. Serve prima di iniziare la pipeline sui dati reali.
