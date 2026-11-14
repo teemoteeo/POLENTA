@@ -170,7 +170,18 @@ export default function App() {
     busy.current = true
     try { await fn(...a) } finally { busy.current = false }
   }
-  const far = w => ({ ...HOME[w], center: [HOME[w].center[0] - 60, HOME[w].center[1]], zoom: 0.5, pitch: 0 }) // pianeta lontano (prima pagina)
+  // Posa della mappa che ricalca il pianeta a puntini della prima pagina al tempo t: stesso centro e raggio sullo schermo,
+  // stessa faccia verso la camera. Così il pianeta cliccato "diventa" la mappa senza stacco, e al ritorno viceversa.
+  // I numeri vengono da DotPlanet.jsx: giro ogni 9000·2π ms, camera 15° sopra l'equatore, sfera = 0,905 della mezza altezza.
+  const likePicker = (w, t = performance.now()) => {
+    const r = document.querySelector(`.planet[data-w=${w}] .dotplanet`).getBoundingClientRect()
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2, R = (0.905 * 1.18 * r.height) / 2 // 1,18: il globo della mappa in prospettiva appare più piccolo del suo raggio (misurato)
+    return {
+      center: [((((-t / 9000) * 180) / Math.PI) % 360 + 540) % 360 - 180, 15], pitch: 0, bearing: 0,
+      zoom: Math.log2((R * 2 * Math.PI * Math.cos((15 * Math.PI) / 180)) / 512),
+      padding: { left: Math.max(0, 2 * cx - innerWidth), right: Math.max(0, innerWidth - 2 * cx), top: Math.max(0, 2 * cy - innerHeight), bottom: Math.max(0, innerHeight - 2 * cy) },
+    }
+  }
   const over = center => ({ center, zoom: 6.5, pitch: 50, bearing: -20 }) // sopra un sito o un posto
 
   // Cambio di pianeta, uguale nei due versi e specchiato: la camera si allontana e scorre di lato insieme (padding della mappa,
@@ -197,17 +208,19 @@ export default function App() {
 
   // Pianeti ↔ Sito
   const choosePlanet = act(async w => {
+    spinning.current = false
     setWorld(w); setSite(null); setStep('site')
-    map.current.jumpTo(far(w))
+    map.current.jumpTo(likePicker(w))
+    await wait(400) // dissolvenza incrociata a pianeti sovrapposti, poi il pianeta si espande
     await fly({ ...HOME[w], duration: T.planet, easing: OUT })
     spinning.current = true
   })
   const toPlanets = act(async () => { // anche "Ricomincia", da qualsiasi passo: un solo zoom indietro, la mappa sfuma alla fine
     if (step === 'planet') return
-    fly({ ...(world === 'earth' ? { zoom: 0.5, pitch: 0 } : far(world)), duration: T.planet, easing: IN })
-    await wait(T.planet - 600)
+    // da Luna o Marte la mappa si rimpicciolisce fino a ricalcare il suo pianeta della prima pagina; dalla Terra si allontana e sfuma
+    await fly({ ...(world === 'earth' ? { zoom: 0.5, pitch: 0 } : likePicker(world, performance.now() + T.planet)), duration: T.planet, easing: IN })
     setStep('planet'); setSite(null); setTestId(null)
-    await wait(600)
+    await wait(400)
   })
   // Sito ↔ Test
   const chooseSite = act(async s => {
@@ -336,7 +349,7 @@ export default function App() {
 
       <div className={'picker' + (step === 'planet' ? '' : ' off')}>
           {Object.entries(PLANETS).map(([w, p]) => (
-            <button key={w} className="planet" style={{ '--s': p.size }} onClick={() => choosePlanet(w)}>
+            <button key={w} className="planet" data-w={w} style={{ '--s': p.size }} onClick={() => choosePlanet(w)}>
               <DotPlanet dots={dots[w]} color={pal[w + 'Dot']} fill={pal[w]} dot={1.2 + p.size} />
               <b>{p.name}</b><small className="lbl">{p.what}</small>
             </button>
