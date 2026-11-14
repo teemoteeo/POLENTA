@@ -19,20 +19,22 @@ import pandas as pd
 from . import config, features, fine, sites
 from .mock_export import KNOWN_SITES
 
-TESTS = ("rover_mobility", "flight_hda_lidar", "flight_trn_camera", "eva_traverse")   # MVP + EVA in preview
+TESTS = ("rover_mobility", "flight_hda_lidar", "flight_trn_camera", "eva_traverse", "landing_touchdown")
 N_CANDIDATES = 25
 DOSSIER_CACHE = config.INTERIM / "site_dossier.json"
 
 
 # I siti della demo (gli stessi dell'app di Timo, src/web/src/data.js): 3 sulla Luna, 2 su Marte.
-SITES = ("malapert_massif", "haworth", "nobile_rim_1", "phoenix", "gale")
+SITES = tuple(config.slug(n) for n in config.SITES)
 MARS_PLACEHOLDER = {   # SEGNAPOSTO finché Rocco non manda i valori veri (DTM CTX/HiRISE, THEMIS, TES)
     "phoenix": {"name": "Phoenix", "lat": 68.2188, "lon": -125.7492, "world": "mars",
                 "values": {"slope_p90": 3.0, "roughness": 0.8, "crater_density": 0.05, "rock_cover": 0.08,
-                           "low_sun_frac": 0.3, "albedo": 0.2, "grain_proxy": 0.03, "rock_class": "basalt_volcanic"}},
+                           "low_sun_frac": 0.3, "albedo": 0.2, "grain_proxy": 0.03, "rock_class": "basalt_volcanic",
+                           "bulk_density_0_5": 1.2}},
     "gale": {"name": "Gale", "lat": -4.5895, "lon": 137.4417, "world": "mars",
              "values": {"slope_p90": 6.0, "roughness": 1.5, "crater_density": 0.1, "rock_cover": 0.1,
-                        "low_sun_frac": 0.12, "albedo": 0.22, "grain_proxy": 0.04, "rock_class": "sedimentary"}},
+                        "low_sun_frac": 0.12, "albedo": 0.22, "grain_proxy": 0.04, "rock_class": "sedimentary",
+                        "bulk_density_0_5": 1.3}},
 }
 
 
@@ -40,6 +42,8 @@ def load_targets() -> list[dict]:
     """Valori lunari e marziani per sito. Ora: segnaposto (mock per la Luna, MARS_PLACEHOLDER per Marte);
     poi: i valori di Rocco."""
     moon = {t["id"]: {**t, "world": "moon"} for t in json.loads((config.EXPORT / "targets.json").read_text())}
+    for t in moon.values():                  # densità dei primi cm: Apollo ~1,5 g/cm³ nei primi 15 cm (segnaposto)
+        t["values"].setdefault("bulk_density_0_5", 1.5)
     mars = {k: {"id": k, "mock": True, **v} for k, v in MARS_PLACEHOLDER.items()}
     every = {**moon, **mars}
     return [every[s] for s in SITES]
@@ -112,6 +116,8 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         for name in ("benchmark.json", "facilities.json", "known_sites.json"):
             shutil.copy(config.EXPORT / name, out / name)
     files = ["targets.json"]
+    for stale in (out / "sites").glob("*.json"):     # il manifest è la verità: via i file di siti o test tolti
+        stale.unlink()
     (out / "targets.json").write_text(json.dumps(targets, ensure_ascii=False, indent=1), encoding="utf-8")
     for (site, test), d in data.items():
         d["target_source"] = "SEGNAPOSTO: valori provvisori, in attesa dei valori di Rocco"

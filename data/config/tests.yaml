@@ -1,11 +1,11 @@
-# tests.yaml — catalogo dei test (v0, 2026-11-14 19:30)
+# tests.yaml — catalogo dei test (v1, 2026-11-14 23:30)
 #
 # Cos'è: per ogni test che un'azienda vuole fare, quali parametri contano e quanto.
 # La pipeline lo legge per calcolare il punteggio delle celle della Terra, l'app per le card.
 #
 # Come si legge un test:
 #   requisiti   param: peso. I nomi dei param sono quelli di params.csv. I pesi sommano a 1, minimo 0.05.
-#               Il valore da imitare è quello del sito Artemis scelto (artemis.csv), salvo `target` fisso.
+#               Il valore da imitare è quello del sito scelto (3 lunari, 2 marziani: targets.json), salvo `target` fisso.
 #   filtri      condizioni dure: la cella è scartata se non le rispetta.
 #   indoor      cosa la Terra non dà mai: la card propone la struttura di facilities.csv con quel `covers`.
 #   validazione siti noti che devono uscire in alto (known_sites.csv). Se non escono, i pesi sono sbagliati.
@@ -14,6 +14,9 @@
 #   s = exp(-(D/tau)^2) per parametro, D = distanza in percentili terrestri; totale = media geometrica pesata.
 #   Un requisito con s < break_below è "si rompe" e va anche lui nella copertura indoor.
 # Pesi: segnaposto ragionati da docs/requisiti-test.md §3 e docs/finaliste.md. Owner: Rocco.
+# v1 (Edo, 23:30): tutti e 5 i test sono nella demo (niente coming soon, ISRU tolto); filtro NDVI 0,2
+#   (mediana dei mesi senza neve, sul pixel: docs/backend_spec.md sez. E); landing_touchdown nuovo;
+#   ksc_alhat_field → death_valley (campo costruito, la cella H3 lo diluisce: docs/proposta-finale.md §6).
 
 version: 0
 tau: 0.1
@@ -39,7 +42,7 @@ tests:
       crater_density: 0.05
       rock_class: 0.05
     filtri:
-      ndvi: "< 0.1"
+      ndvi: "< 0.2"
       slope_p90: ">= 15"
     indoor: [gravity_1_6, vacuum, electrostatic_dust, soil_density]
     validazione: [etna_piano_concazze, etna_cisternazza]
@@ -58,9 +61,9 @@ tests:
       albedo: 0.05
       rock_class: 0.05
     filtri:
-      ndvi: "< 0.1"
+      ndvi: "< 0.2"
     indoor: [gravity_1_6, plume_vacuum, vacuum]
-    validazione: [cinder_lake, ksc_alhat_field]
+    validazione: [cinder_lake, death_valley]
 
   flight_trn_camera:
     nome: "Volo: navigazione con camera sul terreno"
@@ -76,32 +79,35 @@ tests:
       slope_p90: 0.10
       rock_class: 0.05
     filtri:
-      ndvi: "< 0.1"
+      ndvi: "< 0.2"
     indoor: [gravity_1_6, vacuum]
     validazione: [death_valley, mojave]
 
-  isru_anorthosite:
-    nome: Materiale per ISRU e letti di regolite
-    profilo: isru
-    stato: preview          # solo dopo il gate di dom 01:00
-    cosa_si_testa: trovare roccia sorgente simile agli altopiani del Polo Sud da macinare per vasche e prove di estrazione
-    aziende: [ALTEC (centro lunare), TAS-I (habitat MPH)]
+  landing_touchdown:
+    nome: Contatto del lander con il suolo
+    profilo: lander
+    stato: mvp
+    cosa_si_testa: gambe e piedi del lander, portanza del suolo, erosione e polvere sollevate dal getto del motore (plume-surface interaction)
+    aziende: []   # da completare (Rocco)
+    # 14/11 23:20 (Edo): pesi PROPOSTI, da confermare con Rocco. La portanza vera non è mappata a scala
+    # globale: proxy = densità apparente 0-5 cm (SoilGrids) + grana (inerzia termica) + sassi. Zero
+    # runtime in più: i parametri sono già calcolati per ogni esagono.
     requisiti:
-      rock_class: {peso: 0.60, target: anorthosite}
-      grain_proxy: 0.15
-      bulk_density: 0.10
-      slope_p90: 0.05
-      roughness: 0.05
-      low_sun_frac: 0.05
+      slope_p90: 0.30
+      bulk_density_0_5: 0.25
+      grain_proxy: 0.20
+      rock_cover: 0.15
+      roughness: 0.10
     filtri:
       ndvi: "< 0.2"
-    indoor: [agglutinates, vacuum]
-    validazione: [sithampoondi_anorthosite, lofoten, greenland_anorthosite]
+      slope_p90: "<= 15"
+    indoor: [gravity_1_6, plume_vacuum, vacuum]
+    validazione: []
 
   eva_traverse:
     nome: Tute ed EVA
     profilo: eva
-    stato: coming_soon      # nella UI solo come voce disattivata
+    stato: mvp
     cosa_si_testa: camminare in tuta su pendii fino a 20° entro 2 km dal lander, campionare, lavorare con Sole radente
     aziende: []             # nessuna a Torino fa tute
     requisiti:
@@ -112,7 +118,7 @@ tests:
       grain_proxy: 0.10
       rock_cover: 0.10
     filtri:
-      ndvi: "< 0.1"
+      ndvi: "< 0.2"
       slope_p90: "<= 25"
     indoor: [gravity_1_6, vacuum, electrostatic_dust, cryo_psr]
     validazione: [sf_volcanic_field, black_point_lava_flow]

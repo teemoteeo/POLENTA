@@ -1,4 +1,4 @@
-# Dataset — spec (target: Artemis III, Polo Sud lunare)
+# Dataset — spec (target: 3 siti Artemis III + 2 siti su Marte)
 
 Autore: Edo · aggiornato 2026-11-14 17:45. Prodotto, target e tipi di test sono in `docs/decisioni.md`. Le fonti sono i portali delle risorse ufficiali della challenge (`docs/fonti/resources.txt`).
 
@@ -8,6 +8,30 @@ Autore: Edo · aggiornato 2026-11-14 17:45. Prodotto, target e tipi di test sono
 - **Ancora aperto:** quali tipi di test entrano nell'MVP e come si costruisce il layer materiali dipende dai requisiti dei test delle aziende di Torino (`docs/test-aziende.md`, Rocco).
 
 **Priorità** (gate in `decisioni.md`): `Base` = serve per qualunque tipo di test · `Mobilità` · `Trivella` · `ISRU` = solo se quel test entra nell'MVP · `Card` = solo immagini per la card.
+
+## Aggiornamento sab 23:30: cosa usa davvero la pipeline
+
+Il resto del file è la spec delle 17:45 (scritta a memoria). Questa tabella è quello che gira in `src/pipeline/`, tutto su **Google Earth Engine**, con gli ID verificati. Motivi delle scelte: `docs/backend_spec.md` sez. E.
+
+| Parametro | ID su Earth Engine | Note |
+|---|---|---|
+| terra / acqua | `MODIS/006/MOD44W` | la v061 è vuota |
+| maschera NDVI | `MODIS/061/MOD13A3` | mediana dei mesi senza neve né nuvole (`SummaryQA` ≤ 1) < 0,2 |
+| quota, pendenza, rugosità, crateri | `NASA/NASADEM_HGT/001` + `JAXA/ALOS/AW3D30/V4_1` (sopra 59,5°N) | 500 m su tutto il mondo; 30 m esatti su campione, siti noti e candidati |
+| laghi (fuori dal detector dei crateri) | `JRC/GSW1_4/GlobalSurfaceWater` | presenza d'acqua > 50% |
+| temperature, grana | `MODIS/061/MOD11A2` | min notturno, max diurno; inerzia termica apparente con l'albedo |
+| albedo | `MODIS/061/MCD43A3` | un'immagine ogni 16 giorni |
+| neve per mese | `MODIS/061/MOD10A2` | al posto di `MOD10CM`, che non c'è |
+| sassi, densità del suolo | `projects/soilgrids-isric/cfvo_mean`, `bdod_mean` | fonte esterna (ISRIC), da dichiarare |
+| luci notturne | `NOAA/VIIRS/DNB/ANNUAL_V21` | |
+| aree protette, vento (solo siti finali) | `WCMC/WDPA/current/polygons`, `NASA/GSFC/MERRA/slv/2` | |
+| luce radente | — | calcolata con pvlib |
+
+**Marte (rientrato con 2 siti: Phoenix e Gale).** Valori da trovare (Edo + Rocco), ⚠ da verificare:
+- pendenza, rugosità e crateri a 30 m dai DTM **CTX** (~20 m) o **HiRISE** (~1 m) delle due zone (PDS, USGS Astrogeology). MOLA (~460 m) non basta per la baseline di 30 m;
+- grana: inerzia termica **THEMIS**, confrontata per percentile perché le unità sono diverse dalla nostra;
+- albedo e abbondanza di rocce: **TES**;
+- temperature: Mars Climate Database o REMS (Curiosity) e Phoenix MET.
 
 ## Riepilogo per tipo di test
 
@@ -95,5 +119,5 @@ Autore: Edo · aggiornato 2026-11-14 17:45. Prodotto, target e tipi di test sono
 
 ## Fuori scope
 
-- **Marte** (MOLA, CRISM, THEMIS, TES, HiRISE, MEDA): uscito con Jezero. Spec vecchia nella storia di git (commit `01ce8c5`).
+- **Marte, Jezero e il resto del pianeta:** fuori. Restano solo Phoenix e Gale (sopra). Spec vecchia di Jezero nella storia di git (commit `01ce8c5`).
 - **Fonti fuori dalla lista ufficiale** (Planetary Computer, Meteomatics, OpenStreetMap, GLiM): solo se servono e dichiarate come tali.

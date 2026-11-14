@@ -24,12 +24,12 @@ Legenda: ⚠ = ID o comportamento da verificare alla prima esecuzione.
 
 ## A. Il quadro generale in una pagina
 
-**La domanda a cui risponde il prodotto:** *"Devo fare il test Y per il sito Artemis X. Quali posti sulla Terra gli somigliano di più, in che cosa, e che cosa invece manca?"*
+**La domanda a cui risponde il prodotto:** *"Devo fare il test Y per il sito X (3 sulla Luna, 2 su Marte). Quali posti sulla Terra gli somigliano di più, in che cosa, e che cosa invece manca?"*
 
 La pipeline è un imbuto in sei tappe:
 
 1. **Descrivere la Terra.** Divido la superficie in ~600.000 esagoni da ~250 km² ciascuno. Per ogni esagono calcolo una **carta d'identità**: una manciata di numeri misurati dai satelliti (quanto è ripido, quanto è accidentato, quanta luce radente ha, se c'è vegetazione, quanti crateri, ecc.).
-2. **Descrivere la Luna.** Per ognuno dei 9 siti Artemis compilo la **stessa carta d'identità**, con gli stessi numeri calcolati allo stesso modo, ma dai dati lunari (LOLA, Diviner, …).
+2. **Descrivere la Luna.** Per ognuno dei 5 siti della demo (Luna: Malapert Massif, Haworth, Nobile Rim 1; Marte: Phoenix, Gale) compilo la **stessa carta d'identità**, con gli stessi numeri calcolati allo stesso modo, ma dai dati lunari (LOLA, Diviner, …) e marziani (DTM CTX/HiRISE, THEMIS, TES).
 3. **Confrontare.** Per un test (es. rover) confronto ogni esagono con il sito Artemis, numero per numero. Ogni numero prende un **voto da 0 a 1** (1 = identico). I voti si combinano con i **pesi del test** in un voto totale. Per il rover conta molto la pendenza; per il volo con lidar contano crateri e rocce.
 4. **Trasformare gli esagoni in siti.** Prendo gli esagoni migliori, unisco quelli vicini in "siti", gli do un nome, controllo se sono **nuovi** (lontani dai siti di test già usati), elenco **cosa non torna** e **quale struttura indoor lo copre**, aggiungo le **informazioni pratiche** (stagione, accesso, aree protette, vento).
 5. **Scrivere i file per l'app.** JSON che l'app di Timo legge così come sono.
@@ -59,7 +59,7 @@ La luce dell'Etna "si rompe", e la card dice dove si recupera: luci radenti di A
 | **Rugosità** | quanto il terreno è irregolare a piccola scala: la deviazione standard della quota attorno alla sua media locale |
 | **Esponente di Hurst (H)** | dice come cambia la pendenza al cambiare della baseline. Serve a stimare la pendenza terrestre a 5-20 m, dove non abbiamo dati, partendo da 30-240 m |
 | **NDVI** | indice di vegetazione da satellite (−1…1). Sotto 0,1 vuol dire suolo nudo |
-| **Maschera** | un raster di sì/no che dice quali pixel usare. La nostra: terra emersa **e** NDVI < 0,1 |
+| **Maschera** | un raster di sì/no che dice quali pixel usare. La nostra: terra emersa **e** NDVI mediano dei mesi senza neve < 0,2 |
 | **H3 / cella** | griglia di esagoni della Terra (sistema H3 di Uber). Alla risoluzione 5 ogni cella è ~250 km². Ha un identificativo tipo `851e8053fffffff` |
 | **valid_share** | quota della cella che passa la maschera: quanta area utile c'è |
 | **Google Earth Engine (GEE)** | servizio di Google che contiene i dataset satellitari (MODIS, NASADEM, …) e li elabora **sui suoi server**: io mando la ricetta, lui calcola e mi restituisce il risultato. Niente download di terabyte |
@@ -84,7 +84,7 @@ data/config/ (Rocco) ──┐                                                  
 dataset della Terra ───┼─► (gee_export.py) ───────► raster → celle ► voti ► sites.py ► export.py
  (su Earth Engine)     │                                ▲             ▲           │
                        │   sun.py: tabella luce ────────┘             │           └──► validate.py
-dati lunari ───────────┴─► lunar.py: carta d'identità dei 9 siti ─────┘                (numeri per la slide)
+dati lunari ───────────┴─► lunar.py: carta d'identità dei 5 siti ─────┘                (numeri per la slide)
 ```
 
 | Modulo | Cosa fa, in parole semplici | Legge | Scrive |
@@ -97,7 +97,7 @@ dati lunari ───────────┴─► lunar.py: carta d'identit
 | `grid.py` | crea l'elenco degli esagoni di terra | raster terra/maschera | `cells.parquet` |
 | `sun.py` | calcola una volta sola la tabella "quanta luce radente c'è a ogni latitudine in ogni mese" | — | `low_sun_table.npy` |
 | `features.py` | riempie la carta d'identità di ogni esagono partendo dai raster | raster, tabella luce | `features.parquet` |
-| `lunar.py` | compila la carta d'identità dei 9 siti Artemis dai dati lunari | `artemis.csv`, LOLA | `targets.json` |
+| `lunar.py` | compila la carta d'identità dei 5 siti (3 Luna, 2 Marte) dai dati lunari e marziani | `artemis.csv`, LOLA | `targets.json` |
 | `score.py` | dà i voti: per parametro e totale, per ogni esagono × sito × test | feature, target, `tests.yaml` | voti in memoria |
 | `sites.py` | dagli esagoni migliori ai siti: nome, nuovo/noto, cosa non torna, dossier | voti, `known_sites`, `facilities` | — |
 | `export.py` | scrive i file finali per l'app | tutto | `data/export/` |
@@ -115,8 +115,8 @@ dati lunari ───────────┴─► lunar.py: carta d'identit
 | 3 | Raster del terreno a 30 m + tabella della luce | 22:15 |
 | 4 | Carta d'identità degli esagoni + primo voto (Malapert × rover) | **22:30: primo end-to-end** |
 | 5 | Gli altri raster (albedo, suolo, neve, crateri) | 23:30 |
-| 6 | Carta d'identità dei 9 siti Artemis | 00:15 |
-| 7 | 9 siti × 3 test: voti, siti, copertura | **01:00** |
+| 6 | Carta d'identità dei 5 siti (3 Luna, 2 Marte) | 00:15 |
+| 7 | 5 siti × 5 test: voti, siti, copertura | **01:00** |
 | 8 | Dossier, zoom, immagini | dom 10:00 |
 | 9 | Validazione + EVA in anteprima | **dom 11:00 (freeze)** |
 | 10 | Testi per la submission | dom 14:30 |
@@ -141,6 +141,8 @@ Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue quest
 | 12 | DEM sopra i 60°N | NASADEM con i buchi riempiti da AW3D30 (`unmask`) | **mosaico** AW3D30 sotto e NASADEM sopra | `unmask` non riempie fuori dall'impronta di NASADEM: sopra i 60°N il DEM restituiva **zero pixel**. Il 23% del campione (Scandinavia, Siberia, Canada, Groenlandia) era vuoto. Trovato e corretto alle 22:30; il 500 m nordico e il campione nordico sono stati ricalcolati |
 | 13 | 30 m per tutti gli esagoni | calcolo esatto su tutti (4-10 ore) | **calibrazione** dal 500 m sul campione di 3.000 esagoni (`calibrate.py`), poi **30 m esatti solo per i candidati** e i siti noti | ogni prova del backend richiederebbe ore. Modello: gradient boosting sui logaritmi (tra due scale la pendenza cambia come una legge di potenza, la stessa fisica di Hurst), con ingressi 500 m, quota, latitudine, albedo, temperature, neve e grana. Prima versione: R² 0,90 per la pendenza p90 (errore mediano 1,2°) e 0,87 per la rugosità; una retta tra i logaritmi dava 0,73 e sottostimava di ~6° i pendii sopra 30°. L'errore si misura su esagoni che il modello non ha visto (validazione incrociata a 5 parti) e si dichiara. Le stime servono solo a scegliere i candidati: nelle card e nella classifica finale ci sono i valori esatti (`terrain_src = 30m`) |
 | 14 | Quota di Earth Engine | — | piano **Community** (150 EECU-ore al mese), in **restricted mode** da sabato sera | le prove a 30 m e 90 m hanno esaurito la quota mensile. Earth Engine funziona ancora, con meno richieste in parallelo: il codice ora aspetta e riprova (fino a 2 minuti, 6 tentativi) invece di saltare. Il piano Contributor (1.000 EECU-ore) richiede un account di fatturazione con pagamento anticipato: per ora no. La quota torna il 1° dicembre |
+| 15 | Perimetro della demo | 9 siti Artemis × 3 test MVP + EVA in anteprima + ISRU e trivella coming soon | **5 siti** (Luna: Malapert Massif, Haworth, Nobile Rim 1; Marte: Phoenix, Gale) × **5 test** tutti nella demo: rover, lidar, camera, EVA, touchdown | decisione del team (sab sera): nella demo solo quello che funziona davvero. Gli stessi siti sono nell'app di Timo |
+| 16 | Resistenza del suolo | solo nella card | test **`landing_touchdown`**: pendenza 0,30, densità 0-5 cm 0,25, grana 0,20, sassi 0,15, rugosità 0,10; filtro pendenza p90 ≤ 15° (pesi proposti da Edo, da confermare con Rocco) | serve a gambe del lander e getto del motore sulla regolite. Non esiste una mappa globale della portanza: proxy densità + grana + sassi, da dichiarare. Zero runtime in più: i parametri c'erano già |
 
 **Limiti noti da dichiarare:**
 - **L'Antartide manca:** l'NDVI MODIS non la copre.
@@ -170,7 +172,7 @@ Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue quest
   - `data/raw/gee/`, `data/raw/lola/`, `data/raw/interim/` (dati scaricati e intermedi, fuori da git perché `data/raw/` è ignorato);
   - `data/export/` (file per l'app, che invece vanno su git).
 - **Ambiente Python 3.11** in `src/pipeline/.venv`, che è ignorato da git grazie a `src/pipeline/.gitignore`. Librerie in `src/pipeline/requirements.txt`, una riga per libreria con a cosa serve.
-- **`config.py`:** il pannello di controllo. Contiene i percorsi, le costanti (risoluzione 0,05°, H3 livello 5, baseline 30 m, periodo 2021-2023), i nomi dei 9 siti Artemis e lo `slug` che trasforma "Malapert Massif" in `malapert_massif`, e le funzioni che leggono `tests.yaml`, `params.csv` e il file `.env`.
+- **`config.py`:** il pannello di controllo. Contiene i percorsi, le costanti (risoluzione 0,05°, H3 livello 5, baseline 30 m, periodo 2021-2023), i nomi dei 5 siti della demo (`SITES`; i 9 siti Artemis restano solo per il mock) e lo `slug` che trasforma "Malapert Massif" in `malapert_massif`, e le funzioni che leggono `tests.yaml`, `params.csv` e il file `.env`.
 - **`run.py`:** il pulsante di avvio. Per ora c'è il passo `check`.
 
 ### 1.2 Come si usa
@@ -214,7 +216,7 @@ Oggi passano le prime 3; la 4 aspetta te.
 
 **Perché serve:** Timo può collegare l'app ai file veri da subito, invece di aspettare che i dati veri siano pronti. Quando arrivano i dati veri cambio solo i numeri, non il formato.
 
-**Cosa fai:** scrivi `mock_export.py`, che produce un file per ogni coppia sito Artemis × test (9 × 4 = 36 file), più i file di contorno.
+**Cosa fai:** scrivi `mock_export.py`, che produce un file per ogni coppia sito Artemis × test (9 × 4 = 36 file), più i file di contorno. L'export vero (`export.py`) è 5 siti × 5 test = 25 file, stesso formato.
 
 **Cosa ottieni:** `data/export/` con `sites/*.json`, `targets.json`, `benchmark.json`, `facilities.json`, `known_sites.json`, `manifest.json`.
 
@@ -222,7 +224,7 @@ Oggi passano le prime 3; la 4 aspetta te.
 
 ### 2.1 Come si chiamano le cose
 
-- **Siti Artemis:** `peak_near_cabeus_b`, `haworth`, `malapert_massif`, `mons_mouton_plateau`, `mons_mouton`, `nobile_rim_1`, `nobile_rim_2`, `de_gerlache_rim_2`, `slater_plain`.
+- **Siti della demo:** Luna `malapert_massif`, `haworth`, `nobile_rim_1`; Marte `phoenix`, `gale`. (Il mock usava i 9 siti Artemis: `peak_near_cabeus_b`, `haworth`, `malapert_massif`, `mons_mouton_plateau`, `mons_mouton`, `nobile_rim_1`, `nobile_rim_2`, `de_gerlache_rim_2`, `slater_plain`.)
 - **Test:** `rover_mobility`, `flight_hda_lidar`, `flight_trn_camera` (MVP), `eva_traverse` (anteprima).
 - **Nome del file:** `data/export/sites/<sito>__<test>.json`, per esempio `malapert_massif__rover_mobility.json`.
 
@@ -272,8 +274,8 @@ Oggi passano le prime 3; la 4 aspetta te.
 
 | File | Cosa contiene, in parole semplici |
 |---|---|
-| `targets.json` | la carta d'identità dei 9 siti Artemis (valori, fonte di ogni valore, dati per la card: temperature, idrogeno, densità della crosta, unità geologica) |
-| `benchmark.json` | la tabella 9 siti × test: miglior sito, miglior sito nuovo, strutture indoor. È la slide del pitch |
+| `targets.json` | la carta d'identità dei 5 siti della demo (valori, fonte di ogni valore, dati per la card: temperature, idrogeno, densità della crosta, unità geologica) |
+| `benchmark.json` | la tabella 5 siti × 5 test: miglior sito, miglior sito nuovo, strutture indoor. È la slide del pitch |
 | `facilities.json` | le strutture indoor (da `facilities.csv` di Rocco) |
 | `known_sites.json` | i siti di test già usati (da `known_sites.csv`), per i pin sulla mappa |
 | `manifest.json` | il "frontespizio": versione, data, se è mock, elenco dei file, dataset usati con licenza |
@@ -572,7 +574,7 @@ crater_density = n.divide(a)                                  # crateri per km²
 
 ---
 
-## 7. Passo 6 — carta d'identità dei 9 siti Artemis
+## 7. Passo 6 — carta d'identità dei 5 siti (3 lunari, 2 marziani)
 
 **In parole semplici:** compilo per ogni sito Artemis la stessa carta d'identità degli esagoni terrestri, usando i dati lunari alla risoluzione più alta disponibile.
 
@@ -592,7 +594,7 @@ crater_density = n.divide(a)                                  # crateri per km²
 
 **Cosa ottieni:** `data/export/targets.json`, con la fonte di ogni numero.
 
-**Fatto quando:** i 9 siti sono completi; Malapert ha i valori di LOLA calcolati da te.
+**Fatto quando:** i 5 siti sono completi; Malapert ha i valori di LOLA calcolati da te.
 
 **Piano B:** se LOLA è troppo lento, valori dalla letteratura per tutti, dichiarati come tali.
 
@@ -609,7 +611,7 @@ crater_density = n.divide(a)                                  # crateri per km²
 
 ---
 
-## 8. Passo 7 — 9 siti × 3 test
+## 8. Passo 7 — 5 siti × 5 test
 
 **In parole semplici:** per ogni combinazione sito Artemis × test do il voto a tutti gli esagoni, raggruppo i migliori in siti veri e propri, gli do un nome e dico che cosa non torna e dove si recupera.
 
@@ -679,7 +681,7 @@ Per i siti migliori faccio anche uno **zoom** più preciso e prendo un'**immagin
 
 **Cosa ottieni:** `validation.json` + `validation.png` (la figura per la slide 4).
 
-**EVA in anteprima:** stessi passi del §8 con i pesi di `eva_traverse`, senza dossier né validazione (`status: "preview"`).
+**EVA e touchdown:** stessi passi del §8 con i pesi di `eva_traverse` e `landing_touchdown`; sono test pieni della demo (`stato: mvp`).
 
 **Se l'Etna non esce in alto:** si controllano soglie, scala e pesi. Se resta basso lo si dice e si spiega (per esempio con il materiale: basalto contro anortosite). È un risultato anche quello.
 
@@ -699,12 +701,12 @@ Per i siti migliori faccio anche uno **zoom** più preciso e prendo un'**immagin
 | Da chi | Cosa | Entro |
 |---|---|---|
 | **io** | progetto GEE + `earthengine authenticate` + `GEE_PROJECT` nel `.env` (§1.3) | **subito** |
-| Rocco | `artemis.csv`: Malapert per le 22:30, tutti e 9 per le 00:15 | 22:30 / 00:15 |
+| Edo + Rocco | valori dei 5 siti (3 Luna, 2 Marte) per gli 8 parametri del voto + `bulk_density_0_5` (formato: `targets.json`) | 00:15 |
 | Rocco | `known_sites.csv` con coordinate (inclusi Piano delle Concazze e Cisternazza) | 00:15 |
 | Rocco | `facilities.csv` con `covers` = nomi dei parametri e delle voci `indoor` | 00:15 |
 | Rocco | tabella di somiglianza di `rock_class`; `materials.csv` | 00:15 |
-| Rocco | in `tests.yaml`: **EVA in `preview` e ISRU in `coming_soon`** (oggi è al contrario); `ksc_alhat_field` → `death_valley` | 22:30 |
-| Rocco o Timo | in `params.csv`: voci di card `hurst` e `crater_density_small`; AW3D30 in `decisioni.md` | 22:30 |
+| ~~Rocco~~ | ~~`tests.yaml`: stati EVA/ISRU, `ksc_alhat_field`~~ → fatto da Edo alle 23:30 (v1: 5 test tutti nella demo, ISRU tolto, NDVI 0,2); **Rocco conferma i pesi di `landing_touchdown`** | 00:15 |
+| Rocco | `params.csv` aggiornato da Edo (23:30); in `decisioni.md`: 5 siti, 5 test, AW3D30, NDVI 0,2 (vedi sez. E) | 00:15 |
 | Timo | conferma che l'app legge il formato del §2 | dopo il passo 1 |
 
 ## 13. Rischi e piani B

@@ -1,19 +1,23 @@
 param,dimension,unit,tipo,ruolo,luna,terra,terra_ok,stato
-slope_p90,terrain,deg,num,score,DEM polari LOLA ricampionati alla baseline della Terra,NASADEM_HGT / ASTGTM,si,mvp
-roughness,terrain,m,num,score,rugosità LOLA,deviazione standard del DEM dopo detrend,si,mvp
-crater_density,terrain,n/km2,num,score,letteratura o LOLA (crateri 10-100 m),depressioni chiuse nel DEM + Earth Impact Database + vulcani GVP,parziale,mvp
-rock_cover,terrain,frac 0-1,num,score,abbondanza di rocce Diviner o letteratura,SoilGrids cfvo + rugosità; Sentinel-1 solo sui candidati,parziale,mvp
-low_sun_frac,illumination,frac 0-1,num,score,frazione di ore di luce con Sole sotto 7° (≈1 al Polo Sud),calcolata da latitudine e data; mese migliore senza neve,parziale,mvp
+slope_p90,terrain,deg,num,score,Luna: DEM polari LOLA a 30 m; Marte: DTM CTX (20 m) o HiRISE (non MOLA: ~460 m),NASADEM + AW3D30 a 30 m (esatto sui candidati; stima calibrata dal 500 m sul resto),si,mvp
+roughness,terrain,m,num,score,stessa formula sul DEM lunare o marziano: scarto della quota dalla media su 150 m,scarto quadratico della quota dalla media su 150 m (30 m),si,mvp
+crater_density,terrain,n/km2,num,score,stesso detector sul DEM a 30 m (LOLA; CTX/HiRISE per Marte),conche entro 300 m almeno 20 m sotto il bordo; gruppi connessi contano 1; laghi esclusi (JRC GSW),si,mvp
+rock_cover,terrain,frac 0-1,num,score,abbondanza di rocce Diviner (Luna) / THEMIS-TES (Marte),SoilGrids cfvo 0-5 cm,parziale,mvp
+low_sun_frac,illumination,frac 0-1,num,score,frazione di ore di luce con Sole sotto 7° (≈1 al Polo Sud lunare),pvlib per latitudine; mese migliore senza neve,si,mvp
 albedo,surface,frac 0-1,num,score,albedo LOLA/LROC,MODIS MCD43A3,si,mvp
-grain_proxy,regolith,ATI normalizzata,num,score,regolite fine (D50 ~60-80 µm),inerzia termica apparente da MOD11A2 + MCD43A3,parziale,mvp
-bulk_density,regolith,g/cm3,num,card,profilo Hayne/Apollo: 1.1-1.3 in superficie → 1.8-1.9 a 1 m (stesso per i 9 siti),SoilGrids bdod a 0-5 / 30-60 / 100-200 cm,parziale,mvp
-rock_class,composition,classe,cat,score,mappa geologica USGS → classe terrestre,materials.csv a mano; ASTER AG100 facoltativo,parziale,preview
-t_min_c,thermal,°C,num,card,Diviner,MODIS MOD11C3,parziale,mvp
-t_max_c,thermal,°C,num,card,Diviner,MODIS MOD11C3,parziale,mvp
+grain_proxy,regolith,ATI,num,score,inerzia termica Diviner / THEMIS: confronto per percentile (unità diverse),inerzia termica apparente da MOD11A2 + MCD43A3,parziale,mvp
+bulk_density,regolith,g/cm3,num,card,profilo Apollo/Hayne: ~1.5 nei primi 15 cm → 1.8-1.9 a 1 m; Marte: Phoenix e Curiosity,SoilGrids bdod a 0-5 / 30-60 / 100-200 cm,parziale,mvp
+bulk_density_0_5,regolith,g/cm3,num,score,densità dei primi cm (Apollo ~1.5; Marte: Phoenix e Curiosity),SoilGrids bdod 0-5 cm (proxy della portanza per landing_touchdown),parziale,mvp
+hurst,terrain,—,num,card,stessa retta sul DEM lunare o marziano,pendenze mediane a 30/60/120/240 m (solo esagoni a 30 m esatti),si,mvp
+low_sun_hours,illumination,h/giorno,num,card,ore al giorno con Sole 0-7°,pvlib; proposta: usarla nel voto al posto di low_sun_frac,si,mvp
+valid_share,surface,frac 0-1,num,filtro,—,quota dell'esagono di terra nuda (maschera NDVI); voto solo se >= 0.05,si,mvp
+rock_class,composition,classe,cat,score,anortosite (altipiani lunari); basalto / sedimentario (Marte),DA DECIDERE: GVP + Earth Impact Database a regole (proposta) o GLiM,no,mvp
+t_min_c,thermal,°C,num,card,Diviner (Luna) / Mars Climate Database,MODIS MOD11A2 (minimo notturno),si,mvp
+t_max_c,thermal,°C,num,card,Diviner (Luna) / Mars Climate Database,MODIS MOD11A2 (massimo diurno),si,mvp
 elevation_m,altitude,m,num,card,—,DEM,si,mvp
-ndvi,surface,-1..1,num,filtro,0 (niente vegetazione),MODIS MOD13A3,si,mvp
-night_lights,access,nW/cm2/sr,num,dossier,—,VIIRS VNP46A4 (vicinanza a strade e paesi),si,mvp
-snow_free_months,access,mesi,num,dossier,—,MODIS MOD10CM,si,mvp
+ndvi,surface,-1..1,num,filtro,0 (niente vegetazione),MODIS MOD13A3: mediana dei mesi senza neve né nuvole < 0.2 sul pixel da 1 km,si,mvp
+night_lights,access,nW/cm2/sr,num,dossier,—,VIIRS DNB annuale (vicinanza a strade e paesi; proxy dell'isolamento e delle comunicazioni),si,mvp
+snow_free_months,access,mesi,num,filtro,—,MODIS MOD10A2 (mese senza neve: copertura < 10%); 0 = ghiaccio permanente escluso,si,mvp
 protected_area,access,bool,bool,dossier,—,WDPA via Google Earth Engine,si,mvp
 wind_10m,access,m/s,num,dossier,—,MERRA-2 slv via Google Earth Engine (U10M/V10M),si,mvp
 uas_zone,access,bool,bool,dossier,—,zone UAS ENAC d-flight / EASA,si,stretch
@@ -22,5 +26,5 @@ vacuum,indoor,—,bool,indoor,vuoto,non riproducibile,no,mvp
 electrostatic_dust,indoor,—,bool,indoor,polvere carica e tagliente,non riproducibile,no,mvp
 plume_vacuum,indoor,—,bool,indoor,getto del motore sulla regolite nel vuoto,non riproducibile,no,mvp
 cryo_psr,indoor,—,bool,indoor,PSR a 40-110 K,non riproducibile,no,stretch
-agglutinates,indoor,—,bool,indoor,agglutinati e ferro nanofase,non riproducibile,no,preview
+agglutinates,indoor,—,bool,indoor,agglutinati e ferro nanofase,non riproducibile,no,fuori demo
 soil_density,indoor,—,bool,indoor,regolite a densità e compattazione note,controllabile solo in vasca di simulante,no,mvp

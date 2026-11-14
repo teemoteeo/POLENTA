@@ -31,7 +31,10 @@ MAX_CELLS_EXPORT = 20_000                 # celle per file nell'export dell'app
 NDVI_THRESHOLD = 0.2
 MASK_NATIVE_M = 1000      # risoluzione dell'NDVI MODIS: la maschera si calcola qui
 
-# I 9 siti candidati di Artemis III, con gli stessi nomi dell'app (src/web/src/data.js)
+# I siti della demo, con gli stessi nomi dell'app (src/web/src/data.js): 3 sulla Luna, 2 su Marte
+SITES = ["Malapert Massif", "Haworth", "Nobile Rim 1", "Phoenix", "Gale"]
+
+# I 9 siti candidati di Artemis III: li usa solo l'export di prova (mock_export.py)
 ARTEMIS_SITES = [
     "Peak near Cabeus B", "Haworth", "Malapert Massif", "Mons Mouton Plateau", "Mons Mouton",
     "Nobile Rim 1", "Nobile Rim 2", "de Gerlache Rim 2", "Slater Plain",

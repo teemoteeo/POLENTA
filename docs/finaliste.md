@@ -2,6 +2,8 @@
 
 Autore: Edo · rev. 6, 2026-11-14 19:05 · proposta da decidere col team, poi Rocco la riporta in `decisioni.md`.
 
+> **Storico (sab 23:30).** Questo documento è servito a scegliere. Il perimetro attuale è in `proposta-finale.md` §0: 5 siti (3 Luna, 2 Marte) × 5 test, tutti nella demo (rover, volo lidar, volo camera, EVA, contatto del lander col suolo); ISRU e trivella fuori.
+
 **Rev. 6:**
 - aggiunto il profilo **atterraggio e volo** (lander, hopper, droni) come secondo profilo, prima di ISRU;
 - i test ambientali sull'hardware di volo (TVAC, vibrazioni) entrano solo nella copertura;

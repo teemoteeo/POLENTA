@@ -34,7 +34,7 @@ def check() -> int:
         w = config.weights(t)
         print(f"   ok  {tid:<18} stato={t.get('stato'):<12} pesi={sum(w.values()):.2f}")
     print(f"   ok  params.csv: {len(config.load_params())} parametri")
-    print(f"   ok  siti Artemis: {', '.join(config.slug(s) for s in config.ARTEMIS_SITES)}")
+    print(f"   ok  siti della demo: {', '.join(config.slug(s) for s in config.SITES)}")
 
     print("3) Cartelle")
     config.ensure_dirs()

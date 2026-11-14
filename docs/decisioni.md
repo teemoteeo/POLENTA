@@ -1,36 +1,69 @@
 # Decisioni — FVG Station
 
-**Fonte unica.** Se un altro file non torna con questo, vale questo. Aggiornato: 2026-11-14 17:40 (riunione del team registrata alle 17:10; gate e correzioni aggiunti da Edo).
+**Fonte unica.** Se un altro file non torna con questo, vale questo. Aggiornato: 2026-11-14 23:30 (perimetro, test e parametri: Edo, con l'OK di Rocco). Prima versione: riunione delle 17:10.
 
 ## Prodotto
 
-- **Cosa:** un tool che dice dove sulla Terra testare hardware lunare. Si parte dal test da fare, non dal target.
+- **Cosa:** un tool che dice dove sulla Terra testare hardware per la Luna e per Marte. Si sceglie un sito e un test; il tool dice dove farlo, quanto è fedele, dove l'analogia si rompe e quale struttura indoor chiude il buco.
 - **Per chi:** le aziende di Torino che testano hardware lunare (B2B). In giuria ci sono Thales Alenia Space e Argotec, che fanno esattamente questo. La UI deve essere comprensibile a chiunque: la versione education (ESA Moon Camp, ESERO) è gratuita e fa da canale.
-- **Target:** le 9 regioni candidate per l'atterraggio di Artemis III al Polo Sud lunare (lista NASA di ott 2024: Peak near Cabeus B, Haworth, Malapert Massif, Mons Mouton Plateau, Mons Mouton, Nobile Rim 1, Nobile Rim 2, de Gerlache Rim 2, Slater Plain; verificare se aggiornata). **Jezero esce.**
-- **Benchmark e pitch:** per ogni sito Artemis e per ogni azienda di Torino, quali test servono e dove farli sulla Terra.
+- **Target (sab 23:30): 5 siti.**
+  - Luna, 3 candidati di Artemis III al Polo Sud: Malapert Massif, Haworth, Nobile Rim 1.
+  - Marte: Phoenix (68,2°N) e Gale (4,6°S).
+  - Gli altri 6 siti Artemis e Jezero escono.
+- **Benchmark e pitch:** matrice 5 siti × 5 test, con il miglior sito sulla Terra e la struttura indoor per ogni casella.
 - **Mappa con tre tipi di punti:**
   - siti naturali per test all'aperto;
   - strutture indoor (LUNA, ALTEC, Moonyard, Astrobotic, PISCES…);
   - sorgenti di materiale (affioramenti e cave).
-- **Il tipo di test imposta i pesi delle dimensioni:**
-  - mobilità → pendenza, rugosità, granulometria;
-  - trivella → ghiaccio, durezza;
-  - ISRU → mineralogia.
-  - MVP proposto: mobilità + ISRU/materiale. Da confermare dopo l'analisi di Rocco.
+- **Test della demo (sab 23:30): 5, tutti funzionanti.** Niente anteprime né coming soon. Il tipo di test imposta i pesi (`data/config/tests.yaml` v1):
+  - `rover_mobility`: rover su pendii, rocce e regolite;
+  - `flight_hda_lidar`: il lidar del lander riconosce i pericoli in discesa (geometria e albedo);
+  - `flight_trn_camera`: camera di navigazione sul terreno con Sole radente;
+  - `eva_traverse`: traversata a piedi degli astronauti;
+  - `landing_touchdown`: gambe del lander, portanza del suolo, getto del motore sulla regolite.
+  - Fuori dalla demo: ISRU e trivella.
 - **Card di ogni risultato:** cosa combacia, cosa no, dove l'analogia si rompe.
 - **Claim sul materiale:** "la roccia sorgente giusta vicino a te", non "un sostituto del simulante". I grani terrestri sono arrotondati, quelli lunari taglienti (lo ha detto la mentor).
+
+## Parametri (sab 23:30)
+
+Per ogni sito serve il valore (o un intervallo min-max) e la fonte, **calcolati con la stessa definizione** usata sulla Terra. Dettagli: `docs/allineamento-edo.md`; motivi tecnici: `docs/backend_spec.md` sez. E.
+
+**Nel voto** (pesi: rover / lidar / camera / EVA / touchdown):
+
+| Parametro | Definizione | Luna | Marte | Pesi |
+|---|---|---|---|---|
+| `slope_p90` | pendenza al 90° percentile, DEM a 30 m | LOLA | DTM CTX o HiRISE | 0,35 / 0,20 / 0,10 / 0,30 / 0,30 |
+| `roughness` | scarto della quota dalla media su 150 m | LOLA | CTX / HiRISE | 0,15 / 0,15 / 0,15 / 0,15 / 0,10 |
+| `crater_density` | conche entro 300 m, ≥ 20 m sotto il bordo, per km² | LOLA | CTX / HiRISE | 0,05 / 0,30 / 0,20 / — / — |
+| `rock_cover` | quota di sassi e massi | Diviner | TES / THEMIS | 0,15 / 0,25 / — / 0,10 / 0,15 |
+| `grain_proxy` | inerzia termica: suolo fine e sciolto contro compatto (confronto per percentile) | Diviner | THEMIS | 0,15 / — / — / 0,10 / 0,20 |
+| `albedo` | quanto riflette la superficie | LROC / LOLA | TES | — / 0,05 / 0,20 / — / — |
+| `low_sun_frac` | quota di luce con il Sole a 0-7° | ~1,0 | da latitudine | 0,10 / — / 0,30 / 0,20 / — |
+| `bulk_density_0_5` | densità dei primi cm (g/cm³) | Apollo ~1,5 | Phoenix, Curiosity | — / — / — / — / 0,25 |
+| `rock_class` | tipo di roccia | anortosite | basalto, sedimentario | 0,05 / 0,05 / 0,05 / 0,15 / — |
+
+**Fuori dal voto** (card e "dove si rompe"): temperature, profilo di densità 0-2 m, quota, atmosfera (vento per i siti finali), comunicazioni (luci notturne come proxy dell'isolamento), mesi senza neve, Hurst, aree protette. Sulla Luna e su Marte questi valori sono uguali per tutti i siti terrestri o non confrontabili, quindi non cambiano la classifica.
+
+**Gap indoor fissi:** gravità 1/6, vuoto, polvere elettrostatica, getto del motore nel vuoto.
+
+**Dati della Terra:**
+- tutto su Google Earth Engine; dati NASA come base (NASADEM, MODIS, VIIRS, MERRA-2) + AW3D30 di JAXA sopra i 60°N + SoilGrids (esterno, da dichiarare);
+- maschera "suolo nudo": NDVI mediano dei mesi senza neve < 0,2, applicata al pixel da 1 km;
+- terreno alla baseline di 30 m: esatto sui candidati, stima calibrata sul resto (errore dichiarato).
 
 ## Spunti per le dimensioni
 
 - **Illuminazione:** al Polo Sud il Sole resta a pochi gradi sull'orizzonte (~1,5° al polo esatto, fino a ~5–7° nei siti Artemis), quindi ombre lunghissime e contrasti estremi.
 - **Alta quota e ghiacciai:** proxy di radiazione più alta e atmosfera rarefatta. La gravità non si riproduce.
 
-## Prossimi passi, in ordine
+## Prossimi passi, in ordine (sab 23:30)
 
-1. **Rocco:** quali test fanno le 5 aziende di Torino e di quali dati hanno bisogno → `docs/test-aziende.md`.
-2. **Tutti:** requirements tecnici del prodotto (dimensioni, dati, output), ricavati dai test.
-3. **Edo:** sceglie i dataset e scrive lo script di download. I dati restano fuori da git finché non sono strutturati.
-4. **Timo:** app e UI, una volta fissati i requirements.
+1. **Edo + Rocco:** valori dei 5 siti per i parametri del voto, con la fonte (formato `targets.json`).
+2. **Rocco:** conferma i pesi di `landing_touchdown` e sceglie la fonte di `rock_class`. Proposta: vulcani (GVP) e crateri da impatto (Earth Impact Database) a regole.
+3. **Edo:** export vero in `data/export/`: 25 file, stesso formato del mock.
+4. **Timo:** l'app legge l'export vero; immagini, deploy.
+5. **Tutti:** validazione sui siti noti (Etna, Death Valley, Cinder Lake…), poi slide e pitch.
 
 ## Ruoli (invariati dal piano)
 
@@ -42,7 +75,8 @@
 
 - Kit di analoghi (T1, "nessun posto basta, tre insieme sì"): non convince, non deciso.
 - Motore della mappa: Cesium o deck.gl.
-- Layer materiali (ISRU): come costruirlo si decide dopo i requisiti dei test delle aziende (`docs/test-aziende.md`). Attenzione: EMIT non misura il plagioclasio, cioè l'anortosite del Polo Sud.
+- Fonte di `rock_class` sulla Terra (vedi Prossimi passi). Attenzione: EMIT non misura il plagioclasio, cioè l'anortosite del Polo Sud.
+- `low_sun_hours` (ore al giorno con il Sole a 0-7°) al posto di `low_sun_frac` nel voto: distingue meglio le alte latitudini.
 
 ## Orari e submission
 
@@ -67,4 +101,5 @@
 - `docs/requirements.md`: requisiti di challenge, giuria e pitch.
 - `docs/mercato.md`: ricerca di mercato, competitor e clienti.
 - `docs/fonti/`: testo della challenge e risorse ufficiali.
+- `docs/allineamento-edo.md`: siti, test e parametri nel dettaglio. `docs/backend_spec.md`: la pipeline.
 - `archive/`: il piano vecchio (Jezero, twist), `findings.md`, il briefing e le reference visive. Solo consultazione.

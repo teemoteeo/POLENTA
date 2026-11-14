@@ -6,15 +6,16 @@ Legenda: ✅ = fonte NASA o portale ufficiale della challenge · ➕ = fonte est
 
 ---
 
-## 0. Decisioni prese (sab 19:40)
+## 0. Decisioni prese (sab 19:40, aggiornate alle 23:30)
+
+> **Aggiornamento sab 23:30.** Perimetro della demo ristretto: **5 siti** (Luna: Malapert Massif, Haworth, Nobile Rim 1; Marte: Phoenix, Gale) × **5 test**, tutti nella demo: rover, volo con lidar, volo con camera, EVA, **contatto del lander con il suolo** (`landing_touchdown`, nuovo). Niente anteprime né coming soon: ISRU e trivella escono. Filtro NDVI a 0,2 sui mesi senza neve. Dettagli tecnici e motivi: `backend_spec.md` sez. E.
 
 | Tema | Decisione |
 |---|---|
-| Prodotto | tool B2B: dato un sito Artemis III e un test, dice dove farlo sulla Terra, quanto è fedele, dove l'analogia si rompe e quale struttura indoor chiude il buco |
-| Target | i 9 siti candidati di Artemis III al Polo Sud |
-| **Test MVP**, completi e validati entro dom 01:00 | `rover_mobility`, `flight_hda_lidar`, `flight_trn_camera` |
-| **Anteprima**, pesi veri ma senza validazione né dossier | `eva_traverse` (tute ed EVA) |
-| Coming soon | ISRU/anortosite, trivella |
+| Prodotto | tool B2B: dato un sito lunare o marziano e un test, dice dove farlo sulla Terra, quanto è fedele, dove l'analogia si rompe e quale struttura indoor chiude il buco |
+| Target | 5 siti: 3 candidati di Artemis III al Polo Sud (Malapert Massif, Haworth, Nobile Rim 1) e 2 su Marte (Phoenix, Gale) |
+| **Test della demo**, tutti completi | `rover_mobility`, `flight_hda_lidar`, `flight_trn_camera`, `eva_traverse`, `landing_touchdown` |
+| Fuori dalla demo | ISRU/anortosite, trivella (niente coming soon) |
 | **Dati lunari** (set minimo di Rocco) | **LOLA, Diviner, LEND, LROC, GRAIL** incrociati |
 | Dati della Terra | dati NASA come base (NASADEM, MODIS, VIIRS, MERRA-2) + **AW3D30 di JAXA** (agenzia partner) per il DEM sopra i 60°N, elaborati su **Google Earth Engine** (decisa alle 20:40) |
 | Risoluzione (20:40) | **massima**: Luna alla risoluzione nativa di LOLA (5-20 m), Terra a 30 m su tutto il globo. Punteggio alla baseline comune di 30 m; scale più fini con l'esponente di Hurst, dichiarato come estrapolazione (dettaglio in `docs/backend_spec.md` §5.1) |
@@ -42,8 +43,8 @@ Fonti: `test-aziende.md`, `requisiti-test.md`, `mercato.md`.
 
 ## 3. La soluzione: flusso e schermate
 
-1. **Mappa polare della Luna:** 9 siti Artemis, si sceglie un sito; la card del sito mostra il suo profilo dai 5 strumenti lunari.
-2. **Selettore del test:** rover · volo con lidar · volo con camera; EVA (anteprima); ISRU e trivella (coming soon).
+1. **Luna e Marte:** 5 siti (3 + 2), si sceglie un sito; la card del sito mostra il suo profilo dai 5 strumenti lunari.
+2. **Selettore del test:** rover · volo con lidar · volo con camera · EVA · contatto del lander con il suolo.
 3. **Mappa della Terra** (deck.gl su MapLibre):
    - heat map H3 con il punteggio per sito × test;
    - top 10 siti naturali;
@@ -57,7 +58,7 @@ Fonti: `test-aziende.md`, `requisiti-test.md`, `mercato.md`.
    - dossier: mesi senza neve, accesso (luci notturne), aree protette (WDPA), vento (per il volo);
    - immagini Terra (Sentinel-2) e Luna (LROC) affiancate;
    - fonti dei dati.
-5. **Vista benchmark** (anche slide del pitch): matrice 9 siti × 3 test, con miglior sito naturale e struttura indoor per ogni casella.
+5. **Vista benchmark** (anche slide del pitch): matrice 5 siti × 5 test, con miglior sito naturale e struttura indoor per ogni casella.
 
 Statica, senza backend, link pubblico senza login (`requirements-tecnici.md` §7). Navicella e discesa 3D: solo se il resto è finito entro dom 11:00.
 
@@ -90,7 +91,7 @@ Nel campione dei repo di Space Apps 2026 (~47 sugli analoghi, ricerche delle 17:
 | Argotec | copertura | righe TVAC e vibrazioni in `facilities.csv` | **giuria** |
 | ORiS | rover (luce e ombra) | energia ai rover in ombra, studio per TAS | sponsor del 1° premio |
 | ESA BIC | tutto | numeri e modello di business | **giuria** |
-| NASA JETT, ESA EAC, Axiom/Prada | EVA (anteprima) | siti per tute con luce radente | — |
+| NASA JETT, ESA EAC, Axiom/Prada | EVA | siti per tute con luce radente | — |
 
 ## 6. Catalogo dei test (`tests.yaml` v0)
 
@@ -98,15 +99,15 @@ Regole comuni: `tau 0.1`, `eps 0.01`, `break_below 0.3`.
 
 | Test | Stato | Pesi | Filtri | Indoor (copertura) | Validazione |
 |---|---|---|---|---|---|
-| `rover_mobility` | **MVP** | `slope_p90` 0,35 · `roughness` 0,15 · `grain_proxy` 0,15 · `rock_cover` 0,15 · `low_sun_frac` 0,10 · `crater_density` 0,05 · `rock_class` 0,05 | `ndvi < 0,1`, `slope_p90 ≥ 15` | gravità 1/6, vuoto, polvere elettrostatica, **densità della regolite** (`soil_density`, vasca di simulante) | `etna_piano_concazze`, `etna_cisternazza` (+ Teide, SFVF, Meteor Crater) |
-| `flight_hda_lidar` | **MVP** | `crater_density` 0,30 · `rock_cover` 0,25 · `slope_p90` 0,20 · `roughness` 0,15 · `albedo` 0,05 · `rock_class` 0,05 | `ndvi < 0,1` | gravità 1/6, getto del motore nel vuoto, vuoto | `cinder_lake`, ~~`ksc_alhat_field`~~ → **proposta: `death_valley`** (vedi la nota sotto la tabella) |
-| `flight_trn_camera` | **MVP** | `low_sun_frac` 0,30 · `albedo` 0,20 · `crater_density` 0,20 · `roughness` 0,15 · `slope_p90` 0,10 · `rock_class` 0,05 | `ndvi < 0,1` | gravità 1/6, vuoto | `death_valley`, `mojave` |
-| `eva_traverse` | **anteprima** | `slope_p90` 0,30 · `low_sun_frac` 0,20 · `roughness` 0,15 · `rock_class` 0,15 · `grain_proxy` 0,10 · `rock_cover` 0,10 | `ndvi < 0,1`, `slope_p90 ≤ 25` | gravità 1/6, vuoto, polvere, PSR criogeniche | `sf_volcanic_field`, `black_point_lava_flow` |
-| `isru_anorthosite` | coming soon | (in `tests.yaml`, non calcolato) | — | — | — |
+| `rover_mobility` | **demo** | `slope_p90` 0,35 · `roughness` 0,15 · `grain_proxy` 0,15 · `rock_cover` 0,15 · `low_sun_frac` 0,10 · `crater_density` 0,05 · `rock_class` 0,05 | `ndvi < 0,2`, `slope_p90 ≥ 15` | gravità 1/6, vuoto, polvere elettrostatica, **densità della regolite** (`soil_density`, vasca di simulante) | `etna_piano_concazze`, `etna_cisternazza` (+ Teide, SFVF, Meteor Crater) |
+| `flight_hda_lidar` | **demo** | `crater_density` 0,30 · `rock_cover` 0,25 · `slope_p90` 0,20 · `roughness` 0,15 · `albedo` 0,05 · `rock_class` 0,05 | `ndvi < 0,2` | gravità 1/6, getto del motore nel vuoto, vuoto | `cinder_lake`, ~~`ksc_alhat_field`~~ → **proposta: `death_valley`** (vedi la nota sotto la tabella) |
+| `flight_trn_camera` | **demo** | `low_sun_frac` 0,30 · `albedo` 0,20 · `crater_density` 0,20 · `roughness` 0,15 · `slope_p90` 0,10 · `rock_class` 0,05 | `ndvi < 0,2` | gravità 1/6, vuoto | `death_valley`, `mojave` |
+| `eva_traverse` | **demo** | `slope_p90` 0,30 · `low_sun_frac` 0,20 · `roughness` 0,15 · `rock_class` 0,15 · `grain_proxy` 0,10 · `rock_cover` 0,10 | `ndvi < 0,2`, `slope_p90 ≤ 25` | gravità 1/6, vuoto, polvere, PSR criogeniche | `sf_volcanic_field`, `black_point_lava_flow` |
+| `landing_touchdown` | **demo** (nuovo, pesi da confermare con Rocco) | `slope_p90` 0,30 · `bulk_density_0_5` 0,25 · `grain_proxy` 0,20 · `rock_cover` 0,15 · `roughness` 0,10 | `ndvi < 0,2`, `slope_p90 ≤ 15` | gravità 1/6, getto del motore nel vuoto, vuoto | — |
 
 **Perché togliere `ksc_alhat_field` dalla validazione.** È un campo di crateri **costruito** (~100×100 m sulla pista di atterraggio di KSC, Florida). La validazione chiede che il sito esca in alto nei dati satellitari, ma:
 1. a 1 km e su celle H3 da ~250 km² un campo da un ettaro non si vede;
-2. intorno ci sono zone umide e vegetazione, quindi la cella viene scartata dal filtro `ndvi < 0,1`.
+2. intorno ci sono zone umide e vegetazione, quindi la cella viene scartata dal filtro NDVI.
 
 Fallirebbe sempre, e ci farebbe credere che i pesi siano sbagliati quando non lo sono. I campi costruiti (KSC, LSPG a Mojave, Huailai, Challakere) vanno invece in `facilities.csv`, con `covers: constructed_hazard_field`: sono strutture, e fanno parte della copertura.
 
@@ -129,7 +130,7 @@ Servono a riempire `data/config/targets/artemis.csv`, uno per sito, e la card lu
 | **LOLA** (altimetro laser) | DEM polari ad alta risoluzione ⚠ (5-20 m/px a sud di 80°S); riflettanza a 1064 nm; mappe di illuminazione polare ⚠ | pendenze e rugosità **ricampionate alla baseline della Terra**; albedo; quota; frazione di luce | `slope_p90`, `roughness`, `albedo`, `low_sun_frac`, `elevation_m` | la base del terreno; `low_sun_frac` ≈ 1 al Polo Sud |
 | **Diviner** (radiometro) | prodotti polari (temperature massime e medie); abbondanza di rocce ⚠; parametro H della regolite (mappe solo a ±70°) | temperature; rocce in superficie; profilo di densità della regolite (H ~7 cm medio) | `t_min_c`, `t_max_c`, `rock_cover`, `grain_proxy`, `bulk_density` | un altro team non ha trovato l'abbondanza di rocce scaricabile: piano B = rugosità LOLA + conteggi LROC. H non copre i siti Artemis: per loro il profilo standard (vedi sotto) |
 | **LROC** (camere NAC e WAC) | immagini NAC (~0,5 m); mosaici WAC; DTM NAC dove esistono ⚠ | conteggi di crateri e massi sui siti demo (o dalla letteratura); immagini della card | `crater_density`, `rock_cover` | i crateri 10-100 m si vedono solo qui |
-| **LEND** (neutroni) | mappe dell'idrogeno polare ⚠ | idrogeno, cioè possibile ghiaccio vicino | `h_wt_pct` (card) | serve alla trivella (coming soon) e alla card |
+| **LEND** (neutroni) | mappe dell'idrogeno polare ⚠ | idrogeno, cioè possibile ghiaccio vicino | `h_wt_pct` (card) | serve alla card (trivella fuori dalla demo) |
 | **GRAIL** (gravità) | modelli di gravità e densità della crosta | densità (2550 kg/m³ negli altopiani) e porosità (~12%) della crosta sotto il sito | `grail_density` (card) | **non corrisponde a SoilGrids `bdod`**: vedi la nota sotto la tabella |
 | Mappa geologica USGS (➕, già in `data/raw/lunar_geology/`) | `GeoUnits.shp` | unità geologica → classe terrestre (anortosite, breccia da impatto) | `geo_unit`, `rock_class` | |
 
@@ -164,7 +165,7 @@ GRAIL resta nella card, come caratterizzazione del sottosuolo del sito Artemis (
 **Decisione (20:00): la densità esce dal punteggio.**
 - Per il rover si riproduce in vasca di simulante: va nella copertura (`soil_density`).
 - Per i lander conta la densità dei primi ~30 cm-1 m (appoggio delle gambe e getto del motore), ma questi test si fanno in struttura (drop test, camere a vuoto).
-- `bulk_density` resta nella **card**, con il profilo standard Hayne/Apollo uguale per i 9 siti e SoilGrids `bdod` a 0-5, 30-60 e 100-200 cm sul lato Terra.
+- `bulk_density` resta nella **card**, con il profilo standard Hayne/Apollo uguale per i 3 siti lunari (Marte: dati Phoenix e Curiosity) e SoilGrids; la densità dei primi 5 cm entra nel voto di `landing_touchdown`, sempre da SoilGrids `bdod` a 0-5, 30-60 e 100-200 cm sul lato Terra.
 - **Sviluppo futuro, da dire nel pitch:** con le mappe dielettriche polari di Mini-RF, la densità sito per sito.
 
 ### A cosa servono questi dati: la portanza del suolo
@@ -246,7 +247,7 @@ Gli ID del catalogo sono scritti a memoria: **verificarli tutti prima dell'uso**
 
 Dettaglio in `docs/backend_spec.md` §5.1.
 
-**Filtri sui pixel, non sulle celle.** Una cella H3 da ~250 km² attorno all'Etna o a Cinder Lake contiene anche boschi e paesi: con la mediana della cella, il filtro `ndvi < 0,1` la scarterebbe, e con lei i siti di validazione. Quindi:
+**Filtri sui pixel, non sulle celle.** Una cella H3 da ~250 km² attorno all'Etna o a Cinder Lake contiene anche boschi e paesi: con la mediana della cella, il filtro NDVI la scarterebbe, e con lei i siti di validazione. Quindi:
 1. i filtri si applicano ai **pixel da 1 km**;
 2. i parametri della cella si calcolano **solo sui pixel che passano i filtri**;
 3. si salva anche la quota di pixel validi (`valid_share`), che misura l'area utile;
@@ -260,7 +261,7 @@ Dettaglio in `docs/backend_spec.md` §5.1.
 |---|---|---|---|---|
 | `params.csv` | v0 + modifiche di Edo (20:05): `bulk_density` → card, `protected_area` → MVP (WDPA), nuovi `wind_10m` e `soil_density` | da aggiungere: `h_wt_pct` e `grail_density` (card), `valid_share` | Timo, Rocco | sab 22:30 |
 | `tests.yaml` | v0 + modifiche di Edo (20:05): rover senza `bulk_density` (`slope_p90` 0,35, `rock_cover` 0,15), `soil_density` tra gli `indoor` | rivedere i pesi; `ksc_alhat_field` → `death_valley` | Rocco | sab 22:30 |
-| `targets/artemis.csv` | da fare | 9 siti (§7) | Rocco + Edo (LOLA) | 1 sito per le 22:30, 9 per le 01:00 |
+| valori dei 5 siti (formato `targets.json`) | da fare | 3 Luna + 2 Marte | Edo + Rocco | 00:15 |
 | `facilities.csv` | da fare | `name,lat,lon,type,simulant,covers,url`: LUNA, ALTEC (MTS e centro lunare), SLOPE, KSC Swamp Works, Ames Lunar Lab, Langley (sfera a vuoto), Marshall (Flat Floor e camera), DLR LAMA, ESTEC (TVAC e vibrazioni), Argotec (TVAC), NBL, ARGOS, Chamber B, Novespace; campi di crateri costruiti (KSC/ALHAT, Astrobotic LSPG, Huailai, Challakere) con `covers: constructed_hazard_field` | Rocco, aiuta Timo | dom 01:00 |
 | `known_sites.csv` | da fare | `name,lat,lon,test,campaign,source`: gli id di `tests.yaml` (con `death_valley` al posto di `ksc_alhat_field`) + Teide, Meteor Crater | Rocco | dom 01:00 |
 | `materials.csv` | da fare | `name,lat,lon,rock_class,evidence_url` (per `rock_class`) | Rocco | dom mattina |
@@ -269,7 +270,7 @@ Dettaglio in `docs/backend_spec.md` §5.1.
 - `scores.csv`: `h3` + una colonna per ogni parametro con ruolo `score`, `filtro`, `card` o `dossier`, ognuno 0–255, vuoto = nessun dato.
 - `sites/<site>__<test>.json`: top 10 siti naturali con `lat`, `lon`, celle H3, `s` per parametro, totale, κ, `new`, "si rompe" (parametro → struttura), dossier.
 - `benchmark.json`: per ogni sito × test MVP, miglior sito naturale, migliore sito nuovo e struttura indoor.
-- `targets.json`: i 9 siti Artemis con i valori lunari, per la card della Luna.
+- `targets.json`: i 5 siti (3 Luna, 2 Marte) con i loro valori, per la card del sito.
 
 Chi cambia un contratto lo scrive in un suo file in `docs/` e lo dice a Rocco (regola di AGENTS).
 
@@ -295,8 +296,8 @@ Chi cambia un contratto lo scrive in un suo file in `docs/` e lo dice a Rocco (r
 Schermate del §3. Stack di `requirements-tecnici.md` §7: React, deck.gl `H3HexagonLayer` su MapLibre, statica, senza backend.
 
 Componenti:
-- mappa polare con i 9 siti;
-- selettore dei test (3 MVP, EVA "anteprima", ISRU e trivella "coming soon");
+- Luna e Marte con i 5 siti;
+- selettore dei 5 test, tutti attivi;
 - heat map H3;
 - pin delle strutture e dei siti noti;
 - card;
@@ -312,7 +313,8 @@ Componenti:
 | rover | Piano delle Concazze e Cisternazza nel 5% migliore delle celle, per il sito Artemis più simile | se fallisce: controllare scala e pesi, e dirlo comunque |
 | volo lidar | Cinder Lake e Death Valley in alto | idem |
 | volo camera | Death Valley e Mojave in alto | idem |
-| EVA (anteprima) | SFVF e Black Point | solo indicativo |
+| EVA | SFVF e Black Point | solo indicativo |
+| Contatto col suolo | — (nessun sito noto: lo si dichiara) | — |
 | tutti | foreste pluviali (Amazzonia, Congo, Borneo) in basso | mediana sotto il 50° percentile |
 | tutti | sensibilità: pesi perturbati del ±20%, i top siti restano nel top 10? | quota di stabilità sulla card |
 
@@ -323,9 +325,9 @@ Componenti:
 | **subito** (il gate delle 20:00 è superato) | export di prova con valori finti e colonne di `params.csv` | revisione dei pesi di `tests.yaml` | l'app su dati finti esiste già (commit `d21001f`): agganciarla all'export; aggiungere `soil_density` alle strutture |
 | sab 20:00-22:30 | accesso a GEE; raster di `slope_p90`, `roughness`, `ndvi`, maschera; `grid.py` | `artemis.csv` per 1 sito (Malapert?); coordinate dei siti TAS-I | selettore dei test, heat map |
 | **sab 22:30** | primo punteggio del rover su 1 sito, end-to-end | `known_sites.csv` (bozza) | card base |
-| sab 22:30-01:00 | albedo, LST, neve, SoilGrids, `low_sun_frac`, `crater_density`; 3 test × 9 siti; `new`; copertura | `artemis.csv` completo, `facilities.csv` | card con "si rompe" e strutture |
+| sab 22:30-01:00 | albedo, LST, neve, SoilGrids, `low_sun_frac`, `crater_density`; 5 test × 5 siti; `new`; copertura | `artemis.csv` completo, `facilities.csv` | card con "si rompe" e strutture |
 | **dom 01:00** | ranking 9 × 3 | — | build funzionante |
-| dom 09:00-11:00 | zoom a 30 m sui candidati, dossier, `validate.py`; EVA in anteprima | testi di "si rompe" e "cosa testare"; terramecanica (facoltativa) | vista benchmark, immagini, deploy |
+| dom 09:00-11:00 | zoom a 30 m sui candidati, dossier, `validate.py` | testi di "si rompe" e "cosa testare"; terramecanica (facoltativa) | vista benchmark, immagini, deploy |
 | **dom 11:00** | freeze | freeze | freeze, app online |
 | dom 11:00-15:30 | figura di validazione, testo del metodo, lista dei dati NASA | 7 slide, pitch di 4 min | video da 30 s, pagina del progetto, **submit alle 15:30** |
 
@@ -339,7 +341,7 @@ Componenti:
 | Crateri da 1-50 m invisibili | GVP + Impact Database come layer; dichiararlo |
 | SoilGrids debole su roccia nuda | più peso a `grain_proxy`; controllare sui siti noti |
 | Piano delle Concazze non esce in alto | rivedere scala e pesi; altrimenti dirlo e spiegarlo |
-| Tre test MVP troppi | si tiene rover + volo lidar; la camera passa in anteprima |
+| Cinque test troppi | si tengono rover, volo lidar e touchdown (stessi dati, zero runtime in più) |
 | Ritardo generale | il freeze delle 11:00 non si sposta: si tagliano zoom ed EVA |
 
 ## 16. Pitch, demo e submission
