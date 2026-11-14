@@ -156,10 +156,13 @@ export default function App() {
       : !data ? [] : data.results.map((r, i) => pin('pin' + (i === picked ? ' on' : ''), i + 1, [r.lon, r.lat], () => choosePlace(i)))
   }, [world, step, site, data, picked]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const flight = useRef(0)
   const fly = (opts, then) => {
     spinning.current = false
+    const id = ++flight.current
     map.current.flyTo({ essential: true, ...opts })
-    if (then) map.current.once('moveend', then)
+    // 'then' vale solo se questo volo è ancora l'ultimo: un volo interrotto da un altro non deve far ripartire la rotazione
+    if (then) map.current.once('moveend', () => id === flight.current && then())
   }
 
   // Stessa transizione nei due versi, specchiata, in un solo movimento: lo zoom indietro parte piano,
