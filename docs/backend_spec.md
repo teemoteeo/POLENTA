@@ -121,6 +121,40 @@ dati lunari ───────────┴─► lunar.py: carta d'identit
 | 9 | Validazione + EVA in anteprima | **dom 11:00 (freeze)** |
 | 10 | Testi per la submission | dom 14:30 |
 
+## E. Cosa è cambiato stasera rispetto al piano (e perché)
+
+Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue queste scelte; i paragrafi più sotto descrivono ancora il piano originale dove non sono stati riscritti.
+
+| # | Cosa | Prima | Ora | Perché |
+|---|---|---|---|---|
+| 1 | Maschera "suolo nudo" | NDVI **massimo** < 0,1 | NDVI **mediano** < **0,2**, sul pixel da 1 km, **solo nei mesi senza neve e senza nuvole** (`SummaryQA` ≤ 1) | Con il massimo < 0,1 metà dei siti di validazione spariva: Black Point, SFVF, Meteor Crater e Mojave hanno lo 0% di area sotto 0,1 entro 5 km, ~100% sotto 0,2. 0,2 è la soglia standard per "suolo nudo o vegetazione rada". I mesi con neve vanno esclusi: con la mediana di tutto l'anno la neve invernale abbassava l'NDVI e la **tundra verde passava** (Taymyr −0,01 sull'anno, 0,55 senza neve; Svalbard e Quebec ~0,5). Nei deserti non cambia nulla; Devon Island/Haughton resta valida (0,16). Corretto alle 23:00. **Va detto a Rocco** (`tests.yaml` ha ancora `ndvi < 0.1`) |
+| 2 | Maschera terra/acqua | MODIS `MOD44W` v061 | **v006** (immagine 2015) | la collezione v061 su Earth Engine esiste ma è vuota |
+| 3 | DEM sopra i 60°N | AW3D30 V3_2 su tutto il mondo | **AW3D30 V4_1** solo sopra 59,5°N | la V3_2 è deprecata; comporre tutti i 24.000 tasselli anche sugli oceani rallentava ogni richiesta |
+| 4 | Terreno su tutto il mondo | 30 m (poi 90 m) | **due fasi**: screening a **500 m** su tutti i pixel, poi **30 m esatti** esagono per esagono | Earth Engine rifiuta richieste oltre ~67 milioni di pixel di partenza e oltre ~100 MB per oggetto; a 90 m un quadrato da 3° richiedeva 4 minuti. La fase a 30 m va veloce sul singolo esagono (~1 s), ma su tutti i ~253 mila esagoni sono 4-10 ore: si fa solo su campione, siti noti e candidati (vedi riga 13) |
+| 5 | Riferimento dei percentili a 30 m | — | un **campione casuale di 3.000 esagoni** validi, calcolato per primo | se i percentili si calcolassero solo sui candidati (già i più simili), i voti sarebbero distorti. Se la fase a 30 m finisce su tutti gli esagoni, il riferimento diventa l'intera Terra |
+| 6 | Crateri | minimo locale entro 150 m, 3 m sotto la media | entro **300 m**, almeno **20 m sotto il bordo**; ogni gruppo di pixel minimi connessi conta **1**; laghi esclusi (JRC Global Surface Water) | con la soglia bassa contavamo il **rumore del DEM** sulle piane (7-21 "crateri"/km² a Mojave, ~0 sull'Etna); ora i valori più alti escono a Cinder Lake e SFVF, veri campi di crateri. Poi un secondo difetto: un fondo piatto (lago, conca, fondo del Meteor Crater) ha molti pixel minimi alla pari e ognuno contava come un cratere, quindi 100-400/km² nello scudo canadese e nell'Artico. Contando i gruppi connessi si scende a 2-4/km² lì, e Cinder Lake 0,65, SFVF 0,45, Meteor Crater 0,18. Stesso detector da usare su LOLA |
+| 7 | Neve | MOD10A1 giornaliero | **MOD10A2** (compositi di 8 giorni) | ~8 volte meno immagini, stessa informazione per i mesi senza neve |
+| 8 | Albedo | MCD43A3 giornaliero, 3 anni | un'immagine **ogni 16 giorni** | tutte e 1.100 le immagini sforavano la memoria; per una mediana ne bastano ~70 |
+| 9 | Luce radente | solo `low_sun_frac` | anche **`low_sun_hours`** (ore al giorno con il Sole tra 0° e 7°) | la frazione vale 1 anche a 64°N d'inverno con 4 ore di luce; le ore distinguono (78°N ad agosto: 6,4 h). **Proposta a Rocco:** usare le ore nel voto |
+| 10 | Robustezza | — | tempo massimo di 5 minuti per richiesta; quadrati salvati appena finiti; i quadrati troppo pesanti si dividono in 4 | alle 21:31 la rete è caduta e i calcoli sono rimasti appesi: abbiamo perso 49 quadrati. Ora un'interruzione costa al massimo i quadrati in corso |
+| 11 | Modalità test | — | `--sample`: solo le zone campione (Sicilia, Arizona e California, Canarie, Sahara), in cartelle separate | permette di provare tutta la catena in pochi minuti senza toccare i dati globali né l'export dell'app |
+| 12 | DEM sopra i 60°N | NASADEM con i buchi riempiti da AW3D30 (`unmask`) | **mosaico** AW3D30 sotto e NASADEM sopra | `unmask` non riempie fuori dall'impronta di NASADEM: sopra i 60°N il DEM restituiva **zero pixel**. Il 23% del campione (Scandinavia, Siberia, Canada, Groenlandia) era vuoto. Trovato e corretto alle 22:30; il 500 m nordico e il campione nordico sono stati ricalcolati |
+| 13 | 30 m per tutti gli esagoni | calcolo esatto su tutti (4-10 ore) | **calibrazione** dal 500 m sul campione di 3.000 esagoni (`calibrate.py`), poi **30 m esatti solo per i candidati** e i siti noti | ogni prova del backend richiederebbe ore. Modello: gradient boosting sui logaritmi (tra due scale la pendenza cambia come una legge di potenza, la stessa fisica di Hurst), con ingressi 500 m, quota, latitudine, albedo, temperature, neve e grana. Prima versione: R² 0,90 per la pendenza p90 (errore mediano 1,2°) e 0,87 per la rugosità; una retta tra i logaritmi dava 0,73 e sottostimava di ~6° i pendii sopra 30°. L'errore si misura su esagoni che il modello non ha visto (validazione incrociata a 5 parti) e si dichiara. Le stime servono solo a scegliere i candidati: nelle card e nella classifica finale ci sono i valori esatti (`terrain_src = 30m`) |
+| 14 | Quota di Earth Engine | — | piano **Community** (150 EECU-ore al mese), in **restricted mode** da sabato sera | le prove a 30 m e 90 m hanno esaurito la quota mensile. Earth Engine funziona ancora, con meno richieste in parallelo: il codice ora aspetta e riprova (fino a 2 minuti, 6 tentativi) invece di saltare. Il piano Contributor (1.000 EECU-ore) richiede un account di fatturazione con pagamento anticipato: per ora no. La quota torna il 1° dicembre |
+
+**Limiti noti da dichiarare:**
+- **L'Antartide manca:** l'NDVI MODIS non la copre.
+- **Le calotte di ghiaccio** (Groenlandia) escono già dalla maschera, perché non hanno mesi senza neve; in più il voto esclude gli esagoni senza mesi liberi da neve.
+
+**Comandi aggiunti:**
+- `--step terrain --scale 500` (screening);
+- `--step surface [--groups thermal soil snow dossier]`;
+- `--step fine --scope sample|all` (30 m);
+- `--step calibrate`: relazione 500 m → 30 m con l'errore dichiarato;
+- `--step earth`: tutta la Terra in fila (terreno 500 m, superficie, campione a 30 m, calibrazione, carta d'identità); i passi già fatti si saltano;
+- `--step export [--publish] [--no-refine] [--no-dossier]`: tutti i siti × test fino ai file per l'app; senza `--publish` scrive in `data/raw/export_preview/`. Il voto gira in locale in ~30 s; Earth Engine serve solo per i candidati nuovi e il dossier;
+- `--sample` per la modalità test.
+
 ---
 
 ## 1. Passo 0 — ambiente e account ✅ (manca solo GEE)

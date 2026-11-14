@@ -1,0 +1,83 @@
+"""Passo 4 (parte 2): il voto di ogni esagono per un sito Artemis e un test (docs/backend_spec.md §5).
+
+1. Ogni parametro diventa un percentile terrestre (dove sta rispetto a tutta la Terra).
+2. Distanza in punti percentuali dal valore del sito Artemis; voto s = exp(−(distanza/τ)²).
+   Se la Luna è fuori da quello che la Terra raggiunge, la distanza si misura dal valore
+   terrestre più estremo (one-sided) e la differenza fisica finisce in "si rompe".
+3. Totale: media geometrica pesata con i pesi del test, sui parametri disponibili.
+4. κ = quota di peso con dati nell'esagono (tra i parametri che la pipeline ha già prodotto):
+   sotto 0,7 l'esagono non entra in classifica. Poi i filtri rigidi del test.
+"""
+import re
+
+import numpy as np
+import pandas as pd
+
+from . import config
+
+ROCK_SIMILARITY = {   # bozza: la tabella vera la scrive Rocco
+    ("anorthosite", "anorthosite"): 1.0, ("anorthosite", "impact_breccia"): 0.6,
+    ("anorthosite", "basalt_volcanic"): 0.4, ("anorthosite", "sedimentary"): 0.1,
+}
+
+
+def s_param(x: np.ndarray, lo: float, hi: float, tau: float, eps: float) -> tuple[np.ndarray, float]:
+    """Voto 0-1 per un parametro numerico; restituisce anche il gap fisico se la Luna è fuori dalla Terra."""
+    earth = x[np.isfinite(x)]
+    q = np.sort(earth)
+    F = lambda v: np.searchsorted(q, v, side="right") / len(q)
+    p1, p99 = np.quantile(q, [0.01, 0.99])
+    gap = 0.0
+    if lo > p99:                                   # Luna oltre il massimo terrestre (es. luce radente)
+        D = np.maximum(0, F(p99) - F(x)); gap = lo - q[-1]
+    elif hi < p1:                                  # Luna sotto il minimo terrestre
+        D = np.maximum(0, F(x) - F(p1)); gap = hi - q[0]
+    else:
+        D = np.maximum(0, np.maximum(F(lo) - F(x), F(x) - F(hi)))
+    s = np.maximum(eps, np.exp(-(D / tau) ** 2))
+    return np.where(np.isfinite(x), s, np.nan), gap
+
+
+def s_rock(x: pd.Series, target: str) -> np.ndarray:
+    return np.array([ROCK_SIMILARITY.get((target, v), 0.1) if isinstance(v, str) else np.nan for v in x])
+
+
+def passes(series: pd.Series, rule: str) -> np.ndarray:
+    """Filtro di tests.yaml, es. '< 0.1' o '>= 15'. Dato mancante = non passa."""
+    op, val = re.match(r"\s*(<=|>=|<|>)\s*([-\d.]+)", rule).groups()
+    v, x = float(val), series.to_numpy(dtype=float)
+    out = {"<": x < v, "<=": x <= v, ">": x > v, ">=": x >= v}[op]
+    return np.where(np.isfinite(x), out, False)
+
+
+def score(feats: pd.DataFrame, test: dict, target: dict, rules: dict) -> dict:
+    """Voti di tutti gli esagoni per un test e un sito. Restituisce totale, κ, voti e gap per parametro."""
+    tau, eps = rules.get("tau", 0.1), rules.get("eps", 0.01)
+    w_all = config.weights(test)
+    # parametri usabili: prodotti dalla pipeline (colonna presente) e con un valore lunare
+    usable = [p for p in w_all if p in feats.columns and target.get(p) is not None]
+    S, gaps = {}, {}
+    for p in usable:
+        t = target[p]
+        if p == "rock_class":
+            S[p] = s_rock(feats[p], t)
+        else:
+            lo, hi = (t, t) if not isinstance(t, (list, tuple)) else t
+            S[p], gaps[p] = s_param(feats[p].to_numpy(dtype=float), lo, hi, tau, eps)
+    w = np.array([w_all[p] for p in usable])
+    M = np.column_stack([S[p] for p in usable]) if usable else np.empty((len(feats), 0))
+    avail = np.isfinite(M)
+    kappa = (avail * w).sum(1) / max(w.sum(), 1e-9)
+    logS = np.where(avail, np.log(np.where(avail, M, 1.0)) * w, 0).sum(1) / np.maximum((avail * w).sum(1), 1e-9)
+    total = np.where(kappa >= 0.7, np.exp(logS), np.nan)
+    ok = feats["valid_share"].to_numpy() >= 0.05
+    if "snow_free_months" in feats.columns:           # ghiacci permanenti: niente vegetazione, ma non sono suolo
+        ok &= feats["snow_free_months"].fillna(0).to_numpy() >= 1
+    for p, rule in (test.get("filtri") or {}).items():
+        if p == "ndvi":
+            continue                                # già applicato ai pixel (maschera)
+        if p in feats.columns:
+            ok &= passes(feats[p], rule)
+    total = np.where(ok, total, np.nan)
+    return {"total": total, "kappa": kappa, "s": S, "gaps": gaps, "used": usable,
+            "missing": [p for p in w_all if p not in usable]}

@@ -4,7 +4,8 @@ Dalla radice della repo:
     source src/pipeline/.venv/bin/activate
     python -m src.pipeline.run --step check
 
-Ogni passo di docs/backend_spec.md diventa uno --step: `check` (passo 0), `mock` (passo 1).
+Ogni passo di docs/backend_spec.md diventa uno --step: `check` (passo 0), `mock` (passo 1),
+`grid` (passo 2).
 """
 import argparse
 import importlib
@@ -63,14 +64,121 @@ def mock() -> int:
     return mock_export.main()
 
 
-STEPS = {"check": check, "mock": mock}
+def grid(args) -> int:
+    """Passo 2: esagoni H3 di terra, con la quota di area valida."""
+    from . import grid as grid_step
+    return grid_step.main(skip_download=args.skip_download)
+
+
+def sun(args) -> int:
+    """Passo 3 (luce): tabella latitudine × mese della luce radente."""
+    from . import sun as sun_step
+    return sun_step.main()
+
+
+def terrain(args) -> int:
+    """Passo 3 (terreno): pendenze, rugosità, quota. --scale 500 (screening globale), 90 o 30."""
+    from . import terrain as terrain_step
+    return terrain_step.main(scale_m=args.scale)
+
+
+def features(args) -> int:
+    """Passo 4: dai raster alla carta d'identità di ogni esagono."""
+    from . import features as features_step
+    return features_step.main()
+
+
+# Valori lunari provvisori per il primo end-to-end, finché non arriva artemis.csv di Rocco.
+# DICHIARATI COME SEGNAPOSTO nel file esportato (target_source).
+PLACEHOLDER_TARGETS = {
+    "malapert_massif": {"slope_p90": 22.0, "low_sun_frac": 1.0, "roughness": None},
+}
+
+
+def score_one(args) -> int:
+    """Passo 4: voto di un sito × test con i dati disponibili, e file vero per l'app."""
+    import pandas as pd
+    from . import sites
+    feats = pd.read_parquet(config.FEATURES)
+    rules = config.load_tests_file()
+    test = rules["tests"][args.test]
+    target = PLACEHOLDER_TARGETS[args.site]
+    data = sites.build(feats, args.site, args.test, test, target, rules)
+    data["target_source"] = "SEGNAPOSTO: valori provvisori, in attesa di artemis.csv (Rocco)"
+    sites.write(data)
+    print(f"{args.site} × {args.test}: parametri usati {data['params_used']}, mancanti {data['params_missing']}")
+    for r in data["results"]:
+        print(f"  {r['id']} {r['score']:.3f} {'NUOVO' if r['new'] else 'noto '} {r['name']:<28} "
+              f"{r['lat']:>8.3f} {r['lon']:>9.3f}  params={r['params']}")
+    return 0
+
+
+def surface(args) -> int:
+    """Passo 5: albedo, grana, temperature, suolo, neve, dossier (gruppi: thermal soil snow dossier)."""
+    from . import surface as surface_step
+    return surface_step.main(groups=args.groups)
+
+
+def fine(args) -> int:
+    """Fase a 30 m sugli esagoni: --scope sample (noti + campione + candidati) o all (tutti i validi)."""
+    from . import fine as fine_step
+    return fine_step.main(scope=args.scope, limit=args.limit)
+
+
+def calibrate(args) -> int:
+    """Relazione 500 m → 30 m stimata sul campione, con l'errore dichiarato (calibrate.py)."""
+    from . import calibrate as calibrate_step
+    return calibrate_step.main()
+
+
+def earth(args) -> int:
+    """Tutta la mappatura della Terra in fila: terreno 500 m → superficie → campione a 30 m → calibrazione
+    → carta d'identità. I passi già fatti si saltano (cache), quindi rilanciarlo costa poco."""
+    from . import terrain as terrain_step, surface as surface_step, fine as fine_step
+    from . import features as features_step, calibrate as calibrate_step
+    for name, fn in (("terreno a 500 m", lambda: terrain_step.main(scale_m=500)),
+                     ("superficie", lambda: surface_step.main()),
+                     ("30 m su siti noti e campione", lambda: fine_step.main(scope="sample")),
+                     ("carta d'identità", features_step.main),
+                     ("calibrazione 500 m → 30 m", calibrate_step.main),
+                     ("carta d'identità con le stime a 30 m", features_step.main)):
+        print(f"=== {name}", flush=True)
+        fn()
+    return 0
+
+
+def export(args) -> int:
+    """Passi 7-8: tutti i siti × test → file per l'app (prova in data/raw/export_preview/, --publish in data/export/)."""
+    from . import export as export_step
+    return export_step.main(publish=args.publish, do_refine=not args.no_refine, do_dossier=not args.no_dossier)
+
+
+STEPS = {"check": lambda a: check(), "mock": lambda a: mock(), "grid": grid, "sun": sun,
+         "terrain": terrain, "surface": surface, "fine": fine, "calibrate": calibrate, "earth": earth,
+         "features": features, "score": score_one, "export": export}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Pipeline FVG Station")
     parser.add_argument("--step", required=True, choices=sorted(STEPS))
+    parser.add_argument("--sample", action="store_true",
+                        help="modalità test: solo le zone campione, in cartelle separate (non tocca i dati globali)")
+    parser.add_argument("--scale", type=int, default=500, choices=(30, 90, 500),
+                        help="terrain: risoluzione del DEM (500 = screening globale, 30 = baseline comune con LOLA)")
+    parser.add_argument("--groups", nargs="*", help="surface: quali gruppi (default: tutti)")
+    parser.add_argument("--scope", default="sample", choices=("sample", "all"), help="fine: quali esagoni a 30 m")
+    parser.add_argument("--limit", type=int, help="fine: al massimo N esagoni (per provare)")
+    parser.add_argument("--site", default="malapert_massif", help="score: slug del sito Artemis")
+    parser.add_argument("--test", default="rover_mobility", help="score: id del test in tests.yaml")
+    parser.add_argument("--publish", action="store_true", help="export: scrive in data/export/ (lo legge l'app)")
+    parser.add_argument("--no-refine", action="store_true", help="export: niente 30 m esatti sui candidati (solo stime)")
+    parser.add_argument("--no-dossier", action="store_true", help="export: niente aree protette e vento (Earth Engine)")
+    parser.add_argument("--skip-download", action="store_true",
+                        help="usa i raster già scaricati in data/raw/gee/ invece di richiederli a Earth Engine")
     args = parser.parse_args()
-    return STEPS[args.step]()
+    if args.sample:
+        config.set_test_mode()
+    return STEPS[args.step](args)
 
 
 if __name__ == "__main__":

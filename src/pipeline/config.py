@@ -25,6 +25,11 @@ BASELINE_M = 30       # distanza di misura comune Terra/Luna per pendenze, rugos
 SLOPE_BASELINES_M = (30, 60, 120, 240)    # scale per l'esponente di Hurst
 YEARS = ("2021-01-01", "2024-01-01")      # periodo dei compositi MODIS
 MAX_CELLS_EXPORT = 20_000                 # celle per file nell'export dell'app
+# Maschera "suolo nudo o vegetazione rada", applicata al pixel da 1 km.
+# NDVI mediano (non il massimo) < 0,2: con "massimo < 0,1" si perdevano metà dei siti di validazione
+# (Black Point, SFVF, Meteor Crater, Mojave: 0% di area sotto 0,1 entro 5 km; ~100% sotto 0,2). Verificato il 14/11.
+NDVI_THRESHOLD = 0.2
+MASK_NATIVE_M = 1000      # risoluzione dell'NDVI MODIS: la maschera si calcola qui
 
 # I 9 siti candidati di Artemis III, con gli stessi nomi dell'app (src/web/src/data.js)
 ARTEMIS_SITES = [
@@ -73,6 +78,23 @@ def env(key: str) -> str | None:
             if sep and k.strip() == key:
                 return v.strip().strip('"').strip("'")
     return None
+
+
+TEST_MODE = False
+FEATURES = INTERIM / "features.parquet"
+
+
+def set_test_mode() -> None:
+    """Modalità test: solo le zone campione (gee_common.TEST_BOXES), in cartelle separate.
+
+    Non tocca i raster globali né l'export che legge l'app. I percentili in test sono calcolati
+    solo sulle zone campione: servono a verificare la catena, non a dare numeri veri.
+    """
+    global TEST_MODE, GEE_DIR, FEATURES, EXPORT
+    TEST_MODE = True
+    GEE_DIR = RAW / "gee_test"
+    FEATURES = INTERIM / "features_test.parquet"
+    EXPORT = RAW / "export_test"
 
 
 def ensure_dirs() -> None:
