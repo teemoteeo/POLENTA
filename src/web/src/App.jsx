@@ -161,73 +161,73 @@ export default function App() {
 
   // --- Animazioni. Ogni passo ha una posa di camera; ogni passaggio tra due passi vicini ha una durata sola.
   // Avanti la curva rallenta alla fine (OUT), indietro è la stessa rovesciata (IN): il ritorno è l'andata al contrario.
-  // Click durante un movimento: vince l'ultimo. Il volo nuovo parte da dove si trova la camera e quello vecchio non fa più nulla
-  // (live() diventa falso). Solo lo scambio di pianeta (3 s) non si interrompe: lì pannello e pin sono spenti a vista (classe 'busy').
-  const run = useRef(0), locked = useRef(false)
+  const busy = useRef(false)
   const wait = ms => new Promise(r => setTimeout(r, ms))
   const fly = async opts => { spinning.current = false; map.current.flyTo({ essential: true, padding: basePad(), ...opts }); await wait(opts.duration) }
-  const act = fn => (...a) => {
-    if (locked.current) return
-    const id = ++run.current
-    return fn(() => id === run.current, ...a)
+  // un'animazione alla volta: i click durante un movimento si ignorano
+  const act = fn => async (...a) => {
+    if (busy.current) return
+    busy.current = true
+    try { await fn(...a) } finally { busy.current = false }
   }
-  const lock = on => { locked.current = on; document.documentElement.classList.toggle('busy', on) }
   const far = w => ({ ...HOME[w], center: [HOME[w].center[0] - 60, HOME[w].center[1]], zoom: 0.5, pitch: 0 }) // pianeta lontano (prima pagina)
   const over = center => ({ center, zoom: 6.5, pitch: 50, bearing: -20 }) // sopra un sito o un posto
 
   // Cambio di pianeta, uguale nei due versi e specchiato: la camera si allontana e scorre di lato insieme (padding della mappa,
   // così il pianeta è sempre disegnato intero), il pianeta esce di campo, l'altro entra dal lato opposto mentre lo zoom avanti parte.
   async function warp(to, center, arrive) {
-    const m = map.current, dir = to === 'earth' ? 1 : -1, base = basePad(), shift = 1.7 * innerWidth
-    const side = d => ({ ...base, left: d > 0 ? 0 : shift, right: d > 0 ? shift : 0 })
+    const m = map.current, dir = to === 'earth' ? 1 : -1, base = basePad(), W = innerWidth
+    // il padding porta il centro del pianeta fino al bordo dello schermo (oltre, la mappa lo limita);
+    // l'ultimo tratto lo fa lo scorrimento della mappa intera, quando il pianeta è già piccolo e lontano dal bordo opposto
+    const side = d => ({ ...base, left: d > 0 ? 0 : W, right: d > 0 ? W : 0 })
+    const slide = (from, to, duration, easing) => box.current.animate([{ transform: `translateX(${from * 45}vw)` }, { transform: `translateX(${to * 45}vw)` }], { duration, easing, fill: 'forwards' })
     // 240px = un tassello del cielo: a fine corsa lo sfondo è identico, niente salto
     const sky = (duration, easing) => stars.current.animate([{ backgroundPosition: '0 0' }, { backgroundPosition: `${-dir * 240}px 0` }], { duration, easing })
     spinning.current = false
-    lock(true)
     sky(T.warp, 'cubic-bezier(.55,0,1,.45)')
+    slide(0, -dir, T.warp, 'cubic-bezier(.7,0,1,.5)')
     m.easeTo({ zoom: 1, pitch: 0, bearing: 0, padding: side(dir), duration: T.warp, easing: t => t * t, essential: true })
     await wait(T.warp)
     setWorld(to)
     m.jumpTo({ center, zoom: 1, pitch: 0, bearing: 0, padding: side(-dir) })
-    lock(false) // l'arrivo è un volo normale: si può interrompere
     sky(1800, 'cubic-bezier(.15,.65,.55,1)')
+    slide(dir, 0, 1800, 'cubic-bezier(0,.5,.3,1)')
     await fly({ ...over(arrive), duration: T.site, easing: OUT })
   }
 
   // Pianeti ↔ Sito
-  const choosePlanet = act(async (live, w) => {
+  const choosePlanet = act(async w => {
     setWorld(w); setSite(null); setStep('site')
     map.current.jumpTo(far(w))
     await fly({ ...HOME[w], duration: T.planet, easing: OUT })
-    if (live()) spinning.current = true
+    spinning.current = true
   })
-  const toPlanets = act(async live => { // anche "Ricomincia", da qualsiasi passo: un solo zoom indietro, la mappa sfuma alla fine
+  const toPlanets = act(async () => { // anche "Ricomincia", da qualsiasi passo: un solo zoom indietro, la mappa sfuma alla fine
     if (step === 'planet') return
     fly({ ...(world === 'earth' ? { zoom: 0.5, pitch: 0 } : far(world)), duration: T.planet, easing: IN })
     await wait(T.planet - 600)
-    if (!live()) return
     setStep('planet'); setSite(null); setTestId(null)
     await wait(600)
   })
   // Sito ↔ Test
-  const chooseSite = act(async (live, s) => {
+  const chooseSite = act(async s => {
     setSite(s); setTestId(null); setStep('test')
     if (world === 'earth') await warp(s.world, [s.pos[0] + 35, s.pos[1]], s.pos)
     else await fly({ ...over(s.pos), duration: T.site, easing: OUT })
   })
-  const leaveSite = act(async live => {
+  const leaveSite = act(async () => {
     setStep('site'); setSite(null)
     await fly({ ...HOME[world], duration: T.siteBack, easing: IN })
-    if (live()) spinning.current = true
+    spinning.current = true
   })
   // Test ↔ Dove (il ritorno è chooseSite dalla Terra)
-  const chooseTest = act(async (live, id) => {
+  const chooseTest = act(async id => {
     setTestId(id); setPicked(0); setStep('results')
     const first = getResults(site.name, id).results[0]
     await warp('earth', [first.lon + 35, first.lat], [first.lon, first.lat])
   })
   // Dove ↔ Scheda
-  const choosePlace = act(async (live, i) => {
+  const choosePlace = act(async i => {
     setPicked(i); setStep('card')
     const r = data.results[i]
     await fly({ ...over([r.lon, r.lat]), zoom: 7, duration: step === 'card' ? T.next : T.card, easing: OUT })
