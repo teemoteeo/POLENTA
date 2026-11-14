@@ -3,7 +3,9 @@ import testsRaw from '../../../data/config/tests.yaml?raw'
 import { gridDisk, latLngToCell } from 'h3-js'
 import { toView } from './trek.js'
 
-export const TESTS = loadYaml(testsRaw).tests
+// landing_touchdown (aggiunto da Edo in tests.yaml) è nascosto dal pannello finché non ha dati e modello
+const { landing_touchdown: _hidden, ...shown } = loadYaml(testsRaw).tests
+export const TESTS = shown
 
 // Siti scelti dal team (15/11): tre regioni Artemis III al Polo Sud della Luna e due siti di atterraggio su Marte.
 // pos: dove sta il sito sulla mappa (la Luna è ruotata, vedi trek.js); tag: dove va l'etichetta in px (i siti lunari sono vicinissimi)
@@ -19,6 +21,8 @@ export const SITES = [
 export const MODELS = {
   rover_mobility: { src: '/models/rover.glb', name: 'Rover Perseverance' },
   flight_hda_lidar: { src: '/models/lander.glb', name: 'Lander lunare Apollo' },
+  flight_trn_camera: { src: '/models/drone.glb', name: 'Drone Ingenuity' },
+  eva_traverse: { src: '/models/suit.glb', name: 'Tuta EVA' },
 }
 
 // Pianeti a puntini [lon, lat, peso], precalcolati una volta su 50–59.000 punti di Fibonacci (il generatore è nella storia git, commit 67e90bc).
@@ -43,7 +47,9 @@ export const FACILITIES = {
 const MOCK_PLACES = {
   rover_mobility: [['Etna, Piano delle Concazze', 37.77, 15.03], ['Etna, Cisternazza', 37.72, 14.99], ['Teide, Tenerife', 28.27, -16.64], ['Black Point Lava Flow, Arizona', 35.69, -111.45], ['Lanzarote', 29.0, -13.75]],
   flight_hda_lidar: [['Cinder Lake, Arizona', 35.3, -111.48], ['Meteor Crater, Arizona', 35.03, -111.02], ['Etna, Cisternazza', 37.72, 14.99], ['Kilbourne Hole, New Mexico', 31.98, -106.97]],
-  isru_resources: [['Devon Island, Canada', 75.4, -89.8], ['Svalbard, Bockfjorden', 79.4, 13.3], ['Axel Heiberg, Canada', 79.4, -90.8]],
+  flight_trn_camera: [['Death Valley, California', 36.5, -117.1], ['Mojave, California', 35.06, -118.15], ['Islanda, Holuhraun', 64.85, -16.83], ['Etna, Piano delle Concazze', 37.77, 15.03]],
+  isru_anorthosite: [['Lofoten, Norvegia', 68.2, 13.9], ['Sithampoondi, India', 11.25, 78.0], ['Fiskenæsset, Groenlandia', 63.1, -50.7]],
+  eva_traverse: [['San Francisco Volcanic Field, Arizona', 35.58, -111.63], ['Lanzarote', 29.0, -13.75]],
 }
 
 function rnd(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647 }
