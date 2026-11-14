@@ -19,7 +19,8 @@ const BREAK = 0.3
 // Colori per tema e mondo: pagina, sfera, puntini
 const PALETTE = {
   dark: { page: '#04060a', moon: '#17181c', mars: '#1d1512', earth: '#0b1018', moonDot: [205, 208, 215, 150], marsDot: [255, 165, 120, 225], earthDot: [190, 215, 255, 175], accent: [255, 90, 31] },
-  light: { page: '#eef1f5', moon: '#e3e4e7', mars: '#efe4de', earth: '#dfe5ec', moonDot: [40, 42, 48, 120], marsDot: [140, 50, 20, 140], earthDot: [17, 40, 80, 140], accent: [255, 90, 31] },
+  // chiaro ma non abbagliante: fondo grigio-azzurro medio, pianeti con corpo; i puntini sono scurissimi perché la curva di resa li schiarisce
+  light: { page: '#c9ced6', moon: '#b4b8bf', mars: '#d0ad9c', earth: '#b3bfcd', moonDot: [8, 9, 12, 215], marsDot: [70, 14, 4, 220], earthDot: [17, 40, 80, 170], accent: [255, 90, 31] },
 }
 
 // Luna, Marte e Terra sono lo stesso oggetto: puntini da lontano, foto da vicino, stessa soglia di zoom
