@@ -19,7 +19,7 @@ import pandas as pd
 from . import config, features, fine, sites
 from .mock_export import KNOWN_SITES
 
-TESTS = ("flight_hda_lidar", "rover_mobility", "isru_resources")
+TESTS = ("flight_hda_lidar", "rover_mobility", "isru_subsurface")
 N_CANDIDATES = 25
 DOSSIER_CACHE = config.INTERIM / "site_dossier.json"
 
@@ -38,7 +38,15 @@ MARS_PLACEHOLDER = {   # SEGNAPOSTO finché Rocco non manda i valori veri (DTM C
 }
 
 
-def load_targets() -> list[dict]:
+def load_targets(feats: pd.DataFrame | None = None) -> list[dict]:
+    """I valori dei 5 siti: dalla matrice di Rocco (targets.py) se c'è, altrimenti i segnaposto."""
+    from . import targets
+    if targets.MATRIX.exists() and feats is not None:
+        return targets.site_targets(feats)
+    return placeholder_targets()
+
+
+def placeholder_targets() -> list[dict]:
     """Valori lunari e marziani per sito. Ora: segnaposto (mock per la Luna, MARS_PLACEHOLDER per Marte);
     poi: i valori di Rocco."""
     moon = {t["id"]: {**t, "world": "moon"} for t in json.loads((config.EXPORT / "targets.json").read_text())}
@@ -98,8 +106,8 @@ def dossier(data: dict, feats: pd.DataFrame) -> None:
 
 def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True) -> int:
     rules = config.load_tests_file()
-    targets = load_targets()
     feats = pd.read_parquet(config.FEATURES)
+    targets = load_targets(feats)
     print(f"1) voto con le stime: {len(targets)} siti × {len(TESTS)} test")
     first = run_all(feats, targets, rules, N_CANDIDATES)
     if do_refine:
@@ -121,7 +129,8 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         stale.unlink()
     (out / "targets.json").write_text(json.dumps(targets, ensure_ascii=False, indent=1), encoding="utf-8")
     for (site, test), d in data.items():
-        d["target_source"] = "SEGNAPOSTO: valori provvisori, in attesa dei valori di Rocco"
+        d["target_source"] = ("data/config/siti_e_pesi.csv (Rocco); unità convertite in targets.py"
+                              if not targets[0].get("mock") else "SEGNAPOSTO: valori provvisori, in attesa dei valori di Rocco")
         path = out / "sites" / f"{site}__{test}.json"
         path.write_text(json.dumps(d, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
         files.append(f"sites/{site}__{test}.json")

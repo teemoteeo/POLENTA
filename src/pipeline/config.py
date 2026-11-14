@@ -65,8 +65,10 @@ def load_params() -> list[dict]:
 
 
 def weights(test: dict) -> dict:
-    """Pesi del test; nei requisiti un peso può essere un numero o {peso: ..., target: ...}."""
-    return {p: (v["peso"] if isinstance(v, dict) else v) for p, v in test["requisiti"].items()}
+    """Pesi del test (solo quelli > 0); nei requisiti un peso può essere un numero o {peso: ..., target: ...}.
+    I pesi zero restano scritti in tests.yaml per completezza (matrice parametri × test) ma non contano."""
+    w = {p: (v["peso"] if isinstance(v, dict) else v) for p, v in test["requisiti"].items()}
+    return {p: v for p, v in w.items() if v > 0}
 
 
 # --- Variabili d'ambiente -------------------------------------------------

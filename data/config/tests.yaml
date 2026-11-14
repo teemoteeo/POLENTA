@@ -1,4 +1,4 @@
-# tests.yaml — catalogo dei test (v2, 2026-11-15 00:20)
+# tests.yaml — catalogo dei test (v3, 2026-11-15 00:30)
 #
 # Cos'è: per ogni test che un'azienda vuole fare, quali parametri contano e quanto.
 # La pipeline lo legge per calcolare il punteggio delle celle della Terra, l'app per le card.
@@ -14,6 +14,8 @@
 #   s = exp(-(D/tau)^2) per parametro, D = distanza in percentili terrestri; totale = media geometrica pesata.
 #   Un requisito con s < break_below è "si rompe" e va anche lui nella copertura indoor.
 # Pesi: segnaposto ragionati da docs/requisiti-test.md §3 e docs/finaliste.md. Owner: Rocco.
+# v3 (Edo, 15/11 00:30): pesi = matrice di Rocco (siti_e_pesi.csv), scritta per intero con gli zeri;
+#   isru_resources → isru_subsurface (nome di Rocco).
 # v2 (Edo, 15/11 00:20): 3 test, decisione del team sul testo della challenge: atterraggio con lidar,
 #   rover, risorse in situ (ghiaccio e materiali) per una base permanente. Tolti camera, EVA, touchdown.
 # v1 (Edo, 23:30): tutti e 5 i test sono nella demo (niente coming soon, ISRU tolto); filtro NDVI 0,2
@@ -35,14 +37,21 @@ tests:
     aziende: [TAS-I (rover ETNA/ULS), ALTEC, AIKO, PoliTo]
     # 14/11 20:00 (Edo): bulk_density tolto dal punteggio: la densità della regolite si
     # riproduce in vasca di simulante (indoor: soil_density). Vedi docs/proposta-finale.md §7.
-    requisiti:
+    requisiti:   # dalla matrice di Rocco (data/config/siti_e_pesi.csv); 0 = non conta per questo test
       slope_p90: 0.35
       roughness: 0.15
-      grain_proxy: 0.15
       rock_cover: 0.15
+      grain_proxy: 0.15
       low_sun_frac: 0.10
       crater_density: 0.05
       rock_class: 0.05
+      albedo: 0.00
+      bulk_density_0_5: 0.00
+      temperature: 0.00
+      density_profile_0_2m: 0.00
+      elevation: 0.00
+      atmosphere_wind: 0.00
+      permafrost_share: 0.00
     filtri:
       ndvi: "< 0.2"
       slope_p90: ">= 15"
@@ -55,34 +64,50 @@ tests:
     stato: mvp
     cosa_si_testa: il lidar del lander (o di un drone/elicottero che lo porta) vede rocce da 30 cm e pendenze da 5° e sceglie un punto sicuro
     aziende: [TAS-I (lander Argonaut), Evolunar (hopper), PoliTo PIC4SeR (drone)]
-    requisiti:
+    requisiti:   # dalla matrice di Rocco (data/config/siti_e_pesi.csv); 0 = non conta per questo test
       crater_density: 0.30
       rock_cover: 0.25
       slope_p90: 0.20
       roughness: 0.15
       albedo: 0.05
       rock_class: 0.05
+      grain_proxy: 0.00
+      low_sun_frac: 0.00
+      bulk_density_0_5: 0.00
+      temperature: 0.00
+      density_profile_0_2m: 0.00
+      elevation: 0.00
+      atmosphere_wind: 0.00
+      permafrost_share: 0.00
     filtri:
       ndvi: "< 0.2"
     indoor: [gravity_1_6, plume_vacuum, vacuum]
     validazione: [cinder_lake, death_valley]
 
-  isru_resources:
+  isru_subsurface:
     nome: Risorse in situ per una base permanente
     profilo: isru
     stato: mvp
     cosa_si_testa: estrarre acqua dal ghiaccio nel suolo e lavorare la regolite (scavo, sinterizzazione, ossigeno); dove provare impianti, trivelle e simulanti
     aziende: [ALTEC (centro lunare), TAS-I (habitat MPH)]
-    # 15/11 00:20 (Edo): pesi PROPOSTI, da confermare con Rocco. Ghiaccio: proxy MODIS (temperatura media annua
-    # < −1 °C). Materiali: tessitura SoilGrids 0-5 cm. Il carbonio organico SoilGrids è inaffidabile nell'alto
-    # Artico (Devon Island 110 g/kg, che è un deserto polare): sta nella card, non nel voto.
-    requisiti:
-      permafrost_share: 0.30
-      sand_pct: 0.20
-      clay_pct: 0.15
+    # 15/11 00:30: pesi di Rocco. Ghiaccio = subsurface_ice della matrice, sulla Terra permafrost_share (proxy
+    # MODIS: temperatura media annua < −1 °C). Tessitura e carbonio organico SoilGrids restano nella card
+    # (il carbonio è inaffidabile nell'alto Artico: Devon Island 110 g/kg, che è un deserto polare).
+    requisiti:   # dalla matrice di Rocco (data/config/siti_e_pesi.csv); 0 = non conta per questo test
+      permafrost_share: 0.35
+      bulk_density_0_5: 0.20
       grain_proxy: 0.15
-      bulk_density_0_5: 0.10
+      rock_class: 0.15
       slope_p90: 0.10
+      rock_cover: 0.05
+      roughness: 0.00
+      crater_density: 0.00
+      albedo: 0.00
+      low_sun_frac: 0.00
+      temperature: 0.00
+      density_profile_0_2m: 0.00
+      elevation: 0.00
+      atmosphere_wind: 0.00
     filtri:
       ndvi: "< 0.2"
     indoor: [vacuum, cryo_psr, agglutinates]
