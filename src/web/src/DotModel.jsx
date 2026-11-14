@@ -8,6 +8,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('/draco/'))
 
 // Il modello NASA diventa una nuvola di puntini campionati sulla superficie (densità uniforme per area).
+const FIT = 0.95 // mezza altezza del modello in unità di scena; la camera ne vede 1,2 al centro
 const cache = {}
 function cloud(src, n = 26000) {
   return (cache[src] ||= loader.loadAsync(src).then(({ scene }) => {
@@ -48,8 +49,12 @@ function cloud(src, n = 26000) {
     const g = new THREE.BufferGeometry()
     g.setAttribute('position', new THREE.Float32BufferAttribute(out, 3))
     g.computeBoundingBox()
-    const center = g.boundingBox.getCenter(new THREE.Vector3()), size = g.boundingBox.getSize(new THREE.Vector3()).length()
-    const k = 2.4 / size
+    const center = g.boundingBox.getCenter(new THREE.Vector3())
+    // Riempie il riquadro senza uscirne: il modello gira sull'asse verticale, quindi contano la mezza altezza
+    // e il raggio massimo attorno all'asse (il riquadro è largo circa 1,6 volte l'altezza utile).
+    let rxz = 0
+    for (let i = 0; i < out.length; i += 3) rxz = Math.max(rxz, Math.hypot(out[i] - center.x, out[i + 2] - center.z))
+    const k = FIT / Math.max(g.boundingBox.getSize(new THREE.Vector3()).y / 2, rxz / 1.6)
     g.translate(-center.x, -center.y, -center.z); g.scale(k, k, k)
     const l = new THREE.BufferGeometry()
     l.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3))
