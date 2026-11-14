@@ -154,23 +154,23 @@ export default function App() {
     if (then) map.current.once('moveend', then)
   }
 
-  // Stessa transizione nei due versi, specchiata: zoom indietro, il pianeta esce di campo,
-  // l'altro entra dal lato opposto, zoom avanti. Le stelle scorrono con la camera.
+  // Stessa transizione nei due versi, specchiata, in un solo movimento: lo zoom indietro parte piano,
+  // poi la camera scorre di lato mentre si allontana e il pianeta esce di campo; l'altro entra mentre lo zoom avanti è già partito.
   async function warp(to, center, arrive) {
     const m = map.current, dir = to === 'earth' ? 1 : -1, wait = ms => new Promise(r => setTimeout(r, ms))
     const slide = (from, end, easing) => Promise.all([
-      box.current.animate([{ transform: `translateX(${from * 100}vw)` }, { transform: `translateX(${end * 100}vw)` }], { duration: 900, easing, fill: 'forwards' }).finished,
+      box.current.animate([{ transform: `translateX(${from * 100}vw)` }, { transform: `translateX(${end * 100}vw)` }], { duration: 1800, easing, fill: 'forwards' }).finished,
       // 480px = due tasselli del cielo: a fine corsa lo sfondo è identico, niente salto
-      stars.current.animate([{ backgroundPosition: '0 0' }, { backgroundPosition: `${-dir * 480}px 0` }], { duration: 900, easing }).finished,
+      stars.current.animate([{ backgroundPosition: '0 0' }, { backgroundPosition: `${-dir * 480}px 0` }], { duration: 1800, easing }).finished,
     ])
     spinning.current = false
-    m.flyTo({ zoom: -1.5, pitch: 0, bearing: 0, duration: 4000, easing: t => t * t, essential: true })
-    await wait(4000)
-    await slide(0, -dir, 'cubic-bezier(.5,0,.9,.4)')
+    m.flyTo({ zoom: 1, pitch: 0, bearing: 0, duration: 3000, easing: t => t * t, essential: true })
+    await wait(1200) // dezoom graduale, poi la camera parte di lato
+    await slide(0, -dir, 'cubic-bezier(.45,0,.85,.35)')
     setWorld(to)
-    m.jumpTo({ center, zoom: -1.5, pitch: 0, bearing: 0 })
-    await slide(dir, 0, 'cubic-bezier(.1,.6,.5,1)')
-    arrive()
+    m.jumpTo({ center, zoom: 1, pitch: 0, bearing: 0 })
+    arrive() // lo zoom avanti parte insieme all'entrata in campo
+    await slide(dir, 0, 'cubic-bezier(.15,.65,.55,1)')
   }
 
   function chooseSite(s) {
