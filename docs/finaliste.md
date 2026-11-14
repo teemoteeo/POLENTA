@@ -43,6 +43,8 @@ La copertura con le strutture indoor è inclusa in tutte.
 
 ## Proposta: la 1, con il rover come esempio principale
 
+**Spiegazione completa, con i due profili (rover e volo) e i requisiti di dati: `docs/proposta-rover-volo.md`.**
+
 Il rover da solo è quello che fanno tutti. L'originalità viene da tre pilastri:
 
 1. **Copertura natura → strutture indoor.** "Il terreno te lo dà questo sito; il vuoto, i −200 °C e la luce a 1,5–7° no (il letto di ALTEC ha le luci a ~8°): per quelli vai lì." Nessuno collega l'analogo naturale alla struttura che chiude il buco.
@@ -53,7 +55,7 @@ Contorno:
 - **Luce radente** come dimensione della mobilità: serve alla fisica e alla challenge, ma non è il nostro messaggio.
 - **Filtro Italia/Europa:** TAS-I preferisce siti "tanto rappresentativi quanto nostrani" (fondi ASI).
 - **Facoltativo (Rocco, criterio Validity):** quantificare con la terramecanica il "si rompe" della gravità, cioè l'affondamento della stessa ruota a 1 g contro 1/6 g.
-- **Secondo profilo: atterraggio e volo** (lander, hopper, droni), con pesi veri ma senza dossier. Riusa i dati del rover; in più servono i crateri (condizione 4). È il campo di crateri **naturale** al posto di quelli artificiali.
+- **Secondo profilo: atterraggio e volo** (lander, hopper, droni), con pesi veri ma senza dossier. In `tests.yaml` v0 è diviso in due test: rilevamento dei pericoli con lidar e navigazione con camera. Le EVA ci sono come "coming soon". Riusa i dati del rover; in più servono i crateri (condizione 4). È il campo di crateri **naturale** al posto di quelli artificiali.
   - Dove si rompe: gravità a 1/6 e l'aria (aerodinamica, getto del motore, polvere sollevata), quindi la copertura rimanda alle camere a vuoto.
   - Nella demo: si passa da rover a volo e la mappa si ridisegna. Parla a TAS-I due volte (rover ETNA e Argonaut), a Evolunar e a PIC4SeR.
 - **Test ambientali dell'hardware di volo** (TVAC, vibrazioni): solo nella copertura, come righe di `facilities.csv`. È la riga in cui si riconosce Argotec.
