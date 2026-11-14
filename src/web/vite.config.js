@@ -5,4 +5,5 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: { fs: { allow: ['../..'] } },
+  optimizeDeps: { exclude: ['maplibre-gl'] }, // il worker di maplibre v6 non passa dal pre-bundle di vite
 })

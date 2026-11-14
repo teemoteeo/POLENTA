@@ -4,11 +4,37 @@ import { gridDisk, latLngToCell } from 'h3-js'
 
 export const TESTS = loadYaml(testsRaw).tests
 
-// Lista NASA ott 2024 (docs/decisioni.md)
+// Lista NASA ott 2024 (docs/decisioni.md).
+// ponytail: coordinate approssimate dai crateri e rilievi vicini, sostituire con artemis.csv quando c'è.
 export const ARTEMIS_SITES = [
-  'Peak near Cabeus B', 'Haworth', 'Malapert Massif', 'Mons Mouton Plateau', 'Mons Mouton',
-  'Nobile Rim 1', 'Nobile Rim 2', 'de Gerlache Rim 2', 'Slater Plain',
+  { name: 'Peak near Cabeus B', lat: -82.3, lon: -53 },
+  { name: 'Haworth', lat: -87.4, lon: -5 },
+  { name: 'Malapert Massif', lat: -86, lon: 3 },
+  { name: 'Mons Mouton Plateau', lat: -85, lon: 34 },
+  { name: 'Mons Mouton', lat: -84, lon: 31 },
+  { name: 'Nobile Rim 1', lat: -84.6, lon: 60 },
+  { name: 'Nobile Rim 2', lat: -85.9, lon: 45 },
+  { name: 'de Gerlache Rim 2', lat: -88, lon: -70 },
+  { name: 'Slater Plain', lat: -88.3, lon: 110 },
 ]
+
+// Modelli NASA 3D Resources (github.com/nasa/NASA-3D-Resources) in public/models
+export const MODELS = {
+  rover_mobility: { src: '/models/rover.glb', name: 'Rover Perseverance' },
+  flight_hda_lidar: { src: '/models/lander.glb', name: 'Lander lunare Apollo' },
+  flight_trn_camera: { src: '/models/drone.glb', name: 'Drone Ingenuity' },
+  eva_traverse: { src: '/models/suit.glb', name: 'Tuta EVA' },
+}
+
+// Luna a puntini: punti di Fibonacci uniformi sulla sfera
+// più fitti nella calotta sotto -70° perché lì si zooma sui siti
+const fib = (n, yMin = -1) => Array.from({ length: n }, (_, i) => {
+  const y = yMin + ((1 - yMin) * (i + 0.5)) / n // y = sin(lat) da yMin a 1, area uniforme
+  const lat = -(Math.asin(y) * 180) / Math.PI
+  return [((((i * Math.PI * (3 - Math.sqrt(5)) * 180) / Math.PI) % 360) + 540) % 360 - 180, lat, Math.min(1, (-lat - 62) / 18)]
+})
+// terzo valore = intensità: la calotta densa sfuma verso nord, niente bordo netto
+export const MOON_DOTS = [...fib(14000).map(([x, y]) => [x, y, 1]), ...fib(11000, Math.sin((62 * Math.PI) / 180))]
 
 // Chi copre cosa la Terra non dà (ruolo "indoor" in params.csv). Da sostituire con facilities.csv.
 export const FACILITIES = {
@@ -40,6 +66,6 @@ export function getResults(site, testId) {
     return { name, lat, lon, score: 0.92 - i * 0.07 - r() * 0.04, params }
   })
   const cells = results.flatMap(({ lat, lon, score }) =>
-    gridDisk(latLngToCell(lat, lon, 5), 6).map(h3 => ({ h3, score: score * (0.35 + r() * 0.65) })))
+    gridDisk(latLngToCell(lat, lon, 5), 3).map(h3 => ({ h3, score: score * (0.35 + r() * 0.65) })))
   return { results, cells }
 }
