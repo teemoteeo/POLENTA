@@ -12,12 +12,12 @@
     "@deck.gl/geo-layers": "^9.4.1",
     "@deck.gl/layers": "^9.4.1",
     "@deck.gl/mapbox": "^9.4.1",
-    "@google/model-viewer": "^4.4.0",
     "h3-js": "^4.5.0",
     "js-yaml": "^5.5.0",
     "maplibre-gl": "^6.18.0",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.3.0",

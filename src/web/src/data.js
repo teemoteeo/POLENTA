@@ -27,14 +27,39 @@ export const MODELS = {
 }
 
 // Luna a puntini: punti di Fibonacci uniformi sulla sfera
-// più fitti nella calotta sotto -70° perché lì si zooma sui siti
+// Fibonacci: [lon, lat, peso]; il peso fa sfumare la calotta densa verso nord (niente bordo netto)
 const fib = (n, yMin = -1) => Array.from({ length: n }, (_, i) => {
-  const y = yMin + ((1 - yMin) * (i + 0.5)) / n // y = sin(lat) da yMin a 1, area uniforme
+  const y = yMin + ((1 - yMin) * (i + 0.5)) / n // y = sin(-lat), area uniforme
   const lat = -(Math.asin(y) * 180) / Math.PI
-  return [((((i * Math.PI * (3 - Math.sqrt(5)) * 180) / Math.PI) % 360) + 540) % 360 - 180, lat, Math.min(1, (-lat - 62) / 18)]
+  return [((((i * Math.PI * (3 - Math.sqrt(5)) * 180) / Math.PI) % 360) + 540) % 360 - 180, lat, yMin === -1 ? 1 : Math.min(1, (-lat - 62) / 18)]
 })
-// terzo valore = intensità: la calotta densa sfuma verso nord, niente bordo netto
-export const MOON_DOTS = [...fib(14000).map(([x, y]) => [x, y, 1]), ...fib(11000, Math.sin((62 * Math.PI) / 180))]
+
+async function pixels(src) {
+  const img = new Image(); img.src = src; await img.decode()
+  const c = document.createElement('canvas'); c.width = img.width; c.height = img.height
+  const g = c.getContext('2d'); g.drawImage(img, 0, 0)
+  const { data } = g.getImageData(0, 0, img.width, img.height)
+  return (lon, lat) => {
+    const x = Math.min(img.width - 1, Math.floor((((lon + 540) % 360) / 360) * img.width))
+    const y = Math.min(img.height - 1, Math.floor(((90 - lat) / 180) * img.height))
+    return data[(y * img.width + x) * 4] / 255
+  }
+}
+
+// Luna a puntini dalla vera albedo (LRO, NASA CGI Moon Kit) + ombreggiatura dal DEM LOLA:
+// gli altopiani chiari sono pieni, i mari scuri quasi vuoti, i crateri grandi si vedono dal bordo.
+export async function buildMoonDots() {
+  const [albedo, dem] = await Promise.all([pixels('/moon/albedo.jpg'), pixels('/moon/ldem.jpg')])
+  const pts = [...fib(45000), ...fib(14000, Math.sin((62 * Math.PI) / 180))]
+  // contrasto adattivo: tra il 35° e il 70° percentile dell'albedo (mari → 0, altopiani → 1)
+  const al = pts.map(([lon, lat]) => albedo(lon, lat)), sorted = [...al].sort((x, y) => x - y)
+  const lo = sorted[Math.floor(sorted.length * 0.35)], hi = sorted[Math.floor(sorted.length * 0.7)]
+  return pts.map(([lon, lat, cap], i) => {
+    const shade = (dem(lon + 0.6, lat) - dem(lon - 0.6, lat)) * 5
+    const w = Math.max(0.04, Math.min(1, (al[i] - lo) / (hi - lo + 1e-6) + shade))
+    return [lon, lat, w * cap]
+  })
+}
 
 // Chi copre cosa la Terra non dà (ruolo "indoor" in params.csv). Da sostituire con facilities.csv.
 export const FACILITIES = {

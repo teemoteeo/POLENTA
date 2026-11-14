@@ -3,8 +3,8 @@ import * as maplibregl from 'maplibre-gl'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { H3HexagonLayer } from '@deck.gl/geo-layers'
 import { ScatterplotLayer } from '@deck.gl/layers'
-import '@google/model-viewer'
-import { ARTEMIS_SITES, TESTS, FACILITIES, MODELS, MOON_DOTS, getResults } from './data.js'
+import DotModel from './DotModel.jsx'
+import { ARTEMIS_SITES, TESTS, FACILITIES, MODELS, buildMoonDots, getResults } from './data.js'
 
 const PARAM_LABEL = {
   slope_p90: 'Pendenza', roughness: 'Rugosità', crater_density: 'Crateri', rock_cover: 'Rocce',
@@ -56,6 +56,7 @@ export default function App() {
   const [picked, setPicked] = useState(0)
   const [zoom, setZoom] = useState(HOME.zoom)
   const [earthDots, setEarthDots] = useState([])
+  const [moonDots, setMoonDots] = useState([])
 
   const data = useMemo(() => (site && testId ? getResults(site.name, testId) : null), [site, testId])
   const test = testId && TESTS[testId]
@@ -65,7 +66,8 @@ export default function App() {
 
   useEffect(() => {
     fetch('/earth-dots.json').then(r => r.json()).then(setEarthDots)
-    const m = new maplibregl.Map({ container: box.current, style: STYLE, ...HOME, maxPitch: 70, attributionControl: { compact: true } })
+    buildMoonDots().then(setMoonDots)
+    const m = new maplibregl.Map({ container: box.current, style: STYLE, ...HOME, maxPitch: 70, minZoom: -1.5, attributionControl: { compact: true } })
     map.current = m
     overlay.current = new MapboxOverlay({ interleaved: false, layers: [] }) // interleaved non disegna H3 sul globo
     m.addControl(overlay.current)
@@ -91,8 +93,8 @@ export default function App() {
     const apply = () => {
       m.setPaintProperty('sphere', 'background-color', pal[world])
       for (const id of ['gibs', 'esri']) m.setLayoutProperty(id, 'visibility', world === 'earth' ? 'visible' : 'none')
-      m.setSky({ 'sky-color': pal.page, 'horizon-color': world === 'earth' ? (theme === 'dark' ? '#2a5aa0' : '#a9c6ea') : pal.page,
-        'fog-color': pal.page, 'atmosphere-blend': world === 'earth' ? ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0] : 0 })
+      m.setSky({ 'sky-color': 'rgba(0,0,0,0)', 'horizon-color': world === 'earth' ? (theme === 'dark' ? '#2a5aa0' : '#a9c6ea') : pal.page,
+        'fog-color': 'rgba(0,0,0,0)', 'atmosphere-blend': world === 'earth' ? ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0] : 0 })
     }
     if (m.isStyleLoaded()) apply(); else m.once('load', apply)
   }, [theme, world]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -101,9 +103,9 @@ export default function App() {
   useEffect(() => {
     const dotsFade = world === 'earth' ? Math.max(0, Math.min(1, (5 - zoom) / 1.5)) : 1
     const layers = [new ScatterplotLayer({
-      id: 'dots-' + world, data: world === 'moon' ? MOON_DOTS : earthDots, getPosition: d => [d[0], d[1]],
-      radiusUnits: 'pixels', getRadius: world === 'moon' ? 1.1 + Math.max(0, zoom - 2.5) * 0.35 : 1.4, getFillColor: world === 'moon' ? d => [...pal.moonDot.slice(0, 3), pal.moonDot[3] * d[2]] : pal.earthDot,
-      opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme },
+      id: 'dots-' + world, data: world === 'moon' ? moonDots : earthDots, getPosition: d => [d[0], d[1]],
+      radiusUnits: 'pixels', getRadius: world === 'moon' ? d => (0.7 + 0.7 * d[2]) * (1 + Math.max(0, zoom - 2.5) * 0.3) : 1.4, getFillColor: world === 'moon' ? d => [...pal.moonDot.slice(0, 3), pal.moonDot[3] * d[2]] : pal.earthDot,
+      opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme, getRadius: zoom },
     })]
     if (world === 'moon') layers.push(new ScatterplotLayer({
       id: 'artemis', data: ARTEMIS_SITES, getPosition: d => [d.lon, d.lat], radiusUnits: 'pixels',
@@ -115,7 +117,7 @@ export default function App() {
       id: 'h3', data: data.cells, getHexagon: d => d.h3, getFillColor: d => heat(d.score), stroked: false, extruded: false,
     }))
     overlay.current?.setProps({ layers })
-  }, [world, earthDots, site, data, zoom, theme]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world, earthDots, moonDots, site, data, zoom, theme]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // pin dei risultati sulla Terra
   useEffect(() => {
@@ -135,19 +137,32 @@ export default function App() {
     if (then) map.current.once('moveend', then)
   }
 
+  // "camera che gira": la vista scorre di lato sfocata sulle stelle, cambia mondo, rientra dall'altro lato
+  function pan(swap, then) {
+    const root = document.documentElement
+    root.classList.add('pan-out')
+    setTimeout(() => {
+      swap()
+      root.classList.replace('pan-out', 'pan-in')
+      requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('pan-in')))
+      setTimeout(then, 800)
+    }, 750)
+  }
+
   function chooseSite(s) {
-    setSite(s); setStep('test'); setWorld('moon'); setTestId(null)
-    fly({ center: [s.lon, s.lat + 2], zoom: 3.3, pitch: 55, bearing: -18, duration: 2800 })
+    setSite(s); setStep('test'); setTestId(null)
+    const go = () => fly({ center: [s.lon, s.lat + 2], zoom: 3.3, pitch: 55, bearing: -18, duration: 2800 })
+    if (world === 'earth') pan(() => { setWorld('moon'); map.current.jumpTo({ center: [s.lon + 90, -40], zoom: 0.6, pitch: 0, bearing: 0 }) }, go)
+    else go()
   }
   function chooseTest(id) {
     setTestId(id); setPicked(0); setStep('results')
     const first = getResults(site.name, id).results[0]
-    // la Luna si allontana, al suo posto arriva la Terra, poi si vola sul posto migliore
-    fly({ zoom: 1.2, pitch: 0, bearing: 0, duration: 1100 }, () => {
-      setWorld('earth')
-      map.current.jumpTo({ center: [first.lon - 60, 20] })
-      fly({ center: [first.lon, first.lat], zoom: 6.5, pitch: 50, bearing: -20, speed: 0.7, curve: 1.7 })
-    })
+    // 1. ci si allontana dalla Luna  2. la camera gira verso la Terra  3. si vola sul posto migliore
+    fly({ zoom: -1.2, pitch: 0, bearing: 0, duration: 2200 }, () => pan(
+      () => { setWorld('earth'); map.current.jumpTo({ center: [first.lon + 100, 10], zoom: -0.6, pitch: 0, bearing: 0 }) },
+      () => fly({ center: [first.lon, first.lat], zoom: 6.5, pitch: 50, bearing: -20, duration: 5500, curve: 1.6 }),
+    ))
   }
   function choosePlace(i) {
     setPicked(i); setStep('card')
@@ -170,6 +185,7 @@ export default function App() {
 
   return (
     <>
+      <div className="stars" />
       <div ref={box} className="map" />
 
       <div className="left">
@@ -224,6 +240,11 @@ export default function App() {
           </>)}
 
           {step === 'card' && result && (<>
+            <div className="pager">
+              <button disabled={picked === 0} onClick={() => choosePlace(picked - 1)} aria-label="Sito precedente">←</button>
+              <span className="fig">{picked + 1} / {data.results.length}</span>
+              <button disabled={picked === data.results.length - 1} onClick={() => choosePlace(picked + 1)} aria-label="Sito successivo">→</button>
+            </div>
             <h2>{result.name}</h2>
             <p className="lbl">Analogo di {site.name} per {test.nome.toLowerCase()} · <span className="fig">{pct(result.score)}</span>/100</p>
             <ul className="bars">
@@ -249,8 +270,7 @@ export default function App() {
 
       {model && (
         <figure className="stage" key={model.src}>
-          <model-viewer src={model.src} alt={model.name} auto-rotate rotation-per-second="20deg" auto-rotate-delay="0"
-            camera-orbit="-35deg 72deg auto" disable-zoom disable-pan interaction-prompt="none" environment-image="neutral" exposure="1.05" shadow-intensity="0" />
+          <DotModel src={model.src} color={theme === 'dark' ? '#e6edf7' : '#1a1d24'} />
           <figcaption className="lbl">{model.name} · modello NASA 3D Resources</figcaption>
         </figure>
       )}
