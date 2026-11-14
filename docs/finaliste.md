@@ -39,11 +39,6 @@ Voti da 1 a 5. L'originalità è stimata su una ricerca dei repo pubblici di Spa
 - Letto di regolite: roccia di cava **8–20 volte meno** del simulante commerciale. Precedente reale: LUNA ha riempito la hall con 750-900 t di basalto di una cava a 30-40 km.
 - Luce: a 78–80°N, tra metà e fine agosto, il Sole resta tra 0° e 5,5° per 5–8 ore al giorno, con il terreno senza neve. Calcolo approssimato, senza rifrazione: da rifare con una libreria.
 
-## Correzioni ancora aperte in `requirements-tecnici.md` §4 (per Timo)
-
-- "sole ≤ ~1,5°": vale solo al polo esatto; nei siti Artemis arriva a ~5–7°.
-- "il sole radente c'è solo d'inverno": falso, vedi il calcolo sopra.
-
 ## Da decidere nella riunione
 
 1. MVP mobilità + ISRU/materiale, con la luce come dimensione della mobilità: confermato?

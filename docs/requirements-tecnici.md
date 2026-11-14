@@ -81,7 +81,7 @@ site,lat,lon,slope_p10,slope_p90,roughness,sun_elev_max_deg,illum_pct,t_min_c,t_
 | Dimensione | Luna (target) | Terra (per cella H3) | Dove si rompe |
 |---|---|---|---|
 | Terreno: pendenza, rugosità, rilievo | DEM polari LOLA | `NASADEM_HGT` + `ASTGTM` | Scala: H3 res 5 ≈ 250 km², quindi zoom sui migliori |
-| Illuminazione: elevazione massima del sole, notte | sole ≤ ~1,5°, % di illuminazione | **calcolata dalla latitudine**, nessun download | Sulla Terra c'è l'atmosfera (luce diffusa); il sole radente c'è solo d'inverno |
+| Illuminazione: elevazione massima del sole, notte | sole a pochi gradi sull'orizzonte (~1,5° al polo esatto, fino a ~5–7° nei siti Artemis), % di illuminazione | **calcolata dalla latitudine**, nessun download | Sulla Terra c'è l'atmosfera (luce diffusa, ombre più morbide). Il sole radente a lungo c'è alle alte latitudini: a 78–80°N, tra metà e fine agosto, 5–8 h al giorno tra 0° e 5,5°, senza neve (calcolo approssimato) |
 | Termico: minimo, massimo, escursione | Diviner | MODIS LST `MOD11C3` | La Terra non scende a −200 °C: serve un'altra struttura (camera termo-vuoto ALTEC) |
 | Composizione / litologia | mappa geologica USGS → `rock_class` | layer scritto a mano dalla letteratura (`materials.csv`); ASTER ed EMIT facoltativi | EMIT copre solo le zone aride e non vede il plagioclasio |
 | Regolite e materiale sciolto | regolite fine e tagliente | temperatura e albedo MODIS come proxy della granulometria + niente vegetazione (`MOD13C2`) | Grani arrotondati contro grani taglienti (lo ha detto la mentor) |
