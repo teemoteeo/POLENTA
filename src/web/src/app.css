@@ -90,6 +90,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* prima pagina: Luna e Marte a puntini, si sceglie dove andare */
 .map{transition:opacity .6s ease}
 .map.off{opacity:0;pointer-events:none}
+.picker{transition:opacity .6s ease,visibility 0s}
+.picker.off{opacity:0;visibility:hidden;transition:opacity .6s ease,visibility 0s .6s}
 .pick-hint{margin-top:14px;font:400 12px var(--mono)}
 .picker{position:fixed;left:4vw;right:4vw;top:clamp(150px,24vh,220px);bottom:2vh;display:flex;align-items:center;justify-content:space-evenly;gap:2vw;z-index:1}
 .planet{display:flex;flex-direction:column;align-items:center;gap:4px;width:calc(min(42vw,62vh) * var(--s));border-radius:24px;padding-bottom:16px;transition:transform .3s ease}

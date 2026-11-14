@@ -28,7 +28,7 @@ export default function DotPlanet({ dots, color, fill, dot = 2.2 }) {
     size()
     const ro = new ResizeObserver(size); ro.observe(el)
     let raf
-    const loop = t => { planet.rotation.y = t / 9000; r.render(scene, cam); raf = requestAnimationFrame(loop) }
+    const loop = t => { if (el.checkVisibility({ visibilityProperty: true })) { planet.rotation.y = t / 9000; r.render(scene, cam) } raf = requestAnimationFrame(loop) } // fermo quando la prima pagina è nascosta
     raf = requestAnimationFrame(loop)
     return () => { cancelAnimationFrame(raf); ro.disconnect(); g.dispose(); mat.dispose(); ball.geometry.dispose(); ball.material.dispose(); r.dispose(); r.domElement.remove() }
   }, [dots, color, fill, dot])
