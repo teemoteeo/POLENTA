@@ -67,7 +67,7 @@ def refine(first: dict) -> int:
     cand = pd.DataFrame({"h3": sorted(c for c in cells if c)})
     cand.to_parquet(config.INTERIM / "candidates.parquet", index=False)
     print(f"   candidati: {len(cand)} esagoni")
-    fine.main(scope="sample")
+    fine.main(scope="candidates")
     features.main()
     return len(cand)
 

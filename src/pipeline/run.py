@@ -122,7 +122,7 @@ def surface(args) -> int:
 def fine(args) -> int:
     """Fase a 30 m sugli esagoni: --scope sample (noti + campione + candidati) o all (tutti i validi)."""
     from . import fine as fine_step
-    return fine_step.main(scope=args.scope, limit=args.limit)
+    return fine_step.main(scope=args.scope, limit=args.limit, n_sample=args.n_sample)
 
 
 def calibrate(args) -> int:
@@ -166,8 +166,9 @@ def main() -> int:
     parser.add_argument("--scale", type=int, default=500, choices=(30, 90, 500),
                         help="terrain: risoluzione del DEM (500 = screening globale, 30 = baseline comune con LOLA)")
     parser.add_argument("--groups", nargs="*", help="surface: quali gruppi (default: tutti)")
-    parser.add_argument("--scope", default="sample", choices=("sample", "all"), help="fine: quali esagoni a 30 m")
+    parser.add_argument("--scope", default="sample", choices=("sample", "candidates", "all"), help="fine: quali esagoni a 30 m")
     parser.add_argument("--limit", type=int, help="fine: al massimo N esagoni (per provare)")
+    parser.add_argument("--n-sample", type=int, default=3000, help="fine: esagoni del campione casuale")
     parser.add_argument("--site", default="malapert_massif", help="score: slug del sito Artemis")
     parser.add_argument("--test", default="rover_mobility", help="score: id del test in tests.yaml")
     parser.add_argument("--publish", action="store_true", help="export: scrive in data/export/ (lo legge l'app)")

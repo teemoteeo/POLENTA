@@ -99,14 +99,16 @@ def hurst(df: pd.DataFrame) -> np.ndarray:
 
 
 def select_cells(n_sample: int = 3000, seed: int = 0, scope: str = "sample") -> pd.DataFrame:
-    """Quali esagoni calcolare, in ordine di priorità: siti noti, campione casuale, candidati, (tutto il resto)."""
+    """Quali esagoni calcolare, in ordine di priorità: siti noti, campione casuale, candidati, (tutto il resto).
+    scope='candidates': solo siti noti e candidati (quello che serve all'export, pochi minuti)."""
     from .mock_export import KNOWN_SITES
     cells = pd.read_parquet(config.INTERIM / "cells.parquet")
     valid = cells[cells["valid_share"] >= 0.05]
     rng = np.random.default_rng(seed)
     chosen = {h3.latlng_to_cell(k["lat"], k["lon"], config.H3_RES): "known" for k in KNOWN_SITES}
-    for c in rng.choice(valid["h3"].to_numpy(), size=min(n_sample, len(valid)), replace=False):
-        chosen.setdefault(c, "sample")
+    if scope != "candidates":
+        for c in rng.choice(valid["h3"].to_numpy(), size=min(n_sample, len(valid)), replace=False):
+            chosen.setdefault(c, "sample")
     cand = config.INTERIM / "candidates.parquet"
     if cand.exists():
         for c in pd.read_parquet(cand)["h3"]:
@@ -125,13 +127,16 @@ def select_cells(n_sample: int = 3000, seed: int = 0, scope: str = "sample") -> 
     return pd.DataFrame({"h3": list(chosen), "role": list(chosen.values())})
 
 
-def main(batch: int = 20, workers: int | None = None, limit: int | None = None, scope: str = "sample") -> int:
+def main(batch: int = 20, workers: int | None = None, limit: int | None = None, scope: str = "sample",
+         n_sample: int = 3000) -> int:
     """scope='sample': siti noti + campione di riferimento + candidati; scope='all': tutti gli esagoni validi
     (in ordine di priorità, i "normali" in versione leggera, 16 richieste in parallelo)."""
-    workers = workers or (16 if scope == "all" else 8)
+    # in restricted mode (quota mensile finita) Earth Engine regge poche richieste insieme: con 8 i gruppi
+    # saltavano per il 429 anche dopo 6 tentativi (14/11, 23:30)
+    workers = workers or 4
     from concurrent.futures import ThreadPoolExecutor, as_completed
     g.init()
-    todo = select_cells(scope=scope)
+    todo = select_cells(n_sample=n_sample, scope=scope)
     done = pd.read_parquet(OUT) if OUT.exists() else pd.DataFrame(columns=["h3"])
     todo = todo[~todo["h3"].isin(done["h3"])]
     if limit:
@@ -139,7 +144,8 @@ def main(batch: int = 20, workers: int | None = None, limit: int | None = None, 
     print(f"esagoni da calcolare a 30 m: {len(todo)} (già fatti: {len(done)}); ruoli: {todo['role'].value_counts().to_dict()}")
     imgs = {True: image(full=True), False: image(full=False)}
     batches = []
-    for full, part in ((True, todo[todo["role"] != "rest"]), (False, todo[todo["role"] == "rest"])):
+    for full, part in ((True, todo[todo["role"].isin(["known", "candidate"])]),
+                       (False, todo[~todo["role"].isin(["known", "candidate"])])):
         batches += [(full, part["h3"].iloc[i:i + batch].tolist()) for i in range(0, len(part), batch)]
     rows, t0 = [], time.time()
 
