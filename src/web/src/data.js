@@ -1,6 +1,7 @@
 import { load as loadYaml } from 'js-yaml'
 import testsRaw from '../../../data/config/tests.yaml?raw'
 import { gridDisk, latLngToCell } from 'h3-js'
+import { toView } from './moonTiles.js'
 
 export const TESTS = loadYaml(testsRaw).tests
 
@@ -16,7 +17,7 @@ export const ARTEMIS_SITES = [
   { name: 'Nobile Rim 2', lat: -85.9, lon: 45 },
   { name: 'de Gerlache Rim 2', lat: -88, lon: -70 },
   { name: 'Slater Plain', lat: -88.3, lon: 110 },
-]
+].map(s => ({ ...s, pos: toView(s.lon, s.lat) })) // pos: dove sta sulla Luna ruotata della mappa (moonTiles.js)
 
 // Modelli NASA 3D Resources (github.com/nasa/NASA-3D-Resources) in public/models
 export const MODELS = {
@@ -57,7 +58,7 @@ export async function buildMoonDots() {
   return pts.map(([lon, lat, cap], i) => {
     const shade = (dem(lon + 0.6, lat) - dem(lon - 0.6, lat)) * 5
     const w = Math.max(0.04, Math.min(1, (al[i] - lo) / (hi - lo + 1e-6) + shade))
-    return [lon, lat, w * cap]
+    return [...toView(lon, lat), w * cap]
   })
 }
 

@@ -2,10 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import * as maplibregl from 'maplibre-gl'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { H3HexagonLayer } from '@deck.gl/geo-layers'
-import { ScatterplotLayer, BitmapLayer } from '@deck.gl/layers'
-import { COORDINATE_SYSTEM } from '@deck.gl/core'
+import { ScatterplotLayer } from '@deck.gl/layers'
 import DotModel from './DotModel.jsx'
-import { moonTiles, moonLoaded, preloadMoon } from './moonTiles.js'
+import './moonTiles.js' // registra il protocollo moon:// prima della mappa
 import { ARTEMIS_SITES, TESTS, FACILITIES, MODELS, buildMoonDots, getResults } from './data.js'
 
 const PARAM_LABEL = {
@@ -22,6 +21,12 @@ const PALETTE = {
   light: { page: '#eef1f5', moon: '#e3e4e7', earth: '#dfe5ec', moonDot: [40, 42, 48, 120], earthDot: [17, 40, 80, 140], accent: [255, 90, 31] },
 }
 
+// Luna e Terra sono lo stesso oggetto: puntini da lontano, foto da vicino, stessa soglia di zoom
+const FADE = [3.5, 5]
+const IMG_FADE = ['interpolate', ['linear'], ['zoom'], FADE[0], 0, FADE[1], 1]
+const RASTERS = { moon: ['moon'], earth: ['gibs', 'esri'] }
+const ARRIVE = { zoom: 6.5, pitch: 50, bearing: -20, duration: 4500, easing: t => 1 - (1 - t) ** 3 }
+
 const STYLE = {
   version: 8,
   projection: { type: 'globe' },
@@ -31,15 +36,18 @@ const STYLE = {
       tiles: ['https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg'] },
     esri: { type: 'raster', tileSize: 256, maxzoom: 19, attribution: 'Esri World Imagery',
       tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'] },
+    // LRO WAC da NASA Moon Trek, ridisegnato con il Polo Sud sull'equatore (moonTiles.js)
+    moon: { type: 'raster', tileSize: 256, maxzoom: 8, attribution: 'NASA Moon Trek · LRO WAC', tiles: ['moon://{z}/{x}/{y}'] },
   },
   layers: [
     { id: 'sphere', type: 'background', paint: { 'background-color': PALETTE.dark.moon } },
-    { id: 'gibs', type: 'raster', source: 'gibs', layout: { visibility: 'none' }, paint: { 'raster-opacity': ['interpolate', ['linear'], ['zoom'], 3.5, 0, 5, 1] } },
+    { id: 'moon', type: 'raster', source: 'moon', layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
+    { id: 'gibs', type: 'raster', source: 'gibs', layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
     { id: 'esri', type: 'raster', source: 'esri', minzoom: 6, layout: { visibility: 'none' } },
   ],
 }
 
-const HOME = { center: [25, -35], zoom: 2.45, pitch: 35, bearing: -18 }
+const HOME = { center: [-20, -12], zoom: 2.45, pitch: 35, bearing: -18 }
 const heat = s => [255, Math.round(200 - 140 * s), Math.round(40 * (1 - s)), Math.round(20 + 100 * s)]
 const pct = s => Math.round(s * 100)
 
@@ -48,7 +56,7 @@ function initialTheme() {
 }
 
 export default function App() {
-  const box = useRef(null), map = useRef(null), overlay = useRef(null), spinning = useRef(true), markers = useRef([])
+  const box = useRef(null), stars = useRef(null), map = useRef(null), overlay = useRef(null), spinning = useRef(true), markers = useRef([])
   const [theme, setTheme] = useState(initialTheme)
   const [world, setWorld] = useState('moon')
   const [step, setStep] = useState('site')
@@ -59,8 +67,6 @@ export default function App() {
   const [zoom, setZoom] = useState(HOME.zoom)
   const [earthDots, setEarthDots] = useState([])
   const [moonDots, setMoonDots] = useState([])
-  const [tilesReady, setTilesReady] = useState(0), bump = () => setTilesReady(n => n + 1)
-  const [view, setView] = useState({ lng: HOME.center[0], lat: HOME.center[1] })
 
   const data = useMemo(() => (site && testId ? getResults(site.name, testId) : null), [site, testId])
   const test = testId && TESTS[testId]
@@ -71,18 +77,17 @@ export default function App() {
   useEffect(() => {
     fetch('/earth-dots.json').then(r => r.json()).then(setEarthDots)
     buildMoonDots().then(setMoonDots)
-    preloadMoon(bump)
     const m = new maplibregl.Map({ container: box.current, style: STYLE, ...HOME, maxPitch: 70, minZoom: -1.5, attributionControl: { compact: true } })
     map.current = m
     overlay.current = new MapboxOverlay({ interleaved: false, layers: [] }) // interleaved non disegna H3 sul globo
     m.addControl(overlay.current)
     const pad = () => m.setPadding(innerWidth > 820 ? { left: innerWidth * 0.5, top: 0, right: 0, bottom: 0 } : { left: 0, top: 0, right: 0, bottom: innerHeight * 0.42 })
     pad(); m.on('resize', pad)
-    let pending = false // zoom e centro aggiornati al massimo una volta per frame
+    let pending = false // zoom aggiornato al massimo una volta per frame
     m.on('move', () => {
       if (pending) return
       pending = true
-      requestAnimationFrame(() => { pending = false; setZoom(m.getZoom()); const c = m.getCenter(); setView({ lng: c.lng, lat: c.lat }) })
+      requestAnimationFrame(() => { pending = false; setZoom(m.getZoom()) })
     })
     const stop = () => (spinning.current = false)
     m.on('mousedown', stop); m.on('touchstart', stop)
@@ -102,30 +107,25 @@ export default function App() {
     const m = map.current
     const apply = () => {
       m.setPaintProperty('sphere', 'background-color', pal[world])
-      for (const id of ['gibs', 'esri']) m.setLayoutProperty(id, 'visibility', world === 'earth' ? 'visible' : 'none')
+      for (const [w, ids] of Object.entries(RASTERS)) for (const id of ids) m.setLayoutProperty(id, 'visibility', w === world ? 'visible' : 'none')
       m.setSky({ 'sky-color': 'rgba(0,0,0,0)', 'horizon-color': world === 'earth' ? (theme === 'dark' ? '#2a5aa0' : '#a9c6ea') : pal.page,
         'fog-color': 'rgba(0,0,0,0)', 'atmosphere-blend': world === 'earth' ? ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0] : 0 })
     }
-    if (m.isStyleLoaded()) apply(); else m.once('load', apply)
+    try { apply() } catch { m.once('load', apply) } // isStyleLoaded() è falso anche solo con tile in arrivo
   }, [theme, world]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // layer deck: puntini, siti Artemis, heat map H3
   useEffect(() => {
-    // stesso principio della Terra: avvicinandosi i puntini sfumano nell'immagine.
-    // Sulla Luna i puntini restano finché le tile non sono arrivate, così non resta mai il vuoto.
-    const imgFade = world === 'earth' ? Math.max(0, Math.min(1, (zoom - 3.5) / 1.5)) : Math.max(0, Math.min(1, (zoom - 2.8) / 1.2))
-    const dotsFade = world === 'earth' ? 1 - imgFade : 1 - imgFade * moonLoaded()
-    const layers = world === 'moon' && imgFade > 0 ? moonTiles().map(t => new BitmapLayer({
-      id: 'moon-' + t.key, image: t.image, bounds: t.bounds, _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT, opacity: imgFade,
-      textureParameters: { minFilter: 'linear', magFilter: 'linear', mipmapFilter: 'linear', addressModeU: 'clamp-to-edge', addressModeV: 'clamp-to-edge', maxAnisotropy: 16 },
-    })) : []
-    layers.push(new ScatterplotLayer({
+    // puntini che sfumano nella foto, sulla stessa soglia del raster (IMG_FADE); il raggio cambia con un uniform, senza ricalcolo
+    const dotsFade = 1 - Math.max(0, Math.min(1, (zoom - FADE[0]) / (FADE[1] - FADE[0])))
+    const layers = [new ScatterplotLayer({
       id: 'dots-' + world, data: world === 'moon' ? moonDots : earthDots, getPosition: d => [d[0], d[1]],
-      radiusUnits: 'pixels', getRadius: world === 'moon' ? d => (0.7 + 0.7 * d[2]) * (1 + Math.max(0, zoom - 2.5) * 0.3) : 1.4, getFillColor: world === 'moon' ? d => [...pal.moonDot.slice(0, 3), pal.moonDot[3] * d[2]] : pal.earthDot,
-      opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme, getRadius: zoom },
-    }))
+      radiusUnits: 'pixels', getRadius: world === 'moon' ? d => 0.7 + 0.7 * d[2] : 1.4, radiusScale: world === 'moon' ? 1 + Math.max(0, zoom - 2.5) * 0.3 : 1,
+      getFillColor: world === 'moon' ? d => [...pal.moonDot.slice(0, 3), pal.moonDot[3] * d[2]] : pal.earthDot,
+      opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme },
+    })]
     if (world === 'moon') layers.push(new ScatterplotLayer({
-      id: 'artemis', data: ARTEMIS_SITES, getPosition: d => [d.lon, d.lat], radiusUnits: 'pixels',
+      id: 'artemis', data: ARTEMIS_SITES, getPosition: d => d.pos, radiusUnits: 'pixels',
       getRadius: d => (d === site ? 9 : 5), getFillColor: d => (d === site ? pal.accent : [...pal.accent, 170]),
       stroked: true, getLineColor: [255, 255, 255, 220], lineWidthUnits: 'pixels', getLineWidth: d => (d === site ? 2 : 0),
       pickable: true, onClick: ({ object }) => object && chooseSite(object), updateTriggers: { getRadius: site?.name, getFillColor: site?.name, getLineWidth: site?.name },
@@ -134,7 +134,7 @@ export default function App() {
       id: 'h3', data: data.cells, getHexagon: d => d.h3, getFillColor: d => heat(d.score), stroked: false, extruded: false,
     }))
     overlay.current?.setProps({ layers })
-  }, [world, earthDots, moonDots, site, data, zoom, view, theme, tilesReady]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world, earthDots, moonDots, site, data, zoom, theme]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // pin dei risultati sulla Terra
   useEffect(() => {
@@ -154,32 +154,36 @@ export default function App() {
     if (then) map.current.once('moveend', then)
   }
 
-  // Un solo movimento: ci si allontana finché il mondo sparisce, un attimo di spazio nero, poi si arriva sull'altro.
-  function warp(to, center, arrive) {
-    // speculare all'arrivo: stesso zoom (6,5 → -1,5), stessa durata, easing rovesciato
-    const root = document.documentElement
+  // Stessa transizione nei due versi, specchiata: zoom indietro, il pianeta esce di campo,
+  // l'altro entra dal lato opposto, zoom avanti. Le stelle scorrono con la camera.
+  async function warp(to, center, arrive) {
+    const m = map.current, dir = to === 'earth' ? 1 : -1, wait = ms => new Promise(r => setTimeout(r, ms))
+    const slide = (from, end, easing) => Promise.all([
+      box.current.animate([{ transform: `translateX(${from * 100}vw)` }, { transform: `translateX(${end * 100}vw)` }], { duration: 900, easing, fill: 'forwards' }).finished,
+      // 480px = due tasselli del cielo: a fine corsa lo sfondo è identico, niente salto
+      stars.current.animate([{ backgroundPosition: '0 0' }, { backgroundPosition: `${-dir * 480}px 0` }], { duration: 900, easing }).finished,
+    ])
     spinning.current = false
-    map.current.flyTo({ zoom: -1.5, pitch: 0, bearing: 0, duration: 4000, easing: t => t * t, essential: true })
-    setTimeout(() => root.classList.add('void'), 3800)
-    setTimeout(() => {
-      setWorld(to)
-      map.current.jumpTo({ center, zoom: -1.5, pitch: 0, bearing: 0 })
-      root.classList.remove('void')
-      arrive()
-    }, 4400)
+    m.flyTo({ zoom: -1.5, pitch: 0, bearing: 0, duration: 4000, easing: t => t * t, essential: true })
+    await wait(4000)
+    await slide(0, -dir, 'cubic-bezier(.5,0,.9,.4)')
+    setWorld(to)
+    m.jumpTo({ center, zoom: -1.5, pitch: 0, bearing: 0 })
+    await slide(dir, 0, 'cubic-bezier(.1,.6,.5,1)')
+    arrive()
   }
 
   function chooseSite(s) {
     setSite(s); setStep('test'); setTestId(null)
-    const go = (opts = {}) => fly({ center: [s.lon, s.lat], zoom: 4.2, pitch: 30, bearing: -20, duration: 4500, easing: t => 1 - (1 - t) ** 3, ...opts })
-    if (world === 'earth') warp('moon', [s.lon + 35, s.lat], go)
+    const go = () => fly({ center: s.pos, ...ARRIVE })
+    if (world === 'earth') warp('moon', [s.pos[0] + 35, s.pos[1]], go)
     else go()
   }
   function chooseTest(id) {
     setTestId(id); setPicked(0); setStep('results')
     const first = getResults(site.name, id).results[0]
     warp('earth', [first.lon + 35, first.lat], () =>
-      fly({ center: [first.lon, first.lat], zoom: 6.5, pitch: 50, bearing: -20, duration: 4500, easing: t => 1 - (1 - t) ** 3 }))
+      fly({ center: [first.lon, first.lat], ...ARRIVE }))
   }
   function choosePlace(i) {
     setPicked(i); setStep('card')
@@ -202,7 +206,7 @@ export default function App() {
 
   return (
     <>
-      <div className="stars" />
+      <div ref={stars} className="stars" />
       <div ref={box} className="map" />
 
       <div className="left">
