@@ -30,7 +30,7 @@ const RASTERS = { moon: ['moon'], mars: ['mars'], earth: ['gibs', 'esri'] }
 // size: raggio rispetto a Marte (Luna 1.737 km, Marte 3.390 km)
 const PLANETS = { mars: { name: 'Marte', what: '2 siti di atterraggio', size: 1 }, moon: { name: 'Luna', what: 'Polo Sud · 3 regioni Artemis III', size: 0.51 } }
 // durate (ms) dei passaggi, uguali in andata e ritorno; curve: OUT rallenta alla fine, IN è la stessa rovesciata
-const T = { planet: 2600, site: 4500, warp: 3000, card: 1600, next: 2200 }
+const T = { planet: 2600, site: 4500, siteBack: 2600, warp: 3000, card: 1600, next: 2200 } // siteBack: il ritorno dal sito è più corto dell'andata
 const OUT = t => 1 - (1 - t) ** 3, IN = t => t ** 3
 
 const STYLE = {
@@ -62,6 +62,9 @@ const HOME = { moon: { center: [-4, -6], zoom: 2.45, pitch: 35, bearing: -18 }, 
 const heat = s => [255, Math.round(200 - 140 * s), Math.round(40 * (1 - s)), Math.round(20 + 100 * s)]
 const pct = s => Math.round(s * 100)
 
+// il pianeta sta a destra del pannello (desktop) o sopra (mobile)
+const basePad = () => (innerWidth > 820 ? { left: innerWidth * 0.5, top: 0, right: 0, bottom: 0 } : { left: 0, top: 0, right: 0, bottom: innerHeight * 0.42 })
+
 function initialTheme() {
   try { return localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') } catch { return 'dark' }
 }
@@ -91,7 +94,7 @@ export default function App() {
     map.current = m
     overlay.current = new MapboxOverlay({ interleaved: false, layers: [] }) // interleaved non disegna H3 sul globo
     m.addControl(overlay.current)
-    const pad = () => m.setPadding(innerWidth > 820 ? { left: innerWidth * 0.5, top: 0, right: 0, bottom: 0 } : { left: 0, top: 0, right: 0, bottom: innerHeight * 0.42 })
+    const pad = () => m.setPadding(basePad())
     pad(); m.on('resize', pad)
     let pending = false // zoom aggiornato al massimo una volta per frame
     m.on('move', () => {
@@ -158,68 +161,73 @@ export default function App() {
 
   // --- Animazioni. Ogni passo ha una posa di camera; ogni passaggio tra due passi vicini ha una durata sola.
   // Avanti la curva rallenta alla fine (OUT), indietro è la stessa rovesciata (IN): il ritorno è l'andata al contrario.
-  const busy = useRef(false)
+  // Click durante un movimento: vince l'ultimo. Il volo nuovo parte da dove si trova la camera e quello vecchio non fa più nulla
+  // (live() diventa falso). Solo lo scambio di pianeta (3 s) non si interrompe: lì pannello e pin sono spenti a vista (classe 'busy').
+  const run = useRef(0), locked = useRef(false)
   const wait = ms => new Promise(r => setTimeout(r, ms))
-  const fly = async opts => { spinning.current = false; map.current.flyTo({ essential: true, ...opts }); await wait(opts.duration) }
-  // un'animazione alla volta: i click durante un movimento si ignorano
-  const act = fn => async (...a) => {
-    if (busy.current) return
-    busy.current = true
-    try { await fn(...a) } finally { busy.current = false }
+  const fly = async opts => { spinning.current = false; map.current.flyTo({ essential: true, padding: basePad(), ...opts }); await wait(opts.duration) }
+  const act = fn => (...a) => {
+    if (locked.current) return
+    const id = ++run.current
+    return fn(() => id === run.current, ...a)
   }
+  const lock = on => { locked.current = on; document.documentElement.classList.toggle('busy', on) }
   const far = w => ({ ...HOME[w], center: [HOME[w].center[0] - 60, HOME[w].center[1]], zoom: 0.5, pitch: 0 }) // pianeta lontano (prima pagina)
   const over = center => ({ center, zoom: 6.5, pitch: 50, bearing: -20 }) // sopra un sito o un posto
 
   // Cambio di pianeta, uguale nei due versi e specchiato: la camera si allontana e scorre di lato insieme (padding della mappa,
   // così il pianeta è sempre disegnato intero), il pianeta esce di campo, l'altro entra dal lato opposto mentre lo zoom avanti parte.
   async function warp(to, center, arrive) {
-    const m = map.current, dir = to === 'earth' ? 1 : -1, base = m.getPadding(), shift = 1.7 * innerWidth
+    const m = map.current, dir = to === 'earth' ? 1 : -1, base = basePad(), shift = 1.7 * innerWidth
     const side = d => ({ ...base, left: d > 0 ? 0 : shift, right: d > 0 ? shift : 0 })
     // 240px = un tassello del cielo: a fine corsa lo sfondo è identico, niente salto
     const sky = (duration, easing) => stars.current.animate([{ backgroundPosition: '0 0' }, { backgroundPosition: `${-dir * 240}px 0` }], { duration, easing })
     spinning.current = false
+    lock(true)
     sky(T.warp, 'cubic-bezier(.55,0,1,.45)')
     m.easeTo({ zoom: 1, pitch: 0, bearing: 0, padding: side(dir), duration: T.warp, easing: t => t * t, essential: true })
     await wait(T.warp)
     setWorld(to)
     m.jumpTo({ center, zoom: 1, pitch: 0, bearing: 0, padding: side(-dir) })
+    lock(false) // l'arrivo è un volo normale: si può interrompere
     sky(1800, 'cubic-bezier(.15,.65,.55,1)')
-    await fly({ ...over(arrive), padding: base, duration: T.site, easing: OUT })
+    await fly({ ...over(arrive), duration: T.site, easing: OUT })
   }
 
   // Pianeti ↔ Sito
-  const choosePlanet = act(async w => {
+  const choosePlanet = act(async (live, w) => {
     setWorld(w); setSite(null); setStep('site')
     map.current.jumpTo(far(w))
     await fly({ ...HOME[w], duration: T.planet, easing: OUT })
-    spinning.current = true
+    if (live()) spinning.current = true
   })
-  const toPlanets = act(async () => { // anche "Ricomincia", da qualsiasi passo: un solo zoom indietro, la mappa sfuma alla fine
+  const toPlanets = act(async live => { // anche "Ricomincia", da qualsiasi passo: un solo zoom indietro, la mappa sfuma alla fine
     if (step === 'planet') return
     fly({ ...(world === 'earth' ? { zoom: 0.5, pitch: 0 } : far(world)), duration: T.planet, easing: IN })
     await wait(T.planet - 600)
+    if (!live()) return
     setStep('planet'); setSite(null); setTestId(null)
     await wait(600)
   })
   // Sito ↔ Test
-  const chooseSite = act(async s => {
+  const chooseSite = act(async (live, s) => {
     setSite(s); setTestId(null); setStep('test')
     if (world === 'earth') await warp(s.world, [s.pos[0] + 35, s.pos[1]], s.pos)
     else await fly({ ...over(s.pos), duration: T.site, easing: OUT })
   })
-  const leaveSite = act(async () => {
+  const leaveSite = act(async live => {
     setStep('site'); setSite(null)
-    await fly({ ...HOME[world], duration: T.site, easing: IN })
-    spinning.current = true
+    await fly({ ...HOME[world], duration: T.siteBack, easing: IN })
+    if (live()) spinning.current = true
   })
   // Test ↔ Dove (il ritorno è chooseSite dalla Terra)
-  const chooseTest = act(async id => {
+  const chooseTest = act(async (live, id) => {
     setTestId(id); setPicked(0); setStep('results')
     const first = getResults(site.name, id).results[0]
     await warp('earth', [first.lon + 35, first.lat], [first.lon, first.lat])
   })
   // Dove ↔ Scheda
-  const choosePlace = act(async i => {
+  const choosePlace = act(async (live, i) => {
     setPicked(i); setStep('card')
     const r = data.results[i]
     await fly({ ...over([r.lon, r.lat]), zoom: 7, duration: step === 'card' ? T.next : T.card, easing: OUT })
