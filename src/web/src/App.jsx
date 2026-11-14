@@ -10,7 +10,7 @@ const PARAM_LABEL = {
   slope_p90: 'Pendenza', roughness: 'Rugosità', crater_density: 'Crateri', rock_cover: 'Rocce',
   low_sun_frac: 'Sole radente', albedo: 'Albedo', grain_proxy: 'Granulometria', bulk_density: 'Densità del suolo',
   rock_class: 'Tipo di roccia', gravity_1_6: 'Gravità 1/6', vacuum: 'Vuoto', electrostatic_dust: 'Polvere elettrostatica',
-  plume_vacuum: 'Getto del motore nel vuoto', cryo_psr: 'Gelo delle zone in ombra', agglutinates: 'Agglutinati',
+  plume_vacuum: 'Getto del motore nel vuoto', soil_density: 'Densità della regolite', cryo_psr: 'Gelo delle zone in ombra', agglutinates: 'Agglutinati',
 }
 const BREAK = 0.3
 

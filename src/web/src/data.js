@@ -44,6 +44,7 @@ export const FACILITIES = {
   plume_vacuum: ['sfera da 60 ft, NASA Langley'],
   cryo_psr: ['TVAC "sporca" ALTEC, Torino (in arrivo)'],
   agglutinates: ['vasche di simulante LHS-1 / LMS-1'],
+  soil_density: ['vasche di simulante: LUNA, ALTEC, SLOPE NASA Glenn'],
 }
 
 // ponytail: dati finti finché non arriva data/export/sites/<site>__<test>.json di Edo.
