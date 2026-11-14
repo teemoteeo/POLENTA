@@ -1,6 +1,6 @@
 # Decisioni — FVG Station
 
-**Fonte unica.** Se un altro file non torna con questo, vale questo. Aggiornato: 2026-11-14 17:45 (riunione del team registrata alle 17:10).
+**Fonte unica.** Se un altro file non torna con questo, vale questo. Aggiornato: 2026-11-14 17:40 (riunione del team registrata alle 17:10; gate e correzioni aggiunti da Edo).
 
 ## Prodotto
 
@@ -22,7 +22,7 @@
 
 ## Spunti per le dimensioni
 
-- **Illuminazione:** al Polo Sud il sole non sale oltre ~1,5°, quindi ombre lunghissime e contrasti estremi.
+- **Illuminazione:** al Polo Sud il Sole resta a pochi gradi sull'orizzonte (~1,5° al polo esatto, fino a ~5–7° nei siti Artemis), quindi ombre lunghissime e contrasti estremi.
 - **Alta quota e ghiacciai:** proxy di radiazione più alta e atmosfera rarefatta. La gravità non si riproduce.
 
 ## Prossimi passi, in ordine
@@ -42,8 +42,21 @@
 
 - Kit di analoghi (T1, "nessun posto basta, tre insieme sì"): non convince, non deciso.
 - Motore della mappa: Cesium o deck.gl.
+- Layer materiali (ISRU): come costruirlo si decide dopo i requisiti dei test delle aziende (`docs/test-aziende.md`). Attenzione: EMIT non misura il plagioclasio, cioè l'anortosite del Polo Sud.
 
 ## Orari e submission
+
+**Gate** (decisi alle 17:40; la notte si lavora fuori dal Politecnico):
+
+| Quando | Cosa |
+|---|---|
+| sab 20:00 | file di prova in `data/export/` (1 sito Artemis) |
+| sab 21:45 | si esce dal Politecnico (il cancello chiude alle 22:00), si continua da remoto |
+| sab 22:30 | primo test end-to-end: mobilità sulla mappa |
+| dom 01:00 | ranking completo, poi si dorme |
+| dom 09:00 | rientro al Politecnico (ingresso pedonale) |
+| dom 11:00 | freeze delle funzionalità |
+| dom 15:30 | submit interno |
 
 - **Deadline: dom 15/11 alle 16:00.** Submit interno entro le 15:30. Pitch alle 16:15, premiazione alle 17:30.
 - **Pitch:** 4 minuti cronometrati. Struttura e criteri in `docs/requirements.md`.

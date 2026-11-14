@@ -20,7 +20,7 @@ Non sono decisioni prese: è la proposta da discutere con Edo e Rocco.
   1. **siti naturali** per test all'aperto;
   2. **strutture indoor** (LUNA, ALTEC, Moonyard, Astrobotic, PISCES…: lista di circa 10 punti scritta a mano);
   3. **sorgenti di materiale** (affioramenti e cave).
-- Flusso: scegli il target (Jezero), scegli il **tipo di test** (mobilità, atterraggio, trivella, ISRU/materiale, costruzione). Il tipo di test imposta i pesi delle dimensioni:
+- Flusso: scegli il target (uno dei 9 siti Artemis III, vedi `decisioni.md`), scegli il **tipo di test** (mobilità, atterraggio, trivella, ISRU/materiale, costruzione). Il tipo di test imposta i pesi delle dimensioni:
   - mobilità → pendenza, rugosità, granulometria;
   - trivella → ghiaccio, durezza;
   - ISRU → mineralogia.
@@ -30,9 +30,9 @@ Non sono decisioni prese: è la proposta da discutere con Edo e Rocco.
 
 **Proposta di MVP:** due tipi di test, **mobilità** (usa i dati di terreno che Edo sta già preparando) e **ISRU/materiale** (racconta il "perché questo materiale"). Gli altri compaiono nella UI come "coming soon".
 
-**Da verificare subito (Edo e Rocco):** la mineralogia. EMIT copre solo le zone aride e misura una decina di minerali delle polveri (argille, carbonati, gesso, ossidi di ferro). Jezero è olivina, carbonati e argille, e l'olivina potrebbe mancare. Se EMIT non regge, il layer materiali si fa a mano con 5-10 sorgenti note dalla letteratura (Etna, Stillwater, Groenlandia, Lanzarote) e lo si dichiara.
+**Da verificare subito (Edo e Rocco):** la mineralogia. EMIT copre solo le zone aride e misura una decina di minerali delle polveri (argille, carbonati, gesso, ossidi di ferro). Il Polo Sud lunare è anortosite (plagioclasio), che EMIT non misura. Se EMIT non regge, il layer materiali si fa a mano con 5-10 sorgenti note dalla letteratura (Etna, Stillwater, Groenlandia, Lanzarote) e lo si dichiara.
 
-**Gancio per il pitch:** Space Resource Technologies vende un simulante di Jezero (JEZ-1). Noi diciamo dove sulla Terra si trova la roccia che ci somiglia, e dove l'analogia si rompe.
+**Gancio per il pitch:** Space Resource Technologies vende un simulante del Polo Sud lunare (LSP-2). Noi diciamo dove sulla Terra si trova la roccia che ci somiglia, e dove l'analogia si rompe.
 
 ---
 
@@ -73,8 +73,7 @@ Nicchia B2B. Target: chi deve testare hardware lunare (rover, lander, ISRU, stam
 
 ## Implicazioni per la pipeline (per Edo e Rocco)
 
-- Il target MVP del piano è Jezero (Marte). Il mercato privato secondo la mentor è soprattutto lunare (Polo Sud: Artemis, MPH, ALTEC, dati Diviner). Passare alla Luna è una decisione del team, con un costo sulla pipeline. Restando su Marte, il gancio B2B c'è comunque: il rover ExoMars sarà gestito da ALTEC a Torino (twist T5).
-- Twist coerenti con il B2B: T10 (mission planner: dove testo questa tecnologia), T2 (costo di accesso), T5 (ALTEC).
+- Target deciso: i 9 siti Artemis III al Polo Sud lunare (`decisioni.md`). Jezero e i twist del piano vecchio sono in `archive/`.
 - SRTM copre solo 60N-56S. Islanda (63-66N) e Haughton (75N) sono fuori: per le alte latitudini serve Copernicus DEM.
 - Asse da aggiungere alla similarità: il materiale (mineralogia e granulometria come proxy della regolite), non solo la forma del terreno.
 
@@ -82,7 +81,7 @@ Nicchia B2B. Target: chi deve testare hardware lunare (rover, lander, ISRU, stam
 
 - Criteri: impatto, creatività (nuovo o completa qualcosa che esiste), validità scientifica, rilevanza alla challenge, presentazione.
 - Pitch di 4 minuti, tagliano chi sfora.
-- La submission su spaceappschallenge.org serve anche per la fase internazionale, a prescindere dal risultato locale. Per noi la deadline è dom 15/11 alle 16:00 (vedi `findings.md`), non le 23:59 dette al welcome.
+- La submission su spaceappschallenge.org serve anche per la fase internazionale, a prescindere dal risultato locale. Per noi la deadline è dom 15/11 alle 16:00 (vedi `decisioni.md`), non le 23:59 dette al welcome.
 
 ## Fonti
 

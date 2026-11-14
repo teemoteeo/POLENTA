@@ -19,7 +19,7 @@ Fonti:
 
 ## 2. Scadenze e formato
 
-- **Deadline locale: domenica 15/11 alle 16:00, pitch alle 16:15, premiazione alle 17:30** (programma della pagina evento, già verificato in `findings.md`). Al welcome hanno detto "present your idea at 4 o'clock". [W]
+- **Deadline locale: domenica 15/11 alle 16:00, pitch alle 16:15, premiazione alle 17:30** (programma della pagina evento, già verificato; gate in `decisioni.md`). Al welcome hanno detto "present your idea at 4 o'clock". [W]
 - ⚠️ Al welcome hanno detto anche che la submission internazionale chiude "tomorrow at 11.59pm". [W] Il team ha fissato la deadline alle 16:00 perché il pitch locale viene prima. Restiamo sulle 16:00, interne alle 15:30.
 - **Pitch: 4 minuti, cronometrati.** "They're gonna be super strict. They're gonna cut you." [W]
 - Demo per la submission: 7 slide (titolo incluso) **oppure** un video di massimo 30 secondi. Oltre, si è esclusi dal giudizio globale. [G]

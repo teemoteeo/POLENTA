@@ -26,10 +26,12 @@ docs/            documenti vivi del team
   requirements.md  requisiti di challenge, giuria e pitch
   mercato.md     ricerca di mercato, competitor, clienti
   fonti/         testo della challenge e risorse ufficiali
-data/            dataset: grezzi, processati, export per la mappa
+data/            dataset: grezzi (raw/, fuori da git), processati, export per la mappa
+  datasets_links.md  spec dei dataset: portali, collection, a cosa servono (Edo)
 src/web/         frontend: mappa, UI, deploy
 src/pipeline/    pipeline dati, metrica di similarità, ML
 archive/         piano vecchio (Jezero, twist), findings, briefing, reference: solo consultazione
+human_docs/      appunti personali di Edo
 ```
 
 ## 2. Scope: chi può toccare cosa
@@ -92,6 +94,8 @@ Cosa conta per i giudici, dal testo:
 Vedi **`docs/decisioni.md`** (fonte unica). In breve: un tool che dice dove sulla Terra testare hardware lunare, partendo dal tipo di test. Target: i 9 siti candidati di Artemis III al Polo Sud. Clienti: le aziende di Torino (Thales Alenia, ALTEC, Argotec…). Jezero e la lista dei twist sono in `archive/analog-atlas-plan.md`, solo come storia.
 
 ## Dati: cosa ci danno
+
+**La spec aggiornata dei dataset (target Artemis III) è in `data/datasets_links.md`.** La tabella sotto viene dal piano vecchio: le righe e la colonna su Marte non servono più.
 
 Legenda: ✅ = nelle risorse ufficiali della challenge · ➕ = non elencato, suggerito da noi (accesso da verificare)
 
