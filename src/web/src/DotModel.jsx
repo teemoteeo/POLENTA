@@ -73,7 +73,7 @@ export default function DotModel({ src, color }) {
     el.appendChild(r.domElement)
     const scene = new THREE.Scene(), cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100)
     cam.position.set(0, 10 * Math.sin(TILT), 10 * Math.cos(TILT)); cam.lookAt(0, 0, 0)
-    const mat = new THREE.PointsMaterial({ color, size: 0.9, sizeAttenuation: false, transparent: true, opacity: 0.6, depthWrite: false })
+    const mat = new THREE.PointsMaterial({ color, size: 0.8, sizeAttenuation: false, transparent: true, opacity: 0.45, depthWrite: false })
     const lineMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false })
     let pts, edges, raf, alive = true, born = 0, box
     // Il riquadro inquadra esattamente l'ingombro del modello, centrato, con l'8% di margine: non sporge mai, a nessun angolo
