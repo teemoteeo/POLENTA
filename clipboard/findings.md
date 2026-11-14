@@ -15,7 +15,7 @@ Report vivo. Ogni sessione aggiunge le scoperte nuove in cima a "Log aggiornamen
 
 ## Dati
 
-- Le risorse ufficiali della challenge sono in `fonti/resources.txt`. Tabella parametro → dataset in `AGENTS.md`.
+- Le risorse ufficiali della challenge sono in `clipboard/fonti/resources.txt`. Tabella parametro → dataset in `AGENTS.md`.
 - **Per Marte la challenge non dà dataset specifici**, solo il PDS. MOLA, THEMIS e CRISM vanno presi da noi.
 - **USGS Known Terrestrial Analog Sites** (https://catalog.data.gov/dataset/known-terrestrial-analog-sites-for-planetary-science): un layer di analoghi già noti (crateri, dune, vulcani). Serve da **ground truth**: se la nostra metrica li ritrova, è credibile. Poi il valore aggiunto sono i luoghi nuovi.
 - **USGS PAAD:** database di analoghi eolici (dune, vento).
@@ -58,12 +58,12 @@ Report vivo. Ogni sessione aggiunge le scoperte nuove in cima a "Log aggiornamen
 
 ## Reference visive
 
-Lista completa in `references.md`. Aperte nel browser cmux: NASA Trek, Bruno Simon, Spaceship Interstellar Portfolio, earth.nullschool.
+Lista completa in `clipboard/references.md`. Aperte nel browser cmux: NASA Trek, Bruno Simon, Spaceship Interstellar Portfolio, earth.nullschool.
 
 ## Rischi
 
 - **Lo stile retro dentro Cesium:** va provato nella prima ora, prima di costruirci sopra.
-- **Data wrangling Terra↔Luna↔Marte in 24-38 h:** partire con 2-3 parametri (vedi l'MVP in `fonti/BRIEFING-DIVISIONE.md`).
+- **Data wrangling Terra↔Luna↔Marte in 24-38 h:** partire con 2-3 parametri (vedi l'MVP in `clipboard/fonti/BRIEFING-DIVISIONE.md`).
 - **Un menu bellissimo seguito da una mappa standard:** i giudici notano lo stacco.
 - **"Una mappa con dei pallini":** senza un analogo sorprendente e difendibile coi dati, l'idea perde forza.
 
@@ -80,6 +80,7 @@ Lista completa in `references.md`. Aperte nel browser cmux: NASA Trek, Bruno Sim
 
 ## Log aggiornamenti
 
+- **2026-11-14 12:10:** repo riorganizzata in `data/`, `src/web/`, `src/pipeline/`, `clipboard/`. In `AGENTS.md` ogni agent identifica il membro via `git config user.name` e scrive solo nel suo scope (frontend = Timo, pipeline = Edo, `data/` = Edo e Rocco, `clipboard/` = tutti).
 - **2026-11-14 02:40:** provata la demo Sandcastle "Google Photorealistic 3D Tiles" (https://sandcastle.cesium.com/?id=google-photorealistic-3d-tiles): città 3D come Google Earth, zoom fluido, gira **via Cesium ion** (attribuzione "Cesium ion · Google Maps"). Quindi probabilmente basta il token ion, senza chiave Google. Da confermare col nostro token.
 - **2026-11-14 02:30:** il globo con le città. Scelto CesiumJS + Google Photorealistic 3D Tiles; Street View come pannello Google separato; Mapillary come alternativa open; Street View poco presente sui siti analoghi.
 - **2026-11-14 02:20:** primo report. Challenge scelta, dati e tool mappati, reference visive, stack Cesium per l'atterraggio, analisi del repo Citadel.

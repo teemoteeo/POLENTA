@@ -1,5 +1,60 @@
 # AGENTS.md — NASA Space Apps 2026 · Team FVG Station
 
+## 0. Prima di tutto: chi è l'utente?
+
+Questa repo è condivisa da Timo, Edo e Rocco. **Prima di modificare qualsiasi file**, identifica l'utente:
+
+1. Esegui `git config user.name` e confronta con la tabella sotto (match parziale, maiuscole ignorate).
+2. Nessun match o dubbio → **chiedi all'utente chi è** prima di scrivere. Fino alla risposta lavori in sola lettura.
+3. Dichiara all'inizio della sessione: "Lavoro come <nome>, posso scrivere in: <cartelle>".
+
+| Membro | `git config user.name` contiene | Ruolo |
+|---|---|---|
+| Timo | `Timoteo`, `teemoteeo` | web dev, frontend, UI della mappa, deploy |
+| Edo | `Edo` | matematica, ML, pipeline dati |
+| Rocco | `Rocco` | chimica e fisica, ricerca scientifica |
+
+Se un compagno usa un nome git diverso, aggiunge il suo alias in questa tabella.
+
+## 1. Struttura della repo
+
+```
+AGENTS.md        regole per gli agent (questo file)
+CLAUDE.md        rimanda qui, per Claude Code
+data/            dataset: grezzi, processati, export per la mappa
+src/web/         frontend: mappa, UI, navicella, deploy
+src/pipeline/    pipeline dati, metrica di similarità, ML
+clipboard/       appunti, markdown, file sparsi, ricerca
+  findings.md    report vivo del team
+  references.md  reference visive
+  fonti/         testo della challenge, risorse, briefing
+```
+
+## 2. Scope: chi può toccare cosa
+
+| Cartella | Timo | Edo | Rocco |
+|---|---|---|---|
+| `src/web/` | ✏️ scrive | 👁️ legge | 👁️ legge |
+| `src/pipeline/` | 👁️ legge | ✏️ scrive | 👁️ legge |
+| `data/` | 👁️ legge | ✏️ scrive | ✏️ scrive |
+| `clipboard/` | ✏️ scrive | ✏️ scrive | ✏️ scrive |
+| file in root (`AGENTS.md`, `CLAUDE.md`, `README.md`, `.gitignore`) | ✏️ scrive | 👁️ legge | 👁️ legge |
+
+Regole:
+- **Fuori dal proprio scope non si scrive, anche se l'utente lo chiede di passaggio.** Avvisa che la cartella è di un altro membro e proponi l'alternativa: una nota in `clipboard/` per il proprietario, oppure chiedi conferma esplicita ("sì, tocca src/web anche se non è mio").
+- Leggere tutto è sempre permesso.
+- Il **contratto tra pipeline e mappa** è il formato dei file in `data/` che il frontend consuma. Chi lo cambia lo scrive in `clipboard/findings.md`.
+- In `clipboard/` ognuno modifica i propri file. Nei file comuni (`findings.md`) si **aggiunge**, non si riscrive il lavoro degli altri.
+- `2005-Citadel/` è fuori dalla repo (in `.gitignore`): non toccarla.
+
+## 3. Git: regole per lavorare in tre
+
+- `git pull` prima di iniziare e prima di ogni commit.
+- Commit piccoli, solo dei file nel proprio scope. Mai `git add -A` alla cieca: controlla `git status`.
+- Mai `git push --force`, mai riscrivere la storia di `main`.
+- Conflitto su un file di un altro membro → non risolverlo da solo, chiedi.
+- Niente segreti nei commit: chiavi API (Cesium ion, Google, Earthdata) vanno in `.env`, che è ignorato.
+
 ## Contesto
 
 - **Evento:** NASA Space Apps Challenge 2026, evento locale di Torino (incubatore del Politecnico), 14-15 novembre 2026.
@@ -10,7 +65,7 @@
   - Rocco: ingegnere delle nanotecnologie, ricerca; sfrutta le basi di chimica e fisica
 - **Challenge scelta:** *Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars*
   https://www.spaceappschallenge.org/2026/challenges/permanent-moon-base-locations-and-mars/
-- **Testo completo:** `fonti/challenge.txt`. **Risorse ufficiali:** `fonti/resources.txt`
+- **Testo completo:** `clipboard/fonti/challenge.txt`. **Risorse ufficiali:** `clipboard/fonti/resources.txt`
 
 ## Cosa chiede la challenge (in breve)
 
@@ -119,7 +174,7 @@ Avviso dalla mail NASA: alcune offerte chiedono la carta di credito per la verif
 
 ## Regole per l'agente
 
-- **`findings.md` è il report vivo del team.** A ogni scoperta, decisione o rischio nuovo, aggiorna la sezione pertinente e aggiungi una riga datata in cima a "Log aggiornamenti". Non riscriverlo da zero.
+- **`clipboard/findings.md` è il report vivo del team.** A ogni scoperta, decisione o rischio nuovo, aggiorna la sezione pertinente e aggiungi una riga datata in cima a "Log aggiornamenti". Non riscriverlo da zero.
 - Le scadenze di submission si verificano sulla Project Submission Guide, non si deducono.
 - Ogni dataset ➕ va verificato (accesso, formato, risoluzione) prima di costruirci sopra.
 - Prima un MVP con 2 o 3 parametri che funzionano (es. quota/pendenza + temperatura + vegetazione), poi si aggiunge il resto.
