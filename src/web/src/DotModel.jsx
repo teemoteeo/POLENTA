@@ -8,7 +8,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('/draco/'))
 
 // Il modello NASA diventa una nuvola di puntini campionati sulla superficie (densità uniforme per area).
-const FIT = 0.95 // mezza altezza del modello in unità di scena; la camera ne vede 1,2 al centro
+const FIT = 0.9 // mezza altezza del modello in unità di scena; la camera ne vede 1,2 al centro
 const cache = {}
 function cloud(src, n = 26000) {
   return (cache[src] ||= loader.loadAsync(src).then(({ scene }) => {
@@ -70,7 +70,7 @@ export default function DotModel({ src, color }) {
     r.setPixelRatio(Math.min(devicePixelRatio, 2))
     el.appendChild(r.domElement)
     const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(30, 1, 0.1, 100)
-    cam.position.set(0, 0.9, 4.4); cam.lookAt(0, 0, 0)
+    cam.position.set(0, 0.9, 4.4); cam.lookAt(0, -0.11, 0) // guarda poco sotto il centro: la camera è in alto e le parti vicine pesano in basso, così il modello resta centrato nel riquadro
     const mat = new THREE.PointsMaterial({ color, size: 0.011, transparent: true, opacity: 0.9, depthWrite: false })
     const lineMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false })
     let pts, edges, raf, alive = true, born = 0
