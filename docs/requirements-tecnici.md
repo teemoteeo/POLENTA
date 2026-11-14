@@ -70,19 +70,21 @@ Bozza dei test da confermare con l'analisi delle aziende. I pesi sono segnaposto
 site,lat,lon,slope_p10,slope_p90,roughness,sun_elev_max_deg,illum_pct,t_min_c,t_max_c,geo_unit,rock_class,ice_nearby,source
 ```
 
-- **Prima versione dalla letteratura**: paper sulle regioni Artemis, valori di pendenza, % di illuminazione e temperature. Processare LOLA solo se avanza tempo: il DEM polare è enorme.
+- **Valori dai DEM polari LOLA e da Diviner** (scelta di Edo, 14/11 18:10). Prodotti e collection in `data/datasets_links.md`.
 - `geo_unit` viene dalla mappa geologica USGS (`human_docs/geologia-luna.md`). `rock_class` è la classe terrestre equivalente, per esempio anortosite/gabbro o breccia da impatto.
 - Lista NASA di ott 2024 (da verificare se aggiornata): Peak near Cabeus B, Haworth, Malapert Massif, Mons Mouton Plateau, Mons Mouton, Nobile Rim 1, Nobile Rim 2, de Gerlache Rim 2, Slater Plain.
 
 ## 4. Dimensioni: dato lunare e dato terrestre
 
+**I dataset li decide `data/datasets_links.md` (Edo).** Se questa tabella non torna, vale quel file.
+
 | Dimensione | Luna (target) | Terra (per cella H3) | Dove si rompe |
 |---|---|---|---|
-| Terreno: pendenza, rugosità, rilievo | LOLA, letteratura | Copernicus DEM / NASADEM aggregato | Scala: H3 res 5 ≈ 250 km², quindi zoom sui migliori |
+| Terreno: pendenza, rugosità, rilievo | DEM polari LOLA | `NASADEM_HGT` + `ASTGTM` | Scala: H3 res 5 ≈ 250 km², quindi zoom sui migliori |
 | Illuminazione: elevazione massima del sole, notte | sole ≤ ~1,5°, % di illuminazione | **calcolata dalla latitudine**, nessun download | Sulla Terra c'è l'atmosfera (luce diffusa); il sole radente c'è solo d'inverno |
 | Termico: minimo, massimo, escursione | Diviner | MODIS LST `MOD11C3` | La Terra non scende a −200 °C: serve un'altra struttura (camera termo-vuoto ALTEC) |
-| Composizione / litologia | mappa geologica USGS → `rock_class` | mappa litologica globale (GLiM ➕) + `materials.csv` scritto a mano | EMIT copre solo le zone aride e non vede il plagioclasio |
-| Regolite e materiale sciolto | regolite fine e tagliente | aridità (NDVI `MOD13C2`, pioggia IMERG) + sedimenti sciolti e ceneri vulcaniche (GLiM) | Grani arrotondati contro grani taglienti (lo ha detto la mentor) |
+| Composizione / litologia | mappa geologica USGS → `rock_class` | layer scritto a mano dalla letteratura (`materials.csv`); ASTER ed EMIT facoltativi | EMIT copre solo le zone aride e non vede il plagioclasio |
+| Regolite e materiale sciolto | regolite fine e tagliente | temperatura e albedo MODIS come proxy della granulometria + niente vegetazione (`MOD13C2`) | Grani arrotondati contro grani taglienti (lo ha detto la mentor) |
 | Ghiaccio e volatili | PSR vicini, LEND, Mini-RF | neve `MOD10CM`, permafrost ESA CCI | Ghiaccio d'acqua normale contro ghiaccio in regolite a −230 °C |
 | Quota (spunto del team) | vuoto | quota come proxy di pressione e radiazione | Il vuoto non si raggiunge mai |
 | Sempre | gravità a 1/6, vuoto, radiazioni | — | Va scritto su ogni card |
@@ -129,21 +131,11 @@ Da celle a siti: top 1% delle celle, poi si uniscono quelle vicine, poi al massi
 - Statica, senza backend, link pubblico senza login.
 - **Fuori dall'MVP:** l'intro con la navicella e la discesa 3D. Si fanno solo se il resto è finito entro dom 11:00.
 
-## 8. Gate (deadline dom 16:00)
+## 8. Gate
 
-| Quando | Cosa |
-|---|---|
-| sab 18:30 | Questo documento approvato dal team |
-| sab 19:30 | Rocco: `tests.yaml` (almeno i 2 test dell'MVP) e `artemis.csv` (almeno 3 siti) |
-| sab 20:00 | Edo: export di prova. Timo: mappa che lo legge |
-| sab 22:00 | Edo: terreno, termico, aridità e illuminazione sulla griglia. Rocco: `facilities.csv`, `materials.csv`, tutti i 9 siti |
-| dom 01:00 | Prima classifica: 9 siti × 2 test |
-| dom 11:00 | Feature freeze, app online |
-| dom 14:30 | Slide e testi |
-| dom 15:30 | Submit |
+Vedi `docs/decisioni.md`.
 
 ## 9. Domande aperte
 
 - Le 5 aziende di Rocco: quali sono, e quali test fanno davvero? Da qui cambiano i pesi del §2.
-- GLiM (mappa litologica globale) non è tra le risorse ufficiali: Edo deve verificare accesso e formato. Il fallback è usare solo `materials.csv`.
 - Il terzo test, navigazione in luce radente: lo mettiamo?
