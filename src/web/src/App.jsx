@@ -24,9 +24,11 @@ const PALETTE = {
 
 // Luna, Marte e Terra sono lo stesso oggetto: puntini da lontano, foto da vicino, stessa soglia di zoom
 const FADE = [3.5, 5]
+// sotto FADE[0] - 0,5 i raster non scaricano nulla (minzoom): da lontano bastano i puntini
 const IMG_FADE = ['interpolate', ['linear'], ['zoom'], FADE[0], 0, FADE[1], 1]
 const RASTERS = { moon: ['moon'], mars: ['mars'], earth: ['gibs', 'esri'] }
-const PLANETS = { moon: { name: 'Luna', what: 'Polo Sud · 3 regioni Artemis III' }, mars: { name: 'Marte', what: '2 siti di atterraggio' } }
+// size: raggio rispetto a Marte (Luna 1.737 km, Marte 3.390 km)
+const PLANETS = { mars: { name: 'Marte', what: '2 siti di atterraggio', size: 1 }, moon: { name: 'Luna', what: 'Polo Sud · 3 regioni Artemis III', size: 0.51 } }
 const ARRIVE = { zoom: 6.5, pitch: 50, bearing: -20, duration: 4500, easing: t => 1 - (1 - t) ** 3 }
 
 const STYLE = {
@@ -38,15 +40,17 @@ const STYLE = {
       tiles: ['https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg'] },
     esri: { type: 'raster', tileSize: 256, maxzoom: 19, attribution: 'Esri World Imagery',
       tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'] },
-    // NASA Moon/Mars Trek ridisegnati al volo (trek.js); la Luna ha il Polo Sud sull'equatore
+    // NASA Moon Trek ridisegnato al volo (trek.js): la Luna ha il Polo Sud sull'equatore
     moon: { type: 'raster', tileSize: 256, maxzoom: 8, attribution: 'NASA Moon Trek · LRO WAC', tiles: ['trek://moon/{z}/{x}/{y}'] },
-    mars: { type: 'raster', tileSize: 256, maxzoom: 7, attribution: 'NASA Mars Trek · Viking MDIM 2.1', tiles: ['trek://mars/{z}/{x}/{y}'] },
+    // Marte: Viking MDIM 2.1 a colori (NASA/USGS) già in tile web standard, servito da OpenPlanetaryMap
+    mars: { type: 'raster', tileSize: 256, maxzoom: 7, scheme: 'tms', attribution: 'NASA/USGS Viking MDIM 2.1 · OpenPlanetaryMap',
+      tiles: [location.origin + '/mars-tiles/{z}/{x}/{y}.png'] }, // proxy: S3 non manda CORS (vite.config.js, vercel.json)
   },
   layers: [
     { id: 'sphere', type: 'background', paint: { 'background-color': PALETTE.dark.moon } },
-    { id: 'moon', type: 'raster', source: 'moon', layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
-    { id: 'mars', type: 'raster', source: 'mars', layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
-    { id: 'gibs', type: 'raster', source: 'gibs', layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
+    { id: 'moon', type: 'raster', source: 'moon', minzoom: FADE[0] - 0.5, layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
+    { id: 'mars', type: 'raster', source: 'mars', minzoom: FADE[0] - 0.5, layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
+    { id: 'gibs', type: 'raster', source: 'gibs', minzoom: FADE[0] - 0.5, layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
     { id: 'esri', type: 'raster', source: 'esri', minzoom: 6, layout: { visibility: 'none' } },
   ],
 }
@@ -221,7 +225,7 @@ export default function App() {
       <div className="left">
         <header className={'hero' + (step === 'planet' || step === 'site' ? '' : ' small')}>
           <p className="brand">FVG Station</p>
-          <h1>Dove testare sulla Terra l'hardware per la Luna e per Marte.</h1>
+          <h1>Dove testare sulla Terra l'hardware<br />per la Luna e per Marte.</h1>
           {step === 'planet' && <p className="lbl pick-hint">Scegli dove vai.</p>}
         </header>
 
@@ -308,8 +312,8 @@ export default function App() {
       {step === 'planet' && (
         <div className="picker">
           {Object.entries(PLANETS).map(([w, p]) => (
-            <button key={w} className="planet" onClick={() => choosePlanet(w)}>
-              <DotPlanet dots={dots[w]} color={pal[w + 'Dot']} fill={pal[w]} />
+            <button key={w} className="planet" style={{ '--s': p.size }} onClick={() => choosePlanet(w)}>
+              <DotPlanet dots={dots[w]} color={pal[w + 'Dot']} fill={pal[w]} dot={1.2 + p.size} />
               <b>{p.name}</b><small className="lbl">{p.what}</small>
             </button>
           ))}

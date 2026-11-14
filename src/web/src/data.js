@@ -1,7 +1,7 @@
 import { load as loadYaml } from 'js-yaml'
 import testsRaw from '../../../data/config/tests.yaml?raw'
 import { gridDisk, latLngToCell } from 'h3-js'
-import { toView, sampler, LAYERS } from './trek.js'
+import { toView } from './trek.js'
 
 export const TESTS = loadYaml(testsRaw).tests
 
@@ -58,13 +58,9 @@ export async function buildMoonDots() {
   })
 }
 
-// Marte a puntini dalla quota MOLA a colori: Tharsis e gli altopiani pieni, Hellas e le pianure del nord quasi vuote
-export async function buildMarsDots() {
-  const topo = await sampler(LAYERS.marsTopo, 2)
-  const pts = fib(50000), v = pts.map(([lon, lat]) => topo(lon, lat)), sorted = [...v].sort((x, y) => x - y)
-  const lo = sorted[Math.floor(sorted.length * 0.2)], hi = sorted[Math.floor(sorted.length * 0.85)]
-  return pts.map(([lon, lat], i) => [lon, lat, Math.max(0.06, Math.min(1, (v[i] - lo) / (hi - lo + 1e-6)))])
-}
+// Marte a puntini dalla quota MOLA a colori (Mars Trek): Tharsis e gli altopiani pieni, Hellas e le pianure del nord quasi vuote.
+// Generato una volta nel browser (50.000 punti di Fibonacci, contrasto tra il 20° e l'85° percentile) per non scaricare il mosaico a ogni avvio.
+export const buildMarsDots = () => fetch('/mars-dots.json').then(r => r.json())
 
 // Chi copre cosa la Terra non dà (ruolo "indoor" in params.csv). Da sostituire con facilities.csv.
 export const FACILITIES = {

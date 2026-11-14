@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
 // Pianeta a puntini per la scelta iniziale: stessi puntini [lon, lat, peso] della mappa, su una sfera che gira.
-export default function DotPlanet({ dots, color, fill }) {
+export default function DotPlanet({ dots, color, fill, dot = 2.2 }) {
   const ref = useRef(null)
   useEffect(() => {
     if (!dots.length) return
@@ -20,7 +20,7 @@ export default function DotPlanet({ dots, color, fill }) {
     const g = new THREE.BufferGeometry()
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3))
     g.setAttribute('color', new THREE.BufferAttribute(col, 4))
-    const mat = new THREE.PointsMaterial({ size: 2.2, sizeAttenuation: false, vertexColors: true, transparent: true, depthWrite: false })
+    const mat = new THREE.PointsMaterial({ size: dot, sizeAttenuation: false, vertexColors: true, transparent: true, depthWrite: false })
     const ball = new THREE.Mesh(new THREE.SphereGeometry(0.995, 64, 32), new THREE.MeshBasicMaterial({ color: fill })) // nasconde i puntini dietro
     const planet = new THREE.Group().add(ball, new THREE.Points(g, mat))
     scene.add(planet)
@@ -31,6 +31,6 @@ export default function DotPlanet({ dots, color, fill }) {
     const loop = t => { planet.rotation.y = t / 9000; r.render(scene, cam); raf = requestAnimationFrame(loop) }
     raf = requestAnimationFrame(loop)
     return () => { cancelAnimationFrame(raf); ro.disconnect(); g.dispose(); mat.dispose(); ball.geometry.dispose(); ball.material.dispose(); r.dispose(); r.domElement.remove() }
-  }, [dots, color, fill])
+  }, [dots, color, fill, dot])
   return <div ref={ref} className="dotplanet" />
 }
