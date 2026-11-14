@@ -5,6 +5,7 @@ Gruppi (ognuno è una serie di richieste a Earth Engine, tutte le bande insieme)
 - suolo:    sassi e densità a 3 profondità (SoilGrids, fonte esterna dichiarata)
 - neve:     quota di neve per mese (MOD10A2, compositi di 8 giorni) → mesi senza neve, luce radente "vera"
 - dossier:  luci notturne (VIIRS) sulla griglia; aree protette (WDPA) e vento (MERRA-2) solo per i siti finali
+- isru:     tessitura e carbonio organico (SoilGrids), temperatura media annua e permafrost probabile (MODIS)
 
 Tutti i valori sono calcolati solo sui pixel validi (maschera di gee_common).
 """
@@ -13,7 +14,7 @@ import ee
 from . import config, gee_common as g
 
 KELVIN = 273.15
-TILE_DEG = {"thermal": 10, "soil": 15, "snow": 10, "dossier": 15}   # gruppi pesanti → quadrati più piccoli
+TILE_DEG = {"thermal": 10, "soil": 15, "snow": 10, "dossier": 15, "isru": 10}   # gruppi pesanti → quadrati più piccoli
 
 
 def every_16_days() -> list[str]:
@@ -70,6 +71,27 @@ def dossier(m: ee.Image) -> dict:
     return {"night_lights": g.to_grid(lights.updateMask(m), ee.Reducer.mean(), 1000)}
 
 
+def isru(m: ee.Image) -> dict:
+    """Risorse in situ: materiali di superficie (SoilGrids, primi 5 cm) e ghiaccio nel suolo (proxy MODIS).
+
+    - sand_pct, clay_pct: tessitura. La regolite è sabbia fine e limo con poca argilla: scavo, sinterizzazione, simulanti.
+    - soc_gkg: carbonio organico (g/kg). Sulla Luna e su Marte è zero: meno ce n'è, più il suolo somiglia.
+    - lst_mean_c: temperatura media annua della superficie, (giorno + notte) / 2 delle mediane MOD11A2.
+    - permafrost_share: quota dell'area valida con temperatura media < −1 °C, cioè permafrost probabile
+      (proxy da dichiarare: solo cielo sereno, superficie e non suolo)."""
+    sg = lambda p: ee.Image(f"projects/soilgrids-isric/{p}_mean")
+    mean = ee.Reducer.mean()
+    lst = ee.ImageCollection("MODIS/061/MOD11A2").filterDate(*config.YEARS)
+    t_mean = lst.select("LST_Day_1km").median().add(lst.select("LST_Night_1km").median()).multiply(0.01).subtract(KELVIN)
+    return {
+        "sand_pct": g.to_grid(sg("sand").select("sand_0-5cm_mean").divide(10).updateMask(m), mean, 1000),
+        "clay_pct": g.to_grid(sg("clay").select("clay_0-5cm_mean").divide(10).updateMask(m), mean, 1000),
+        "soc_gkg": g.to_grid(sg("soc").select("soc_0-5cm_mean").divide(10).updateMask(m), mean, 1000),
+        "lst_mean_c": g.to_grid(t_mean.updateMask(m), mean, 1000),
+        "permafrost_share": g.to_grid(t_mean.lt(-1).updateMask(m), mean, 1000),
+    }
+
+
 def site_dossier(points: list[tuple[str, float, float]]) -> dict:
     """Per pochi punti (id, lat, lon): area protetta WDPA (nome e tipo) e vento medio a 10 m (MERRA-2, 2023)."""
     wdpa = ee.FeatureCollection("WCMC/WDPA/current/polygons")
@@ -95,7 +117,7 @@ def site_dossier(points: list[tuple[str, float, float]]) -> dict:
     return out
 
 
-GROUPS = {"thermal": thermal, "soil": soil, "snow": snow, "dossier": dossier}
+GROUPS = {"thermal": thermal, "soil": soil, "snow": snow, "dossier": dossier, "isru": isru}
 
 
 def main(groups: list[str] | None = None, tile_deg: int | None = None) -> int:

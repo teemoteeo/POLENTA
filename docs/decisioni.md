@@ -1,6 +1,6 @@
 # Decisioni — FVG Station
 
-**Fonte unica.** Se un altro file non torna con questo, vale questo. Aggiornato: 2026-11-14 23:30 (perimetro, test e parametri: Edo, con l'OK di Rocco). Prima versione: riunione delle 17:10.
+**Fonte unica.** Se un altro file non torna con questo, vale questo. Aggiornato: 2026-11-15 00:20 (3 test: Edo, decisione del team). Prima: 14/11 23:30 (perimetro e parametri), riunione delle 17:10. Prima versione: riunione delle 17:10.
 
 ## Prodotto
 
@@ -10,18 +10,16 @@
   - Luna, 3 candidati di Artemis III al Polo Sud: Malapert Massif, Haworth, Nobile Rim 1.
   - Marte: Phoenix (68,2°N) e Gale (4,6°S).
   - Gli altri 6 siti Artemis e Jezero escono.
-- **Benchmark e pitch:** matrice 5 siti × 5 test, con il miglior sito sulla Terra e la struttura indoor per ogni casella.
+- **Benchmark e pitch:** matrice 5 siti × 3 test, con il miglior sito sulla Terra e la struttura indoor per ogni casella.
 - **Mappa con tre tipi di punti:**
   - siti naturali per test all'aperto;
   - strutture indoor (LUNA, ALTEC, Moonyard, Astrobotic, PISCES…);
   - sorgenti di materiale (affioramenti e cave).
-- **Test della demo (sab 23:30): 5, tutti funzionanti.** Niente anteprime né coming soon. Il tipo di test imposta i pesi (`data/config/tests.yaml` v1):
+- **Test della demo (dom 00:20): 3**, scelti sul testo della challenge ("landing, mobility", "water, ice, permafrost and other potential resources", "geology… surface materials"). Pesi in `data/config/tests.yaml` v2:
+  - `flight_hda_lidar`: atterraggio, il lidar del lander riconosce i pericoli in discesa;
   - `rover_mobility`: rover su pendii, rocce e regolite;
-  - `flight_hda_lidar`: il lidar del lander riconosce i pericoli in discesa (geometria e albedo);
-  - `flight_trn_camera`: camera di navigazione sul terreno con Sole radente;
-  - `eva_traverse`: traversata a piedi degli astronauti;
-  - `landing_touchdown`: gambe del lander, portanza del suolo, getto del motore sulla regolite.
-  - Fuori dalla demo: ISRU e trivella.
+  - `isru_resources`: risorse in situ per una base permanente, cioè ghiaccio nel suolo e regolite da lavorare.
+  - Fuori: camera, EVA, contatto col suolo, trivella.
 - **Card di ogni risultato:** cosa combacia, cosa no, dove l'analogia si rompe.
 - **Claim sul materiale:** "la roccia sorgente giusta vicino a te", non "un sostituto del simulante". I grani terrestri sono arrotondati, quelli lunari taglienti (lo ha detto la mentor).
 
@@ -29,21 +27,23 @@
 
 Per ogni sito serve il valore (o un intervallo min-max) e la fonte, **calcolati con la stessa definizione** usata sulla Terra. Dettagli: `docs/allineamento-edo.md`; motivi tecnici: `docs/backend_spec.md` sez. E.
 
-**Nel voto** (pesi: rover / lidar / camera / EVA / touchdown):
+**Nel voto** (pesi: lidar / rover / ISRU):
 
 | Parametro | Definizione | Luna | Marte | Pesi |
 |---|---|---|---|---|
-| `slope_p90` | pendenza al 90° percentile, DEM a 30 m | LOLA | DTM CTX o HiRISE | 0,35 / 0,20 / 0,10 / 0,30 / 0,30 |
-| `roughness` | scarto della quota dalla media su 150 m | LOLA | CTX / HiRISE | 0,15 / 0,15 / 0,15 / 0,15 / 0,10 |
-| `crater_density` | conche entro 300 m, ≥ 20 m sotto il bordo, per km² | LOLA | CTX / HiRISE | 0,05 / 0,30 / 0,20 / — / — |
-| `rock_cover` | quota di sassi e massi | Diviner | TES / THEMIS | 0,15 / 0,25 / — / 0,10 / 0,15 |
-| `grain_proxy` | inerzia termica: suolo fine e sciolto contro compatto (confronto per percentile) | Diviner | THEMIS | 0,15 / — / — / 0,10 / 0,20 |
-| `albedo` | quanto riflette la superficie | LROC / LOLA | TES | — / 0,05 / 0,20 / — / — |
-| `low_sun_frac` | quota di luce con il Sole a 0-7° | ~1,0 | da latitudine | 0,10 / — / 0,30 / 0,20 / — |
-| `bulk_density_0_5` | densità dei primi cm (g/cm³) | Apollo ~1,5 | Phoenix, Curiosity | — / — / — / — / 0,25 |
-| `rock_class` | tipo di roccia | anortosite | basalto, sedimentario | 0,05 / 0,05 / 0,05 / 0,15 / — |
+| `slope_p90` | pendenza al 90° percentile, DEM a 30 m | LOLA | DTM CTX o HiRISE | 0,20 / 0,35 / 0,10 |
+| `roughness` | scarto della quota dalla media su 150 m | LOLA | CTX / HiRISE | 0,15 / 0,15 / — |
+| `crater_density` | conche entro 300 m, ≥ 20 m sotto il bordo, per km² | LOLA | CTX / HiRISE | 0,30 / 0,05 / — |
+| `rock_cover` | quota di sassi e massi | Diviner | TES / THEMIS | 0,25 / 0,15 / — |
+| `grain_proxy` | inerzia termica: suolo fine e sciolto contro compatto (confronto per percentile) | Diviner | THEMIS | — / 0,15 / 0,15 |
+| `albedo` | quanto riflette la superficie | LROC / LOLA | TES | 0,05 / — / — |
+| `low_sun_frac` | quota di luce con il Sole a 0-7° | ~1,0 | da latitudine | — / 0,10 / — |
+| `permafrost_share` | quota di area con temperatura media annua < −1 °C (proxy MODIS del ghiaccio nel suolo) | ghiaccio nelle zone in ombra (LEND, Diviner) | Phoenix sì, Gale no | — / — / 0,30 |
+| `sand_pct`, `clay_pct` | tessitura dei primi 5 cm (SoilGrids) | regolite: ~metà sabbia fine, poca argilla | Phoenix, Curiosity | — / — / 0,20 e 0,15 |
+| `bulk_density_0_5` | densità dei primi cm (g/cm³) | Apollo ~1,5 | Phoenix, Curiosity | — / — / 0,10 |
+| `rock_class` | tipo di roccia (fonte terrestre da decidere) | anortosite | basalto, sedimentario | 0,05 / 0,05 / — |
 
-**Fuori dal voto** (card e "dove si rompe"): temperature, profilo di densità 0-2 m, quota, atmosfera (vento per i siti finali), comunicazioni (luci notturne come proxy dell'isolamento), mesi senza neve, Hurst, aree protette. Sulla Luna e su Marte questi valori sono uguali per tutti i siti terrestri o non confrontabili, quindi non cambiano la classifica.
+**Fuori dal voto** (card e "dove si rompe"): temperature (anche la media annua), carbonio organico (SoilGrids, inaffidabile nell'alto Artico), profilo di densità 0-2 m, quota, atmosfera (vento per i siti finali), comunicazioni (luci notturne come proxy dell'isolamento), mesi senza neve, Hurst, aree protette. Sulla Luna e su Marte questi valori sono uguali per tutti i siti terrestri o non confrontabili, quindi non cambiano la classifica.
 
 **Gap indoor fissi:** gravità 1/6, vuoto, polvere elettrostatica, getto del motore nel vuoto.
 
@@ -60,8 +60,8 @@ Per ogni sito serve il valore (o un intervallo min-max) e la fonte, **calcolati 
 ## Prossimi passi, in ordine (sab 23:30)
 
 1. **Edo + Rocco:** valori dei 5 siti per i parametri del voto, con la fonte (formato `targets.json`).
-2. **Rocco:** conferma i pesi di `landing_touchdown` e sceglie la fonte di `rock_class`. Proposta: vulcani (GVP) e crateri da impatto (Earth Impact Database) a regole.
-3. **Edo:** export vero in `data/export/`: 25 file, stesso formato del mock.
+2. **Rocco:** conferma i pesi di `isru_resources` e sceglie la fonte di `rock_class`. Proposta: vulcani (GVP) e crateri da impatto (Earth Impact Database) a regole.
+3. **Edo:** export vero in `data/export/`: 15 file (5 siti × 3 test), stesso formato del mock.
 4. **Timo:** l'app legge l'export vero; immagini, deploy.
 5. **Tutti:** validazione sui siti noti (Etna, Death Valley, Cinder Lake…), poi slide e pitch.
 

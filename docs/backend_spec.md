@@ -116,7 +116,7 @@ dati lunari ───────────┴─► lunar.py: carta d'identit
 | 4 | Carta d'identità degli esagoni + primo voto (Malapert × rover) | **22:30: primo end-to-end** |
 | 5 | Gli altri raster (albedo, suolo, neve, crateri) | 23:30 |
 | 6 | Carta d'identità dei 5 siti (3 Luna, 2 Marte) | 00:15 |
-| 7 | 5 siti × 5 test: voti, siti, copertura | **01:00** |
+| 7 | 5 siti × 3 test: voti, siti, copertura | **01:00** |
 | 8 | Dossier, zoom, immagini | dom 10:00 |
 | 9 | Validazione + EVA in anteprima | **dom 11:00 (freeze)** |
 | 10 | Testi per la submission | dom 14:30 |
@@ -143,6 +143,9 @@ Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue quest
 | 14 | Quota di Earth Engine | — | piano **Community** (150 EECU-ore al mese), in **restricted mode** da sabato sera | le prove a 30 m e 90 m hanno esaurito la quota mensile. Earth Engine funziona ancora, con meno richieste in parallelo: il codice ora aspetta e riprova (fino a 2 minuti, 6 tentativi) invece di saltare. Il piano Contributor (1.000 EECU-ore) richiede un account di fatturazione con pagamento anticipato: per ora no. La quota torna il 1° dicembre |
 | 15 | Perimetro della demo | 9 siti Artemis × 3 test MVP + EVA in anteprima + ISRU e trivella coming soon | **5 siti** (Luna: Malapert Massif, Haworth, Nobile Rim 1; Marte: Phoenix, Gale) × **5 test** tutti nella demo: rover, lidar, camera, EVA, touchdown | decisione del team (sab sera): nella demo solo quello che funziona davvero. Gli stessi siti sono nell'app di Timo |
 | 16 | Resistenza del suolo | solo nella card | test **`landing_touchdown`**: pendenza 0,30, densità 0-5 cm 0,25, grana 0,20, sassi 0,15, rugosità 0,10; filtro pendenza p90 ≤ 15° (pesi proposti da Edo, da confermare con Rocco) | serve a gambe del lander e getto del motore sulla regolite. Non esiste una mappa globale della portanza: proxy densità + grana + sassi, da dichiarare. Zero runtime in più: i parametri c'erano già |
+| 17 | Test della demo | 5 test (rover, lidar, camera, EVA, touchdown) | **3 test**: `flight_hda_lidar`, `rover_mobility`, **`isru_resources`** | decisione del team sul testo della challenge (dom 00:20). ISRU = ghiaccio nel suolo (proxy: temperatura media annua MODIS < −1 °C, `permafrost_share`) + materiali (tessitura SoilGrids `sand_pct`, `clay_pct`; densità; grana). Il carbonio organico SoilGrids è inaffidabile nell'alto Artico: solo card. Il touchdown della riga 16 esce |
+| 18 | Velocità della fase a 30 m | — | maschera calcolata a 1 km e poi ingrandita; crateri con 1 cm di rumore al posto di `connectedPixelCount` | dopo i fix delle 23:00 un gruppo da 20 esagoni durava ~100 s (Earth Engine rifaceva la mediana NDVI a 30 m per ogni pixel, e contava i gruppi connessi). Ora 25 s, con crateri nello stesso ordine (Cinder Lake 0,46, SFVF 0,28, Meteor Crater 0,12) |
+| 19 | Quota di Earth Engine | Community, restricted mode | **Contributor** (1.000 EECU-ore al mese), attivato dom 00:00 | fatturazione collegata al progetto; Earth Engine non commerciale non si paga |
 
 **Limiti noti da dichiarare:**
 - **L'Antartide manca:** l'NDVI MODIS non la copre.
@@ -150,7 +153,7 @@ Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue quest
 
 **Comandi aggiunti:**
 - `--step terrain --scale 500` (screening);
-- `--step surface [--groups thermal soil snow dossier]`;
+- `--step surface [--groups thermal soil snow dossier isru]`;
 - `--step fine --scope sample|all` (30 m);
 - `--step calibrate`: relazione 500 m → 30 m con l'errore dichiarato;
 - `--step earth`: tutta la Terra in fila (terreno 500 m, superficie, campione a 30 m, calibrazione, carta d'identità); i passi già fatti si saltano;
@@ -216,7 +219,7 @@ Oggi passano le prime 3; la 4 aspetta te.
 
 **Perché serve:** Timo può collegare l'app ai file veri da subito, invece di aspettare che i dati veri siano pronti. Quando arrivano i dati veri cambio solo i numeri, non il formato.
 
-**Cosa fai:** scrivi `mock_export.py`, che produce un file per ogni coppia sito Artemis × test (9 × 4 = 36 file), più i file di contorno. L'export vero (`export.py`) è 5 siti × 5 test = 25 file, stesso formato.
+**Cosa fai:** scrivi `mock_export.py`, che produce un file per ogni coppia sito Artemis × test (9 × 4 = 36 file), più i file di contorno. L'export vero (`export.py`) è 5 siti × 3 test = 25 file, stesso formato.
 
 **Cosa ottieni:** `data/export/` con `sites/*.json`, `targets.json`, `benchmark.json`, `facilities.json`, `known_sites.json`, `manifest.json`.
 
@@ -275,7 +278,7 @@ Oggi passano le prime 3; la 4 aspetta te.
 | File | Cosa contiene, in parole semplici |
 |---|---|
 | `targets.json` | la carta d'identità dei 5 siti della demo (valori, fonte di ogni valore, dati per la card: temperature, idrogeno, densità della crosta, unità geologica) |
-| `benchmark.json` | la tabella 5 siti × 5 test: miglior sito, miglior sito nuovo, strutture indoor. È la slide del pitch |
+| `benchmark.json` | la tabella 5 siti × 3 test: miglior sito, miglior sito nuovo, strutture indoor. È la slide del pitch |
 | `facilities.json` | le strutture indoor (da `facilities.csv` di Rocco) |
 | `known_sites.json` | i siti di test già usati (da `known_sites.csv`), per i pin sulla mappa |
 | `manifest.json` | il "frontespizio": versione, data, se è mock, elenco dei file, dataset usati con licenza |
@@ -611,7 +614,7 @@ crater_density = n.divide(a)                                  # crateri per km²
 
 ---
 
-## 8. Passo 7 — 5 siti × 5 test
+## 8. Passo 7 — 5 siti × 3 test
 
 **In parole semplici:** per ogni combinazione sito Artemis × test do il voto a tutti gli esagoni, raggruppo i migliori in siti veri e propri, gli do un nome e dico che cosa non torna e dove si recupera.
 
@@ -681,7 +684,7 @@ Per i siti migliori faccio anche uno **zoom** più preciso e prendo un'**immagin
 
 **Cosa ottieni:** `validation.json` + `validation.png` (la figura per la slide 4).
 
-**EVA e touchdown:** stessi passi del §8 con i pesi di `eva_traverse` e `landing_touchdown`; sono test pieni della demo (`stato: mvp`).
+**ISRU:** stessi passi del §8 con i pesi di `isru_resources` (riga 17 della sez. E).
 
 **Se l'Etna non esce in alto:** si controllano soglie, scala e pesi. Se resta basso lo si dice e si spiega (per esempio con il materiale: basalto contro anortosite). È un risultato anche quello.
 
@@ -705,7 +708,7 @@ Per i siti migliori faccio anche uno **zoom** più preciso e prendo un'**immagin
 | Rocco | `known_sites.csv` con coordinate (inclusi Piano delle Concazze e Cisternazza) | 00:15 |
 | Rocco | `facilities.csv` con `covers` = nomi dei parametri e delle voci `indoor` | 00:15 |
 | Rocco | tabella di somiglianza di `rock_class`; `materials.csv` | 00:15 |
-| ~~Rocco~~ | ~~`tests.yaml`: stati EVA/ISRU, `ksc_alhat_field`~~ → fatto da Edo alle 23:30 (v1: 5 test tutti nella demo, ISRU tolto, NDVI 0,2); **Rocco conferma i pesi di `landing_touchdown`** | 00:15 |
+| ~~Rocco~~ | ~~`tests.yaml`: stati EVA/ISRU, `ksc_alhat_field`~~ → fatto da Edo alle 23:30 (v1: 5 test tutti nella demo, ISRU tolto, NDVI 0,2); **Rocco conferma i pesi di `isru_resources`** | 00:15 |
 | Rocco | `params.csv` aggiornato da Edo (23:30); in `decisioni.md`: 5 siti, 5 test, AW3D30, NDVI 0,2 (vedi sez. E) | 00:15 |
 | Timo | conferma che l'app legge il formato del §2 | dopo il passo 1 |
 

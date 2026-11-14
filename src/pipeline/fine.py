@@ -32,24 +32,25 @@ def image(full: bool = True) -> ee.Image:
     """Le bande a 30 m. full=False (esagoni "normali"): senza le pendenze a 60/120/240 m, che servono solo
     all'esponente di Hurst nelle card dei siti mostrati: ~1,5 volte più veloce. Le grandezze del voto
     (slope_p90_30, roughness_30, crater_density) sono identiche nelle due versioni."""
-    m = g.valid_mask()
+    # maschera calcolata a 1 km (la sua risoluzione) e poi ingrandita: lasciata a 30 m, Earth Engine rifaceva la
+    # mediana di 36 immagini MODIS per ogni pixel da 30 m (15/11, 00:10: gruppi da 20 esagoni in ~100 s)
+    m = g.valid_mask().reproject(crs="EPSG:4326", scale=config.MASK_NATIVE_M)
     d30 = g.dem().reproject(crs="EPSG:4326", scale=30)
     bands = []
     for L in (BASELINES if full else BASELINES[:1]):
         dL = d30 if L == 30 else d30.reduceResolution(ee.Reducer.mean(), maxPixels=1024).reproject(crs="EPSG:4326", scale=L)
         bands.append(ee.Terrain.slope(dL).rename(f"slope_{L}"))
     relief = d30.subtract(d30.focalMean(150, "circle", "meters"))
-    # Cratere = minimo locale entro 300 m, almeno 20 m sotto il bordo più alto.
-    # Con soglie più basse (150 m, 3-10 m) si contava il rumore del DEM sulle piane: 7-21 "crateri"/km²
-    # a Mojave e Black Point, ~0 sull'Etna. Con 300 m / 20 m: Cinder Lake 1,3, SFVF 0,75, Mojave 0,11 (14/11).
+    # Cratere = minimo locale entro 300 m, almeno 20 m sotto il bordo più alto, fuori dai laghi (JRC).
+    # Con soglie più basse (150 m, 3-10 m) si contava il rumore del DEM sulle piane. Un fondo piatto (lago, conca,
+    # fondo del Meteor Crater) ha molti pixel minimi alla pari e ognuno contava come un cratere (100-400/km² nello
+    # scudo canadese): 1 cm di rumore casuale lascia un solo minimo per fondo. Contare i gruppi connessi
+    # (connectedPixelCount) dava lo stesso effetto ma era molto più lento (15/11, 00:10).
     k = ee.Kernel.circle(CRATER_RADIUS_M, "meters")
     water = ee.Image("JRC/GSW1_4/GlobalSurfaceWater").select("occurrence").unmask(0).gt(50)
-    pit = (d30.eq(d30.focalMin(kernel=k)).And(d30.focalMax(kernel=k).subtract(d30).gt(CRATER_RIM_DEPTH_M))
-           .And(water.Not()))
-    # Un fondo piatto (lago, conca, fondo del Meteor Crater) ha molti pixel minimi alla pari e ognuno contava
-    # come un cratere: 100-400/km² nello scudo canadese (14/11, 23:00). Ora ogni gruppo di pixel connessi vale 1.
-    size = pit.selfMask().connectedPixelCount(maxSize=256, eightConnected=True)
-    crater = pit.divide(size).unmask(0)
+    dn = d30.add(ee.Image.random(0).multiply(0.01))
+    crater = (dn.eq(dn.focalMin(kernel=k)).And(d30.focalMax(kernel=k).subtract(d30).gt(CRATER_RIM_DEPTH_M))
+              .And(water.Not()))
     bands += [relief.pow(2).rename("relief_sq"), crater.rename("crater"),
               ee.Image.pixelArea().divide(1e6).rename("px_km2")]
     return ee.Image.cat(bands).updateMask(m).toFloat()
@@ -131,9 +132,9 @@ def main(batch: int = 20, workers: int | None = None, limit: int | None = None, 
          n_sample: int = 3000) -> int:
     """scope='sample': siti noti + campione di riferimento + candidati; scope='all': tutti gli esagoni validi
     (in ordine di priorità, i "normali" in versione leggera, 16 richieste in parallelo)."""
-    # in restricted mode (quota mensile finita) Earth Engine regge poche richieste insieme: con 8 i gruppi
-    # saltavano per il 429 anche dopo 6 tentativi (14/11, 23:30)
-    workers = workers or 4
+    # 12 con la quota del piano Contributor; in restricted mode (quota mensile finita) Earth Engine regge
+    # poche richieste insieme: lì serve --workers 4 (con 8 i gruppi saltavano per il 429, 14/11 23:30)
+    workers = workers or 12
     from concurrent.futures import ThreadPoolExecutor, as_completed
     g.init()
     todo = select_cells(n_sample=n_sample, scope=scope)

@@ -19,7 +19,7 @@ import pandas as pd
 from . import config, features, fine, sites
 from .mock_export import KNOWN_SITES
 
-TESTS = ("rover_mobility", "flight_hda_lidar", "flight_trn_camera", "eva_traverse", "landing_touchdown")
+TESTS = ("flight_hda_lidar", "rover_mobility", "isru_resources")
 N_CANDIDATES = 25
 DOSSIER_CACHE = config.INTERIM / "site_dossier.json"
 
@@ -30,11 +30,11 @@ MARS_PLACEHOLDER = {   # SEGNAPOSTO finché Rocco non manda i valori veri (DTM C
     "phoenix": {"name": "Phoenix", "lat": 68.2188, "lon": -125.7492, "world": "mars",
                 "values": {"slope_p90": 3.0, "roughness": 0.8, "crater_density": 0.05, "rock_cover": 0.08,
                            "low_sun_frac": 0.3, "albedo": 0.2, "grain_proxy": 0.03, "rock_class": "basalt_volcanic",
-                           "bulk_density_0_5": 1.2}},
+                           "bulk_density_0_5": 1.2, "permafrost_share": 1.0, "sand_pct": 45.0, "clay_pct": 8.0}},
     "gale": {"name": "Gale", "lat": -4.5895, "lon": 137.4417, "world": "mars",
              "values": {"slope_p90": 6.0, "roughness": 1.5, "crater_density": 0.1, "rock_cover": 0.1,
                         "low_sun_frac": 0.12, "albedo": 0.22, "grain_proxy": 0.04, "rock_class": "sedimentary",
-                        "bulk_density_0_5": 1.3}},
+                        "bulk_density_0_5": 1.3, "sand_pct": 70.0, "clay_pct": 8.0}},   # niente ghiaccio a Gale
 }
 
 
@@ -42,8 +42,9 @@ def load_targets() -> list[dict]:
     """Valori lunari e marziani per sito. Ora: segnaposto (mock per la Luna, MARS_PLACEHOLDER per Marte);
     poi: i valori di Rocco."""
     moon = {t["id"]: {**t, "world": "moon"} for t in json.loads((config.EXPORT / "targets.json").read_text())}
-    for t in moon.values():                  # densità dei primi cm: Apollo ~1,5 g/cm³ nei primi 15 cm (segnaposto)
-        t["values"].setdefault("bulk_density_0_5", 1.5)
+    for t in moon.values():                  # SEGNAPOSTO: densità Apollo ~1,5 g/cm³ nei primi 15 cm; ghiaccio nelle
+        t["values"].setdefault("bulk_density_0_5", 1.5)        # zone in ombra vicine (LEND, Diviner); regolite
+        t["values"].update({"permafrost_share": 1.0, "sand_pct": 50.0, "clay_pct": 3.0})   # ~metà sabbia fine
     mars = {k: {"id": k, "mock": True, **v} for k, v in MARS_PLACEHOLDER.items()}
     every = {**moon, **mars}
     return [every[s] for s in SITES]

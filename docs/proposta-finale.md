@@ -8,6 +8,8 @@ Legenda: ✅ = fonte NASA o portale ufficiale della challenge · ➕ = fonte est
 
 ## 0. Decisioni prese (sab 19:40, aggiornate alle 23:30)
 
+> **Aggiornamento dom 00:20.** I test della demo sono **3**: atterraggio con lidar, rover, **risorse in situ** (ghiaccio nel suolo e regolite) per una base permanente, scelti sul testo della challenge. Camera, EVA e touchdown escono. Le tabelle più sotto sono quelle delle 23:30: dove non tornano, valgono `decisioni.md` e `allineamento-edo.md`.
+>
 > **Aggiornamento sab 23:30.** Perimetro della demo ristretto: **5 siti** (Luna: Malapert Massif, Haworth, Nobile Rim 1; Marte: Phoenix, Gale) × **5 test**, tutti nella demo: rover, volo con lidar, volo con camera, EVA, **contatto del lander con il suolo** (`landing_touchdown`, nuovo). Niente anteprime né coming soon: ISRU e trivella escono. Filtro NDVI a 0,2 sui mesi senza neve. Dettagli tecnici e motivi: `backend_spec.md` sez. E.
 
 | Tema | Decisione |

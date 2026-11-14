@@ -28,6 +28,8 @@ SOURCES = {
     "bulk_density_0_5": ["bulk_0_5"], "bulk_density_30_60": ["bulk_30_60"],
     "bulk_density_100_200": ["bulk_100_200"], "night_lights": ["night_lights"],
     "protected_area": ["protected_area"], "wind_10m": ["wind_10m"],
+    "sand_pct": ["sand_pct"], "clay_pct": ["clay_pct"], "soc_gkg": ["soc_gkg"],
+    "lst_mean_c": ["lst_mean_c"], "permafrost_share": ["permafrost_share"],
 }
 SNOW_FREE = 10   # mese senza neve: copertura media < 10%
 
