@@ -6,7 +6,7 @@ rock_cover,terrain,frac 0-1,num,score,abbondanza di rocce Diviner o letteratura,
 low_sun_frac,illumination,frac 0-1,num,score,frazione di ore di luce con Sole sotto 7° (≈1 al Polo Sud),calcolata da latitudine e data; mese migliore senza neve,parziale,mvp
 albedo,surface,frac 0-1,num,score,albedo LOLA/LROC,MODIS MCD43A3,si,mvp
 grain_proxy,regolith,ATI normalizzata,num,score,regolite fine (D50 ~60-80 µm),inerzia termica apparente da MOD11A2 + MCD43A3,parziale,mvp
-bulk_density,regolith,g/cm3,num,score,1.30 in superficie (letteratura),SoilGrids bdod,parziale,mvp
+bulk_density,regolith,g/cm3,num,card,profilo Hayne/Apollo: 1.1-1.3 in superficie → 1.8-1.9 a 1 m (stesso per i 9 siti),SoilGrids bdod a 0-5 / 30-60 / 100-200 cm,parziale,mvp
 rock_class,composition,classe,cat,score,mappa geologica USGS → classe terrestre,materials.csv a mano; ASTER AG100 facoltativo,parziale,preview
 t_min_c,thermal,°C,num,card,Diviner,MODIS MOD11C3,parziale,mvp
 t_max_c,thermal,°C,num,card,Diviner,MODIS MOD11C3,parziale,mvp
@@ -14,7 +14,8 @@ elevation_m,altitude,m,num,card,—,DEM,si,mvp
 ndvi,surface,-1..1,num,filtro,0 (niente vegetazione),MODIS MOD13A3,si,mvp
 night_lights,access,nW/cm2/sr,num,dossier,—,VIIRS VNP46A4 (vicinanza a strade e paesi),si,mvp
 snow_free_months,access,mesi,num,dossier,—,MODIS MOD10CM,si,mvp
-protected_area,access,bool,bool,dossier,—,Natura 2000 (EEA) / WDPA,si,stretch
+protected_area,access,bool,bool,dossier,—,WDPA via Google Earth Engine,si,mvp
+wind_10m,access,m/s,num,dossier,—,MERRA-2 slv via Google Earth Engine (U10M/V10M),si,mvp
 uas_zone,access,bool,bool,dossier,—,zone UAS ENAC d-flight / EASA,si,stretch
 gravity_1_6,indoor,—,bool,indoor,1.62 m/s2,non riproducibile,no,mvp
 vacuum,indoor,—,bool,indoor,vuoto,non riproducibile,no,mvp
@@ -22,3 +23,4 @@ electrostatic_dust,indoor,—,bool,indoor,polvere carica e tagliente,non riprodu
 plume_vacuum,indoor,—,bool,indoor,getto del motore sulla regolite nel vuoto,non riproducibile,no,mvp
 cryo_psr,indoor,—,bool,indoor,PSR a 40-110 K,non riproducibile,no,stretch
 agglutinates,indoor,—,bool,indoor,agglutinati e ferro nanofase,non riproducibile,no,preview
+soil_density,indoor,—,bool,indoor,regolite a densità e compattazione note,controllabile solo in vasca di simulante,no,mvp

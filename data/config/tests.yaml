@@ -28,19 +28,20 @@ tests:
     stato: mvp
     cosa_si_testa: pendenze fino a 20°, rocce e gradini, affondamento nella regolite, navigazione con Sole radente
     aziende: [TAS-I (rover ETNA/ULS), ALTEC, AIKO, PoliTo]
+    # 14/11 20:00 (Edo): bulk_density tolto dal punteggio: la densità della regolite si
+    # riproduce in vasca di simulante (indoor: soil_density). Vedi docs/proposta-finale.md §7.
     requisiti:
-      slope_p90: 0.30
+      slope_p90: 0.35
       roughness: 0.15
       grain_proxy: 0.15
-      rock_cover: 0.10
-      bulk_density: 0.10
+      rock_cover: 0.15
       low_sun_frac: 0.10
       crater_density: 0.05
       rock_class: 0.05
     filtri:
       ndvi: "< 0.1"
       slope_p90: ">= 15"
-    indoor: [gravity_1_6, vacuum, electrostatic_dust]
+    indoor: [gravity_1_6, vacuum, electrostatic_dust, soil_density]
     validazione: [etna_piano_concazze, etna_cisternazza]
 
   flight_hda_lidar:

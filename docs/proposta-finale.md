@@ -21,6 +21,8 @@ Legenda: ✅ = fonte NASA o portale ufficiale della challenge · ➕ = fonte est
 | Vento | `wind_10m` da MERRA-2 su GEE, nel dossier dei test di volo (decisa alle 19:50) |
 | Non ammesse, per ora | ArcticDEM, Copernicus DEM per lo zoom |
 | Parametri e pesi | `data/config/params.csv` e `data/config/tests.yaml` v0 (Timo); i pesi li corregge Rocco |
+| Densità della regolite (20:00) | **fuori dal punteggio**. Per il rover si riproduce in vasca di simulante (copertura, `soil_density`); per l'appoggio dei lander conta la densità dei primi ~30 cm-1 m, ma l'appoggio si prova in struttura. `bulk_density` resta nella card con il profilo standard Hayne/Apollo |
+| Export di prova | il gate delle 20:00 è superato: si fa appena possibile |
 
 ## 1. In una frase
 
@@ -95,7 +97,7 @@ Regole comuni: `tau 0.1`, `eps 0.01`, `break_below 0.3`.
 
 | Test | Stato | Pesi | Filtri | Indoor (copertura) | Validazione |
 |---|---|---|---|---|---|
-| `rover_mobility` | **MVP** | `slope_p90` 0,30 · `roughness` 0,15 · `grain_proxy` 0,15 · `rock_cover` 0,10 · `bulk_density` 0,10 · `low_sun_frac` 0,10 · `crater_density` 0,05 · `rock_class` 0,05 | `ndvi < 0,1`, `slope_p90 ≥ 15` | gravità 1/6, vuoto, polvere elettrostatica | `etna_piano_concazze`, `etna_cisternazza` (+ Teide, SFVF, Meteor Crater) |
+| `rover_mobility` | **MVP** | `slope_p90` 0,35 · `roughness` 0,15 · `grain_proxy` 0,15 · `rock_cover` 0,15 · `low_sun_frac` 0,10 · `crater_density` 0,05 · `rock_class` 0,05 | `ndvi < 0,1`, `slope_p90 ≥ 15` | gravità 1/6, vuoto, polvere elettrostatica, **densità della regolite** (`soil_density`, vasca di simulante) | `etna_piano_concazze`, `etna_cisternazza` (+ Teide, SFVF, Meteor Crater) |
 | `flight_hda_lidar` | **MVP** | `crater_density` 0,30 · `rock_cover` 0,25 · `slope_p90` 0,20 · `roughness` 0,15 · `albedo` 0,05 · `rock_class` 0,05 | `ndvi < 0,1` | gravità 1/6, getto del motore nel vuoto, vuoto | `cinder_lake`, ~~`ksc_alhat_field`~~ → **proposta: `death_valley`** (vedi la nota sotto la tabella) |
 | `flight_trn_camera` | **MVP** | `low_sun_frac` 0,30 · `albedo` 0,20 · `crater_density` 0,20 · `roughness` 0,15 · `slope_p90` 0,10 · `rock_class` 0,05 | `ndvi < 0,1` | gravità 1/6, vuoto | `death_valley`, `mojave` |
 | `eva_traverse` | **anteprima** | `slope_p90` 0,30 · `low_sun_frac` 0,20 · `roughness` 0,15 · `rock_class` 0,15 · `grain_proxy` 0,10 · `rock_cover` 0,10 | `ndvi < 0,1`, `slope_p90 ≤ 25` | gravità 1/6, vuoto, polvere, PSR criogeniche | `sf_volcanic_field`, `black_point_lava_flow` |
@@ -149,10 +151,20 @@ GRAIL resta nella card, come caratterizzazione del sottosuolo del sito Artemis (
 - **Parametro H di Diviner** (LRO, ✅): è la profondità di e-folding del profilo di densità. La regolite va da **1100 kg/m³ in superficie a 1800 kg/m³ a 1 m**, con H medio di ~7 cm (Hayne et al., *JGR* 2017; mappe a 128 pixel/grado). **Limite:** le mappe coprono solo **±70° di latitudine**, quindi non i siti Artemis (84-90°S).
 - **Carote Apollo** (misure in situ, siti equatoriali): 1,30 → 1,92 g/cm³ nel primo metro.
 
-**Quindi, per i siti Artemis:**
-- `bulk_density` è un profilo standard (Hayne/Apollo), uguale per tutti e 9, dichiarato come tale.
-- Sulla Terra si confronta con SoilGrids `bdod` a 0-5, 30-60 e 100-200 cm.
-- Non distingue tra i siti Artemis, ma distingue i siti terrestri, che è quello che serve.
+**Dataset della densità dei primi centimetri** (verificati alle 20:05):
+
+| Fonte | Cosa dà | Copre i siti Artemis? | Pronto? |
+|---|---|---|---|
+| Parametro H di Diviner (Hayne 2017) | profilo dei primi cm (H ~7 cm) | no: ±70° | sì |
+| Mini-RF, mappe polari della costante dielettrica (LPSC 2020; *Remote Sensing* 2024) | densità stimata dei primi decimetri (ε′ ≈ 1,919^ρ) | **sì** | ⚠ prodotto di ricerca; dai dati PDS serve un'elaborazione pesante |
+| Chandrayaan-3 ChaSTE (*Sci. Rep.* 2025) | conducibilità a ~8 cm, stima della densità | no: un punto a 69°S | articolo |
+| Carote Apollo (Carrier) | 1,30 → 1,92 g/cm³ nel primo metro | no: equatoriali | sì |
+
+**Decisione (20:00): la densità esce dal punteggio.**
+- Per il rover si riproduce in vasca di simulante: va nella copertura (`soil_density`).
+- Per i lander conta la densità dei primi ~30 cm-1 m (appoggio delle gambe e getto del motore), ma questi test si fanno in struttura (drop test, camere a vuoto).
+- `bulk_density` resta nella **card**, con il profilo standard Hayne/Apollo uguale per i 9 siti e SoilGrids `bdod` a 0-5, 30-60 e 100-200 cm sul lato Terra.
+- **Sviluppo futuro, da dire nel pitch:** con le mappe dielettriche polari di Mini-RF, la densità sito per sito.
 
 ### A cosa servono questi dati: la portanza del suolo
 
@@ -162,7 +174,7 @@ Da satellite la portanza non si misura: si stima con indicatori.
 
 | Grandezza di terramecanica | Luna (Polo Sud) | Indicatore sulla Terra | Parametro |
 |---|---|---|---|
-| Densità e compattazione con la profondità | profilo Hayne/Apollo (1,1-1,3 → 1,8-1,9 g/cm³ nel primo metro; H ~7 cm) | profilo SoilGrids `bdod`; **proposta:** stimare un "H terrestre" adattando la stessa esponenziale alle 6 profondità di SoilGrids | `bulk_density` |
+| Densità e compattazione con la profondità | profilo Hayne/Apollo (1,1-1,3 → 1,8-1,9 g/cm³ nel primo metro; H ~7 cm) | **non nel punteggio**: si riproduce in vasca (copertura `soil_density`). Nella card: profilo SoilGrids `bdod` (facoltativo: un "H terrestre" adattato alle 6 profondità) | `bulk_density` (card) |
 | Granulometria | regolite fine, D50 ~60-80 µm [NV] | inerzia termica apparente MODIS; SoilGrids `sand`/`silt`/`clay` | `grain_proxy` |
 | Coesione | 0,1-1 kPa | argilla e umidità (l'umidità dà coesione apparente: sulla Terra "si rompe") | (`clay`: proposta) |
 | Angolo d'attrito | 30-50° | cresce con densità e angolarità; l'angolarità da satellite non si vede ("si rompe") | indiretto da `bulk_density` |
@@ -200,7 +212,7 @@ Gli ID del catalogo sono scritti a memoria: **verificarli tutti prima dell'uso**
 | `low_sun_frac` | score | calcolo + neve MODIS ✅ | `MODIS/061/MOD10A1` (neve giornaliera) | frazione delle ore di luce con Sole < 7° nel mese migliore senza neve (pvlib o astropy, in locale per cella) | R T E |
 | `albedo` | score | MODIS `MCD43A3` ✅ | `MODIS/061/MCD43A3` | albedo white-sky a banda larga, mediana annua | H T |
 | `grain_proxy` | score | MODIS `MOD11A2` + `MCD43A3` ✅ | `MODIS/061/MOD11A2` | inerzia termica apparente = (1 − albedo)/(T_giorno − T_notte), mediana dei mesi senza neve | R E |
-| `bulk_density` | score | SoilGrids `bdod` ➕ | `projects/soilgrids-isric/bdod_mean` ⚠ | profilo a 0-5, 30-60 e 100-200 cm, confrontato con il profilo Apollo della regolite (§7) | R |
+| `bulk_density` | **card** | SoilGrids `bdod` ➕ | `projects/soilgrids-isric/bdod_mean` ⚠ | profilo a 0-5, 30-60 e 100-200 cm, accanto al profilo Hayne/Apollo (§7); non entra nel punteggio | tutti (card) |
 | `rock_class` | score | `materials.csv` a mano; ASTER emissività ✅ facoltativa | — | classe da litologia nota; vuoto dove non c'è | R H T E |
 | `ndvi` | filtro | MODIS `MOD13A3` ✅ | `MODIS/061/MOD13A3` | massimo annuo (filtro < 0,1) | tutti |
 | `t_min_c`, `t_max_c` | card | MODIS `MOD11A2` ✅ | `MODIS/061/MOD11A2` | minimo notturno e massimo diurno annui | tutti |
@@ -239,8 +251,8 @@ Gli ID del catalogo sono scritti a memoria: **verificarli tutti prima dell'uso**
 
 | File | Stato | Contenuto | Chi | Entro |
 |---|---|---|---|---|
-| `params.csv` | v0 | aggiungere `wind_10m` (dossier), `h_wt_pct` e `grail_density` (card), `valid_share`; `protected_area` da stretch a MVP | Timo, Rocco | sab 22:30 |
-| `tests.yaml` | v0 | rivedere i pesi; `ksc_alhat_field` → `death_valley` | Rocco | sab 22:30 |
+| `params.csv` | v0 + modifiche di Edo (20:05): `bulk_density` → card, `protected_area` → MVP (WDPA), nuovi `wind_10m` e `soil_density` | da aggiungere: `h_wt_pct` e `grail_density` (card), `valid_share` | Timo, Rocco | sab 22:30 |
+| `tests.yaml` | v0 + modifiche di Edo (20:05): rover senza `bulk_density` (`slope_p90` 0,35, `rock_cover` 0,15), `soil_density` tra gli `indoor` | rivedere i pesi; `ksc_alhat_field` → `death_valley` | Rocco | sab 22:30 |
 | `targets/artemis.csv` | da fare | 9 siti (§7) | Rocco + Edo (LOLA) | 1 sito per le 22:30, 9 per le 01:00 |
 | `facilities.csv` | da fare | `name,lat,lon,type,simulant,covers,url`: LUNA, ALTEC (MTS e centro lunare), SLOPE, KSC Swamp Works, Ames Lunar Lab, Langley (sfera a vuoto), Marshall (Flat Floor e camera), DLR LAMA, ESTEC (TVAC e vibrazioni), Argotec (TVAC), NBL, ARGOS, Chamber B, Novespace; campi di crateri costruiti (KSC/ALHAT, Astrobotic LSPG, Huailai, Challakere) con `covers: constructed_hazard_field` | Rocco, aiuta Timo | dom 01:00 |
 | `known_sites.csv` | da fare | `name,lat,lon,test,campaign,source`: gli id di `tests.yaml` (con `death_valley` al posto di `ksc_alhat_field`) + Teide, Meteor Crater | Rocco | dom 01:00 |
@@ -301,7 +313,7 @@ Componenti:
 
 | Quando | Edo | Rocco | Timo |
 |---|---|---|---|
-| **sab 20:00** | export di prova con valori finti e colonne di `params.csv` | revisione dei pesi di `tests.yaml` | mappa che legge l'export |
+| **subito** (il gate delle 20:00 è superato) | export di prova con valori finti e colonne di `params.csv` | revisione dei pesi di `tests.yaml` | l'app su dati finti esiste già (commit `d21001f`): agganciarla all'export; aggiungere `soil_density` alle strutture |
 | sab 20:00-22:30 | accesso a GEE; raster di `slope_p90`, `roughness`, `ndvi`, maschera; `grid.py` | `artemis.csv` per 1 sito (Malapert?); coordinate dei siti TAS-I | selettore dei test, heat map |
 | **sab 22:30** | primo punteggio del rover su 1 sito, end-to-end | `known_sites.csv` (bozza) | card base |
 | sab 22:30-01:00 | albedo, LST, neve, SoilGrids, `low_sun_frac`, `crater_density`; 3 test × 9 siti; `new`; copertura | `artemis.csv` completo, `facilities.csv` | card con "si rompe" e strutture |
@@ -352,9 +364,13 @@ Chiuse alle 19:50:
 1. **Aree protette:** sì, con WDPA via GEE (`protected_area` nel dossier).
 2. **`ksc_alhat_field`:** da sostituire con `death_valley` (motivo nel §6). Da applicare in `tests.yaml`: Rocco o Timo.
 3. **Vento:** `wind_10m` da MERRA-2 su GEE.
-4. **GRAIL:** non corrisponde a SoilGrids (verificato, §7). Resta nella card; `bdod` si confronta con il profilo Apollo della regolite.
+4. **GRAIL:** non corrisponde a SoilGrids (verificato, §7) e non si può filtrare ai primi 2 m. Resta nella card.
+
+Chiusa alle 20:00:
+
+5. **Densità della regolite:** fuori dal punteggio (copertura per il rover, struttura per l'appoggio dei lander), nella card con il profilo standard. Applicata a `tests.yaml` e `params.csv`.
 
 Ancora aperte, non urgenti:
 
-5. **Nome del prodotto:** "Analog Atlas" è già preso da un altro team.
-6. **Account GEE:** chi lo apre e con quale progetto Cloud. Serve prima di iniziare la pipeline sui dati reali.
+6. **Nome del prodotto:** "Analog Atlas" è già preso da un altro team.
+7. **Account GEE:** chi lo apre e con quale progetto Cloud. Serve prima di iniziare la pipeline sui dati reali.
