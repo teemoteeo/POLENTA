@@ -16,7 +16,8 @@ Legenda: ✅ = fonte NASA o portale ufficiale della challenge · ➕ = fonte est
 | **Anteprima**, pesi veri ma senza validazione né dossier | `eva_traverse` (tute ed EVA) |
 | Coming soon | ISRU/anortosite, trivella |
 | **Dati lunari** (set minimo di Rocco) | **LOLA, Diviner, LEND, LROC, GRAIL** incrociati |
-| Dati della Terra | dati NASA come base (NASADEM, ASTER GDEM, MODIS, VIIRS, MERRA-2), elaborati su **Google Earth Engine** |
+| Dati della Terra | dati NASA come base (NASADEM, MODIS, VIIRS, MERRA-2) + **AW3D30 di JAXA** (agenzia partner) per il DEM sopra i 60°N, elaborati su **Google Earth Engine** (decisa alle 20:40) |
+| Risoluzione (20:40) | **massima**: Luna alla risoluzione nativa di LOLA (5-20 m), Terra a 30 m su tutto il globo. Punteggio alla baseline comune di 30 m; scale più fini con l'esponente di Hurst, dichiarato come estrapolazione (dettaglio in `docs/backend_spec.md` §5.1) |
 | Fonti esterne ammesse | **SoilGrids**, **GVP + Earth Impact Database**, **WDPA** (aree protette, via GEE; decisa alle 19:50), **Google Earth Engine** (piattaforma) |
 | Vento | `wind_10m` da MERRA-2 su GEE, nel dossier dei test di volo (decisa alle 19:50) |
 | Non ammesse, per ora | ArcticDEM, Copernicus DEM per lo zoom |
@@ -204,8 +205,8 @@ Gli ID del catalogo sono scritti a memoria: **verificarli tutti prima dell'uso**
 | Parametro (`params.csv`) | Ruolo | Dataset NASA / fonte | ID su GEE ⚠ | Come si calcola | Test |
 |---|---|---|---|---|---|
 | maschera delle terre | griglia | MODIS `MOD44W` ✅ | `MODIS/061/MOD44W` | pixel di terra | tutti |
-| `slope_p90` | score | `NASADEM_HGT` ✅ (fino a 60°N); ASTER GDEM ✅ (fino a 83°) | `NASA/NASADEM_HGT/001`; ASTER GDEM: catalogo della community ⚠ oppure download da Earthdata | `ee.Terrain.slope`, percentile 90 a 1 km | R H T E |
-| `roughness` | score | come sopra | come sopra | deviazione standard della quota dopo detrend a 1 km | R H T E |
+| `slope_p90` | score | `NASADEM_HGT` ✅ (fino a 60°N); AW3D30 di JAXA (partner, fino a 82°) | `NASA/NASADEM_HGT/001`; `JAXA/ALOS/AW3D30/V3_2` | `ee.Terrain.slope` a **30 m** (baseline comune con LOLA), percentile 90; pendenze anche a 60, 120 e 240 m per l'esponente di Hurst (card) | R H T E |
+| `roughness` | score | come sopra | come sopra | deviazione standard del rilievo locale a 30 m (quota meno media su 150 m); stesso calcolo su LOLA | R H T E |
 | `elevation_m` | card | come sopra | come sopra | media | tutti |
 | `crater_density` | score | DEM ✅ + GVP ➕ + Earth Impact Database ➕ | DEM su GEE; GVP e Impact DB come CSV caricati | depressioni chiuse nel DEM (n/km²) + distanza da campi vulcanici e strutture d'impatto | R H T |
 | `rock_cover` | score | SoilGrids `cfvo` ➕ + rugosità; Sentinel-1 ✅ sui candidati | `projects/soilgrids-isric/cfvo_mean` ⚠; `COPERNICUS/S1_GRD` | media 0-5 cm; backscatter solo per lo zoom | R H E |
@@ -237,7 +238,13 @@ Gli ID del catalogo sono scritti a memoria: **verificarli tutti prima dell'uso**
 8. **Copertura:** per ogni parametro con `s < 0,3` e per ogni voce `indoor` del test, si cercano in `facilities.csv` le strutture con quel `covers`.
 9. **Zoom sui candidati (dom mattina):** si ricalcolano pendenze e rugosità a 30 m sulle aree dei top siti, e si aggiungono le immagini Sentinel-2.
 
-**Scala:** le pendenze dipendono dalla risoluzione, quindi Terra e Luna vanno confrontate alla stessa baseline. Rocce da 0,3 m e crateri da 10 m non si vedono a 30-90 m: si usano proxy, dichiarati.
+**Scala (decisa alle 20:40):** le pendenze dipendono dalla risoluzione.
+- La Luna si prende alla risoluzione massima di LOLA (5-20 m), la Terra a 30 m ovunque.
+- Il punteggio confronta i valori misurati su entrambi alla **baseline comune di 30 m**; i crateri si contano nello stesso intervallo di diametri (≥ ~100-150 m).
+- Le scale più fini della Luna (pendenza nativa, crateri piccoli) vanno nella card, con la Terra estrapolata tramite l'esponente di Hurst (Rosenburg et al. 2011) e segnata "estrapolato".
+- Rocce da 0,3 m e crateri da 10 m sulla Terra non si vedono: si usano proxy, dichiarati.
+
+Dettaglio in `docs/backend_spec.md` §5.1.
 
 **Filtri sui pixel, non sulle celle.** Una cella H3 da ~250 km² attorno all'Etna o a Cinder Lake contiene anche boschi e paesi: con la mediana della cella, il filtro `ndvi < 0,1` la scarterebbe, e con lei i siti di validazione. Quindi:
 1. i filtri si applicano ai **pixel da 1 km**;
@@ -354,7 +361,8 @@ Componenti:
 **Checklist della submission (Submission Guide):**
 - [ ] demo: 7 slide **oppure** video ≤ 30 s;
 - [ ] link pubblici senza login (app e repo);
-- [ ] dati NASA elencati: NASADEM, ASTER GDEM, MODIS (`MOD44W`, `MOD13A3`, `MOD11A2`, `MCD43A3`, `MOD10A1`), VIIRS, MERRA-2, LRO (LOLA, Diviner, LEND, LROC), GRAIL;
+- [ ] dati NASA elencati: NASADEM, MODIS (`MOD44W`, `MOD13A3`, `MOD11A2`, `MCD43A3`, `MOD10A1`), VIIRS, MERRA-2, LRO (LOLA, Diviner, LEND, LROC), GRAIL;
+- [ ] dati delle agenzie partner: AW3D30 (JAXA);
 - [ ] fonti esterne dichiarate: SoilGrids, GVP, Earth Impact Database, WDPA, mappa geologica USGS, Google Earth Engine (piattaforma), codice di repo terzi riusato;
 - [ ] uso dell'AI dichiarato nel form.
 
