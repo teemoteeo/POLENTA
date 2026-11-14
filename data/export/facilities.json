@@ -1,0 +1,80 @@
+[
+ {
+  "name": "ALTEC (luci a ~8°)",
+  "covers": [
+   "low_sun_frac"
+  ]
+ },
+ {
+  "name": "ALTEC (rampa a 25°)",
+  "covers": [
+   "slope_p90"
+  ]
+ },
+ {
+  "name": "ARGOS, NASA JSC",
+  "covers": [
+   "gravity_1_6"
+  ]
+ },
+ {
+  "name": "Ames Lunar Lab",
+  "covers": [
+   "low_sun_frac"
+  ]
+ },
+ {
+  "name": "Chamber B, NASA JSC",
+  "covers": [
+   "vacuum"
+  ]
+ },
+ {
+  "name": "LUNA Dust Lab, Colonia",
+  "covers": [
+   "electrostatic_dust"
+  ]
+ },
+ {
+  "name": "LUNA, Colonia (offload)",
+  "covers": [
+   "gravity_1_6"
+  ]
+ },
+ {
+  "name": "Swamp Works, NASA KSC",
+  "covers": [
+   "electrostatic_dust"
+  ]
+ },
+ {
+  "name": "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
+  "covers": [
+   "cryo_psr"
+  ]
+ },
+ {
+  "name": "camere a vuoto ESTEC",
+  "covers": [
+   "vacuum"
+  ]
+ },
+ {
+  "name": "sfera da 60 ft, NASA Langley",
+  "covers": [
+   "plume_vacuum"
+  ]
+ },
+ {
+  "name": "vasche di simulante LHS-1 / LMS-1",
+  "covers": [
+   "agglutinates"
+  ]
+ },
+ {
+  "name": "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE",
+  "covers": [
+   "soil_density"
+  ]
+ }
+]

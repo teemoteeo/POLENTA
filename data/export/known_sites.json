@@ -1,0 +1,86 @@
+[
+ {
+  "id": "etna_piano_concazze",
+  "name": "Etna, Piano delle Concazze",
+  "lat": 37.77,
+  "lon": 15.03,
+  "tests": [
+   "rover_mobility"
+  ]
+ },
+ {
+  "id": "etna_cisternazza",
+  "name": "Etna, Cisternazza",
+  "lat": 37.72,
+  "lon": 14.99,
+  "tests": [
+   "rover_mobility"
+  ]
+ },
+ {
+  "id": "teide",
+  "name": "Teide, Tenerife",
+  "lat": 28.27,
+  "lon": -16.64,
+  "tests": [
+   "rover_mobility"
+  ]
+ },
+ {
+  "id": "black_point_lava_flow",
+  "name": "Black Point Lava Flow",
+  "lat": 35.69,
+  "lon": -111.45,
+  "tests": [
+   "rover_mobility",
+   "eva_traverse"
+  ]
+ },
+ {
+  "id": "sf_volcanic_field",
+  "name": "San Francisco Volcanic Field",
+  "lat": 35.58,
+  "lon": -111.63,
+  "tests": [
+   "eva_traverse"
+  ]
+ },
+ {
+  "id": "meteor_crater",
+  "name": "Meteor Crater",
+  "lat": 35.03,
+  "lon": -111.02,
+  "tests": [
+   "rover_mobility",
+   "flight_hda_lidar"
+  ]
+ },
+ {
+  "id": "cinder_lake",
+  "name": "Cinder Lake",
+  "lat": 35.3,
+  "lon": -111.48,
+  "tests": [
+   "flight_hda_lidar"
+  ]
+ },
+ {
+  "id": "death_valley",
+  "name": "Death Valley",
+  "lat": 36.5,
+  "lon": -117.1,
+  "tests": [
+   "flight_hda_lidar",
+   "flight_trn_camera"
+  ]
+ },
+ {
+  "id": "mojave",
+  "name": "Mojave",
+  "lat": 35.06,
+  "lon": -118.15,
+  "tests": [
+   "flight_trn_camera"
+  ]
+ }
+]

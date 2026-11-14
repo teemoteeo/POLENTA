@@ -1,0 +1,1769 @@
+{
+ "site": "haworth",
+ "test": "eva_traverse",
+ "status": "coming_soon",
+ "generated_at": "2026-11-14T19:51:51+00:00",
+ "mock": true,
+ "results": [
+  {
+   "id": "r01",
+   "name": "San Francisco Volcanic Field, Arizona",
+   "lat": 35.58,
+   "lon": -111.63,
+   "country": "United States",
+   "score": 0.892,
+   "kappa": 0.757,
+   "new": false,
+   "known_site": "sf_volcanic_field",
+   "h3_cells": [
+    "8548c9a3fffffff"
+   ],
+   "params": {
+    "slope_p90": 0.503,
+    "low_sun_frac": 0.768,
+    "roughness": 0.772,
+    "rock_class": 0.605,
+    "grain_proxy": 1.0,
+    "rock_cover": 0.924
+   },
+   "values": {
+    "slope_p90": 22.22,
+    "low_sun_frac": 0.1,
+    "roughness": 5.36,
+    "rock_class": "sedimentary",
+    "grain_proxy": 0.04,
+    "rock_cover": 0.03
+   },
+   "target": {
+    "slope_p90": 25.2,
+    "low_sun_frac": 1.0,
+    "roughness": 11.1,
+    "rock_class": "anorthosite",
+    "grain_proxy": 0.02,
+    "rock_cover": 0.11
+   },
+   "breaks": [
+    {
+     "param": "gravity_1_6",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "LUNA, Colonia (offload)",
+      "ARGOS, NASA JSC"
+     ]
+    },
+    {
+     "param": "vacuum",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "camere a vuoto ESTEC",
+      "Chamber B, NASA JSC"
+     ]
+    },
+    {
+     "param": "electrostatic_dust",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "LUNA Dust Lab, Colonia",
+      "Swamp Works, NASA KSC"
+     ]
+    },
+    {
+     "param": "cryo_psr",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "TVAC \"sporca\" ALTEC, Torino (in arrivo)"
+     ]
+    }
+   ],
+   "dossier": {
+    "snow_free_months": 4,
+    "night_lights": 2.1,
+    "protected_area": true,
+    "protected_area_name": null,
+    "wind_10m": null
+   }
+  },
+  {
+   "id": "r02",
+   "name": "Lanzarote",
+   "lat": 29.0,
+   "lon": -13.75,
+   "country": "Spain",
+   "score": 0.794,
+   "kappa": 0.784,
+   "new": true,
+   "known_site": null,
+   "h3_cells": [
+    "853469d7fffffff"
+   ],
+   "params": {
+    "slope_p90": 0.848,
+    "low_sun_frac": 0.436,
+    "roughness": 0.942,
+    "rock_class": 0.746,
+    "grain_proxy": 0.424,
+    "rock_cover": 0.387
+   },
+   "values": {
+    "slope_p90": 5.47,
+    "low_sun_frac": 0.43,
+    "roughness": 7.81,
+    "rock_class": "anorthosite",
+    "grain_proxy": 0.06,
+    "rock_cover": 0.07
+   },
+   "target": {
+    "slope_p90": 25.2,
+    "low_sun_frac": 1.0,
+    "roughness": 11.1,
+    "rock_class": "anorthosite",
+    "grain_proxy": 0.02,
+    "rock_cover": 0.11
+   },
+   "breaks": [
+    {
+     "param": "gravity_1_6",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "LUNA, Colonia (offload)",
+      "ARGOS, NASA JSC"
+     ]
+    },
+    {
+     "param": "vacuum",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "camere a vuoto ESTEC",
+      "Chamber B, NASA JSC"
+     ]
+    },
+    {
+     "param": "electrostatic_dust",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "LUNA Dust Lab, Colonia",
+      "Swamp Works, NASA KSC"
+     ]
+    },
+    {
+     "param": "cryo_psr",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "TVAC \"sporca\" ALTEC, Torino (in arrivo)"
+     ]
+    }
+   ],
+   "dossier": {
+    "snow_free_months": 10,
+    "night_lights": 17.2,
+    "protected_area": false,
+    "protected_area_name": null,
+    "wind_10m": null
+   }
+  },
+  {
+   "id": "r03",
+   "name": "Bletterbach, Alto Adige",
+   "lat": 46.36,
+   "lon": 11.43,
+   "country": "Italy",
+   "score": 0.737,
+   "kappa": 0.774,
+   "new": true,
+   "known_site": null,
+   "h3_cells": [
+    "851f8b43fffffff"
+   ],
+   "params": {
+    "slope_p90": 0.692,
+    "low_sun_frac": 0.432,
+    "roughness": 0.69,
+    "rock_class": 0.749,
+    "grain_proxy": 0.599,
+    "rock_cover": 0.694
+   },
+   "values": {
+    "slope_p90": 34.8,
+    "low_sun_frac": 0.19,
+    "roughness": 1.15,
+    "rock_class": "basalt_volcanic",
+    "grain_proxy": 0.05,
+    "rock_cover": 0.01
+   },
+   "target": {
+    "slope_p90": 25.2,
+    "low_sun_frac": 1.0,
+    "roughness": 11.1,
+    "rock_class": "anorthosite",
+    "grain_proxy": 0.02,
+    "rock_cover": 0.11
+   },
+   "breaks": [
+    {
+     "param": "gravity_1_6",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "LUNA, Colonia (offload)",
+      "ARGOS, NASA JSC"
+     ]
+    },
+    {
+     "param": "vacuum",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "camere a vuoto ESTEC",
+      "Chamber B, NASA JSC"
+     ]
+    },
+    {
+     "param": "electrostatic_dust",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "LUNA Dust Lab, Colonia",
+      "Swamp Works, NASA KSC"
+     ]
+    },
+    {
+     "param": "cryo_psr",
+     "why": "la Terra non lo riproduce (indoor)",
+     "covered_by": [
+      "TVAC \"sporca\" ALTEC, Torino (in arrivo)"
+     ]
+    }
+   ],
+   "dossier": {
+    "snow_free_months": 5,
+    "night_lights": 13.7,
+    "protected_area": true,
+    "protected_area_name": null,
+    "wind_10m": null
+   }
+  }
+ ],
+ "cells": [
+  {
+   "h3": "8548c96ffffffff",
+   "score": 0.884
+  },
+  {
+   "h3": "8548c943fffffff",
+   "score": 0.882
+  },
+  {
+   "h3": "8548c937fffffff",
+   "score": 0.877
+  },
+  {
+   "h3": "8529949bfffffff",
+   "score": 0.877
+  },
+  {
+   "h3": "85299693fffffff",
+   "score": 0.866
+  },
+  {
+   "h3": "8548c9cbfffffff",
+   "score": 0.859
+  },
+  {
+   "h3": "8548c9d3fffffff",
+   "score": 0.852
+  },
+  {
+   "h3": "8529b24ffffffff",
+   "score": 0.845
+  },
+  {
+   "h3": "8548c8a7fffffff",
+   "score": 0.842
+  },
+  {
+   "h3": "8548c927fffffff",
+   "score": 0.841
+  },
+  {
+   "h3": "8529b23bfffffff",
+   "score": 0.836
+  },
+  {
+   "h3": "8529b22bfffffff",
+   "score": 0.827
+  },
+  {
+   "h3": "8529b263fffffff",
+   "score": 0.824
+  },
+  {
+   "h3": "85299487fffffff",
+   "score": 0.814
+  },
+  {
+   "h3": "852994bbfffffff",
+   "score": 0.812
+  },
+  {
+   "h3": "8548c93bfffffff",
+   "score": 0.811
+  },
+  {
+   "h3": "8548c9a7fffffff",
+   "score": 0.797
+  },
+  {
+   "h3": "8548c963fffffff",
+   "score": 0.789
+  },
+  {
+   "h3": "85299403fffffff",
+   "score": 0.788
+  },
+  {
+   "h3": "8548c98ffffffff",
+   "score": 0.786
+  },
+  {
+   "h3": "8548c90bfffffff",
+   "score": 0.786
+  },
+  {
+   "h3": "85299493fffffff",
+   "score": 0.786
+  },
+  {
+   "h3": "853996cbfffffff",
+   "score": 0.786
+  },
+  {
+   "h3": "8529b27bfffffff",
+   "score": 0.784
+  },
+  {
+   "h3": "8529b20ffffffff",
+   "score": 0.784
+  },
+  {
+   "h3": "85299443fffffff",
+   "score": 0.784
+  },
+  {
+   "h3": "85346947fffffff",
+   "score": 0.782
+  },
+  {
+   "h3": "853996c3fffffff",
+   "score": 0.777
+  },
+  {
+   "h3": "8548c973fffffff",
+   "score": 0.774
+  },
+  {
+   "h3": "853468a3fffffff",
+   "score": 0.774
+  },
+  {
+   "h3": "8548c92ffffffff",
+   "score": 0.772
+  },
+  {
+   "h3": "8539965bfffffff",
+   "score": 0.771
+  },
+  {
+   "h3": "8529b26ffffffff",
+   "score": 0.77
+  },
+  {
+   "h3": "8548cd27fffffff",
+   "score": 0.769
+  },
+  {
+   "h3": "8529b257fffffff",
+   "score": 0.767
+  },
+  {
+   "h3": "85346b9bfffffff",
+   "score": 0.767
+  },
+  {
+   "h3": "85299457fffffff",
+   "score": 0.759
+  },
+  {
+   "h3": "853469d3fffffff",
+   "score": 0.758
+  },
+  {
+   "h3": "8548c99bfffffff",
+   "score": 0.757
+  },
+  {
+   "h3": "8534698ffffffff",
+   "score": 0.756
+  },
+  {
+   "h3": "85346b83fffffff",
+   "score": 0.754
+  },
+  {
+   "h3": "852994dbfffffff",
+   "score": 0.75
+  },
+  {
+   "h3": "8534694bfffffff",
+   "score": 0.747
+  },
+  {
+   "h3": "85346823fffffff",
+   "score": 0.745
+  },
+  {
+   "h3": "853468b3fffffff",
+   "score": 0.744
+  },
+  {
+   "h3": "851f8b23fffffff",
+   "score": 0.736
+  },
+  {
+   "h3": "851ea48ffffffff",
+   "score": 0.735
+  },
+  {
+   "h3": "851f8bc7fffffff",
+   "score": 0.735
+  },
+  {
+   "h3": "851ea40bfffffff",
+   "score": 0.735
+  },
+  {
+   "h3": "851ea5d7fffffff",
+   "score": 0.733
+  },
+  {
+   "h3": "851f8a3bfffffff",
+   "score": 0.727
+  },
+  {
+   "h3": "8548c917fffffff",
+   "score": 0.726
+  },
+  {
+   "h3": "8548c98bfffffff",
+   "score": 0.724
+  },
+  {
+   "h3": "85346953fffffff",
+   "score": 0.721
+  },
+  {
+   "h3": "851f8ab3fffffff",
+   "score": 0.721
+  },
+  {
+   "h3": "851ea58bfffffff",
+   "score": 0.721
+  },
+  {
+   "h3": "8529940bfffffff",
+   "score": 0.72
+  },
+  {
+   "h3": "851ea5cffffffff",
+   "score": 0.72
+  },
+  {
+   "h3": "8529b22ffffffff",
+   "score": 0.719
+  },
+  {
+   "h3": "8548c9b7fffffff",
+   "score": 0.718
+  },
+  {
+   "h3": "852994c3fffffff",
+   "score": 0.718
+  },
+  {
+   "h3": "851ea487fffffff",
+   "score": 0.717
+  },
+  {
+   "h3": "8539968bfffffff",
+   "score": 0.713
+  },
+  {
+   "h3": "85346897fffffff",
+   "score": 0.712
+  },
+  {
+   "h3": "85346d37fffffff",
+   "score": 0.71
+  },
+  {
+   "h3": "8548c983fffffff",
+   "score": 0.709
+  },
+  {
+   "h3": "851f894bfffffff",
+   "score": 0.708
+  },
+  {
+   "h3": "8548cd77fffffff",
+   "score": 0.707
+  },
+  {
+   "h3": "8539969bfffffff",
+   "score": 0.702
+  },
+  {
+   "h3": "8548c907fffffff",
+   "score": 0.701
+  },
+  {
+   "h3": "8534699bfffffff",
+   "score": 0.701
+  },
+  {
+   "h3": "85346813fffffff",
+   "score": 0.701
+  },
+  {
+   "h3": "852994d7fffffff",
+   "score": 0.698
+  },
+  {
+   "h3": "8548cd67fffffff",
+   "score": 0.696
+  },
+  {
+   "h3": "8529b2c7fffffff",
+   "score": 0.696
+  },
+  {
+   "h3": "8529948ffffffff",
+   "score": 0.695
+  },
+  {
+   "h3": "85346d17fffffff",
+   "score": 0.692
+  },
+  {
+   "h3": "8548c92bfffffff",
+   "score": 0.689
+  },
+  {
+   "h3": "85346923fffffff",
+   "score": 0.689
+  },
+  {
+   "h3": "851f8b53fffffff",
+   "score": 0.686
+  },
+  {
+   "h3": "853469b3fffffff",
+   "score": 0.683
+  },
+  {
+   "h3": "8534688ffffffff",
+   "score": 0.682
+  },
+  {
+   "h3": "8534693bfffffff",
+   "score": 0.682
+  },
+  {
+   "h3": "851f8a6bfffffff",
+   "score": 0.682
+  },
+  {
+   "h3": "8529b207fffffff",
+   "score": 0.681
+  },
+  {
+   "h3": "851f8b97fffffff",
+   "score": 0.675
+  },
+  {
+   "h3": "852994c7fffffff",
+   "score": 0.672
+  },
+  {
+   "h3": "8548c9b3fffffff",
+   "score": 0.67
+  },
+  {
+   "h3": "8548c923fffffff",
+   "score": 0.67
+  },
+  {
+   "h3": "851f8bbbfffffff",
+   "score": 0.667
+  },
+  {
+   "h3": "85346d33fffffff",
+   "score": 0.666
+  },
+  {
+   "h3": "85346957fffffff",
+   "score": 0.665
+  },
+  {
+   "h3": "8548c9d7fffffff",
+   "score": 0.663
+  },
+  {
+   "h3": "851f8b83fffffff",
+   "score": 0.661
+  },
+  {
+   "h3": "85346b93fffffff",
+   "score": 0.66
+  },
+  {
+   "h3": "8534694ffffffff",
+   "score": 0.659
+  },
+  {
+   "h3": "8548c9abfffffff",
+   "score": 0.658
+  },
+  {
+   "h3": "85346d0bfffffff",
+   "score": 0.658
+  },
+  {
+   "h3": "8548c9affffffff",
+   "score": 0.656
+  },
+  {
+   "h3": "8548c957fffffff",
+   "score": 0.656
+  },
+  {
+   "h3": "8529b20bfffffff",
+   "score": 0.655
+  },
+  {
+   "h3": "853469cffffffff",
+   "score": 0.655
+  },
+  {
+   "h3": "85346837fffffff",
+   "score": 0.655
+  },
+  {
+   "h3": "85346dcffffffff",
+   "score": 0.652
+  },
+  {
+   "h3": "8548cd33fffffff",
+   "score": 0.647
+  },
+  {
+   "h3": "851f8bdbfffffff",
+   "score": 0.647
+  },
+  {
+   "h3": "851ea4c7fffffff",
+   "score": 0.647
+  },
+  {
+   "h3": "851ea5c7fffffff",
+   "score": 0.647
+  },
+  {
+   "h3": "8548c9c3fffffff",
+   "score": 0.645
+  },
+  {
+   "h3": "8534691bfffffff",
+   "score": 0.645
+  },
+  {
+   "h3": "8548cd6bfffffff",
+   "score": 0.643
+  },
+  {
+   "h3": "851f8b1bfffffff",
+   "score": 0.643
+  },
+  {
+   "h3": "851ea423fffffff",
+   "score": 0.638
+  },
+  {
+   "h3": "853469d7fffffff",
+   "score": 0.637
+  },
+  {
+   "h3": "85346907fffffff",
+   "score": 0.636
+  },
+  {
+   "h3": "8548c97bfffffff",
+   "score": 0.634
+  },
+  {
+   "h3": "851f8b77fffffff",
+   "score": 0.632
+  },
+  {
+   "h3": "85346d77fffffff",
+   "score": 0.631
+  },
+  {
+   "h3": "851ea437fffffff",
+   "score": 0.631
+  },
+  {
+   "h3": "8529948bfffffff",
+   "score": 0.63
+  },
+  {
+   "h3": "8529944ffffffff",
+   "score": 0.63
+  },
+  {
+   "h3": "85346bb3fffffff",
+   "score": 0.63
+  },
+  {
+   "h3": "851f8b3bfffffff",
+   "score": 0.63
+  },
+  {
+   "h3": "8548cd23fffffff",
+   "score": 0.628
+  },
+  {
+   "h3": "8529b213fffffff",
+   "score": 0.628
+  },
+  {
+   "h3": "851f8b6bfffffff",
+   "score": 0.627
+  },
+  {
+   "h3": "851f8a73fffffff",
+   "score": 0.627
+  },
+  {
+   "h3": "851ea4bbfffffff",
+   "score": 0.626
+  },
+  {
+   "h3": "851f8b73fffffff",
+   "score": 0.624
+  },
+  {
+   "h3": "85346d2bfffffff",
+   "score": 0.623
+  },
+  {
+   "h3": "8548c933fffffff",
+   "score": 0.622
+  },
+  {
+   "h3": "851f8b9bfffffff",
+   "score": 0.622
+  },
+  {
+   "h3": "8529945bfffffff",
+   "score": 0.621
+  },
+  {
+   "h3": "8529b2cbfffffff",
+   "score": 0.62
+  },
+  {
+   "h3": "85346d2ffffffff",
+   "score": 0.62
+  },
+  {
+   "h3": "85346d1bfffffff",
+   "score": 0.619
+  },
+  {
+   "h3": "8534697bfffffff",
+   "score": 0.618
+  },
+  {
+   "h3": "85346d3bfffffff",
+   "score": 0.616
+  },
+  {
+   "h3": "85399693fffffff",
+   "score": 0.614
+  },
+  {
+   "h3": "851f8867fffffff",
+   "score": 0.613
+  },
+  {
+   "h3": "851f884ffffffff",
+   "score": 0.61
+  },
+  {
+   "h3": "851ea4d7fffffff",
+   "score": 0.607
+  },
+  {
+   "h3": "851f8b2bfffffff",
+   "score": 0.606
+  },
+  {
+   "h3": "851f8b43fffffff",
+   "score": 0.605
+  },
+  {
+   "h3": "85346997fffffff",
+   "score": 0.603
+  },
+  {
+   "h3": "853996d3fffffff",
+   "score": 0.603
+  },
+  {
+   "h3": "851f8b27fffffff",
+   "score": 0.603
+  },
+  {
+   "h3": "85299413fffffff",
+   "score": 0.599
+  },
+  {
+   "h3": "853469c3fffffff",
+   "score": 0.599
+  },
+  {
+   "h3": "851f8a0ffffffff",
+   "score": 0.597
+  },
+  {
+   "h3": "85346807fffffff",
+   "score": 0.596
+  },
+  {
+   "h3": "8548c9cffffffff",
+   "score": 0.594
+  },
+  {
+   "h3": "85346d4ffffffff",
+   "score": 0.594
+  },
+  {
+   "h3": "853469bbfffffff",
+   "score": 0.593
+  },
+  {
+   "h3": "85399683fffffff",
+   "score": 0.593
+  },
+  {
+   "h3": "851ea4a3fffffff",
+   "score": 0.59
+  },
+  {
+   "h3": "85346b97fffffff",
+   "score": 0.589
+  },
+  {
+   "h3": "8529b243fffffff",
+   "score": 0.588
+  },
+  {
+   "h3": "8529b2c3fffffff",
+   "score": 0.588
+  },
+  {
+   "h3": "851ea433fffffff",
+   "score": 0.588
+  },
+  {
+   "h3": "851f8a47fffffff",
+   "score": 0.588
+  },
+  {
+   "h3": "853469abfffffff",
+   "score": 0.586
+  },
+  {
+   "h3": "853996d7fffffff",
+   "score": 0.585
+  },
+  {
+   "h3": "8529b24bfffffff",
+   "score": 0.584
+  },
+  {
+   "h3": "852994d3fffffff",
+   "score": 0.582
+  },
+  {
+   "h3": "8548c913fffffff",
+   "score": 0.582
+  },
+  {
+   "h3": "8548c947fffffff",
+   "score": 0.581
+  },
+  {
+   "h3": "8548cd2ffffffff",
+   "score": 0.58
+  },
+  {
+   "h3": "85346dc7fffffff",
+   "score": 0.579
+  },
+  {
+   "h3": "851ea4a7fffffff",
+   "score": 0.578
+  },
+  {
+   "h3": "853468b7fffffff",
+   "score": 0.577
+  },
+  {
+   "h3": "85346d47fffffff",
+   "score": 0.577
+  },
+  {
+   "h3": "8548c997fffffff",
+   "score": 0.576
+  },
+  {
+   "h3": "85346d27fffffff",
+   "score": 0.576
+  },
+  {
+   "h3": "85346d5bfffffff",
+   "score": 0.576
+  },
+  {
+   "h3": "8529b273fffffff",
+   "score": 0.575
+  },
+  {
+   "h3": "85346983fffffff",
+   "score": 0.575
+  },
+  {
+   "h3": "8534682ffffffff",
+   "score": 0.574
+  },
+  {
+   "h3": "851f8a2bfffffff",
+   "score": 0.574
+  },
+  {
+   "h3": "851f8abbfffffff",
+   "score": 0.574
+  },
+  {
+   "h3": "85346d23fffffff",
+   "score": 0.573
+  },
+  {
+   "h3": "851f8b8ffffffff",
+   "score": 0.571
+  },
+  {
+   "h3": "851f8ba3fffffff",
+   "score": 0.571
+  },
+  {
+   "h3": "851f8b0bfffffff",
+   "score": 0.568
+  },
+  {
+   "h3": "851f8b33fffffff",
+   "score": 0.568
+  },
+  {
+   "h3": "851ea49bfffffff",
+   "score": 0.567
+  },
+  {
+   "h3": "851ea427fffffff",
+   "score": 0.566
+  },
+  {
+   "h3": "8529b253fffffff",
+   "score": 0.565
+  },
+  {
+   "h3": "8548c953fffffff",
+   "score": 0.564
+  },
+  {
+   "h3": "8548c9a3fffffff",
+   "score": 0.559
+  },
+  {
+   "h3": "85346d73fffffff",
+   "score": 0.556
+  },
+  {
+   "h3": "851f8b4ffffffff",
+   "score": 0.555
+  },
+  {
+   "h3": "853468bbfffffff",
+   "score": 0.554
+  },
+  {
+   "h3": "852994cffffffff",
+   "score": 0.552
+  },
+  {
+   "h3": "8534696ffffffff",
+   "score": 0.552
+  },
+  {
+   "h3": "853996cffffffff",
+   "score": 0.552
+  },
+  {
+   "h3": "851ea4abfffffff",
+   "score": 0.552
+  },
+  {
+   "h3": "855534d3fffffff",
+   "score": 0.551
+  },
+  {
+   "h3": "853469a7fffffff",
+   "score": 0.55
+  },
+  {
+   "h3": "85346827fffffff",
+   "score": 0.549
+  },
+  {
+   "h3": "85346917fffffff",
+   "score": 0.548
+  },
+  {
+   "h3": "851ea4b7fffffff",
+   "score": 0.548
+  },
+  {
+   "h3": "8529969bfffffff",
+   "score": 0.547
+  },
+  {
+   "h3": "85299453fffffff",
+   "score": 0.545
+  },
+  {
+   "h3": "85346903fffffff",
+   "score": 0.545
+  },
+  {
+   "h3": "851f8a2ffffffff",
+   "score": 0.545
+  },
+  {
+   "h3": "851f8b57fffffff",
+   "score": 0.543
+  },
+  {
+   "h3": "8529b223fffffff",
+   "score": 0.541
+  },
+  {
+   "h3": "852994cbfffffff",
+   "score": 0.54
+  },
+  {
+   "h3": "8548cd37fffffff",
+   "score": 0.538
+  },
+  {
+   "h3": "8529b267fffffff",
+   "score": 0.535
+  },
+  {
+   "h3": "8548cdaffffffff",
+   "score": 0.535
+  },
+  {
+   "h3": "853469cbfffffff",
+   "score": 0.535
+  },
+  {
+   "h3": "8529b2abfffffff",
+   "score": 0.534
+  },
+  {
+   "h3": "8529b217fffffff",
+   "score": 0.533
+  },
+  {
+   "h3": "8529941bfffffff",
+   "score": 0.532
+  },
+  {
+   "h3": "85346d43fffffff",
+   "score": 0.528
+  },
+  {
+   "h3": "85346d63fffffff",
+   "score": 0.527
+  },
+  {
+   "h3": "852996b3fffffff",
+   "score": 0.526
+  },
+  {
+   "h3": "85346877fffffff",
+   "score": 0.524
+  },
+  {
+   "h3": "85346867fffffff",
+   "score": 0.524
+  },
+  {
+   "h3": "851f8ab7fffffff",
+   "score": 0.524
+  },
+  {
+   "h3": "85299417fffffff",
+   "score": 0.521
+  },
+  {
+   "h3": "8534680ffffffff",
+   "score": 0.517
+  },
+  {
+   "h3": "851ea413fffffff",
+   "score": 0.517
+  },
+  {
+   "h3": "8529b25bfffffff",
+   "score": 0.516
+  },
+  {
+   "h3": "851f8b93fffffff",
+   "score": 0.515
+  },
+  {
+   "h3": "851ea5c3fffffff",
+   "score": 0.514
+  },
+  {
+   "h3": "8548c94ffffffff",
+   "score": 0.512
+  },
+  {
+   "h3": "853469c7fffffff",
+   "score": 0.512
+  },
+  {
+   "h3": "85346833fffffff",
+   "score": 0.512
+  },
+  {
+   "h3": "8529b277fffffff",
+   "score": 0.51
+  },
+  {
+   "h3": "851f8bb3fffffff",
+   "score": 0.509
+  },
+  {
+   "h3": "85346967fffffff",
+   "score": 0.502
+  },
+  {
+   "h3": "8548c977fffffff",
+   "score": 0.501
+  },
+  {
+   "h3": "8529b233fffffff",
+   "score": 0.497
+  },
+  {
+   "h3": "8534698bfffffff",
+   "score": 0.497
+  },
+  {
+   "h3": "853468a7fffffff",
+   "score": 0.497
+  },
+  {
+   "h3": "851ea553fffffff",
+   "score": 0.497
+  },
+  {
+   "h3": "8548cd63fffffff",
+   "score": 0.496
+  },
+  {
+   "h3": "851f8b17fffffff",
+   "score": 0.496
+  },
+  {
+   "h3": "8548c987fffffff",
+   "score": 0.493
+  },
+  {
+   "h3": "85346d07fffffff",
+   "score": 0.491
+  },
+  {
+   "h3": "851f8a7bfffffff",
+   "score": 0.491
+  },
+  {
+   "h3": "8548c9dbfffffff",
+   "score": 0.489
+  },
+  {
+   "h3": "851f8a63fffffff",
+   "score": 0.487
+  },
+  {
+   "h3": "85299687fffffff",
+   "score": 0.483
+  },
+  {
+   "h3": "85346bb7fffffff",
+   "score": 0.479
+  },
+  {
+   "h3": "85346d6ffffffff",
+   "score": 0.476
+  },
+  {
+   "h3": "85346d03fffffff",
+   "score": 0.476
+  },
+  {
+   "h3": "85346937fffffff",
+   "score": 0.475
+  },
+  {
+   "h3": "851ea483fffffff",
+   "score": 0.475
+  },
+  {
+   "h3": "85346963fffffff",
+   "score": 0.469
+  },
+  {
+   "h3": "851ea5dbfffffff",
+   "score": 0.469
+  },
+  {
+   "h3": "85346d7bfffffff",
+   "score": 0.468
+  },
+  {
+   "h3": "851ea4d3fffffff",
+   "score": 0.468
+  },
+  {
+   "h3": "851ea417fffffff",
+   "score": 0.465
+  },
+  {
+   "h3": "85346943fffffff",
+   "score": 0.46
+  },
+  {
+   "h3": "853996c7fffffff",
+   "score": 0.46
+  },
+  {
+   "h3": "851f8b37fffffff",
+   "score": 0.452
+  },
+  {
+   "h3": "851f8a6ffffffff",
+   "score": 0.451
+  },
+  {
+   "h3": "8548cd2bfffffff",
+   "score": 0.449
+  },
+  {
+   "h3": "85299497fffffff",
+   "score": 0.449
+  },
+  {
+   "h3": "8534695bfffffff",
+   "score": 0.449
+  },
+  {
+   "h3": "8548c903fffffff",
+   "score": 0.447
+  },
+  {
+   "h3": "851f8a67fffffff",
+   "score": 0.446
+  },
+  {
+   "h3": "851f8bd3fffffff",
+   "score": 0.445
+  },
+  {
+   "h3": "851f8aabfffffff",
+   "score": 0.445
+  },
+  {
+   "h3": "851f8a03fffffff",
+   "score": 0.445
+  },
+  {
+   "h3": "851f8b13fffffff",
+   "score": 0.444
+  },
+  {
+   "h3": "851ea43bfffffff",
+   "score": 0.444
+  },
+  {
+   "h3": "8548c90ffffffff",
+   "score": 0.442
+  },
+  {
+   "h3": "851ea407fffffff",
+   "score": 0.442
+  },
+  {
+   "h3": "855534dbfffffff",
+   "score": 0.441
+  },
+  {
+   "h3": "851f8b7bfffffff",
+   "score": 0.438
+  },
+  {
+   "h3": "853469a3fffffff",
+   "score": 0.435
+  },
+  {
+   "h3": "851f8babfffffff",
+   "score": 0.433
+  },
+  {
+   "h3": "85346973fffffff",
+   "score": 0.43
+  },
+  {
+   "h3": "85346d0ffffffff",
+   "score": 0.428
+  },
+  {
+   "h3": "8534692bfffffff",
+   "score": 0.427
+  },
+  {
+   "h3": "8548cd3bfffffff",
+   "score": 0.426
+  },
+  {
+   "h3": "8534690bfffffff",
+   "score": 0.422
+  },
+  {
+   "h3": "8529b2dbfffffff",
+   "score": 0.421
+  },
+  {
+   "h3": "851f8b87fffffff",
+   "score": 0.421
+  },
+  {
+   "h3": "8534683bfffffff",
+   "score": 0.42
+  },
+  {
+   "h3": "851ea597fffffff",
+   "score": 0.42
+  },
+  {
+   "h3": "851e165bfffffff",
+   "score": 0.42
+  },
+  {
+   "h3": "85346daffffffff",
+   "score": 0.418
+  },
+  {
+   "h3": "851ea59bfffffff",
+   "score": 0.418
+  },
+  {
+   "h3": "85346913fffffff",
+   "score": 0.417
+  },
+  {
+   "h3": "85346dabfffffff",
+   "score": 0.417
+  },
+  {
+   "h3": "8548c9bbfffffff",
+   "score": 0.416
+  },
+  {
+   "h3": "851f8aa3fffffff",
+   "score": 0.416
+  },
+  {
+   "h3": "8548c967fffffff",
+   "score": 0.414
+  },
+  {
+   "h3": "8534688bfffffff",
+   "score": 0.414
+  },
+  {
+   "h3": "8534696bfffffff",
+   "score": 0.413
+  },
+  {
+   "h3": "853996dbfffffff",
+   "score": 0.412
+  },
+  {
+   "h3": "8548c993fffffff",
+   "score": 0.411
+  },
+  {
+   "h3": "8534682bfffffff",
+   "score": 0.41
+  },
+  {
+   "h3": "85346d13fffffff",
+   "score": 0.41
+  },
+  {
+   "h3": "85346817fffffff",
+   "score": 0.408
+  },
+  {
+   "h3": "85346987fffffff",
+   "score": 0.404
+  },
+  {
+   "h3": "851ea593fffffff",
+   "score": 0.403
+  },
+  {
+   "h3": "851f8a17fffffff",
+   "score": 0.401
+  },
+  {
+   "h3": "85346933fffffff",
+   "score": 0.4
+  },
+  {
+   "h3": "8529b2cffffffff",
+   "score": 0.399
+  },
+  {
+   "h3": "851f8a23fffffff",
+   "score": 0.399
+  },
+  {
+   "h3": "85346b87fffffff",
+   "score": 0.398
+  },
+  {
+   "h3": "8529b21bfffffff",
+   "score": 0.397
+  },
+  {
+   "h3": "851f886ffffffff",
+   "score": 0.397
+  },
+  {
+   "h3": "85346d6bfffffff",
+   "score": 0.394
+  },
+  {
+   "h3": "851f8b0ffffffff",
+   "score": 0.391
+  },
+  {
+   "h3": "8529b26bfffffff",
+   "score": 0.389
+  },
+  {
+   "h3": "8548c9c7fffffff",
+   "score": 0.386
+  },
+  {
+   "h3": "85299683fffffff",
+   "score": 0.386
+  },
+  {
+   "h3": "851f8bc3fffffff",
+   "score": 0.382
+  },
+  {
+   "h3": "851ea5d3fffffff",
+   "score": 0.382
+  },
+  {
+   "h3": "851f8b63fffffff",
+   "score": 0.381
+  },
+  {
+   "h3": "851f8b5bfffffff",
+   "score": 0.379
+  },
+  {
+   "h3": "8529944bfffffff",
+   "score": 0.375
+  },
+  {
+   "h3": "8548c91bfffffff",
+   "score": 0.372
+  },
+  {
+   "h3": "851ea40ffffffff",
+   "score": 0.372
+  },
+  {
+   "h3": "853469affffffff",
+   "score": 0.371
+  },
+  {
+   "h3": "851f8863fffffff",
+   "score": 0.37
+  },
+  {
+   "h3": "85346977fffffff",
+   "score": 0.368
+  },
+  {
+   "h3": "851ea403fffffff",
+   "score": 0.366
+  },
+  {
+   "h3": "85299483fffffff",
+   "score": 0.365
+  },
+  {
+   "h3": "8548cbb7fffffff",
+   "score": 0.364
+  },
+  {
+   "h3": "8534690ffffffff",
+   "score": 0.364
+  },
+  {
+   "h3": "85346d53fffffff",
+   "score": 0.364
+  },
+  {
+   "h3": "851f8a27fffffff",
+   "score": 0.362
+  },
+  {
+   "h3": "851f8baffffffff",
+   "score": 0.359
+  },
+  {
+   "h3": "8548cd6ffffffff",
+   "score": 0.357
+  },
+  {
+   "h3": "851f886bfffffff",
+   "score": 0.355
+  },
+  {
+   "h3": "851f8a77fffffff",
+   "score": 0.354
+  },
+  {
+   "h3": "85299697fffffff",
+   "score": 0.353
+  },
+  {
+   "h3": "851ea4c3fffffff",
+   "score": 0.349
+  },
+  {
+   "h3": "851f8bcffffffff",
+   "score": 0.346
+  },
+  {
+   "h3": "851f8a37fffffff",
+   "score": 0.346
+  },
+  {
+   "h3": "85299447fffffff",
+   "score": 0.343
+  },
+  {
+   "h3": "85346d4bfffffff",
+   "score": 0.343
+  },
+  {
+   "h3": "851f8aaffffffff",
+   "score": 0.343
+  },
+  {
+   "h3": "851f8aa7fffffff",
+   "score": 0.331
+  },
+  {
+   "h3": "8529b247fffffff",
+   "score": 0.33
+  },
+  {
+   "h3": "85399653fffffff",
+   "score": 0.328
+  },
+  {
+   "h3": "853468affffffff",
+   "score": 0.319
+  },
+  {
+   "h3": "8548c96bfffffff",
+   "score": 0.317
+  },
+  {
+   "h3": "85346887fffffff",
+   "score": 0.317
+  },
+  {
+   "h3": "851ea497fffffff",
+   "score": 0.316
+  },
+  {
+   "h3": "851ea5cbfffffff",
+   "score": 0.316
+  },
+  {
+   "h3": "8529b203fffffff",
+   "score": 0.312
+  },
+  {
+   "h3": "851f8bcbfffffff",
+   "score": 0.311
+  },
+  {
+   "h3": "851ea48bfffffff",
+   "score": 0.31
+  },
+  {
+   "h3": "851ea4affffffff",
+   "score": 0.309
+  },
+  {
+   "h3": "851f8a0bfffffff",
+   "score": 0.309
+  },
+  {
+   "h3": "85346883fffffff",
+   "score": 0.306
+  },
+  {
+   "h3": "85346803fffffff",
+   "score": 0.305
+  },
+  {
+   "h3": "851ea4b3fffffff",
+   "score": 0.299
+  },
+  {
+   "h3": "85346d67fffffff",
+   "score": 0.297
+  },
+  {
+   "h3": "85346993fffffff",
+   "score": 0.295
+  },
+  {
+   "h3": "853469b7fffffff",
+   "score": 0.295
+  },
+  {
+   "h3": "851ea493fffffff",
+   "score": 0.294
+  },
+  {
+   "h3": "85346d57fffffff",
+   "score": 0.292
+  },
+  {
+   "h3": "851f8b67fffffff",
+   "score": 0.292
+  },
+  {
+   "h3": "851ea41bfffffff",
+   "score": 0.292
+  },
+  {
+   "h3": "851f887bfffffff",
+   "score": 0.292
+  },
+  {
+   "h3": "851f8a33fffffff",
+   "score": 0.291
+  },
+  {
+   "h3": "851f8b03fffffff",
+   "score": 0.288
+  },
+  {
+   "h3": "851f8b47fffffff",
+   "score": 0.285
+  },
+  {
+   "h3": "851f8b2ffffffff",
+   "score": 0.284
+  },
+  {
+   "h3": "853468abfffffff",
+   "score": 0.283
+  },
+  {
+   "h3": "853469dbfffffff",
+   "score": 0.282
+  },
+  {
+   "h3": "851f8bd7fffffff",
+   "score": 0.276
+  },
+  {
+   "h3": "851f8b6ffffffff",
+   "score": 0.275
+  },
+  {
+   "h3": "851ea4cffffffff",
+   "score": 0.275
+  },
+  {
+   "h3": "851f8b4bfffffff",
+   "score": 0.274
+  },
+  {
+   "h3": "851ea457fffffff",
+   "score": 0.27
+  },
+  {
+   "h3": "851f8b07fffffff",
+   "score": 0.267
+  },
+  {
+   "h3": "851ea583fffffff",
+   "score": 0.266
+  },
+  {
+   "h3": "851f8a07fffffff",
+   "score": 0.26
+  },
+  {
+   "h3": "851f8b8bfffffff",
+   "score": 0.258
+  }
+ ]
+}

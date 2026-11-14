@@ -1,0 +1,371 @@
+[
+ {
+  "id": "peak_near_cabeus_b",
+  "name": "Peak near Cabeus B",
+  "lat": -84.9,
+  "lon": 1.0,
+  "mock": true,
+  "values": {
+   "slope_p90": 24.6,
+   "roughness": 4.2,
+   "crater_density": 2.1,
+   "rock_cover": 0.08,
+   "low_sun_frac": 1.0,
+   "albedo": 0.22,
+   "grain_proxy": 0.02,
+   "rock_class": "anorthosite"
+  },
+  "card": {
+   "t_min_c": -230,
+   "t_max_c": -50,
+   "h_wt_pct": null,
+   "grail_density": 2550,
+   "geo_unit": null,
+   "bulk_density_profile": [
+    [
+     0,
+     1.1
+    ],
+    [
+     0.1,
+     1.5
+    ],
+    [
+     1.0,
+     1.8
+    ]
+   ]
+  },
+  "sources": {
+   "all": "MOCK: valori finti, in attesa di artemis.csv (Rocco)"
+  }
+ },
+ {
+  "id": "haworth",
+  "name": "Haworth",
+  "lat": -87.4,
+  "lon": -5.0,
+  "mock": true,
+  "values": {
+   "slope_p90": 25.2,
+   "roughness": 11.1,
+   "crater_density": 1.35,
+   "rock_cover": 0.11,
+   "low_sun_frac": 1.0,
+   "albedo": 0.15,
+   "grain_proxy": 0.02,
+   "rock_class": "anorthosite"
+  },
+  "card": {
+   "t_min_c": -230,
+   "t_max_c": -50,
+   "h_wt_pct": null,
+   "grail_density": 2550,
+   "geo_unit": null,
+   "bulk_density_profile": [
+    [
+     0,
+     1.1
+    ],
+    [
+     0.1,
+     1.5
+    ],
+    [
+     1.0,
+     1.8
+    ]
+   ]
+  },
+  "sources": {
+   "all": "MOCK: valori finti, in attesa di artemis.csv (Rocco)"
+  }
+ },
+ {
+  "id": "malapert_massif",
+  "name": "Malapert Massif",
+  "lat": -86.0,
+  "lon": -2.9,
+  "mock": true,
+  "values": {
+   "slope_p90": 18.3,
+   "roughness": 8.0,
+   "crater_density": 1.11,
+   "rock_cover": 0.08,
+   "low_sun_frac": 1.0,
+   "albedo": 0.21,
+   "grain_proxy": 0.02,
+   "rock_class": "anorthosite"
+  },
+  "card": {
+   "t_min_c": -230,
+   "t_max_c": -50,
+   "h_wt_pct": null,
+   "grail_density": 2550,
+   "geo_unit": null,
+   "bulk_density_profile": [
+    [
+     0,
+     1.1
+    ],
+    [
+     0.1,
+     1.5
+    ],
+    [
+     1.0,
+     1.8
+    ]
+   ]
+  },
+  "sources": {
+   "all": "MOCK: valori finti, in attesa di artemis.csv (Rocco)"
+  }
+ },
+ {
+  "id": "mons_mouton_plateau",
+  "name": "Mons Mouton Plateau",
+  "lat": -85.0,
+  "lon": 31.0,
+  "mock": true,
+  "values": {
+   "slope_p90": 23.2,
+   "roughness": 5.8,
+   "crater_density": 3.36,
+   "rock_cover": 0.17,
+   "low_sun_frac": 1.0,
+   "albedo": 0.15,
+   "grain_proxy": 0.02,
+   "rock_class": "anorthosite"
+  },
+  "card": {
+   "t_min_c": -230,
+   "t_max_c": -50,
+   "h_wt_pct": null,
+   "grail_density": 2550,
+   "geo_unit": null,
+   "bulk_density_profile": [
+    [
+     0,
+     1.1
+    ],
+    [
+     0.1,
+     1.5
+    ],
+    [
+     1.0,
+     1.8
+    ]
+   ]
+  },
+  "sources": {
+   "all": "MOCK: valori finti, in attesa di artemis.csv (Rocco)"
+  }
+ },
+ {
+  "id": "mons_mouton",
+  "name": "Mons Mouton",
+  "lat": -84.6,
+  "lon": 21.0,
+  "mock": true,
+  "values": {
+   "slope_p90": 27.1,
+   "roughness": 9.6,
+   "crater_density": 2.36,
+   "rock_cover": 0.07,
+   "low_sun_frac": 1.0,
+   "albedo": 0.25,
+   "grain_proxy": 0.02,
+   "rock_class": "anorthosite"
+  },
+  "card": {
+   "t_min_c": -230,
+   "t_max_c": -50,
+   "h_wt_pct": null,
+   "grail_density": 2550,
+   "geo_unit": null,
+   "bulk_density_profile": [
+    [
+     0,
+     1.1
+    ],
+    [
+     0.1,
+     1.5
+    ],
+    [
+     1.0,
+     1.8
+    ]
+   ]
+  },
+  "sources": {
+   "all": "MOCK: valori finti, in attesa di artemis.csv (Rocco)"
+  }
+ },
+ {
+  "id": "nobile_rim_1",
+  "name": "Nobile Rim 1",
+  "lat": -85.5,
+  "lon": 37.0,
+  "mock": true,
+  "values": {
+   "slope_p90": 20.0,
+   "roughness": 4.7,
+   "crater_density": 1.39,
+   "rock_cover": 0.18,
+   "low_sun_frac": 1.0,
+   "albedo": 0.21,
+   "grain_proxy": 0.02,
+   "rock_class": "anorthosite"
+  },
+  "card": {
+   "t_min_c": -230,
+   "t_max_c": -50,
+   "h_wt_pct": null,
+   "grail_density": 2550,
+   "geo_unit": null,
+   "bulk_density_profile": [
+    [
+     0,
+     1.1
+    ],
+    [
+     0.1,
+     1.5
+    ],
+    [
+     1.0,
+     1.8
+    ]
+   ]
+  },
+  "sources": {
+   "all": "MOCK: valori finti, in attesa di artemis.csv (Rocco)"
+  }
+ },
+ {
+  "id": "nobile_rim_2",
+  "name": "Nobile Rim 2",
+  "lat": -85.4,
+  "lon": 54.0,
+  "mock": true,
+  "values": {
+   "slope_p90": 27.1,
+   "roughness": 9.8,
+   "crater_density": 3.14,
+   "rock_cover": 0.2,
+   "low_sun_frac": 1.0,
+   "albedo": 0.19,
+   "grain_proxy": 0.02,
+   "rock_class": "anorthosite"
+  },
+  "card": {
+   "t_min_c": -230,
+   "t_max_c": -50,
+   "h_wt_pct": null,
+   "grail_density": 2550,
+   "geo_unit": null,
+   "bulk_density_profile": [
+    [
+     0,
+     1.1
+    ],
+    [
+     0.1,
+     1.5
+    ],
+    [
+     1.0,
+     1.8
+    ]
+   ]
+  },
+  "sources": {
+   "all": "MOCK: valori finti, in attesa di artemis.csv (Rocco)"
+  }
+ },
+ {
+  "id": "de_gerlache_rim_2",
+  "name": "de Gerlache Rim 2",
+  "lat": -88.7,
+  "lon": -69.0,
+  "mock": true,
+  "values": {
+   "slope_p90": 23.3,
+   "roughness": 10.6,
+   "crater_density": 3.47,
+   "rock_cover": 0.18,
+   "low_sun_frac": 1.0,
+   "albedo": 0.21,
+   "grain_proxy": 0.02,
+   "rock_class": "anorthosite"
+  },
+  "card": {
+   "t_min_c": -230,
+   "t_max_c": -50,
+   "h_wt_pct": null,
+   "grail_density": 2550,
+   "geo_unit": null,
+   "bulk_density_profile": [
+    [
+     0,
+     1.1
+    ],
+    [
+     0.1,
+     1.5
+    ],
+    [
+     1.0,
+     1.8
+    ]
+   ]
+  },
+  "sources": {
+   "all": "MOCK: valori finti, in attesa di artemis.csv (Rocco)"
+  }
+ },
+ {
+  "id": "slater_plain",
+  "name": "Slater Plain",
+  "lat": -89.4,
+  "lon": -58.0,
+  "mock": true,
+  "values": {
+   "slope_p90": 25.6,
+   "roughness": 4.4,
+   "crater_density": 1.91,
+   "rock_cover": 0.09,
+   "low_sun_frac": 1.0,
+   "albedo": 0.16,
+   "grain_proxy": 0.02,
+   "rock_class": "anorthosite"
+  },
+  "card": {
+   "t_min_c": -230,
+   "t_max_c": -50,
+   "h_wt_pct": null,
+   "grail_density": 2550,
+   "geo_unit": null,
+   "bulk_density_profile": [
+    [
+     0,
+     1.1
+    ],
+    [
+     0.1,
+     1.5
+    ],
+    [
+     1.0,
+     1.8
+    ]
+   ]
+  },
+  "sources": {
+   "all": "MOCK: valori finti, in attesa di artemis.csv (Rocco)"
+  }
+ }
+]

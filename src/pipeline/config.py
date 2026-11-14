@@ -1,0 +1,80 @@
+"""Percorsi, costanti e lettura dei file di config del team.
+
+Tutti gli altri moduli importano da qui: se cambia un percorso o una costante, si cambia solo qui.
+"""
+import csv
+import os
+import re
+from pathlib import Path
+
+import yaml
+
+# --- Percorsi -------------------------------------------------------------
+ROOT = Path(__file__).resolve().parents[2]  # radice della repo
+CONFIG = ROOT / "data" / "config"           # file scritti a mano dal team (Rocco)
+RAW = ROOT / "data" / "raw"                 # dati scaricati: fuori da git
+GEE_DIR = RAW / "gee"                       # raster globali scaricati da Earth Engine
+LOLA_DIR = RAW / "lola"                     # finestre dei DEM lunari
+INTERIM = RAW / "interim"                   # file intermedi (griglia, feature)
+EXPORT = ROOT / "data" / "export"           # file per l'app: versionati, sono il contratto
+
+# --- Costanti -------------------------------------------------------------
+GRID_RES_DEG = 0.05   # passo dei raster scaricati da GEE (~5,5 km all'equatore)
+H3_RES = 5            # risoluzione delle celle esagonali (~250 km² l'una)
+BASELINE_M = 30       # distanza di misura comune Terra/Luna per pendenze, rugosità, crateri
+SLOPE_BASELINES_M = (30, 60, 120, 240)    # scale per l'esponente di Hurst
+YEARS = ("2021-01-01", "2024-01-01")      # periodo dei compositi MODIS
+MAX_CELLS_EXPORT = 20_000                 # celle per file nell'export dell'app
+
+# I 9 siti candidati di Artemis III, con gli stessi nomi dell'app (src/web/src/data.js)
+ARTEMIS_SITES = [
+    "Peak near Cabeus B", "Haworth", "Malapert Massif", "Mons Mouton Plateau", "Mons Mouton",
+    "Nobile Rim 1", "Nobile Rim 2", "de Gerlache Rim 2", "Slater Plain",
+]
+
+
+def slug(name: str) -> str:
+    """'Malapert Massif' -> 'malapert_massif': l'identificativo usato nei nomi dei file."""
+    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+
+
+# --- File di config del team ----------------------------------------------
+def load_tests_file() -> dict:
+    """tests.yaml completo: regole comuni (tau, eps, break_below) + catalogo dei test."""
+    with open(CONFIG / "tests.yaml", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def load_tests() -> dict:
+    """Solo il catalogo: {id_test: {requisiti, filtri, indoor, validazione, stato, ...}}."""
+    return load_tests_file()["tests"]
+
+
+def load_params() -> list[dict]:
+    """params.csv come lista di righe: nome, dimensione, unità, ruolo, fonte Luna e Terra."""
+    with open(CONFIG / "params.csv", encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def weights(test: dict) -> dict:
+    """Pesi del test; nei requisiti un peso può essere un numero o {peso: ..., target: ...}."""
+    return {p: (v["peso"] if isinstance(v, dict) else v) for p, v in test["requisiti"].items()}
+
+
+# --- Variabili d'ambiente -------------------------------------------------
+def env(key: str) -> str | None:
+    """Prima l'ambiente, poi il file .env nella radice della repo (ignorato da git)."""
+    if os.environ.get(key):
+        return os.environ[key]
+    dotenv = ROOT / ".env"
+    if dotenv.exists():
+        for line in dotenv.read_text(encoding="utf-8").splitlines():
+            k, sep, v = line.partition("=")
+            if sep and k.strip() == key:
+                return v.strip().strip('"').strip("'")
+    return None
+
+
+def ensure_dirs() -> None:
+    for d in (GEE_DIR, LOLA_DIR, INTERIM, EXPORT / "sites"):
+        d.mkdir(parents=True, exist_ok=True)

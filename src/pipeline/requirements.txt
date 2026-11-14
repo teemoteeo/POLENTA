@@ -1,0 +1,13 @@
+# Pipeline FVG Station — dipendenze (Python 3.11)
+earthengine-api   # Google Earth Engine: calcolo remoto sui dataset NASA
+numpy
+pandas
+pyarrow           # file .parquet
+rasterio          # lettura e scrittura dei raster GeoTIFF
+h3                # griglia esagonale (versione 4)
+pvlib             # posizione del Sole
+pyyaml            # tests.yaml
+scipy
+shapely
+geopandas         # mappa geologica USGS della Luna
+matplotlib        # figura di validazione
