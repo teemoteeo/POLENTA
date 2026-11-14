@@ -43,7 +43,7 @@ La copertura con le strutture indoor è inclusa in tutte.
 
 ## Proposta: la 1, con il rover come esempio principale
 
-**Spiegazione completa, con i due profili (rover e volo) e i requisiti di dati: `docs/proposta-rover-volo.md`.**
+**Spiegazione completa, con i due profili (rover e volo) e i requisiti di dati: `docs/proposta-finale.md`.**
 
 Il rover da solo è quello che fanno tutti. L'originalità viene da tre pilastri:
 
