@@ -25,7 +25,9 @@ def s_param(x: np.ndarray, lo: float, hi: float, tau: float, eps: float) -> tupl
     """Voto 0-1 per un parametro numerico; restituisce anche il gap fisico se la Luna è fuori dalla Terra."""
     earth = x[np.isfinite(x)]
     q = np.sort(earth)
-    F = lambda v: np.searchsorted(q, v, side="right") / len(q)
+    # percentile medio sulle parità (mid-rank): con "≤ v" un parametro con molti valori uguali (permafrost_share
+    # è 0 per l'85% degli esagoni) metteva tutti quegli esagoni vicino al target (voto 0,94 senza permafrost, 15/11)
+    F = lambda v: (np.searchsorted(q, v, side="left") + np.searchsorted(q, v, side="right")) / (2 * len(q))
     p1, p99 = np.quantile(q, [0.01, 0.99])
     gap = 0.0
     if lo > p99:                                   # Luna oltre il massimo terrestre (es. luce radente)

@@ -147,6 +147,18 @@ def earth(args) -> int:
     return 0
 
 
+def lola(args) -> int:
+    """Passo 6: scarica dal PDS il DEM LOLA a 20 m delle 3 regioni lunari della demo."""
+    from . import lola_fetch
+    return lola_fetch.main()
+
+
+def lunar(args) -> int:
+    """Passo 6: pendenza, rugosità e crateri delle regioni lunari, con le definizioni della Terra."""
+    from . import lunar as lunar_step
+    return lunar_step.main()
+
+
 def export(args) -> int:
     """Passi 7-8: tutti i siti × test → file per l'app (prova in data/raw/export_preview/, --publish in data/export/)."""
     from . import export as export_step
@@ -155,7 +167,7 @@ def export(args) -> int:
 
 STEPS = {"check": lambda a: check(), "mock": lambda a: mock(), "grid": grid, "sun": sun,
          "terrain": terrain, "surface": surface, "fine": fine, "calibrate": calibrate, "earth": earth,
-         "features": features, "score": score_one, "export": export}
+         "features": features, "score": score_one, "lola": lola, "lunar": lunar, "export": export}
 
 
 def main() -> int:

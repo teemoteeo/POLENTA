@@ -61,7 +61,7 @@ def polygon(cell: str) -> ee.Geometry:
     return ee.Geometry.Polygon([ring + [ring[0]]], None, False)
 
 
-def reduce_batch(img: ee.Image, cells: list[str], retries: int = 6) -> list[dict]:
+def reduce_batch(img: ee.Image, cells: list[str], retries: int = 3) -> list[dict]:   # 3: ogni richiesta appesa costa 5 min
     fc = ee.FeatureCollection([ee.Feature(polygon(c), {"h3": c}) for c in cells])
     red = ee.Reducer.percentile([50, 90]).combine(ee.Reducer.mean(), "", True).combine(ee.Reducer.count(), "", True)
     for attempt in range(retries):
