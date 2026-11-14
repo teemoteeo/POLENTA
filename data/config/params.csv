@@ -1,0 +1,24 @@
+param,dimension,unit,tipo,ruolo,luna,terra,terra_ok,stato
+slope_p90,terrain,deg,num,score,DEM polari LOLA ricampionati alla baseline della Terra,NASADEM_HGT / ASTGTM,si,mvp
+roughness,terrain,m,num,score,rugosità LOLA,deviazione standard del DEM dopo detrend,si,mvp
+crater_density,terrain,n/km2,num,score,letteratura o LOLA (crateri 10-100 m),depressioni chiuse nel DEM + Earth Impact Database + vulcani GVP,parziale,mvp
+rock_cover,terrain,frac 0-1,num,score,abbondanza di rocce Diviner o letteratura,SoilGrids cfvo + rugosità; Sentinel-1 solo sui candidati,parziale,mvp
+low_sun_frac,illumination,frac 0-1,num,score,frazione di ore di luce con Sole sotto 7° (≈1 al Polo Sud),calcolata da latitudine e data; mese migliore senza neve,parziale,mvp
+albedo,surface,frac 0-1,num,score,albedo LOLA/LROC,MODIS MCD43A3,si,mvp
+grain_proxy,regolith,ATI normalizzata,num,score,regolite fine (D50 ~60-80 µm),inerzia termica apparente da MOD11A2 + MCD43A3,parziale,mvp
+bulk_density,regolith,g/cm3,num,score,1.30 in superficie (letteratura),SoilGrids bdod,parziale,mvp
+rock_class,composition,classe,cat,score,mappa geologica USGS → classe terrestre,materials.csv a mano; ASTER AG100 facoltativo,parziale,preview
+t_min_c,thermal,°C,num,card,Diviner,MODIS MOD11C3,parziale,mvp
+t_max_c,thermal,°C,num,card,Diviner,MODIS MOD11C3,parziale,mvp
+elevation_m,altitude,m,num,card,—,DEM,si,mvp
+ndvi,surface,-1..1,num,filtro,0 (niente vegetazione),MODIS MOD13A3,si,mvp
+night_lights,access,nW/cm2/sr,num,dossier,—,VIIRS VNP46A4 (vicinanza a strade e paesi),si,mvp
+snow_free_months,access,mesi,num,dossier,—,MODIS MOD10CM,si,mvp
+protected_area,access,bool,bool,dossier,—,Natura 2000 (EEA) / WDPA,si,stretch
+uas_zone,access,bool,bool,dossier,—,zone UAS ENAC d-flight / EASA,si,stretch
+gravity_1_6,indoor,—,bool,indoor,1.62 m/s2,non riproducibile,no,mvp
+vacuum,indoor,—,bool,indoor,vuoto,non riproducibile,no,mvp
+electrostatic_dust,indoor,—,bool,indoor,polvere carica e tagliente,non riproducibile,no,mvp
+plume_vacuum,indoor,—,bool,indoor,getto del motore sulla regolite nel vuoto,non riproducibile,no,mvp
+cryo_psr,indoor,—,bool,indoor,PSR a 40-110 K,non riproducibile,no,stretch
+agglutinates,indoor,—,bool,indoor,agglutinati e ferro nanofase,non riproducibile,no,preview

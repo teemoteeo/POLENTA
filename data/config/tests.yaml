@@ -1,0 +1,117 @@
+# tests.yaml — catalogo dei test (v0, 2026-11-14 19:30)
+#
+# Cos'è: per ogni test che un'azienda vuole fare, quali parametri contano e quanto.
+# La pipeline lo legge per calcolare il punteggio delle celle della Terra, l'app per le card.
+#
+# Come si legge un test:
+#   requisiti   param: peso. I nomi dei param sono quelli di params.csv. I pesi sommano a 1, minimo 0.05.
+#               Il valore da imitare è quello del sito Artemis scelto (artemis.csv), salvo `target` fisso.
+#   filtri      condizioni dure: la cella è scartata se non le rispetta.
+#   indoor      cosa la Terra non dà mai: la card propone la struttura di facilities.csv con quel `covers`.
+#   validazione siti noti che devono uscire in alto (known_sites.csv). Se non escono, i pesi sono sbagliati.
+#
+# Regole comuni (archive/analog-atlas-plan.md §5.2):
+#   s = exp(-(D/tau)^2) per parametro, D = distanza in percentili terrestri; totale = media geometrica pesata.
+#   Un requisito con s < break_below è "si rompe" e va anche lui nella copertura indoor.
+# Pesi: segnaposto ragionati da docs/requisiti-test.md §3 e docs/finaliste.md. Owner: Rocco.
+
+version: 0
+tau: 0.1
+eps: 0.01
+break_below: 0.3
+
+tests:
+
+  rover_mobility:
+    nome: Mobilità del rover
+    profilo: rover
+    stato: mvp
+    cosa_si_testa: pendenze fino a 20°, rocce e gradini, affondamento nella regolite, navigazione con Sole radente
+    aziende: [TAS-I (rover ETNA/ULS), ALTEC, AIKO, PoliTo]
+    requisiti:
+      slope_p90: 0.30
+      roughness: 0.15
+      grain_proxy: 0.15
+      rock_cover: 0.10
+      bulk_density: 0.10
+      low_sun_frac: 0.10
+      crater_density: 0.05
+      rock_class: 0.05
+    filtri:
+      ndvi: "< 0.1"
+      slope_p90: ">= 15"
+    indoor: [gravity_1_6, vacuum, electrostatic_dust]
+    validazione: [etna_piano_concazze, etna_cisternazza]
+
+  flight_hda_lidar:
+    nome: "Volo: rilevamento dei pericoli con lidar"
+    profilo: landing_flight
+    stato: mvp
+    cosa_si_testa: il lidar del lander (o di un drone/elicottero che lo porta) vede rocce da 30 cm e pendenze da 5° e sceglie un punto sicuro
+    aziende: [TAS-I (lander Argonaut), Evolunar (hopper), PoliTo PIC4SeR (drone)]
+    requisiti:
+      crater_density: 0.30
+      rock_cover: 0.25
+      slope_p90: 0.20
+      roughness: 0.15
+      albedo: 0.05
+      rock_class: 0.05
+    filtri:
+      ndvi: "< 0.1"
+    indoor: [gravity_1_6, plume_vacuum, vacuum]
+    validazione: [cinder_lake, ksc_alhat_field]
+
+  flight_trn_camera:
+    nome: "Volo: navigazione con camera sul terreno"
+    profilo: landing_flight
+    stato: mvp
+    cosa_si_testa: la camera confronta il suolo con una mappa per sapere dove si trova; dipende dalla luce e dal contrasto
+    aziende: [TAS-I (Argonaut), Evolunar (POLARIS, navigazione senza GPS), AIKO]
+    requisiti:
+      low_sun_frac: 0.30
+      albedo: 0.20
+      crater_density: 0.20
+      roughness: 0.15
+      slope_p90: 0.10
+      rock_class: 0.05
+    filtri:
+      ndvi: "< 0.1"
+    indoor: [gravity_1_6, vacuum]
+    validazione: [death_valley, mojave]
+
+  isru_anorthosite:
+    nome: Materiale per ISRU e letti di regolite
+    profilo: isru
+    stato: preview          # solo dopo il gate di dom 01:00
+    cosa_si_testa: trovare roccia sorgente simile agli altopiani del Polo Sud da macinare per vasche e prove di estrazione
+    aziende: [ALTEC (centro lunare), TAS-I (habitat MPH)]
+    requisiti:
+      rock_class: {peso: 0.60, target: anorthosite}
+      grain_proxy: 0.15
+      bulk_density: 0.10
+      slope_p90: 0.05
+      roughness: 0.05
+      low_sun_frac: 0.05
+    filtri:
+      ndvi: "< 0.2"
+    indoor: [agglutinates, vacuum]
+    validazione: [sithampoondi_anorthosite, lofoten, greenland_anorthosite]
+
+  eva_traverse:
+    nome: Tute ed EVA
+    profilo: eva
+    stato: coming_soon      # nella UI solo come voce disattivata
+    cosa_si_testa: camminare in tuta su pendii fino a 20° entro 2 km dal lander, campionare, lavorare con Sole radente
+    aziende: []             # nessuna a Torino fa tute
+    requisiti:
+      slope_p90: 0.30
+      low_sun_frac: 0.20
+      roughness: 0.15
+      rock_class: 0.15
+      grain_proxy: 0.10
+      rock_cover: 0.10
+    filtri:
+      ndvi: "< 0.1"
+      slope_p90: "<= 25"
+    indoor: [gravity_1_6, vacuum, electrostatic_dust, cryo_psr]
+    validazione: [sf_volcanic_field, black_point_lava_flow]

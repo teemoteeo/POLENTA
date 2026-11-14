@@ -67,7 +67,7 @@ Bozza dei test da confermare con l'analisi delle aziende. I pesi sono segnaposto
 `data/config/targets/artemis.csv`, una riga per sito:
 
 ```csv
-site,lat,lon,slope_p10,slope_p90,roughness,sun_elev_max_deg,illum_pct,t_min_c,t_max_c,geo_unit,rock_class,ice_nearby,source
+site,lat,lon,slope_p90,roughness,crater_density,rock_cover,low_sun_frac,albedo,grain_proxy,bulk_density,rock_class,t_min_c,t_max_c,geo_unit,source
 ```
 
 - **Valori dai DEM polari LOLA e da Diviner** (scelta di Edo, 14/11 18:10). Prodotti e collection in `data/datasets_links.md`.
@@ -108,12 +108,13 @@ Da celle a siti: top 1% delle celle, poi si uniscono quelle vicine, poi al massi
 
 | File | Owner | Contenuto |
 |---|---|---|
-| `data/config/tests.yaml` | Rocco | catalogo dei test (§2) |
+| `data/config/params.csv` | tutti | **lista condivisa dei parametri**: nome, dimensione, unità, fonte Luna e Terra, se la Terra lo riproduce. Ogni altro file usa questi nomi |
+| `data/config/tests.yaml` | Rocco | catalogo dei test (§2), v0 scritto il 14/11 19:30 |
 | `data/config/targets/artemis.csv` | Rocco | 9 siti (§3) |
 | `data/config/facilities.csv` | Rocco, aiuta Timo | `name,lat,lon,type,simulant,covers,url`. `covers` = dimensioni o condizioni che riproduce (es. `thermal_vacuum`, `regolith_bed`) |
 | `data/config/materials.csv` | Rocco | `name,lat,lon,rock_class,evidence_url` (Etna, Stillwater, Groenlandia, Lofoten, Lanzarote…) |
 | `data/raw/` | Edo | dati scaricati, **fuori da git** |
-| `data/export/scores.csv` | Edo | `h3,terrain,illumination,thermal,composition,regolith,ice,altitude`, ognuno 0–255, vuoto = nessun dato |
+| `data/export/scores.csv` | Edo | `h3` + una colonna per ogni param di `params.csv` con ruolo `score`, `filtro` o `card`, ognuno 0–255, vuoto = nessun dato (proposta del 14/11 19:30, al posto delle colonne per dimensione) |
 | `data/export/sites/<site>__<test>.json` | Edo | top siti naturali, score per dimensione, totale, "si rompe" |
 | `data/export/benchmark.json` | Edo | matrice 9 × test: miglior sito naturale + struttura indoor |
 
