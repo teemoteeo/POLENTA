@@ -4,8 +4,9 @@ import { MapboxOverlay } from '@deck.gl/mapbox'
 import { H3HexagonLayer } from '@deck.gl/geo-layers'
 import { ScatterplotLayer } from '@deck.gl/layers'
 import DotModel from './DotModel.jsx'
-import './moonTiles.js' // registra il protocollo moon:// prima della mappa
-import { ARTEMIS_SITES, TESTS, FACILITIES, MODELS, buildMoonDots, getResults } from './data.js'
+import DotPlanet from './DotPlanet.jsx'
+import './trek.js' // registra il protocollo trek:// prima della mappa
+import { SITES, TESTS, FACILITIES, MODELS, buildMoonDots, buildMarsDots, getResults } from './data.js'
 
 const PARAM_LABEL = {
   slope_p90: 'Pendenza', roughness: 'Rugosità', crater_density: 'Crateri', rock_cover: 'Rocce',
@@ -17,14 +18,15 @@ const BREAK = 0.3
 
 // Colori per tema e mondo: pagina, sfera, puntini
 const PALETTE = {
-  dark: { page: '#04060a', moon: '#17181c', earth: '#0b1018', moonDot: [205, 208, 215, 150], earthDot: [190, 215, 255, 175], accent: [255, 90, 31] },
-  light: { page: '#eef1f5', moon: '#e3e4e7', earth: '#dfe5ec', moonDot: [40, 42, 48, 120], earthDot: [17, 40, 80, 140], accent: [255, 90, 31] },
+  dark: { page: '#04060a', moon: '#17181c', mars: '#1d1512', earth: '#0b1018', moonDot: [205, 208, 215, 150], marsDot: [255, 165, 120, 225], earthDot: [190, 215, 255, 175], accent: [255, 90, 31] },
+  light: { page: '#eef1f5', moon: '#e3e4e7', mars: '#efe4de', earth: '#dfe5ec', moonDot: [40, 42, 48, 120], marsDot: [140, 50, 20, 140], earthDot: [17, 40, 80, 140], accent: [255, 90, 31] },
 }
 
-// Luna e Terra sono lo stesso oggetto: puntini da lontano, foto da vicino, stessa soglia di zoom
+// Luna, Marte e Terra sono lo stesso oggetto: puntini da lontano, foto da vicino, stessa soglia di zoom
 const FADE = [3.5, 5]
 const IMG_FADE = ['interpolate', ['linear'], ['zoom'], FADE[0], 0, FADE[1], 1]
-const RASTERS = { moon: ['moon'], earth: ['gibs', 'esri'] }
+const RASTERS = { moon: ['moon'], mars: ['mars'], earth: ['gibs', 'esri'] }
+const PLANETS = { moon: { name: 'Luna', what: 'Polo Sud · 3 regioni Artemis III' }, mars: { name: 'Marte', what: '2 siti di atterraggio' } }
 const ARRIVE = { zoom: 6.5, pitch: 50, bearing: -20, duration: 4500, easing: t => 1 - (1 - t) ** 3 }
 
 const STYLE = {
@@ -36,18 +38,21 @@ const STYLE = {
       tiles: ['https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg'] },
     esri: { type: 'raster', tileSize: 256, maxzoom: 19, attribution: 'Esri World Imagery',
       tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'] },
-    // LRO WAC da NASA Moon Trek, ridisegnato con il Polo Sud sull'equatore (moonTiles.js)
-    moon: { type: 'raster', tileSize: 256, maxzoom: 8, attribution: 'NASA Moon Trek · LRO WAC', tiles: ['moon://{z}/{x}/{y}'] },
+    // NASA Moon/Mars Trek ridisegnati al volo (trek.js); la Luna ha il Polo Sud sull'equatore
+    moon: { type: 'raster', tileSize: 256, maxzoom: 8, attribution: 'NASA Moon Trek · LRO WAC', tiles: ['trek://moon/{z}/{x}/{y}'] },
+    mars: { type: 'raster', tileSize: 256, maxzoom: 7, attribution: 'NASA Mars Trek · Viking MDIM 2.1', tiles: ['trek://mars/{z}/{x}/{y}'] },
   },
   layers: [
     { id: 'sphere', type: 'background', paint: { 'background-color': PALETTE.dark.moon } },
     { id: 'moon', type: 'raster', source: 'moon', layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
+    { id: 'mars', type: 'raster', source: 'mars', layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
     { id: 'gibs', type: 'raster', source: 'gibs', layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
     { id: 'esri', type: 'raster', source: 'esri', minzoom: 6, layout: { visibility: 'none' } },
   ],
 }
 
-const HOME = { center: [-20, -12], zoom: 2.45, pitch: 35, bearing: -18 }
+// vista d'arrivo di ogni pianeta, con i siti in vista
+const HOME = { moon: { center: [-4, -6], zoom: 2.45, pitch: 35, bearing: -18 }, mars: { center: [-174, 30], zoom: 2.3, pitch: 15, bearing: 0 } }
 const heat = s => [255, Math.round(200 - 140 * s), Math.round(40 * (1 - s)), Math.round(20 + 100 * s)]
 const pct = s => Math.round(s * 100)
 
@@ -59,14 +64,14 @@ export default function App() {
   const box = useRef(null), stars = useRef(null), map = useRef(null), overlay = useRef(null), spinning = useRef(true), markers = useRef([])
   const [theme, setTheme] = useState(initialTheme)
   const [world, setWorld] = useState('moon')
-  const [step, setStep] = useState('site')
+  const [step, setStep] = useState('planet')
   const [site, setSite] = useState(null)
   const [testId, setTestId] = useState(null)
   const [hoverTest, setHoverTest] = useState(null)
   const [picked, setPicked] = useState(0)
-  const [zoom, setZoom] = useState(HOME.zoom)
-  const [earthDots, setEarthDots] = useState([])
-  const [moonDots, setMoonDots] = useState([])
+  const [zoom, setZoom] = useState(HOME.moon.zoom)
+  const [dots, setDots] = useState({ moon: [], mars: [], earth: [] })
+  const addDots = w => d => setDots(o => ({ ...o, [w]: d }))
 
   const data = useMemo(() => (site && testId ? getResults(site.name, testId) : null), [site, testId])
   const test = testId && TESTS[testId]
@@ -75,9 +80,10 @@ export default function App() {
   const pal = PALETTE[theme]
 
   useEffect(() => {
-    fetch('/earth-dots.json').then(r => r.json()).then(setEarthDots)
-    buildMoonDots().then(setMoonDots)
-    const m = new maplibregl.Map({ container: box.current, style: STYLE, ...HOME, maxPitch: 70, minZoom: -1.5, attributionControl: { compact: true } })
+    fetch('/earth-dots.json').then(r => r.json()).then(addDots('earth'))
+    buildMoonDots().then(addDots('moon'))
+    buildMarsDots().then(addDots('mars'))
+    const m = new maplibregl.Map({ container: box.current, style: STYLE, ...HOME.moon, maxPitch: 70, minZoom: -1.5, attributionControl: { compact: true } })
     map.current = m
     overlay.current = new MapboxOverlay({ interleaved: false, layers: [] }) // interleaved non disegna H3 sul globo
     m.addControl(overlay.current)
@@ -114,39 +120,37 @@ export default function App() {
     try { apply() } catch { m.once('load', apply) } // isStyleLoaded() è falso anche solo con tile in arrivo
   }, [theme, world]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // layer deck: puntini, siti Artemis, heat map H3
+  // layer deck: puntini, heat map H3
   useEffect(() => {
     // puntini che sfumano nella foto, sulla stessa soglia del raster (IMG_FADE); il raggio cambia con un uniform, senza ricalcolo
     const dotsFade = 1 - Math.max(0, Math.min(1, (zoom - FADE[0]) / (FADE[1] - FADE[0])))
+    const weighted = world !== 'earth', c = pal[world + 'Dot'] // Luna e Marte: puntini pesati dalla superficie
     const layers = [new ScatterplotLayer({
-      id: 'dots-' + world, data: world === 'moon' ? moonDots : earthDots, getPosition: d => [d[0], d[1]],
-      radiusUnits: 'pixels', getRadius: world === 'moon' ? d => 0.7 + 0.7 * d[2] : 1.4, radiusScale: world === 'moon' ? 1 + Math.max(0, zoom - 2.5) * 0.3 : 1,
-      getFillColor: world === 'moon' ? d => [...pal.moonDot.slice(0, 3), pal.moonDot[3] * d[2]] : pal.earthDot,
+      id: 'dots-' + world, data: dots[world], getPosition: d => [d[0], d[1]],
+      radiusUnits: 'pixels', getRadius: weighted ? d => 0.7 + 0.7 * d[2] : 1.4, radiusScale: weighted ? 1 + Math.max(0, zoom - 2.5) * 0.3 : 1,
+      getFillColor: weighted ? d => [...c.slice(0, 3), c[3] * d[2]] : c,
       opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme },
     })]
-    if (world === 'moon') layers.push(new ScatterplotLayer({
-      id: 'artemis', data: ARTEMIS_SITES, getPosition: d => d.pos, radiusUnits: 'pixels',
-      getRadius: d => (d === site ? 9 : 5), getFillColor: d => (d === site ? pal.accent : [...pal.accent, 170]),
-      stroked: true, getLineColor: [255, 255, 255, 220], lineWidthUnits: 'pixels', getLineWidth: d => (d === site ? 2 : 0),
-      pickable: true, onClick: ({ object }) => object && chooseSite(object), updateTriggers: { getRadius: site?.name, getFillColor: site?.name, getLineWidth: site?.name },
-    }))
     if (world === 'earth' && data) layers.push(new H3HexagonLayer({
       id: 'h3', data: data.cells, getHexagon: d => d.h3, getFillColor: d => heat(d.score), stroked: false, extruded: false,
     }))
     overlay.current?.setProps({ layers })
-  }, [world, earthDots, moonDots, site, data, zoom, theme]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world, dots, data, zoom, theme]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // pin dei risultati sulla Terra
+  // pin: siti con il nome su Luna e Marte, risultati numerati sulla Terra
   useEffect(() => {
     markers.current.forEach(mk => mk.remove())
-    markers.current = world !== 'earth' || !data ? [] : data.results.map((r, i) => {
+    const pin = (cls, html, at, onclick, anchor) => {
       const el = document.createElement('button')
-      el.className = 'pin' + (i === picked ? ' on' : '')
-      el.textContent = i + 1
-      el.onclick = () => choosePlace(i)
-      return new maplibregl.Marker({ element: el }).setLngLat([r.lon, r.lat]).addTo(map.current)
-    })
-  }, [world, data, picked]) // eslint-disable-line react-hooks/exhaustive-deps
+      el.className = cls; el.innerHTML = html; el.onclick = onclick
+      return new maplibregl.Marker({ element: el, anchor }).setLngLat(at).addTo(map.current)
+    }
+    markers.current = step === 'planet' ? []
+      : world !== 'earth' ? SITES.filter(s => s.world === world).map(s =>
+        pin('site' + (s === site ? ' on' : ''), `<svg><line x2="${s.tag[0]}" y2="${s.tag[1]}"/></svg><i></i>`
+          + `<span style="left:${s.tag[0]}px;top:${s.tag[1]}px;--tx:${s.tag[0] < 0 ? -100 : s.tag[0] > 0 ? 0 : -50}%">${s.name}</span>`, s.pos, () => chooseSite(s)))
+      : !data ? [] : data.results.map((r, i) => pin('pin' + (i === picked ? ' on' : ''), i + 1, [r.lon, r.lat], () => choosePlace(i)))
+  }, [world, step, site, data, picked]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fly = (opts, then) => {
     spinning.current = false
@@ -173,10 +177,15 @@ export default function App() {
     await slide(dir, 0, 'cubic-bezier(.15,.65,.55,1)')
   }
 
+  function choosePlanet(w) {
+    setWorld(w); setStep('site'); setSite(null)
+    map.current.jumpTo({ ...HOME[w], center: [HOME[w].center[0] - 60, HOME[w].center[1]], zoom: 0.5, pitch: 0 })
+    fly({ ...HOME[w], duration: 2600, easing: t => 1 - (1 - t) ** 3 }, () => (spinning.current = true))
+  }
   function chooseSite(s) {
     setSite(s); setStep('test'); setTestId(null)
     const go = () => fly({ center: s.pos, ...ARRIVE })
-    if (world === 'earth') warp('moon', [s.pos[0] + 35, s.pos[1]], go)
+    if (world === 'earth') warp(s.world, [s.pos[0] + 35, s.pos[1]], go)
     else go()
   }
   function chooseTest(id) {
@@ -193,11 +202,11 @@ export default function App() {
   function back() {
     if (step === 'card') return setStep('results')
     if (step === 'results') return chooseSite(site)
+    if (step === 'test') return choosePlanet(site.world)
     restart()
   }
   function restart() {
-    setSite(null); setTestId(null); setStep('site'); setWorld('moon')
-    fly({ ...HOME, duration: 2000 }, () => (spinning.current = true))
+    setSite(null); setTestId(null); setStep('planet'); spinning.current = true
   }
 
   const broken = result ? Object.entries(result.params).filter(([, s]) => s < BREAK).map(([p]) => p) : []
@@ -207,17 +216,18 @@ export default function App() {
   return (
     <>
       <div ref={stars} className="stars" />
-      <div ref={box} className="map" />
+      <div ref={box} className={'map' + (step === 'planet' ? ' off' : '')} />
 
       <div className="left">
-        <header className={'hero' + (step === 'site' ? '' : ' small')}>
+        <header className={'hero' + (step === 'planet' || step === 'site' ? '' : ' small')}>
           <p className="brand">FVG Station</p>
-          <h1>Dove testare sulla Terra l'hardware per il Polo Sud della Luna.</h1>
+          <h1>Dove testare sulla Terra l'hardware per la Luna e per Marte.</h1>
+          {step === 'planet' && <p className="lbl pick-hint">Scegli dove vai.</p>}
         </header>
 
-        <section className="panel glass">
+        {step !== 'planet' && <section className="panel glass">
           <nav className="steps">
-            {step !== 'site' && <button className="backbtn" onClick={back} aria-label="Indietro">←</button>}
+            <button className="backbtn" onClick={back} aria-label="Indietro">←</button>
             {STEPS.map(([k, l], i) => (
               <span key={k} className={i === stepIdx ? 'on' : i < stepIdx ? 'done' : ''}><b className="fig">{i + 1}</b>{l}</span>
             ))}
@@ -226,9 +236,9 @@ export default function App() {
 
           {step === 'site' && (<>
             <h2>Dove atterri?</h2>
-            <p className="lbl">Le 9 regioni candidate di Artemis III. Scegline una qui o sulla Luna.</p>
+            <p className="lbl">{PLANETS[world]?.what}. Scegline uno qui o sul pianeta.</p>
             <ul className="grid2">
-              {ARTEMIS_SITES.map(s => <li key={s.name}><button onClick={() => chooseSite(s)}>{s.name}</button></li>)}
+              {SITES.filter(s => s.world === world).map(s => <li key={s.name}><button onClick={() => chooseSite(s)}>{s.name}</button></li>)}
             </ul>
           </>)}
 
@@ -292,8 +302,19 @@ export default function App() {
           </>)}
 
           <p className="lbl foot">Dati di prova, in attesa dell'export della pipeline.</p>
-        </section>
+        </section>}
       </div>
+
+      {step === 'planet' && (
+        <div className="picker">
+          {Object.entries(PLANETS).map(([w, p]) => (
+            <button key={w} className="planet" onClick={() => choosePlanet(w)}>
+              <DotPlanet dots={dots[w]} color={pal[w + 'Dot']} fill={pal[w]} />
+              <b>{p.name}</b><small className="lbl">{p.what}</small>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="tools">
         <button className="glass pill" onClick={restart}>Ricomincia</button>

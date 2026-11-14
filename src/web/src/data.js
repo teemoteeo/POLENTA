@@ -1,23 +1,19 @@
 import { load as loadYaml } from 'js-yaml'
 import testsRaw from '../../../data/config/tests.yaml?raw'
 import { gridDisk, latLngToCell } from 'h3-js'
-import { toView } from './moonTiles.js'
+import { toView, sampler, LAYERS } from './trek.js'
 
 export const TESTS = loadYaml(testsRaw).tests
 
-// Lista NASA ott 2024 (docs/decisioni.md).
-// ponytail: coordinate approssimate dai crateri e rilievi vicini, sostituire con artemis.csv quando c'è.
-export const ARTEMIS_SITES = [
-  { name: 'Peak near Cabeus B', lat: -82.3, lon: -53 },
-  { name: 'Haworth', lat: -87.4, lon: -5 },
-  { name: 'Malapert Massif', lat: -86, lon: 3 },
-  { name: 'Mons Mouton Plateau', lat: -85, lon: 34 },
-  { name: 'Mons Mouton', lat: -84, lon: 31 },
-  { name: 'Nobile Rim 1', lat: -84.6, lon: 60 },
-  { name: 'Nobile Rim 2', lat: -85.9, lon: 45 },
-  { name: 'de Gerlache Rim 2', lat: -88, lon: -70 },
-  { name: 'Slater Plain', lat: -88.3, lon: 110 },
-].map(s => ({ ...s, pos: toView(s.lon, s.lat) })) // pos: dove sta sulla Luna ruotata della mappa (moonTiles.js)
+// Siti scelti dal team (15/11): tre regioni Artemis III al Polo Sud della Luna e due siti di atterraggio su Marte.
+// pos: dove sta il sito sulla mappa (la Luna è ruotata, vedi trek.js); tag: dove va l'etichetta in px (i siti lunari sono vicinissimi)
+export const SITES = [
+  { world: 'moon', name: 'Malapert Massif', lat: -85.98, lon: -1.67, tag: [0, -34] },
+  { world: 'moon', name: 'Haworth', lat: -86.8, lon: -22, tag: [-34, 20] },
+  { world: 'moon', name: 'Nobile Rim 1', lat: -85.4, lon: 37, tag: [34, 12] },
+  { world: 'mars', name: 'Phoenix', lat: 68.2188, lon: 234.2508 - 360, tag: [16, 0] },
+  { world: 'mars', name: 'Gale', lat: -4.5895, lon: 137.4417, tag: [16, 0] },
+].map(s => ({ ...s, pos: s.world === 'moon' ? toView(s.lon, s.lat) : [s.lon, s.lat] }))
 
 // Modelli NASA 3D Resources (github.com/nasa/NASA-3D-Resources) in public/models
 export const MODELS = {
@@ -60,6 +56,14 @@ export async function buildMoonDots() {
     const w = Math.max(0.04, Math.min(1, (al[i] - lo) / (hi - lo + 1e-6) + shade))
     return [...toView(lon, lat), w * cap]
   })
+}
+
+// Marte a puntini dalla quota MOLA a colori: Tharsis e gli altopiani pieni, Hellas e le pianure del nord quasi vuote
+export async function buildMarsDots() {
+  const topo = await sampler(LAYERS.marsTopo, 2)
+  const pts = fib(50000), v = pts.map(([lon, lat]) => topo(lon, lat)), sorted = [...v].sort((x, y) => x - y)
+  const lo = sorted[Math.floor(sorted.length * 0.2)], hi = sorted[Math.floor(sorted.length * 0.85)]
+  return pts.map(([lon, lat], i) => [lon, lat, Math.max(0.06, Math.min(1, (v[i] - lo) / (hi - lo + 1e-6)))])
 }
 
 // Chi copre cosa la Terra non dà (ruolo "indoor" in params.csv). Da sostituire con facilities.csv.
