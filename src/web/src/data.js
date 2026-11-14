@@ -60,6 +60,7 @@ export function getResults(site, testId) {
     return { name, lat, lon, score: 0.92 - i * 0.07 - r() * 0.04, params }
   })
   const cells = results.flatMap(({ lat, lon, score }) =>
-    gridDisk(latLngToCell(lat, lon, 5), 3).map(h3 => ({ h3, score: score * (0.35 + r() * 0.65) })))
+    // H3 res 6: esagoni larghi ~6 km, la misura più vicina ai pixel da 0,05° (~5,5 km) della pipeline. La mappa disegna qualsiasi risoluzione arrivi.
+    gridDisk(latLngToCell(lat, lon, 6), 8).map(h3 => ({ h3, score: score * (0.35 + r() * 0.65) })))
   return { results, cells }
 }
