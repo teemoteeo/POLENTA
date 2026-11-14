@@ -3,7 +3,9 @@ import testsRaw from '../../../data/config/tests.yaml?raw'
 import { gridDisk, latLngToCell } from 'h3-js'
 import { toView } from './trek.js'
 
-export const TESTS = loadYaml(testsRaw).tests
+// landing_touchdown (aggiunto da Edo in tests.yaml) è nascosto dal pannello finché non ha dati e modello
+const { landing_touchdown: _hidden, ...shown } = loadYaml(testsRaw).tests
+export const TESTS = shown
 
 // Siti scelti dal team (15/11): tre regioni Artemis III al Polo Sud della Luna e due siti di atterraggio su Marte.
 // pos: dove sta il sito sulla mappa (la Luna è ruotata, vedi trek.js); tag: dove va l'etichetta in px (i siti lunari sono vicinissimi)
