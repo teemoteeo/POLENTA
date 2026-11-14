@@ -1,5 +1,6 @@
 import { load as loadYaml } from 'js-yaml'
-import testsRaw from '../../../data/config/tests.yaml?raw'
+// ponytail: copia fissa di tests.yaml v1 (commit 809a1b1): la v2 di Edo (3 test) rompe il pannello. Tornare a data/config quando il web la regge.
+import testsRaw from './tests.yaml?raw'
 import { gridDisk, latLngToCell } from 'h3-js'
 import { toView } from './trek.js'
 
