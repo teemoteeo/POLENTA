@@ -8,7 +8,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('/draco/'))
 
 // Il modello NASA diventa una nuvola di puntini campionati sulla superficie (densità uniforme per area).
-const FIT = 0.9 // mezza altezza del modello in unità di scena; la camera ne vede 1,2 al centro
+const TILT = 0.2 // la camera guarda il modello un po' dall'alto (radianti)
 const cache = {}
 function cloud(src, n = 26000) {
   return (cache[src] ||= loader.loadAsync(src).then(({ scene }) => {
@@ -50,16 +50,18 @@ function cloud(src, n = 26000) {
     g.setAttribute('position', new THREE.Float32BufferAttribute(out, 3))
     g.computeBoundingBox()
     const center = g.boundingBox.getCenter(new THREE.Vector3())
-    // Riempie il riquadro senza uscirne: il modello gira sull'asse verticale, quindi contano la mezza altezza
-    // e il raggio massimo attorno all'asse (il riquadro è largo circa 1,6 volte l'altezza utile).
-    let rxz = 0
-    for (let i = 0; i < out.length; i += 3) rxz = Math.max(rxz, Math.hypot(out[i] - center.x, out[i + 2] - center.z))
-    const k = FIT / Math.max(g.boundingBox.getSize(new THREE.Vector3()).y / 2, rxz / 1.6)
-    g.translate(-center.x, -center.y, -center.z); g.scale(k, k, k)
+    g.translate(-center.x, -center.y, -center.z)
     const l = new THREE.BufferGeometry()
     l.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3))
-    l.translate(-center.x, -center.y, -center.z); l.scale(k, k, k)
-    return { g, l }
+    l.translate(-center.x, -center.y, -center.z)
+    // Ingombro esatto sullo schermo durante tutto il giro (camera ortografica inclinata di TILT, asse di rotazione verticale):
+    // un punto a quota y e distanza r dall'asse occupa in verticale da y·cos − r·sin a y·cos + r·sin, in orizzontale ±r.
+    let top = -Infinity, bottom = Infinity, radius = 0
+    for (const p of [g.attributes.position, l.attributes.position]) for (let i = 0; i < p.count; i++) {
+      const y = p.getY(i) * Math.cos(TILT), r = Math.hypot(p.getX(i), p.getZ(i))
+      top = Math.max(top, y + r * Math.sin(TILT)); bottom = Math.min(bottom, y - r * Math.sin(TILT)); radius = Math.max(radius, r)
+    }
+    return { g, l, top, bottom, radius }
   }))
 }
 
@@ -69,18 +71,27 @@ export default function DotModel({ src, color }) {
     const el = ref.current, r = new THREE.WebGLRenderer({ alpha: true, antialias: true })
     r.setPixelRatio(Math.min(devicePixelRatio, 2))
     el.appendChild(r.domElement)
-    const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(30, 1, 0.1, 100)
-    cam.position.set(0, 0.9, 4.4); cam.lookAt(0, -0.11, 0) // guarda poco sotto il centro: la camera è in alto e le parti vicine pesano in basso, così il modello resta centrato nel riquadro
-    const mat = new THREE.PointsMaterial({ color, size: 0.011, transparent: true, opacity: 0.9, depthWrite: false })
+    const scene = new THREE.Scene(), cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100)
+    cam.position.set(0, 10 * Math.sin(TILT), 10 * Math.cos(TILT)); cam.lookAt(0, 0, 0)
+    const mat = new THREE.PointsMaterial({ color, size: 0.9, sizeAttenuation: false, transparent: true, opacity: 0.6, depthWrite: false })
     const lineMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false })
-    let pts, edges, raf, alive = true, born = 0
-    cloud(src).then(({ g, l }) => {
+    let pts, edges, raf, alive = true, born = 0, box
+    // Il riquadro inquadra esattamente l'ingombro del modello, centrato, con l'8% di margine: non sporge mai, a nessun angolo
+    const size = () => {
+      const w = el.clientWidth, h = el.clientHeight
+      r.setSize(w, h)
+      if (!box) return
+      const half = 1.08 * Math.max((box.top - box.bottom) / 2, (box.radius * h) / w), mid = (box.top + box.bottom) / 2
+      cam.left = (-half * w) / h; cam.right = (half * w) / h; cam.top = mid + half; cam.bottom = mid - half
+      cam.updateProjectionMatrix()
+    }
+    cloud(src).then(({ g, l, ...extent }) => {
       if (!alive) return
+      box = extent; size()
       pts = new THREE.Points(g, mat); pts.geometry.setDrawRange(0, 0)
       edges = new THREE.LineSegments(l, lineMat)
       scene.add(pts, edges); born = performance.now()
     })
-    const size = () => { r.setSize(el.clientWidth, el.clientHeight); cam.aspect = el.clientWidth / el.clientHeight; cam.updateProjectionMatrix() }
     size()
     const ro = new ResizeObserver(size); ro.observe(el)
     const loop = t => {
