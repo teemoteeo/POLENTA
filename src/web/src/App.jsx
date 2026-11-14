@@ -131,11 +131,14 @@ export default function App() {
   useEffect(() => {
     // puntini che sfumano nella foto, sulla stessa soglia del raster (IMG_FADE); il raggio cambia con un uniform, senza ricalcolo
     const dotsFade = 1 - Math.max(0, Math.min(1, (zoom - FADE[0]) / (FADE[1] - FADE[0])))
+    // i puntini crescono con il pianeta (fino a 4 volte): la superficie resta piena e chiara come nella prima pagina, invece di diradarsi
     const weighted = world !== 'earth', c = pal[world + 'Dot'] // Luna e Marte: puntini pesati dalla superficie
+    // stessa resa della prima pagina: lì three.js schiarisce colori e trasparenze (lineare → sRGB), qui si applica la stessa curva
+    const bright = c.slice(0, 3).map(v => 255 * (v / 255) ** (1 / 2.2))
     const layers = [new ScatterplotLayer({
       id: 'dots-' + world, data: dots[world], getPosition: d => [d[0], d[1]],
-      radiusUnits: 'pixels', getRadius: weighted ? d => 0.7 + 0.7 * d[2] : 1.4, radiusScale: weighted ? 1 + Math.max(0, zoom - 2.5) * 0.3 : 1,
-      getFillColor: weighted ? d => [...c.slice(0, 3), c[3] * d[2]] : c,
+      radiusUnits: 'pixels', getRadius: world === 'moon' ? d => 0.7 + 0.7 * d[2] : world === 'mars' ? d => 1.1 + 0.6 * d[2] : 1.4, // Marte ha meno punti per superficie: più grandi radiusScale: weighted ? Math.min(4, 2 ** (zoom - pickZoom.current[world])) : 1,
+      getFillColor: weighted ? d => [...bright, 255 * ((c[3] / 255) * d[2]) ** 0.6] : c,
       opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme },
     })]
     if (world === 'earth' && data) layers.push(new H3HexagonLayer({
@@ -161,6 +164,7 @@ export default function App() {
 
   // --- Animazioni. Ogni passo ha una posa di camera; ogni passaggio tra due passi vicini ha una durata sola.
   // Avanti la curva rallenta alla fine (OUT), indietro è la stessa rovesciata (IN): il ritorno è l'andata al contrario.
+  const pickZoom = useRef({ moon: 0.65, mars: 1.6 }) // zoom a cui la mappa ricalca il pianeta della prima pagina (aggiornato al click)
   const busy = useRef(false)
   const wait = ms => new Promise(r => setTimeout(r, ms))
   const fly = async opts => { spinning.current = false; map.current.flyTo({ essential: true, padding: basePad(), ...opts }); await wait(opts.duration) }
@@ -210,7 +214,9 @@ export default function App() {
   const choosePlanet = act(async w => {
     spinning.current = false
     setWorld(w); setSite(null); setStep('site')
-    map.current.jumpTo(likePicker(w))
+    const start = likePicker(w)
+    pickZoom.current[w] = start.zoom
+    map.current.jumpTo(start)
     await wait(400) // dissolvenza incrociata a pianeti sovrapposti, poi il pianeta si espande
     await fly({ ...HOME[w], duration: T.planet, easing: OUT })
     spinning.current = true
