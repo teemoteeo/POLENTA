@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import * as maplibregl from 'maplibre-gl'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { H3HexagonLayer } from '@deck.gl/geo-layers'
-import { ScatterplotLayer } from '@deck.gl/layers'
+import { ScatterplotLayer, BitmapLayer } from '@deck.gl/layers'
+import { COORDINATE_SYSTEM } from '@deck.gl/core'
 import DotModel from './DotModel.jsx'
 import { ARTEMIS_SITES, TESTS, FACILITIES, MODELS, buildMoonDots, getResults } from './data.js'
 
@@ -37,6 +38,16 @@ const STYLE = {
   ],
 }
 
+// Immagine LRO WAC da NASA Moon Trek (tile equirettangolari: arrivano fino al polo, le tile web si fermano a 85°).
+// Righe scelte senza sovrapposizioni: z2 fino a -45°, z3 fino a -67,5°, z4 sulla calotta sud dove si zooma.
+const TREK = 'https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm'
+const MOON_TILES = [[2, [0, 1, 2]], [3, [6]], [4, [14, 15]]].flatMap(([z, rows]) => {
+  const deg = 180 / 2 ** z
+  return rows.flatMap(r => Array.from({ length: 2 ** (z + 1) }, (_, c) => ({
+    url: `${TREK}/${z}/${r}/${c}.jpg`, bounds: [-180 + c * deg, 90 - (r + 1) * deg, -180 + (c + 1) * deg, 90 - r * deg],
+  })))
+})
+
 const HOME = { center: [25, -35], zoom: 2.45, pitch: 35, bearing: -18 }
 const heat = s => [255, Math.round(200 - 140 * s), Math.round(40 * (1 - s)), Math.round(20 + 100 * s)]
 const pct = s => Math.round(s * 100)
@@ -57,6 +68,15 @@ export default function App() {
   const [zoom, setZoom] = useState(HOME.zoom)
   const [earthDots, setEarthDots] = useState([])
   const [moonDots, setMoonDots] = useState([])
+  // tile Moon Trek precaricate come ImageBitmap: con un URL la BitmapLayer non le carica in questo overlay
+  const tiles = useRef(new Map()), [tilesReady, setTilesReady] = useState(0)
+  const loadMoonTiles = () => {
+    if (tiles.current.size) return
+    for (const t of MOON_TILES) {
+      tiles.current.set(t.url, null)
+      fetch(t.url).then(r => r.blob()).then(createImageBitmap).then(b => { tiles.current.set(t.url, b); setTilesReady(n => n + 1) }).catch(() => {})
+    }
+  }
 
   const data = useMemo(() => (site && testId ? getResults(site.name, testId) : null), [site, testId])
   const test = testId && TESTS[testId]
@@ -67,6 +87,7 @@ export default function App() {
   useEffect(() => {
     fetch('/earth-dots.json').then(r => r.json()).then(setEarthDots)
     buildMoonDots().then(setMoonDots)
+    setTimeout(loadMoonTiles, 1500)
     const m = new maplibregl.Map({ container: box.current, style: STYLE, ...HOME, maxPitch: 70, minZoom: -1.5, attributionControl: { compact: true } })
     map.current = m
     overlay.current = new MapboxOverlay({ interleaved: false, layers: [] }) // interleaved non disegna H3 sul globo
@@ -101,12 +122,16 @@ export default function App() {
 
   // layer deck: puntini, siti Artemis, heat map H3
   useEffect(() => {
-    const dotsFade = world === 'earth' ? Math.max(0, Math.min(1, (5 - zoom) / 1.5)) : 1
-    const layers = [new ScatterplotLayer({
+    const moonImg = world === 'moon' ? Math.max(0, Math.min(1, (zoom - 2.6) / 0.6)) : 0
+    const dotsFade = world === 'earth' ? Math.max(0, Math.min(1, (5 - zoom) / 1.5)) : 1 - moonImg * 0.85
+    const layers = moonImg > 0 ? MOON_TILES.filter(t => tiles.current.get(t.url)).map(t => new BitmapLayer({
+      id: 'moon-' + t.url, image: tiles.current.get(t.url), bounds: t.bounds, _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT, opacity: moonImg,
+    })) : []
+    layers.push(new ScatterplotLayer({
       id: 'dots-' + world, data: world === 'moon' ? moonDots : earthDots, getPosition: d => [d[0], d[1]],
       radiusUnits: 'pixels', getRadius: world === 'moon' ? d => (0.7 + 0.7 * d[2]) * (1 + Math.max(0, zoom - 2.5) * 0.3) : 1.4, getFillColor: world === 'moon' ? d => [...pal.moonDot.slice(0, 3), pal.moonDot[3] * d[2]] : pal.earthDot,
       opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme, getRadius: zoom },
-    })]
+    }))
     if (world === 'moon') layers.push(new ScatterplotLayer({
       id: 'artemis', data: ARTEMIS_SITES, getPosition: d => [d.lon, d.lat], radiusUnits: 'pixels',
       getRadius: d => (d === site ? 9 : 5), getFillColor: d => (d === site ? pal.accent : [...pal.accent, 170]),
@@ -117,7 +142,7 @@ export default function App() {
       id: 'h3', data: data.cells, getHexagon: d => d.h3, getFillColor: d => heat(d.score), stroked: false, extruded: false,
     }))
     overlay.current?.setProps({ layers })
-  }, [world, earthDots, moonDots, site, data, zoom, theme]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world, earthDots, moonDots, site, data, zoom, theme, tilesReady]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // pin dei risultati sulla Terra
   useEffect(() => {
@@ -137,32 +162,31 @@ export default function App() {
     if (then) map.current.once('moveend', then)
   }
 
-  // "camera che gira": la vista scorre di lato sfocata sulle stelle, cambia mondo, rientra dall'altro lato
-  function pan(swap, then) {
+  // Un solo movimento: ci si allontana finché il mondo sparisce, un attimo di spazio nero, poi si arriva sull'altro.
+  function warp(to, center, arrive) {
     const root = document.documentElement
-    root.classList.add('pan-out')
+    spinning.current = false
+    map.current.flyTo({ zoom: -1.5, pitch: 0, bearing: 0, duration: 1500, easing: t => t * t * t, essential: true })
+    setTimeout(() => root.classList.add('void'), 1100)
     setTimeout(() => {
-      swap()
-      root.classList.replace('pan-out', 'pan-in')
-      requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('pan-in')))
-      setTimeout(then, 800)
-    }, 750)
+      setWorld(to)
+      map.current.jumpTo({ center, zoom: -1.5, pitch: 0, bearing: 0 })
+      root.classList.remove('void')
+      arrive()
+    }, 1900)
   }
 
   function chooseSite(s) {
-    setSite(s); setStep('test'); setTestId(null)
-    const go = () => fly({ center: [s.lon, s.lat + 2], zoom: 3.3, pitch: 55, bearing: -18, duration: 2800 })
-    if (world === 'earth') pan(() => { setWorld('moon'); map.current.jumpTo({ center: [s.lon + 90, -40], zoom: 0.6, pitch: 0, bearing: 0 }) }, go)
+    setSite(s); setStep('test'); setTestId(null); loadMoonTiles()
+    const go = (opts = {}) => fly({ center: [s.lon, s.lat + 2], zoom: 3.3, pitch: 55, bearing: -18, duration: 2800, ...opts })
+    if (world === 'earth') warp('moon', [s.lon + 40, -50], () => go({ duration: 4000, easing: t => 1 - (1 - t) ** 3 }))
     else go()
   }
   function chooseTest(id) {
     setTestId(id); setPicked(0); setStep('results')
     const first = getResults(site.name, id).results[0]
-    // 1. ci si allontana dalla Luna  2. la camera gira verso la Terra  3. si vola sul posto migliore
-    fly({ zoom: -1.2, pitch: 0, bearing: 0, duration: 2200 }, () => pan(
-      () => { setWorld('earth'); map.current.jumpTo({ center: [first.lon + 100, 10], zoom: -0.6, pitch: 0, bearing: 0 }) },
-      () => fly({ center: [first.lon, first.lat], zoom: 6.5, pitch: 50, bearing: -20, duration: 5500, curve: 1.6 }),
-    ))
+    warp('earth', [first.lon + 35, first.lat], () =>
+      fly({ center: [first.lon, first.lat], zoom: 6.5, pitch: 50, bearing: -20, duration: 4500, easing: t => 1 - (1 - t) ** 3 }))
   }
   function choosePlace(i) {
     setPicked(i); setStep('card')

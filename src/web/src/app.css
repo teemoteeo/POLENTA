@@ -95,12 +95,11 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 :root{--star:rgba(17,17,17,.12)}
 :root[data-theme="dark"]{--star:rgba(255,255,255,.45)}
 
-/* transizione Luna ↔ Terra */
-.map,.stars{transition:transform .75s cubic-bezier(.65,0,.35,1),filter .75s ease,opacity .75s ease}
-.pan-out .map{transform:translateX(-70vw) scale(.8);filter:blur(10px);opacity:0}
-.pan-in .map{transition:none;transform:translateX(70vw) scale(.8);filter:blur(10px);opacity:0}
-.pan-out .stars{transform:translateX(-25vw);filter:blur(3px)}
-.pan-in .stars{transition:none;transform:translateX(25vw);filter:blur(3px)}
+/* transizione Luna ↔ Terra: il mondo sparisce nel nero e il successivo riappare */
+.map{transition:opacity .4s ease}
+.stars{transition:opacity .4s ease}
+.void .map{opacity:0}
+.void .stars{opacity:.35}
 
 .dotmodel{width:100%;flex:1;min-height:0}
 .dotmodel canvas{display:block}

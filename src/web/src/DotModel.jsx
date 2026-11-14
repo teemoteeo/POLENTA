@@ -27,6 +27,12 @@ function cloud(src, n = 26000) {
       }
       return s
     })
+    // contorni: spigoli con angolo > 35° tra le facce
+    const lines = []
+    for (const m of meshes) {
+      const e = new THREE.EdgesGeometry(m.geometry, 35).attributes.position
+      for (let i = 0; i < e.count; i++) { a.fromBufferAttribute(e, i).applyMatrix4(m.matrixWorld); lines.push(a.x, a.y, a.z) }
+    }
     const total = areas.reduce((x, y) => x + y, 0) || 1, p = new THREE.Vector3(), out = []
     meshes.forEach((m, i) => {
       const count = Math.round((n * areas[i]) / total)
@@ -43,9 +49,12 @@ function cloud(src, n = 26000) {
     g.setAttribute('position', new THREE.Float32BufferAttribute(out, 3))
     g.computeBoundingBox()
     const center = g.boundingBox.getCenter(new THREE.Vector3()), size = g.boundingBox.getSize(new THREE.Vector3()).length()
-    g.translate(-center.x, -center.y, -center.z)
-    g.scale(2.4 / size, 2.4 / size, 2.4 / size)
-    return g
+    const k = 2.4 / size
+    g.translate(-center.x, -center.y, -center.z); g.scale(k, k, k)
+    const l = new THREE.BufferGeometry()
+    l.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3))
+    l.translate(-center.x, -center.y, -center.z); l.scale(k, k, k)
+    return { g, l }
   }))
 }
 
@@ -58,8 +67,14 @@ export default function DotModel({ src, color }) {
     const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(30, 1, 0.1, 100)
     cam.position.set(0, 0.9, 4.4); cam.lookAt(0, 0, 0)
     const mat = new THREE.PointsMaterial({ color, size: 0.011, transparent: true, opacity: 0.9, depthWrite: false })
-    let pts, raf, alive = true, born = 0
-    cloud(src).then(g => { if (!alive) return; pts = new THREE.Points(g, mat); pts.geometry.setDrawRange(0, 0); scene.add(pts); born = performance.now() })
+    const lineMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false })
+    let pts, edges, raf, alive = true, born = 0
+    cloud(src).then(({ g, l }) => {
+      if (!alive) return
+      pts = new THREE.Points(g, mat); pts.geometry.setDrawRange(0, 0)
+      edges = new THREE.LineSegments(l, lineMat)
+      scene.add(pts, edges); born = performance.now()
+    })
     const size = () => { r.setSize(el.clientWidth, el.clientHeight); cam.aspect = el.clientWidth / el.clientHeight; cam.updateProjectionMatrix() }
     size()
     const ro = new ResizeObserver(size); ro.observe(el)
@@ -67,13 +82,14 @@ export default function DotModel({ src, color }) {
       if (pts) {
         const n = pts.geometry.attributes.position.count
         pts.geometry.setDrawRange(0, Math.min(n, Math.floor((n * (t - born)) / 900))) // i puntini compaiono in 0,9 s
-        pts.rotation.y = t / 5000
+        pts.rotation.y = edges.rotation.y = t / 5000
+        lineMat.opacity = Math.min(0.35, Math.max(0, (t - born - 500) / 1500)) // i contorni arrivano dopo i puntini
       }
       r.render(scene, cam)
       raf = requestAnimationFrame(loop)
     }
     raf = requestAnimationFrame(loop)
-    return () => { alive = false; cancelAnimationFrame(raf); ro.disconnect(); mat.dispose(); r.dispose(); r.domElement.remove() }
+    return () => { alive = false; cancelAnimationFrame(raf); ro.disconnect(); mat.dispose(); lineMat.dispose(); r.dispose(); r.domElement.remove() }
   }, [src, color])
   return <div ref={ref} className="dotmodel" />
 }
