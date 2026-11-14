@@ -5,6 +5,7 @@ import { H3HexagonLayer } from '@deck.gl/geo-layers'
 import { ScatterplotLayer, BitmapLayer } from '@deck.gl/layers'
 import { COORDINATE_SYSTEM } from '@deck.gl/core'
 import DotModel from './DotModel.jsx'
+import { moonTiles, moonLoaded, preloadMoon } from './moonTiles.js'
 import { ARTEMIS_SITES, TESTS, FACILITIES, MODELS, buildMoonDots, getResults } from './data.js'
 
 const PARAM_LABEL = {
@@ -17,7 +18,7 @@ const BREAK = 0.3
 
 // Colori per tema e mondo: pagina, sfera, puntini
 const PALETTE = {
-  dark: { page: '#04060a', moon: '#101114', earth: '#0b1018', moonDot: [205, 208, 215, 150], earthDot: [190, 215, 255, 175], accent: [255, 90, 31] },
+  dark: { page: '#04060a', moon: '#17181c', earth: '#0b1018', moonDot: [205, 208, 215, 150], earthDot: [190, 215, 255, 175], accent: [255, 90, 31] },
   light: { page: '#eef1f5', moon: '#e3e4e7', earth: '#dfe5ec', moonDot: [40, 42, 48, 120], earthDot: [17, 40, 80, 140], accent: [255, 90, 31] },
 }
 
@@ -37,16 +38,6 @@ const STYLE = {
     { id: 'esri', type: 'raster', source: 'esri', minzoom: 6, layout: { visibility: 'none' } },
   ],
 }
-
-// Immagine LRO WAC da NASA Moon Trek (tile equirettangolari: arrivano fino al polo, le tile web si fermano a 85°).
-// Righe scelte senza sovrapposizioni: z2 fino a -45°, z3 fino a -67,5°, z4 sulla calotta sud dove si zooma.
-const TREK = 'https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm'
-const MOON_TILES = [[2, [0, 1, 2]], [3, [6]], [4, [14, 15]]].flatMap(([z, rows]) => {
-  const deg = 180 / 2 ** z
-  return rows.flatMap(r => Array.from({ length: 2 ** (z + 1) }, (_, c) => ({
-    url: `${TREK}/${z}/${r}/${c}.jpg`, bounds: [-180 + c * deg, 90 - (r + 1) * deg, -180 + (c + 1) * deg, 90 - r * deg],
-  })))
-})
 
 const HOME = { center: [25, -35], zoom: 2.45, pitch: 35, bearing: -18 }
 const heat = s => [255, Math.round(200 - 140 * s), Math.round(40 * (1 - s)), Math.round(20 + 100 * s)]
@@ -68,15 +59,8 @@ export default function App() {
   const [zoom, setZoom] = useState(HOME.zoom)
   const [earthDots, setEarthDots] = useState([])
   const [moonDots, setMoonDots] = useState([])
-  // tile Moon Trek precaricate come ImageBitmap: con un URL la BitmapLayer non le carica in questo overlay
-  const tiles = useRef(new Map()), [tilesReady, setTilesReady] = useState(0)
-  const loadMoonTiles = () => {
-    if (tiles.current.size) return
-    for (const t of MOON_TILES) {
-      tiles.current.set(t.url, null)
-      fetch(t.url).then(r => r.blob()).then(createImageBitmap).then(b => { tiles.current.set(t.url, b); setTilesReady(n => n + 1) }).catch(() => {})
-    }
-  }
+  const [tilesReady, setTilesReady] = useState(0), bump = () => setTilesReady(n => n + 1)
+  const [view, setView] = useState({ lng: HOME.center[0], lat: HOME.center[1] })
 
   const data = useMemo(() => (site && testId ? getResults(site.name, testId) : null), [site, testId])
   const test = testId && TESTS[testId]
@@ -87,14 +71,19 @@ export default function App() {
   useEffect(() => {
     fetch('/earth-dots.json').then(r => r.json()).then(setEarthDots)
     buildMoonDots().then(setMoonDots)
-    setTimeout(loadMoonTiles, 1500)
+    preloadMoon(bump)
     const m = new maplibregl.Map({ container: box.current, style: STYLE, ...HOME, maxPitch: 70, minZoom: -1.5, attributionControl: { compact: true } })
     map.current = m
     overlay.current = new MapboxOverlay({ interleaved: false, layers: [] }) // interleaved non disegna H3 sul globo
     m.addControl(overlay.current)
     const pad = () => m.setPadding(innerWidth > 820 ? { left: innerWidth * 0.5, top: 0, right: 0, bottom: 0 } : { left: 0, top: 0, right: 0, bottom: innerHeight * 0.42 })
     pad(); m.on('resize', pad)
-    m.on('zoom', () => setZoom(Math.round(m.getZoom() * 4) / 4))
+    let pending = false // zoom e centro aggiornati al massimo una volta per frame
+    m.on('move', () => {
+      if (pending) return
+      pending = true
+      requestAnimationFrame(() => { pending = false; setZoom(m.getZoom()); const c = m.getCenter(); setView({ lng: c.lng, lat: c.lat }) })
+    })
     const stop = () => (spinning.current = false)
     m.on('mousedown', stop); m.on('touchstart', stop)
     let raf
@@ -122,10 +111,13 @@ export default function App() {
 
   // layer deck: puntini, siti Artemis, heat map H3
   useEffect(() => {
-    const moonImg = world === 'moon' ? Math.max(0, Math.min(1, (zoom - 2.6) / 0.6)) : 0
-    const dotsFade = world === 'earth' ? Math.max(0, Math.min(1, (5 - zoom) / 1.5)) : 1 - moonImg * 0.85
-    const layers = moonImg > 0 ? MOON_TILES.filter(t => tiles.current.get(t.url)).map(t => new BitmapLayer({
-      id: 'moon-' + t.url, image: tiles.current.get(t.url), bounds: t.bounds, _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT, opacity: moonImg,
+    // stesso principio della Terra: avvicinandosi i puntini sfumano nell'immagine.
+    // Sulla Luna i puntini restano finché le tile non sono arrivate, così non resta mai il vuoto.
+    const imgFade = world === 'earth' ? Math.max(0, Math.min(1, (zoom - 3.5) / 1.5)) : Math.max(0, Math.min(1, (zoom - 2.8) / 1.2))
+    const dotsFade = world === 'earth' ? 1 - imgFade : 1 - imgFade * moonLoaded()
+    const layers = world === 'moon' && imgFade > 0 ? moonTiles().map(t => new BitmapLayer({
+      id: 'moon-' + t.key, image: t.image, bounds: t.bounds, _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT, opacity: imgFade,
+      textureParameters: { minFilter: 'linear', magFilter: 'linear', mipmapFilter: 'linear', addressModeU: 'clamp-to-edge', addressModeV: 'clamp-to-edge', maxAnisotropy: 16 },
     })) : []
     layers.push(new ScatterplotLayer({
       id: 'dots-' + world, data: world === 'moon' ? moonDots : earthDots, getPosition: d => [d[0], d[1]],
@@ -142,7 +134,7 @@ export default function App() {
       id: 'h3', data: data.cells, getHexagon: d => d.h3, getFillColor: d => heat(d.score), stroked: false, extruded: false,
     }))
     overlay.current?.setProps({ layers })
-  }, [world, earthDots, moonDots, site, data, zoom, theme, tilesReady]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world, earthDots, moonDots, site, data, zoom, view, theme, tilesReady]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // pin dei risultati sulla Terra
   useEffect(() => {
@@ -164,22 +156,23 @@ export default function App() {
 
   // Un solo movimento: ci si allontana finché il mondo sparisce, un attimo di spazio nero, poi si arriva sull'altro.
   function warp(to, center, arrive) {
+    // speculare all'arrivo: stesso zoom (6,5 → -1,5), stessa durata, easing rovesciato
     const root = document.documentElement
     spinning.current = false
-    map.current.flyTo({ zoom: -1.5, pitch: 0, bearing: 0, duration: 1500, easing: t => t * t * t, essential: true })
-    setTimeout(() => root.classList.add('void'), 1100)
+    map.current.flyTo({ zoom: -1.5, pitch: 0, bearing: 0, duration: 4000, easing: t => t * t, essential: true })
+    setTimeout(() => root.classList.add('void'), 3800)
     setTimeout(() => {
       setWorld(to)
       map.current.jumpTo({ center, zoom: -1.5, pitch: 0, bearing: 0 })
       root.classList.remove('void')
       arrive()
-    }, 1900)
+    }, 4400)
   }
 
   function chooseSite(s) {
-    setSite(s); setStep('test'); setTestId(null); loadMoonTiles()
-    const go = (opts = {}) => fly({ center: [s.lon, s.lat + 2], zoom: 3.3, pitch: 55, bearing: -18, duration: 2800, ...opts })
-    if (world === 'earth') warp('moon', [s.lon + 40, -50], () => go({ duration: 4000, easing: t => 1 - (1 - t) ** 3 }))
+    setSite(s); setStep('test'); setTestId(null)
+    const go = (opts = {}) => fly({ center: [s.lon, s.lat], zoom: 4.2, pitch: 30, bearing: -20, duration: 4500, easing: t => 1 - (1 - t) ** 3, ...opts })
+    if (world === 'earth') warp('moon', [s.lon + 35, s.lat], go)
     else go()
   }
   function chooseTest(id) {
@@ -237,6 +230,12 @@ export default function App() {
 
           {step === 'test' && (<>
             <h2>Cosa vuoi testare?</h2>
+            {model && (
+              <figure className="panel-model" key={model.src}>
+                <DotModel src={model.src} color={theme === 'dark' ? '#e6edf7' : '#1a1d24'} />
+                <figcaption className="lbl">{model.name} · NASA 3D Resources</figcaption>
+              </figure>
+            )}
             <ul className="list">
               {Object.entries(TESTS).map(([id, t]) => (
                 <li key={id}>
@@ -291,13 +290,6 @@ export default function App() {
           <p className="lbl foot">Dati di prova, in attesa dell'export della pipeline.</p>
         </section>
       </div>
-
-      {model && (
-        <figure className="stage" key={model.src}>
-          <DotModel src={model.src} color={theme === 'dark' ? '#e6edf7' : '#1a1d24'} />
-          <figcaption className="lbl">{model.name} · modello NASA 3D Resources</figcaption>
-        </figure>
-      )}
 
       <div className="tools">
         <button className="glass pill" onClick={restart}>Ricomincia</button>
