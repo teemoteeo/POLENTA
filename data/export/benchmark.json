@@ -89,6 +89,33 @@
    ]
   }
  },
+ "aristarchus_plateau": {
+  "flight_hda_lidar": {
+   "best": "r01",
+   "best_new": "r01",
+   "facility": [
+    "Sfera a vuoto da 60 ft, NASA Langley",
+    "LUNA (DLR + ESA)",
+    "Flat Floor Facility, NASA Marshall"
+   ]
+  },
+  "rover_mobility": {
+   "best": "r01",
+   "best_new": "r01",
+   "facility": [
+    "LUNA (DLR + ESA)",
+    "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Swamp Works, NASA KSC"
+   ]
+  },
+  "isru_subsurface": {
+   "best": "r01",
+   "best_new": "r01",
+   "facility": [
+    "TVAC \"sporca\" ALTEC (in arrivo)"
+   ]
+  }
+ },
  "phoenix": {
   "flight_hda_lidar": {
    "best": "r01",

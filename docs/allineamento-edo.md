@@ -4,10 +4,10 @@ Autore: Edo · 2026-11-15 00:20 (prima versione sab 23:30) · per Rocco e Timo. 
 
 ## 1. Perimetro della demo
 
-- **5 siti:**
-  - Luna: Malapert Massif, Haworth, Nobile Rim 1;
+- **6 siti** (Aristarchus aggiunto da Rocco dom 02:10, coordinate in `data/config/siti_coordinate.csv`):
+  - Luna: Malapert Massif, Haworth, Nobile Rim 1, Aristarchus Plateau (25°N, 51,5°W);
   - Marte: Phoenix (68,2°N), Gale (4,6°S).
-  - Slug: `malapert_massif`, `haworth`, `nobile_rim_1`, `phoenix`, `gale`.
+  - Slug: `malapert_massif`, `haworth`, `nobile_rim_1`, `aristarchus_plateau`, `phoenix`, `gale`.
 - **3 test**, scelti sul testo della challenge ("landing, mobility", "water, ice, permafrost and other potential resources", "geology… surface materials"):
 
 | Test | Cosa simula | Aziende |
@@ -56,7 +56,7 @@ Valori, pesi e reference: `data/config/siti_e_pesi.csv` (Rocco). Un test nuovo �
 - **Rocco:** confermare i pesi ISRU, scegliere la fonte di `rock_class`.
 - **Edo + Rocco:** valori dei 5 siti per i parametri della §2.
 - **Timo:**
-  - l'export vero ha lo stesso formato del mock: `data/export/sites/<sito>__<test>.json`, 15 file;
+  - l'export vero ha lo stesso formato del mock: `data/export/sites/<sito>__<test>.json`, 18 file;
   - nel `dossier` ci sono campi in più: `terrain_src` (`30m` esatto o `est`), `snow_free_months`, `night_lights`, `wind_10m`, `protected_area_name`;
   - nei tuoi documenti vanno aggiornati 9 siti → 5 e 3 test (`requirements-tecnici.md`, `mercato.md`).
 
@@ -71,6 +71,6 @@ In ogni risultato di `data/export/sites/<sito>__<test>.json` c'è `campaign`:
 
 Ogni voce di `breaks` ha anche `label`, in italiano.
 
-File nuovi accanto ai siti: `facilities.json` (con coordinate, per i pin sulla mappa), `simulants.json`, `rock_sources.json`.
+File nuovi accanto ai siti: `facilities.json` (con coordinate, per i pin sulla mappa), `simulants.json`, `rock_sources.json`, `labels.json` (nome in italiano, dimensione della challenge e unità di ogni parametro e gap). Nel `dossier` c'è anche `valid_share`, la quota di suolo nudo dell'esagono.
 
 **LLM explainer:** passargli il risultato con la sua `campaign` e chiedere di usare solo le strutture, i simulanti e le fonti lì presenti. Le spiegazioni conviene generarle in anticipo e salvarle nel JSON: l'app è statica e una chiave API nel browser sarebbe pubblica.

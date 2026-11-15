@@ -26,10 +26,13 @@ from . import config
 MATRIX = config.CONFIG / "siti_e_pesi.csv"
 ALIAS = {"subsurface_ice": "permafrost_share"}      # nome nella matrice → nome nella carta d'identità
 ROCK = {"anortosite": "anorthosite", "basalto": "basalt_volcanic", "sedimentario": "sedimentary"}
-COORDS = {   # come nell'app di Timo (src/web/src/data.js)
-    "malapert_massif": (-85.98, -1.67, "moon"), "haworth": (-86.8, -22.0, "moon"),
-    "nobile_rim_1": (-85.4, 37.0, "moon"), "phoenix": (68.2188, -125.7492, "mars"), "gale": (-4.5895, 137.4417, "mars"),
-}
+def _coords() -> dict:
+    """slug → (lat, lon, pianeta) da data/config/siti_coordinate.csv (Rocco); longitudini in -180/+180."""
+    df = pd.read_csv(config.CONFIG / "siti_coordinate.csv")
+    return {r.id: (float(r.lat), float(r.lon), r.body.lower()) for r in df.itertuples()}
+
+
+COORDS = _coords()
 TI_RANGE = {"moon": (40, 2000), "mars": (50, 1500)}   # inerzia termica: regolite fine → roccia (J m⁻² K⁻¹ s⁻½) [NV]
 LUNAR = (json.loads((config.INTERIM / "lunar_terrain.json").read_text())["regions"]
          if (config.INTERIM / "lunar_terrain.json").exists() else {})
@@ -87,8 +90,9 @@ def site_targets(feats: pd.DataFrame) -> list[dict]:
             v, s = parse(raw)
             lo, hi = v - s, v + s
             if p == "rock_class":
-                name = raw.split(" (")[0].strip()
-                values["rock_class"] = "basalt_sedimentary" if "/" in name else ROCK.get(name, name)
+                name = raw.split(" (")[0].strip().lower()
+                values["rock_class"] = ("basalt_sedimentary" if "sediment" in name else "anorthosite" if "anort" in name
+                                        else "basalt_volcanic" if ("basalt" in name or "piroclast" in name) else name)
                 card["feo_wt_pct"] = parse(raw.split("(")[1])[0] if "(" in raw else None
             elif p == "rock_cover":
                 values[p] = [lo / 100, hi / 100]

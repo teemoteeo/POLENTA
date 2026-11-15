@@ -61,20 +61,20 @@
    "crater_density_literature": 1.8
   },
   "sources": {
-   "slope_p90": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 468 km². Letteratura: Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "roughness": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 468 km². Letteratura: Luna: LRO LOLA 150 m baseline, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "crater_density": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 468 km². Letteratura: Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25]; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "slope_p90": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 468 km². Letteratura: Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25] & Barker et al. (2023) LOLA LDEM; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "roughness": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 468 km². Letteratura: Luna: LRO LOLA 150 m baseline, Smith et al. (2017) Icarus 283 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "crater_density": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 468 km². Letteratura: Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25] & Robbins (2019) JGR Planets; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
    "rock_cover": "Luna: LRO Diviner Rock Abundance, Bandfield et al. (2011) DOI:10.1029/2011JE003866; Marte: MGS TES & MRO HiRISE CFA, Golombek et al. (2012) DOI:10.1555/mars.2012.0001",
    "grain_proxy": "Luna: LRO Diviner Thermal Inertia, Hayne et al. (2017) DOI:10.1002/2017JE005387; Marte: Mars Odyssey THEMIS & MGS TES, Mellon et al. (2009) DOI:10.1029/2009JE003417 & Golombek et al. (2012)",
    "albedo": "Luna: LRO LOLA 1064 nm / Diviner broadband, Lucey et al. (2014) DOI:10.1002/2013JE004592 & Paige et al. (2010); Marte: MGS TES & Curiosity Mastcam, Mellon et al. (2009) & Vasavada et al. (2017) DOI:10.1002/2016JE005241",
-   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
+   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011), Wueller et al. (2025) Tab.1 [W25] & geometria solare a 25.0°N; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
    "bulk_density_0_5": "Luna: Apollo core tubes (0-15 cm), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Phoenix Robotic Arm & Curiosity Rocknest/MGS-1, Mellon et al. (2009) & Cannon et al. (2019) DOI:10.1016/j.icarus.2018.08.019",
-   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
+   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025), Wueller et al. (2025) [W25] & Gaddis et al. (2003) Icarus 161; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
    "temperature": "Luna: LRO Diviner radiometer, Paige et al. (2010) DOI:10.1126/science.1187726 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix MET & Curiosity REMS, Davy et al. (2010) & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
    "density_profile_0_2m": "Luna: Apollo deep drill cores (0-2 m), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Stime geotecniche/radar SHARAD & profili regolite, Mellon et al. (2009) & Golombek et al. (2012)",
-   "elevation": "Luna: LRO LOLA datum 1737.4 km, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
+   "elevation": "Luna: LRO LOLA datum 1737.4 km, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
    "atmosphere_wind": "Luna: Vuoto/esosfera trascurabile (Apollo LACE); Marte: Phoenix MET/Telltale & Curiosity REMS, Holstein-Rathlou et al. (2010) DOI:10.1029/2009JE003411 & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
-   "permafrost_share": "Luna (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553"
+   "permafrost_share": "Luna polare (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553; Aristarchus: regolite secca equatoriale (Rocco, dataset_6_siti)"
   },
   "dimensions": {
    "slope_p90": "Topografia",
@@ -155,20 +155,20 @@
    "crater_density_literature": 2.4
   },
   "sources": {
-   "slope_p90": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 942 km². Letteratura: Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "roughness": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 942 km². Letteratura: Luna: LRO LOLA 150 m baseline, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "crater_density": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 942 km². Letteratura: Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25]; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "slope_p90": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 942 km². Letteratura: Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25] & Barker et al. (2023) LOLA LDEM; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "roughness": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 942 km². Letteratura: Luna: LRO LOLA 150 m baseline, Smith et al. (2017) Icarus 283 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "crater_density": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 942 km². Letteratura: Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25] & Robbins (2019) JGR Planets; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
    "rock_cover": "Luna: LRO Diviner Rock Abundance, Bandfield et al. (2011) DOI:10.1029/2011JE003866; Marte: MGS TES & MRO HiRISE CFA, Golombek et al. (2012) DOI:10.1555/mars.2012.0001",
    "grain_proxy": "Luna: LRO Diviner Thermal Inertia, Hayne et al. (2017) DOI:10.1002/2017JE005387; Marte: Mars Odyssey THEMIS & MGS TES, Mellon et al. (2009) DOI:10.1029/2009JE003417 & Golombek et al. (2012)",
    "albedo": "Luna: LRO LOLA 1064 nm / Diviner broadband, Lucey et al. (2014) DOI:10.1002/2013JE004592 & Paige et al. (2010); Marte: MGS TES & Curiosity Mastcam, Mellon et al. (2009) & Vasavada et al. (2017) DOI:10.1002/2016JE005241",
-   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
+   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011), Wueller et al. (2025) Tab.1 [W25] & geometria solare a 25.0°N; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
    "bulk_density_0_5": "Luna: Apollo core tubes (0-15 cm), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Phoenix Robotic Arm & Curiosity Rocknest/MGS-1, Mellon et al. (2009) & Cannon et al. (2019) DOI:10.1016/j.icarus.2018.08.019",
-   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
+   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025), Wueller et al. (2025) [W25] & Gaddis et al. (2003) Icarus 161; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
    "temperature": "Luna: LRO Diviner radiometer, Paige et al. (2010) DOI:10.1126/science.1187726 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix MET & Curiosity REMS, Davy et al. (2010) & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
    "density_profile_0_2m": "Luna: Apollo deep drill cores (0-2 m), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Stime geotecniche/radar SHARAD & profili regolite, Mellon et al. (2009) & Golombek et al. (2012)",
-   "elevation": "Luna: LRO LOLA datum 1737.4 km, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
+   "elevation": "Luna: LRO LOLA datum 1737.4 km, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
    "atmosphere_wind": "Luna: Vuoto/esosfera trascurabile (Apollo LACE); Marte: Phoenix MET/Telltale & Curiosity REMS, Holstein-Rathlou et al. (2010) DOI:10.1029/2009JE003411 & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
-   "permafrost_share": "Luna (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553"
+   "permafrost_share": "Luna polare (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553; Aristarchus: regolite secca equatoriale (Rocco, dataset_6_siti)"
   },
   "dimensions": {
    "slope_p90": "Topografia",
@@ -249,20 +249,111 @@
    "crater_density_literature": 2.1
   },
   "sources": {
-   "slope_p90": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 446 km². Letteratura: Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "roughness": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 446 km². Letteratura: Luna: LRO LOLA 150 m baseline, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "crater_density": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 446 km². Letteratura: Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25]; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "slope_p90": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 446 km². Letteratura: Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25] & Barker et al. (2023) LOLA LDEM; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "roughness": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 446 km². Letteratura: Luna: LRO LOLA 150 m baseline, Smith et al. (2017) Icarus 283 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "crater_density": "calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra (lunar.py), regione USGS 446 km². Letteratura: Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25] & Robbins (2019) JGR Planets; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
    "rock_cover": "Luna: LRO Diviner Rock Abundance, Bandfield et al. (2011) DOI:10.1029/2011JE003866; Marte: MGS TES & MRO HiRISE CFA, Golombek et al. (2012) DOI:10.1555/mars.2012.0001",
    "grain_proxy": "Luna: LRO Diviner Thermal Inertia, Hayne et al. (2017) DOI:10.1002/2017JE005387; Marte: Mars Odyssey THEMIS & MGS TES, Mellon et al. (2009) DOI:10.1029/2009JE003417 & Golombek et al. (2012)",
    "albedo": "Luna: LRO LOLA 1064 nm / Diviner broadband, Lucey et al. (2014) DOI:10.1002/2013JE004592 & Paige et al. (2010); Marte: MGS TES & Curiosity Mastcam, Mellon et al. (2009) & Vasavada et al. (2017) DOI:10.1002/2016JE005241",
-   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
+   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011), Wueller et al. (2025) Tab.1 [W25] & geometria solare a 25.0°N; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
    "bulk_density_0_5": "Luna: Apollo core tubes (0-15 cm), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Phoenix Robotic Arm & Curiosity Rocknest/MGS-1, Mellon et al. (2009) & Cannon et al. (2019) DOI:10.1016/j.icarus.2018.08.019",
-   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
+   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025), Wueller et al. (2025) [W25] & Gaddis et al. (2003) Icarus 161; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
    "temperature": "Luna: LRO Diviner radiometer, Paige et al. (2010) DOI:10.1126/science.1187726 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix MET & Curiosity REMS, Davy et al. (2010) & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
    "density_profile_0_2m": "Luna: Apollo deep drill cores (0-2 m), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Stime geotecniche/radar SHARAD & profili regolite, Mellon et al. (2009) & Golombek et al. (2012)",
-   "elevation": "Luna: LRO LOLA datum 1737.4 km, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
+   "elevation": "Luna: LRO LOLA datum 1737.4 km, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
    "atmosphere_wind": "Luna: Vuoto/esosfera trascurabile (Apollo LACE); Marte: Phoenix MET/Telltale & Curiosity REMS, Holstein-Rathlou et al. (2010) DOI:10.1029/2009JE003411 & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
-   "permafrost_share": "Luna (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553"
+   "permafrost_share": "Luna polare (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553; Aristarchus: regolite secca equatoriale (Rocco, dataset_6_siti)"
+  },
+  "dimensions": {
+   "slope_p90": "Topografia",
+   "roughness": "Topografia",
+   "crater_density": "Topografia",
+   "rock_cover": "Geologia e materiali di superficie",
+   "grain_proxy": "Geologia e materiali di superficie",
+   "albedo": "Geologia e materiali di superficie",
+   "low_sun_frac": "Temperatura e illuminazione",
+   "bulk_density_0_5": "Geologia e materiali di superficie",
+   "rock_class": "Geologia e materiali di superficie",
+   "temperature": "Temperatura e illuminazione",
+   "density_profile_0_2m": "Geologia e materiali di superficie",
+   "elevation": "Topografia",
+   "atmosphere_wind": "Atmosfera, polvere e vento",
+   "permafrost_share": "Acqua, ghiaccio e permafrost"
+  }
+ },
+ {
+  "id": "aristarchus_plateau",
+  "name": "Aristarchus Plateau",
+  "lat": 25.0,
+  "lon": -51.5,
+  "world": "moon",
+  "mock": false,
+  "values": {
+   "slope_p90": [
+    2.4,
+    4.0
+   ],
+   "roughness": [
+    0.6,
+    1.0
+   ],
+   "crater_density": [
+    0.3,
+    0.6
+   ],
+   "rock_cover": [
+    0.001,
+    0.003
+   ],
+   "grain_proxy": [
+    0.0107,
+    0.0107
+   ],
+   "albedo": [
+    0.07,
+    0.09
+   ],
+   "low_sun_frac": [
+    0.1,
+    0.12
+   ],
+   "bulk_density_0_5": [
+    1.34,
+    1.5
+   ],
+   "rock_class": "basalt_volcanic",
+   "permafrost_share": [
+    0.0,
+    0.0
+   ]
+  },
+  "card": {
+   "rock_cover_pct": 0.2,
+   "thermal_inertia_si": 28.0,
+   "feo_wt_pct": 16.5,
+   "t_mean_c": -23.1,
+   "t_range_c": 110.0,
+   "density_profile_0_2m": 1.65,
+   "elevation": -300.0,
+   "air_density_kgm3": 0.0,
+   "wind_ms": 0.0,
+   "subsurface_ice_wt_pct": 0.03
+  },
+  "sources": {
+   "slope_p90": "Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25] & Barker et al. (2023) LOLA LDEM; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "roughness": "Luna: LRO LOLA 150 m baseline, Smith et al. (2017) Icarus 283 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "crater_density": "Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25] & Robbins (2019) JGR Planets; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "rock_cover": "Luna: LRO Diviner Rock Abundance, Bandfield et al. (2011) DOI:10.1029/2011JE003866; Marte: MGS TES & MRO HiRISE CFA, Golombek et al. (2012) DOI:10.1555/mars.2012.0001",
+   "grain_proxy": "Luna: LRO Diviner Thermal Inertia, Hayne et al. (2017) DOI:10.1002/2017JE005387; Marte: Mars Odyssey THEMIS & MGS TES, Mellon et al. (2009) DOI:10.1029/2009JE003417 & Golombek et al. (2012)",
+   "albedo": "Luna: LRO LOLA 1064 nm / Diviner broadband, Lucey et al. (2014) DOI:10.1002/2013JE004592 & Paige et al. (2010); Marte: MGS TES & Curiosity Mastcam, Mellon et al. (2009) & Vasavada et al. (2017) DOI:10.1002/2016JE005241",
+   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011), Wueller et al. (2025) Tab.1 [W25] & geometria solare a 25.0°N; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
+   "bulk_density_0_5": "Luna: Apollo core tubes (0-15 cm), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Phoenix Robotic Arm & Curiosity Rocknest/MGS-1, Mellon et al. (2009) & Cannon et al. (2019) DOI:10.1016/j.icarus.2018.08.019",
+   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025), Wueller et al. (2025) [W25] & Gaddis et al. (2003) Icarus 161; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
+   "temperature": "Luna: LRO Diviner radiometer, Paige et al. (2010) DOI:10.1126/science.1187726 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix MET & Curiosity REMS, Davy et al. (2010) & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
+   "density_profile_0_2m": "Luna: Apollo deep drill cores (0-2 m), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Stime geotecniche/radar SHARAD & profili regolite, Mellon et al. (2009) & Golombek et al. (2012)",
+   "elevation": "Luna: LRO LOLA datum 1737.4 km, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
+   "atmosphere_wind": "Luna: Vuoto/esosfera trascurabile (Apollo LACE); Marte: Phoenix MET/Telltale & Curiosity REMS, Holstein-Rathlou et al. (2010) DOI:10.1029/2009JE003411 & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
+   "permafrost_share": "Luna polare (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553; Aristarchus: regolite secca equatoriale (Rocco, dataset_6_siti)"
   },
   "dimensions": {
    "slope_p90": "Topografia",
@@ -340,20 +431,20 @@
    "subsurface_ice_wt_pct": 55.0
   },
   "sources": {
-   "slope_p90": "Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "roughness": "Luna: LRO LOLA 150 m baseline, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "crater_density": "Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25]; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "slope_p90": "Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25] & Barker et al. (2023) LOLA LDEM; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "roughness": "Luna: LRO LOLA 150 m baseline, Smith et al. (2017) Icarus 283 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "crater_density": "Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25] & Robbins (2019) JGR Planets; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
    "rock_cover": "Luna: LRO Diviner Rock Abundance, Bandfield et al. (2011) DOI:10.1029/2011JE003866; Marte: MGS TES & MRO HiRISE CFA, Golombek et al. (2012) DOI:10.1555/mars.2012.0001",
    "grain_proxy": "Luna: LRO Diviner Thermal Inertia, Hayne et al. (2017) DOI:10.1002/2017JE005387; Marte: Mars Odyssey THEMIS & MGS TES, Mellon et al. (2009) DOI:10.1029/2009JE003417 & Golombek et al. (2012)",
    "albedo": "Luna: LRO LOLA 1064 nm / Diviner broadband, Lucey et al. (2014) DOI:10.1002/2013JE004592 & Paige et al. (2010); Marte: MGS TES & Curiosity Mastcam, Mellon et al. (2009) & Vasavada et al. (2017) DOI:10.1002/2016JE005241",
-   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
+   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011), Wueller et al. (2025) Tab.1 [W25] & geometria solare a 25.0°N; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
    "bulk_density_0_5": "Luna: Apollo core tubes (0-15 cm), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Phoenix Robotic Arm & Curiosity Rocknest/MGS-1, Mellon et al. (2009) & Cannon et al. (2019) DOI:10.1016/j.icarus.2018.08.019",
-   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
+   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025), Wueller et al. (2025) [W25] & Gaddis et al. (2003) Icarus 161; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
    "temperature": "Luna: LRO Diviner radiometer, Paige et al. (2010) DOI:10.1126/science.1187726 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix MET & Curiosity REMS, Davy et al. (2010) & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
    "density_profile_0_2m": "Luna: Apollo deep drill cores (0-2 m), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Stime geotecniche/radar SHARAD & profili regolite, Mellon et al. (2009) & Golombek et al. (2012)",
-   "elevation": "Luna: LRO LOLA datum 1737.4 km, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
+   "elevation": "Luna: LRO LOLA datum 1737.4 km, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
    "atmosphere_wind": "Luna: Vuoto/esosfera trascurabile (Apollo LACE); Marte: Phoenix MET/Telltale & Curiosity REMS, Holstein-Rathlou et al. (2010) DOI:10.1029/2009JE003411 & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
-   "permafrost_share": "Luna (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553"
+   "permafrost_share": "Luna polare (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553; Aristarchus: regolite secca equatoriale (Rocco, dataset_6_siti)"
   },
   "dimensions": {
    "slope_p90": "Topografia",
@@ -431,20 +522,20 @@
    "subsurface_ice_wt_pct": 2.25
   },
   "sources": {
-   "slope_p90": "Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "roughness": "Luna: LRO LOLA 150 m baseline, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
-   "crater_density": "Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25]; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "slope_p90": "Luna: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25] & Barker et al. (2023) LOLA LDEM; Marte: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "roughness": "Luna: LRO LOLA 150 m baseline, Smith et al. (2017) Icarus 283 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
+   "crater_density": "Luna: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25] & Robbins (2019) JGR Planets; Marte: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y",
    "rock_cover": "Luna: LRO Diviner Rock Abundance, Bandfield et al. (2011) DOI:10.1029/2011JE003866; Marte: MGS TES & MRO HiRISE CFA, Golombek et al. (2012) DOI:10.1555/mars.2012.0001",
    "grain_proxy": "Luna: LRO Diviner Thermal Inertia, Hayne et al. (2017) DOI:10.1002/2017JE005387; Marte: Mars Odyssey THEMIS & MGS TES, Mellon et al. (2009) DOI:10.1029/2009JE003417 & Golombek et al. (2012)",
    "albedo": "Luna: LRO LOLA 1064 nm / Diviner broadband, Lucey et al. (2014) DOI:10.1002/2013JE004592 & Paige et al. (2010); Marte: MGS TES & Curiosity Mastcam, Mellon et al. (2009) & Vasavada et al. (2017) DOI:10.1002/2016JE005241",
-   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
+   "low_sun_frac": "Luna: LRO LOLA illumination model (0-7° elev.), Mazarico et al. (2011), Wueller et al. (2025) Tab.1 [W25] & geometria solare a 25.0°N; Marte: Calcolo astronomico/MCD da latitudine (68.2°N / 4.6°S), Millour et al. (2022)",
    "bulk_density_0_5": "Luna: Apollo core tubes (0-15 cm), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Phoenix Robotic Arm & Curiosity Rocknest/MGS-1, Mellon et al. (2009) & Cannon et al. (2019) DOI:10.1016/j.icarus.2018.08.019",
-   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
+   "rock_class": "Luna: Kaguya MI / LRO Diviner, Lemelin et al. (2022), Frueh (2025), Wueller et al. (2025) [W25] & Gaddis et al. (2003) Icarus 161; Marte: Phoenix WCL & Curiosity APXS/CheMin, Kounaves et al. (2010), Bish et al. (2013) & Blake et al. (2013) DOI:10.1126/science.1239505",
    "temperature": "Luna: LRO Diviner radiometer, Paige et al. (2010) DOI:10.1126/science.1187726 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 [W25]; Marte: Phoenix MET & Curiosity REMS, Davy et al. (2010) & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
    "density_profile_0_2m": "Luna: Apollo deep drill cores (0-2 m), Carrier et al. (1991) Lunar Sourcebook Cap.9; Marte: Stime geotecniche/radar SHARAD & profili regolite, Mellon et al. (2009) & Golombek et al. (2012)",
-   "elevation": "Luna: LRO LOLA datum 1737.4 km, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
+   "elevation": "Luna: LRO LOLA datum 1737.4 km, Smith et al. (2017) & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §3/§6 [W25]; Marte: MGS MOLA datum, Arvidson et al. (2008) & Golombek et al. (2012)",
    "atmosphere_wind": "Luna: Vuoto/esosfera trascurabile (Apollo LACE); Marte: Phoenix MET/Telltale & Curiosity REMS, Holstein-Rathlou et al. (2010) DOI:10.1029/2009JE003411 & Martínez et al. (2017) DOI:10.1007/s11214-017-0360-x",
-   "permafrost_share": "Luna (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553"
+   "permafrost_share": "Luna polare (scenario B): LCROSS a Cabeus, Colaprete et al. (2010) DOI:10.1126/science.1186986, valore da confermare per le zone in ombra di ciascun sito; al sito, sulle creste illuminate: 0.2 ± 0.1 wt% (LRO LEND, Siegler et al. 2015 & Wueller et al. 2025 DOI:10.1029/2025JE009127 §6.1); Marte: Mars Odyssey GRS / Phoenix TEGA-SSI & Curiosity DAN/SAM, Boynton et al. (2002), Smith et al. (2009) DOI:10.1126/science.1172339 & Mitrofanov et al. (2014) DOI:10.1002/2013JE004553; Aristarchus: regolite secca equatoriale (Rocco, dataset_6_siti)"
   },
   "dimensions": {
    "slope_p90": "Topografia",

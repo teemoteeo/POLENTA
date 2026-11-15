@@ -6,11 +6,11 @@
 
 - **Cosa:** un tool che dice dove sulla Terra testare hardware per la Luna e per Marte. Si sceglie un sito e un test; il tool dice dove farlo, quanto è fedele, dove l'analogia si rompe e quale struttura indoor chiude il buco.
 - **Per chi:** le aziende di Torino che testano hardware lunare (B2B). In giuria ci sono Thales Alenia Space e Argotec, che fanno esattamente questo. La UI deve essere comprensibile a chiunque: la versione education (ESA Moon Camp, ESERO) è gratuita e fa da canale.
-- **Target (sab 23:30): 5 siti.**
-  - Luna, 3 candidati di Artemis III al Polo Sud: Malapert Massif, Haworth, Nobile Rim 1.
+- **Target: 6 siti** (sab 23:30, Aristarchus dom 02:10; coordinate in `data/config/siti_coordinate.csv`).
+  - Luna, 3 candidati di Artemis III al Polo Sud: Malapert Massif, Haworth, Nobile Rim 1; più **Aristarchus Plateau** (25°N, 51,5°W, depositi piroclastici e basalti, aggiunto da Rocco dom 02:10).
   - Marte: Phoenix (68,2°N) e Gale (4,6°S).
   - Gli altri 6 siti Artemis e Jezero escono.
-- **Benchmark e pitch:** matrice 5 siti × 3 test, con il miglior sito sulla Terra e la struttura indoor per ogni casella.
+- **Benchmark e pitch:** matrice 6 siti × 3 test, con il miglior sito sulla Terra e la struttura indoor per ogni casella.
 - **Mappa con tre tipi di punti:**
   - siti naturali per test all'aperto;
   - strutture indoor (LUNA, ALTEC, Moonyard, Astrobotic, PISCES…);

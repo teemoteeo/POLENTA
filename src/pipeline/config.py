@@ -31,8 +31,8 @@ MAX_CELLS_EXPORT = 10_000   # esagoni nella heat map di ogni sito × test (~2,5 
 NDVI_THRESHOLD = 0.2
 MASK_NATIVE_M = 1000      # risoluzione dell'NDVI MODIS: la maschera si calcola qui
 
-# I siti della demo, con gli stessi nomi dell'app (src/web/src/data.js): 3 sulla Luna, 2 su Marte
-SITES = ["Malapert Massif", "Haworth", "Nobile Rim 1", "Phoenix", "Gale"]
+# I siti della demo (data/config/siti_coordinate.csv, Rocco): 4 sulla Luna, 2 su Marte
+SITES = ["Malapert Massif", "Haworth", "Nobile Rim 1", "Aristarchus Plateau", "Phoenix", "Gale"]
 
 # I 9 siti candidati di Artemis III: li usa solo l'export di prova (mock_export.py)
 ARTEMIS_SITES = [

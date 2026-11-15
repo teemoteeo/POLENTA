@@ -27,7 +27,7 @@ tau: 0.1
 eps: 0.01
 break_below: 0.3
 kappa_min: 0.8      # quota minima di peso con dati per entrare in classifica
-night_lights_max: 5 # nW/cm²/sr: sopra è città (il cemento passa la maschera NDVI); ~1,5% degli esagoni
+night_lights_max: 3.5 # nW/cm²/sr: sopra è città o periferia (il cemento passa la maschera NDVI); 3,5 esclude Qingdao (3,9) e tiene l Etna (3,2)
 
 tests:
 

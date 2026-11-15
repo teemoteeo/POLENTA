@@ -103,6 +103,7 @@ def dossier(data: dict, feats: pd.DataFrame) -> None:
                 r["dossier"]["snow_free_months"] = int(row["snow_free_months"]) if pd.notna(row["snow_free_months"]) else None
                 r["dossier"]["night_lights"] = round(float(row["night_lights"]), 2) if pd.notna(row["night_lights"]) else None
                 r["dossier"]["terrain_src"] = row.get("terrain_src")
+                r["dossier"]["valid_share"] = round(float(row["valid_share"]), 3)   # quota di suolo nudo dell'esagono
 
 
 # Isole artiche dove GeoNames (città con più di 1.000 abitanti) non ha centri: lì la "città più vicina" è a
@@ -149,8 +150,26 @@ GAP_LABELS = {
     "grain_proxy": "grana della regolite", "bulk_density_0_5": "densità superficiale", "albedo": "albedo",
     "low_sun_frac": "luce radente", "permafrost_share": "ghiaccio nel suolo", "rock_class": "tipo di roccia",
 }
+# unità dei valori nelle card (values e target sono nelle unità terrestri: targets.py converte quelle lunari)
+EARTH_UNITS = {"slope_p90": "°", "roughness": "m", "crater_density": "crateri/km²", "rock_cover": "frazione 0-1",
+               "grain_proxy": "inerzia termica apparente (1/K)", "albedo": "frazione 0-1", "low_sun_frac": "frazione 0-1",
+               "bulk_density_0_5": "g/cm³", "permafrost_share": "quota di area con permafrost (0-1)", "rock_class": "classe GLiM"}
 REGOLITH = {"soil_density", "grain_proxy", "bulk_density_0_5", "agglutinates", "rock_class", "permafrost_share"}
-SIMULANTS_FOR = {"moon": ["lsp2", "lhs1"], "phoenix": ["mgs1"], "gale": ["mgs1", "jez1"]}
+SIMULANTS_FOR = {"moon_highland": ["lsp2", "lhs1"], "moon_mare": ["lms1", "eac1a"], "phoenix": ["mgs1"], "gale": ["mgs1", "jez1"]}
+
+
+def labels() -> dict:
+    """Per l'app: nome in italiano, dimensione della challenge e unità di ogni parametro e di ogni gap."""
+    from . import targets
+    m = targets.load()
+    out = {}
+    for p, row in m.iterrows():
+        key = targets.ALIAS.get(p, p)
+        out[key] = {"label": GAP_LABELS.get(key, key), "definition": row["Definizione e Unità"],
+                    "dimension": row.get("Dimensione (challenge)"), "unit": EARTH_UNITS.get(key, "")}
+    for key, lab in GAP_LABELS.items():
+        out.setdefault(key, {"label": lab, "definition": None, "dimension": "Limiti della Terra (struttura indoor)", "unit": ""})
+    return out
 
 
 def tables() -> tuple[list, list, list]:
@@ -182,7 +201,8 @@ def campaign(r: dict, target: dict, test: str, fac: list, sim: list, rocks: list
     out = {"outdoor": {"name": r["name"], "lat": r["lat"], "lon": r["lon"]}, "facilities": chosen,
            "uncovered": [{"param": g, "label": GAP_LABELS.get(g, g)} for g in gaps if not by_gap[g] and g not in by_material]}
     if test != "flight_hda_lidar" or REGOLITH & set(gaps):   # simulanti: quando conta il suolo
-        key = target["id"] if target["world"] == "mars" else "moon"
+        key = (target["id"] if target["world"] == "mars"
+               else "moon_highland" if target["values"].get("rock_class") == "anorthosite" else "moon_mare")
         out["simulants"] = [{k: s[k] for k in ("id", "name", "producer", "terrain", "price", "source")}
                             for s in sim if s["id"] in SIMULANTS_FOR.get(key, [])]
         rock = "anorthosite" if target["values"].get("rock_class") == "anorthosite" else "basalt"
@@ -237,7 +257,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
     (out / "sites").mkdir(parents=True, exist_ok=True)
     if not publish:                                   # siti noti: uguali al mock per ora
         shutil.copy(config.EXPORT / "known_sites.json", out / "known_sites.json")
-    for name, rows in (("facilities.json", fac), ("simulants.json", sim), ("rock_sources.json", rocks)):
+    for name, rows in (("facilities.json", fac), ("simulants.json", sim), ("rock_sources.json", rocks), ("labels.json", labels())):
         (out / name).write_text(json.dumps(rows, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     # benchmark (la slide del pitch): per ogni sito × test il primo risultato, il primo nuovo e le strutture indoor
     bench = {}
@@ -259,7 +279,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         files.append(f"sites/{site}__{test}.json")
     manifest = json.loads((config.EXPORT / "manifest.json").read_text())
     manifest.update({"version": "0.2-earth", "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                     "mock": False, "targets_mock": True, "files": files + ["benchmark.json", "facilities.json", "simulants.json", "rock_sources.json", "known_sites.json"]})
+                     "mock": False, "targets_mock": True, "files": files + ["benchmark.json", "facilities.json", "simulants.json", "rock_sources.json", "labels.json", "known_sites.json"]})
     (out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"5) {len(data)} file in {out.relative_to(config.ROOT)}")
     for (site, test), d in list(data.items())[:3]:

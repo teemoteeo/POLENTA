@@ -1,0 +1,128 @@
+{
+ "slope_p90": {
+  "label": "pendenze",
+  "definition": "Pendenza 90° percentile su DEM 30 m (°)",
+  "dimension": "Topografia",
+  "unit": "°"
+ },
+ "roughness": {
+  "label": "rugosità",
+  "definition": "Scarto quota dalla media su baseline 150 m (m)",
+  "dimension": "Topografia",
+  "unit": "m"
+ },
+ "crater_density": {
+  "label": "crateri",
+  "definition": "Conche <=300 m, profondità >=20 m (km⁻²)",
+  "dimension": "Topografia",
+  "unit": "crateri/km²"
+ },
+ "rock_cover": {
+  "label": "massi",
+  "definition": "Copertura areale sassi e massi (%)",
+  "dimension": "Geologia e materiali di superficie",
+  "unit": "frazione 0-1"
+ },
+ "grain_proxy": {
+  "label": "grana della regolite",
+  "definition": "Inerzia termica superficiale (J m⁻² K⁻¹ s⁻¹/²)",
+  "dimension": "Geologia e materiali di superficie",
+  "unit": "inerzia termica apparente (1/K)"
+ },
+ "albedo": {
+  "label": "albedo",
+  "definition": "Riflettenza superficiale broadband (fraz. 0-1)",
+  "dimension": "Geologia e materiali di superficie",
+  "unit": "frazione 0-1"
+ },
+ "low_sun_frac": {
+  "label": "luce radente",
+  "definition": "Quota di luce con Sole a 0-7° sull'orizzonte (fraz. 0-1)",
+  "dimension": "Temperatura e illuminazione",
+  "unit": "frazione 0-1"
+ },
+ "bulk_density_0_5": {
+  "label": "densità superficiale",
+  "definition": "Densità apparente primi 0-5 cm (g/cm³)",
+  "dimension": "Geologia e materiali di superficie",
+  "unit": "g/cm³"
+ },
+ "rock_class": {
+  "label": "tipo di roccia",
+  "definition": "Classe litologica (FeO wt% di riferimento)",
+  "dimension": "Geologia e materiali di superficie",
+  "unit": "classe GLiM"
+ },
+ "temperature": {
+  "label": "temperature",
+  "definition": "Temperatura superficiale media ± escursione (K)",
+  "dimension": "Temperatura e illuminazione",
+  "unit": ""
+ },
+ "density_profile_0_2m": {
+  "label": "density_profile_0_2m",
+  "definition": "Densità media profilo 0-2 m (g/cm³)",
+  "dimension": "Geologia e materiali di superficie",
+  "unit": ""
+ },
+ "elevation": {
+  "label": "elevation",
+  "definition": "Quota rispetto al datum planetario (m)",
+  "dimension": "Topografia",
+  "unit": ""
+ },
+ "atmosphere_wind": {
+  "label": "atmosphere_wind",
+  "definition": "Densità atmosferica e vento medio (kg/m³ | m/s)",
+  "dimension": "Atmosfera, polvere e vento",
+  "unit": ""
+ },
+ "permafrost_share": {
+  "label": "ghiaccio nel suolo",
+  "definition": "Contenuto di ghiaccio / WEH nel sottosuolo (wt%); Luna polare: nelle zone in ombra perenne vicine al sito (scenario B, dom 00:45); Aristarchus: al sito",
+  "dimension": "Acqua, ghiaccio e permafrost",
+  "unit": "quota di area con permafrost (0-1)"
+ },
+ "gravity_1_6": {
+  "label": "gravità a 1/6",
+  "definition": null,
+  "dimension": "Limiti della Terra (struttura indoor)",
+  "unit": ""
+ },
+ "vacuum": {
+  "label": "vuoto",
+  "definition": null,
+  "dimension": "Limiti della Terra (struttura indoor)",
+  "unit": ""
+ },
+ "electrostatic_dust": {
+  "label": "polvere elettrostatica",
+  "definition": null,
+  "dimension": "Limiti della Terra (struttura indoor)",
+  "unit": ""
+ },
+ "plume_vacuum": {
+  "label": "getto del motore sulla regolite nel vuoto",
+  "definition": null,
+  "dimension": "Limiti della Terra (struttura indoor)",
+  "unit": ""
+ },
+ "cryo_psr": {
+  "label": "freddo delle zone in ombra (40-110 K)",
+  "definition": null,
+  "dimension": "Limiti della Terra (struttura indoor)",
+  "unit": ""
+ },
+ "agglutinates": {
+  "label": "agglutinati e ferro nanofase della regolite",
+  "definition": null,
+  "dimension": "Limiti della Terra (struttura indoor)",
+  "unit": ""
+ },
+ "soil_density": {
+  "label": "densità e compattazione della regolite",
+  "definition": null,
+  "dimension": "Limiti della Terra (struttura indoor)",
+  "unit": ""
+ }
+}

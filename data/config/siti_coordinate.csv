@@ -1,0 +1,7 @@
+id,name,body,lat,lon,lon_360,convenzione
+malapert_massif,Malapert Massif,Moon,-85.98,-1.67,358.33,Planetocentrica (-180/+180° E)
+haworth,Haworth,Moon,-86.8,-22.0,338.0,Planetocentrica (-180/+180° E)
+nobile_rim_1,Nobile Rim 1,Moon,-85.4,37.0,37.0,Planetocentrica (-180/+180° E)
+aristarchus_plateau,Aristarchus Plateau,Moon,25.0,-51.5,308.5,Planetocentrica (-180/+180° E)
+phoenix,Phoenix,Mars,68.2188,-125.7492,234.2508,Planetocentrica (0/360° E)
+gale,Gale,Mars,-4.5895,137.4417,137.4417,Planetocentrica (0/360° E)
