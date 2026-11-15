@@ -1,6 +1,6 @@
 # Lavoro della notte: branch `night` (Timo)
 
-Autore: Timo, con Claude · dom 15/11/2026, 04:00-06:00.
+Autore: Timo, con Claude · dom 15/11/2026, notte.
 Tutto sta sul branch **`night`**, in un worktree a parte (`../hackaton-night`). `main` non è stato toccato e niente è stato pushato.
 
 ## Come guardarlo
@@ -29,7 +29,12 @@ Tocca solo `src/web/` e questo file. Se non convince, basta non fare il merge.
   - passo 2 al chiuso: strutture partner, dalla più vicina a Torino, con cosa chiude ognuna;
   - passo 3: cosa resta scoperto.
 - **Mappa della logistica:** rotte da Torino al posto e alle strutture, con il bottone "Campaign view" che allontana la camera.
-- **Benchmark:** matrice 6 siti × 3 test con la campagna migliore per casella.
+- **Frase di verdetto** in cima alla scheda: il piano in una riga ("Run rover mobility for Haworth here: 55% of the test holds in the field… Close the rest at…").
+- **Copy brief:** copia il piano di campagna come testo, da incollare in una mail.
+- **Mappa di calore:** nella vista della Terra intera, i 10.000 esagoni più simili al sito per quel test (caricati a richiesta, il bundle non cresce).
+- **Vista campagna:** tappe a lettere (T = Torino, A, B, C = strutture) con l'elenco accanto.
+- **Case studies:** 4 casi di `docs/case_studies.md` (senza nomi di aziende) che aprono da soli sito, test e primo posto, in circa 20 s. Utili per il video da 30 s.
+- **Benchmark:** matrice 6 siti × 3 test con la campagna migliore per casella; ogni casella apre la sua campagna.
 - **Method & data:** come si calcola il voto, come si costruisce la campagna, dataset NASA, limiti dichiarati, uso dell'AI.
 - **Animazioni:** il blocco delle animazioni in `App.jsx` è identico byte per byte a `main` (verificato a ogni giro con `diff`).
 
@@ -61,6 +66,24 @@ Effetto sulla storia del pitch: per Haworth × rover il primo posto diventa **61
 - **Le soglie di praticabilità** (15% di suolo nudo, 3 mesi senza neve) sono nostre: chiedere se un'azienda le riconosce.
 - **Swamp Works in Florida** per la polvere elettrostatica: il backend non propone il Dust Lab di LUNA a Colonia. Errore o voluto? (Edo)
 - **Km totali:** sommiamo andata da Torino al posto e a ogni sede indoor. È una misura grezza della logistica, non un itinerario.
+
+## Verifiche fatte
+
+- Blocco animazioni identico a `main` a ogni commit (`diff`).
+- Render di tutte le 90 schede (18 coppie × 5 posti), lista, benchmark, metodo e brief: 471 controlli, 0 errori, nessun "undefined" o "NaN".
+- Prova dal vivo in Chrome a 1512×900: 4 casi in sequenza, "Start over" a metà, cambio posto, indietro, cambio tema, Copy brief. 0 errori in console.
+- Layout controllato a 1512×900, 1280×720 e 1920×1080.
+- `night` si unisce a `origin/main` senza conflitti (controllato alle 05:00 circa).
+
+## Cosa non è stato verificato
+
+- Nessuno di noi l'ha ancora guardato a occhio: i controlli sono di script e screenshot.
+- Tema chiaro e mobile controllati solo a campione.
+- Dopo la ripubblicazione dell'export di Edo vanno riguardati i numeri (classifica, benchmark).
+
+## Nota su `main`
+
+In `App.jsx`, nell'effetto dei puntini, `radiusScale` è finito dentro un commento (`// Marte ha meno punti…`) ed è codice morto. È così anche su `main`. Non l'ho toccato perché cambierebbe l'aspetto dei pianeti.
 
 ## Per Edo e Rocco
 
