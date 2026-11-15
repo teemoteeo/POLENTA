@@ -6,15 +6,31 @@ import { ScatterplotLayer } from '@deck.gl/layers'
 import DotModel, { preload } from './DotModel.jsx'
 import DotPlanet from './DotPlanet.jsx'
 import './trek.js' // registra il protocollo trek:// prima della mappa
-import { SITES, TESTS, FACILITIES, MODELS, loadDots, getResults } from './data.js'
+import { SITES, TESTS, MODELS, EXPORTED_AT, loadDots, getResults } from './data.js'
 
 const PARAM_LABEL = {
   slope_p90: 'Pendenza', roughness: 'Rugosità', crater_density: 'Crateri', rock_cover: 'Rocce',
   low_sun_frac: 'Sole radente', albedo: 'Albedo', grain_proxy: 'Granulometria', bulk_density: 'Densità del suolo',
+  bulk_density_0_5: 'Densità del suolo', permafrost_share: 'Ghiaccio nel suolo',
   rock_class: 'Tipo di roccia', gravity_1_6: 'Gravità 1/6', vacuum: 'Vuoto', electrostatic_dust: 'Polvere elettrostatica',
   plume_vacuum: 'Getto del motore nel vuoto', soil_density: 'Densità della regolite', cryo_psr: 'Gelo delle zone in ombra', agglutinates: 'Agglutinati',
 }
 const BREAK = 0.3
+// valori fisici dell'export: [unità, moltiplicatore, decimali] (params.csv). grain_proxy: inerzia termica, si confronta per percentile
+const UNIT = {
+  slope_p90: ['°', 1, 1], roughness: [' m', 1, 1], crater_density: ['/km²', 1, 2], rock_cover: ['%', 100, 1], low_sun_frac: ['%', 100, 0],
+  albedo: ['', 1, 2], grain_proxy: ['', 1, 3], bulk_density_0_5: [' g/cm³', 1, 2], permafrost_share: ['%', 100, 0],
+}
+const num = (v, d = 1) => (v == null ? '—' : v.toLocaleString('it-IT', { maximumFractionDigits: d })) // la pipeline lascia null dove non ha il dato
+// un valore o un intervallo [min, max] con la sua unità; '—' se la pipeline non ha il dato
+function phys(p, v) {
+  if (v == null) return '—'
+  if (typeof v === 'string') return v
+  const [u, k, d] = UNIT[p] || ['', 1, 2]
+  return (Array.isArray(v) ? [...new Set(v.map(x => num(x * k, d)))].join('–') : num(v * k, d)) + u
+}
+const coord = (v, pos, neg) => num(Math.abs(v), 2) + '°' + (v < 0 ? neg : pos)
+const H3_KM2 = 253 // area media di un esagono H3 a risoluzione 5
 
 // Colori per tema e mondo: pagina, sfera, puntini
 const PALETTE = {
@@ -29,9 +45,9 @@ const FADE = [3.5, 5]
 const IMG_FADE = ['interpolate', ['linear'], ['zoom'], FADE[0], 0, FADE[1], 1]
 const RASTERS = { moon: ['moon'], mars: ['mars'], earth: ['gibs', 'esri'] }
 // size: raggio rispetto a Marte (Luna 1.737 km, Marte 3.390 km)
-const PLANETS = { mars: { name: 'Marte', what: '2 siti di atterraggio', size: 1 }, moon: { name: 'Luna', what: 'Polo Sud · 3 regioni Artemis III', size: 0.51 } }
+const PLANETS = { mars: { name: 'Marte', what: '2 siti di atterraggio', size: 1 }, moon: { name: 'Luna', what: '3 regioni Artemis III al Polo Sud · Aristarchus Plateau', size: 0.51 } }
 // durate (ms) dei passaggi, uguali in andata e ritorno; curve: OUT rallenta alla fine, IN è la stessa rovesciata
-const T = { planet: 2600, site: 4500, siteBack: 2600, warp: 3000, card: 2600, next: 2200 } // siteBack: il ritorno dal sito è più corto dell'andata
+const T = { planet: 2600, site: 4500, siteBack: 2600, warp: 3000, card: 2600, next: 1200 } // siteBack: il ritorno dal sito è più corto dell'andata
 const OUT = t => 1 - (1 - t) ** 3, IN = t => t ** 3
 const SOFT = t => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2) // parte e arriva piano: uguale nei due versi
 
@@ -83,10 +99,10 @@ export default function App() {
   const [dots, setDots] = useState({ moon: [], mars: [], earth: [] })
   const addDots = w => d => setDots(o => ({ ...o, [w]: d }))
 
-  const data = useMemo(() => (site && testId ? getResults(site.name, testId) : null), [site, testId])
+  const data = useMemo(() => (site && testId ? getResults(site.id, testId) : null), [site, testId])
   const test = testId && TESTS[testId]
   const result = data?.results[picked]
-  const model = step === 'test' ? MODELS[hoverTest || 'rover_mobility'] : null
+  const model = step === 'test' ? MODELS[hoverTest] || MODELS.rover_mobility : null
   const pal = PALETTE[theme]
 
   useEffect(() => {
@@ -142,11 +158,12 @@ export default function App() {
       getFillColor: weighted ? d => [...bright, 255 * ((c[3] / 255) * d[2]) ** 0.6] : c,
       opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme },
     })]
-    // TEST (solo per noi): le zone del modello, un gruppo di esagoni per risultato. Il numero in classifica è il pin al centro della zona
-    if (world === 'earth' && data?.zones) layers.push(new H3HexagonLayer({ id: 'zones', data: data.zones, getHexagon: d => d.h3,
-      getFillColor: [...pal.accent, 150], getLineColor: [255, 255, 255, 230], stroked: true, lineWidthMinPixels: 1, extruded: false, highPrecision: true }))
+    // le zone del modello, un gruppo di esagoni per posto (il numero in classifica è il pin al centro); nella scheda spicca quella aperta
+    if (world === 'earth' && data) layers.push(new H3HexagonLayer({ id: 'zones', data: data.zones, getHexagon: d => d.h3,
+      getFillColor: d => [...pal.accent, step === 'card' && d.rank !== picked + 1 ? 45 : 150], updateTriggers: { getFillColor: [step, picked] },
+      getLineColor: [255, 255, 255, 230], stroked: true, lineWidthMinPixels: 1, extruded: false, highPrecision: true }))
     overlay.current?.setProps({ layers })
-  }, [world, dots, data, zoom, theme]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world, dots, data, zoom, theme, step, picked]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // pin: siti con il nome su Luna e Marte, risultati numerati sulla Terra
   useEffect(() => {
@@ -154,13 +171,14 @@ export default function App() {
     const pin = (cls, html, at, onclick, anchor) => {
       const el = document.createElement('button')
       el.className = cls; el.innerHTML = html; el.onclick = onclick
-      return new maplibregl.Marker({ element: el, anchor }).setLngLat(at).addTo(map.current)
+      // Terra: i pin dietro il globo spariscono del tutto (MapLibre di suo li lascia al 20%); Luna e Marte restano come prima
+      return new maplibregl.Marker({ element: el, anchor, ...(world === 'earth' && { opacityWhenCovered: '0' }) }).setLngLat(at).addTo(map.current)
     }
     markers.current = step === 'planet' ? []
       : world !== 'earth' ? SITES.filter(s => s.world === world).map(s =>
         pin('site' + (s === site ? ' on' : ''), `<svg><line x2="${s.tag[0]}" y2="${s.tag[1]}"/></svg><i></i>`
           + `<span style="left:${s.tag[0]}px;top:${s.tag[1]}px;--tx:${s.tag[0] < 0 ? -100 : s.tag[0] > 0 ? 0 : -50}%">${s.name}</span>`, s.pos, () => chooseSite(s)))
-      : !data ? [] : data.results.map((r, i) => pin('pin' + (i === picked ? ' on' : ''), i + 1, [r.lon, r.lat], () => choosePlace(i)))
+      : !data ? [] : data.results.map((r, i) => pin('pin' + (i === picked ? ' on' : ''), i + 1, [r.lon, r.lat], () => jump(i)))
   }, [world, step, site, data, picked]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Animazioni. Ogni passo ha una posa di camera; ogni passaggio tra due passi vicini ha una durata sola.
@@ -276,7 +294,7 @@ export default function App() {
   // Test ↔ Dove (il ritorno è chooseSite dalla Terra)
   const chooseTest = act(async id => {
     setTestId(id); setPicked(0); setStep('results')
-    const first = getResults(site.name, id).results[0]
+    const first = getResults(site.id, id).results[0]
     await warp('earth', [first.lon + 35, first.lat], globe([first.lon, first.lat]))
   })
   // Dove ↔ Scheda
@@ -285,13 +303,23 @@ export default function App() {
     const r = data.results[i]
     await fly({ ...over([r.lon, r.lat]), zoom: 7, duration: step === 'card' ? T.next : T.card, easing: OUT })
   })
+  // da una scheda all'altra: niente coda, ogni click parte subito e interrompe il volo in corso
+  const jump = i => {
+    if (busy.current || step !== 'card') return choosePlace(i)
+    const r = data.results[i]
+    setPicked(i)
+    map.current.flyTo({ ...over([r.lon, r.lat]), zoom: 7, duration: T.next, easing: OUT, essential: true, padding: basePad() })
+  }
   const leaveCard = act(async () => { // torna alla Terra intera, centrata sul posto che si stava guardando
     setStep('results')
     await fly({ ...globe([result.lon, result.lat]), duration: T.card, easing: IN })
   })
   const back = () => ({ card: leaveCard, results: () => chooseSite(site), test: leaveSite, site: toPlanets })[step]?.()
 
-  const broken = result ? Object.entries(result.params).filter(([, s]) => s < BREAK).map(([p]) => p) : []
+  // scheda: i parametri del test dal più pesante, con voto, valore sulla Terra e valore del sito
+  const rows = result ? Object.entries(result.params).map(([p, s]) => ({ p, s, w: test.requisiti[p] || 0 })).sort((a, b) => b.w - a.w) : []
+  const names = l => l.map(r => (PARAM_LABEL[r.p] || r.p).toLowerCase()).join(', ')
+  const good = rows.filter(r => r.s >= 0.7), bad = rows.filter(r => r.s < BREAK)
   const STEPS = [['site', 'Sito'], ['test', 'Test'], ['results', 'Dove']]
   const stepIdx = { site: 0, test: 1, results: 2, card: 2 }[step]
 
@@ -314,7 +342,7 @@ export default function App() {
               <span key={k} className={i === stepIdx ? 'on' : i < stepIdx ? 'done' : ''}><b className="fig">{i + 1}</b>{l}</span>
             ))}
           </nav>
-          {(site || test) && <p className="crumb">{[site?.name, test?.nome].filter(Boolean).join(' · ')}</p>}
+          {(site || test) && <p className="crumb">{[site && `${site.name} · ${coord(site.lat, 'N', 'S')} ${coord(site.lon, 'E', 'O')}`, test?.nome].filter(Boolean).join(' · ')}</p>}
 
           {step === 'site' && (<>
             <h2>Dove atterri?</h2>
@@ -335,9 +363,9 @@ export default function App() {
             <ul className="list">
               {Object.entries(TESTS).map(([id, t]) => (
                 <li key={id}>
-                  <button disabled={t.stato === 'coming_soon'} onClick={() => chooseTest(id)}
+                  <button disabled={!getResults(site.id, id)} onClick={() => chooseTest(id)}
                     onMouseEnter={() => setHoverTest(id)} onMouseLeave={() => setHoverTest(null)} onFocus={() => setHoverTest(id)}>
-                    <span>{t.nome}{t.stato !== 'mvp' && <em className="tag">{t.stato === 'preview' ? 'anteprima' : 'presto'}</em>}</span>
+                    <span>{t.nome}{!getResults(site.id, id) && <em className="tag">in arrivo</em>}</span>
                     <small>{t.cosa_si_testa}</small>
                   </button>
                 </li>
@@ -347,11 +375,12 @@ export default function App() {
 
           {step === 'results' && data && (<>
             <h2>Dove farlo sulla Terra</h2>
+            <p className="lbl">I {data.results.length} posti più simili a {site.name} per questo test. Il voto va da 0 a 100.</p>
             <ol className="list">
               {data.results.map((r, i) => (
-                <li key={r.name}>
+                <li key={r.id}>
                   <button className="row" onClick={() => choosePlace(i)}>
-                    <span><b className="fig">{i + 1}</b> {r.name}</span><span className="fig score">{pct(r.score)}</span>
+                    <span><b className="fig">{i + 1}</b> {r.name}<small> · {r.country}</small></span><span className="fig score">{pct(r.score)}</span>
                   </button>
                 </li>
               ))}
@@ -359,31 +388,60 @@ export default function App() {
           </>)}
 
           {step === 'card' && result && (<>
-            <div className="pager">
-              <button disabled={picked === 0} onClick={() => choosePlace(picked - 1)} aria-label="Sito precedente">←</button>
-              <span className="fig">{picked + 1} / {data.results.length}</span>
-              <button disabled={picked === data.results.length - 1} onClick={() => choosePlace(picked + 1)} aria-label="Sito successivo">→</button>
-            </div>
+            <ol className="places">
+              {data.results.map((r, i) => (
+                <li key={r.id}>
+                  <button className={i === picked ? 'on' : ''} onClick={() => jump(i)} aria-current={i === picked}>
+                    <b className="fig">{i + 1}</b><span>{r.name}</span><span className="fig score">{pct(r.score)}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
             <h2>{result.name}</h2>
-            <p className="lbl">Analogo di {site.name} per {test.nome.toLowerCase()} · <span className="fig">{pct(result.score)}</span>/100</p>
+            <p className="lbl">{result.country} · <span className="fig">{coord(result.lat, 'N', 'S')} {coord(result.lon, 'E', 'O')}</span> ·{' '}
+              <a href={`https://www.google.com/maps/@${result.lat},${result.lon},40000m/data=!3m1!1e3`} target="_blank" rel="noreferrer">vista satellite</a></p>
+            <p className="verdict"><b className="fig">{pct(result.score)}</b><span>su 100: quanto somiglia a {site.name} per {test.nome.toLowerCase()}</span></p>
+            <p className="chips">
+              <span className="tag">{result.new ? 'sito nuovo' : 'sito di test già usato'}</span>
+              <span className="tag">{result.h3_cells.length === 1 ? '1 esagono' : result.h3_cells.length + ' esagoni'} · ~{num(result.h3_cells.length * H3_KM2, 0)} km²</span>
+              <span className="tag">dati sul {pct(result.kappa)}% del peso</span>
+            </p>
+
+            <h3>Perché qui</h3>
+            <p className="lbl">
+              {good.length ? `Coincide con ${site.name} su ${names(good)}.` : `Nessun parametro coincide del tutto con ${site.name}: è il posto meno lontano.`}
+              {bad.length ? ` Non regge su ${names(bad)}.` : ''}
+            </p>
             <ul className="bars">
-              {Object.entries(result.params).map(([p, s]) => (
+              {rows.map(({ p, s, w }) => (
                 <li key={p} className={s < BREAK ? 'brk' : ''}>
                   <span>{PARAM_LABEL[p] || p}</span>
                   <i><b style={{ width: pct(s) + '%' }} /></i>
                   <span className="fig">{s < BREAK ? 'si rompe' : pct(s)}</span>
+                  <small className="lbl">peso {pct(w)}% · qui {phys(p, result.values[p])} · {site.name} {phys(p, result.target[p])}</small>
                 </li>
               ))}
             </ul>
-            <h3>Cosa fare al chiuso</h3>
+
+            <h3>Dove l'analogia non regge</h3>
             <ul className="cover">
-              {[...test.indoor, ...broken].map(p => (
-                <li key={p}><span>{PARAM_LABEL[p] || p}</span><span className="lbl">{(FACILITIES[p] || ['da cercare in facilities.csv']).join(' · ')}</span></li>
+              {result.breaks.map(b => (
+                <li key={b.param}><span>{PARAM_LABEL[b.param] || b.param} <small className="lbl">· {b.why}</small></span><span className="lbl">→ {b.covered_by.join(' · ') || 'nessuna struttura in elenco'}</span></li>
               ))}
             </ul>
+
+            <h3>Sul posto</h3>
+            <dl className="facts">
+              <dt>Mesi senza neve</dt><dd className="fig">{result.dossier.snow_free_months} su 12</dd>
+              <dt>Sole radente (0–7°)</dt><dd className="fig">{num(result.dossier.low_sun_hours)} h al giorno</dd>
+              {result.dossier.wind_10m != null && <><dt>Vento a 10 m</dt><dd className="fig">{num(result.dossier.wind_10m)} m/s</dd></>}
+              <dt>Luci notturne</dt><dd className="fig">{num(result.dossier.night_lights, 2)} <small className="lbl">(città: oltre 5)</small></dd>
+              <dt>Area protetta</dt><dd>{result.dossier.protected_area ? result.dossier.protected_area_name || 'sì' : 'no'}</dd>
+              <dt>Terreno</dt><dd>{result.dossier.terrain_src === '30m' ? 'misurato a 30 m' : 'stimato da 500 m'}</dd>
+            </dl>
           </>)}
 
-          <p className="lbl foot">Dati di prova, in attesa dell'export della pipeline.</p>
+          <p className="lbl foot">Modello FVG Station su dati NASA, ESA e JAXA · export del {new Date(EXPORTED_AT).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
         </section>}
       </div>
 
