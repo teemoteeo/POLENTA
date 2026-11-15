@@ -1,4 +1,4 @@
-.sheet{position:fixed;z-index:3;top:calc(clamp(24px,6vh,64px) + 56px);right:clamp(20px,4vw,64px);bottom:clamp(20px,5vh,56px);
+.sheet{position:fixed;z-index:3;top:calc(clamp(24px,6vh,64px) + 92px);right:clamp(20px,4vw,64px);bottom:clamp(20px,5vh,56px);
   width:min(760px,calc(100vw - 40px));background:color-mix(in srgb,var(--bg) 97%,transparent);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-radius:var(--r-glass);padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
 .sheet h2{font:400 22px/1.2 var(--sans);letter-spacing:-.01em}
 .sheet .close{position:absolute;top:12px;right:14px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-size:18px;line-height:1}

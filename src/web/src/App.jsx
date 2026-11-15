@@ -408,7 +408,6 @@ export default function App() {
 
       <div className="left">
         <header className={'hero' + (step === 'planet' || step === 'site' ? '' : ' small')}>
-          <p className="brand" title="Planetary Outcrop & Landing Environment Nearby Testbed Assistant"><b className="wm">POLENTA</b><span>by FVG Station</span></p>
           <h1>Where on Earth to test hardware<br />for the Moon and Mars.</h1>
           {step === 'planet' && <p className="lbl pick-hint">Pick where you go.</p>}
         </header>
@@ -482,9 +481,12 @@ export default function App() {
         </div>}
       </div>}
       <div className="tools">
+        <p className="brand" title="Planetary Outcrop & Landing Environment Nearby Testbed Assistant"><b className="wm">POLENTA</b><span>by FVG Station</span></p>
+        <div className="tools-row">
         {SHOW_CASES && <button className="glass pill" onClick={() => setSheet(sheet === 'cases' ? null : 'cases')}>Case studies</button>}
         <button className="glass pill" onClick={() => setSheet(sheet === 'benchmark' ? null : 'benchmark')}>Benchmark</button>
         <button className="glass pill" onClick={() => { caseId.current++; restart() }}>Start over</button>
+        </div>
       </div>
       {sheet && <div className={'sheet glass' + (sheet === 'cases' ? ' narrow' : '')}>
         <button className="close" aria-label="Close" onClick={() => setSheet(null)}>×</button>
