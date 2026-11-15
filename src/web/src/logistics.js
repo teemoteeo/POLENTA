@@ -54,16 +54,13 @@ const covers = facs => [...new Set(facs.flatMap(f => f.covers || []))].map(label
 const short = f => facilityName(f.name).replace(/\s*\(.*?\)/g, '').split(/ (?:and|e) /)[0]
 
 export function logisticsLayers({ result, accent, theme }) {
-  const { out } = groups(result), base = baseOf(result)
-  const neutral = [255, 255, 255, 150]
+  const base = baseOf(result)
   const mk = (id, a, b, color, w) => new PathLayer({
     id, data: route(a, b).map(path => ({ path })), getPath: d => d.path, getColor: color,
     widthUnits: 'pixels', getWidth: w, capRounded: true, pickable: false,
   })
-  // ponytail: no dash (PathStyleExtension not installed): facility routes thin and faint, the site route is the main one
-  const layers = out.map(g => mk('logi-fac-' + g.key, base, g, neutral, 1.5))
-  if (result.lat != null) layers.push(mk('logi-site', base, result, [...accent, 235], 3))
-  return layers
+  // solo la rotta sede → posto; le strutture indoor restano come tappe a lettere, senza linee
+  return result.lat != null ? [mk('logi-site', base, result, [...accent, 235], 3)] : []
 }
 
 export function homeMarker(n = 0, title = 'Customer', home = TURIN) {

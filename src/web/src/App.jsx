@@ -479,7 +479,7 @@ export default function App() {
             <li><b className="badge home">{badge(result.plan.home)}</b><span>{result.plan.home.name} · you{stops(result).home.length ? ' · ' + stops(result).home.join(', ') : ''}</span></li>
             {stops(result).out.map(s => <li key={s.letter}><b className="badge">{s.letter}</b><span>{s.names}</span><em>{s.city}</em><u>{s.km.toLocaleString('en')} km</u></li>)}
           </ul>
-          <p><b className="l" />{result.plan.home.name} → field site<b className="l n" />{result.plan.home.name} → partner facility</p>
+          <p><b className="l" />{result.plan.home.name} → field site</p>
         </div>}
       </div>}
       <div className="tools">
