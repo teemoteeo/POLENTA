@@ -3,7 +3,7 @@ import * as maplibregl from 'maplibre-gl'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { H3HexagonLayer } from '@deck.gl/geo-layers'
 import { ScatterplotLayer } from '@deck.gl/layers'
-import DotModel from './DotModel.jsx'
+import DotModel, { preload } from './DotModel.jsx'
 import DotPlanet from './DotPlanet.jsx'
 import './trek.js' // registra il protocollo trek:// prima della mappa
 import { SITES, TESTS, FACILITIES, MODELS, loadDots, getResults } from './data.js'
@@ -31,7 +31,7 @@ const RASTERS = { moon: ['moon'], mars: ['mars'], earth: ['gibs', 'esri'] }
 // size: raggio rispetto a Marte (Luna 1.737 km, Marte 3.390 km)
 const PLANETS = { mars: { name: 'Marte', what: '2 siti di atterraggio', size: 1 }, moon: { name: 'Luna', what: 'Polo Sud · 3 regioni Artemis III', size: 0.51 } }
 // durate (ms) dei passaggi, uguali in andata e ritorno; curve: OUT rallenta alla fine, IN è la stessa rovesciata
-const T = { planet: 2600, site: 4500, siteBack: 2600, warp: 3000, card: 1600, next: 2200 } // siteBack: il ritorno dal sito è più corto dell'andata
+const T = { planet: 2600, site: 4500, siteBack: 2600, warp: 3000, card: 2600, next: 2200 } // siteBack: il ritorno dal sito è più corto dell'andata
 const OUT = t => 1 - (1 - t) ** 3, IN = t => t ** 3
 const SOFT = t => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2) // parte e arriva piano: uguale nei due versi
 
@@ -61,7 +61,6 @@ const STYLE = {
 
 // vista d'arrivo di ogni pianeta, con i siti in vista
 const HOME = { moon: { center: [-4, -6], zoom: 2.45, pitch: 35, bearing: -18 }, mars: { center: [-174, 30], zoom: 2.3, pitch: 15, bearing: 0 } }
-const heat = s => [255, Math.round(200 - 140 * s), Math.round(40 * (1 - s)), Math.round(20 + 100 * s)]
 const pct = s => Math.round(s * 100)
 
 // il pianeta sta a destra del pannello (desktop) o sopra (mobile)
@@ -129,7 +128,7 @@ export default function App() {
     try { apply() } catch { m.once('load', apply) } // isStyleLoaded() è falso anche solo con tile in arrivo
   }, [theme, world]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // layer deck: puntini, heat map H3
+  // layer deck: puntini
   useEffect(() => {
     // puntini che sfumano nella foto, sulla stessa soglia del raster (IMG_FADE); il raggio cambia con un uniform, senza ricalcolo
     const dotsFade = 1 - Math.max(0, Math.min(1, (zoom - FADE[0]) / (FADE[1] - FADE[0])))
@@ -143,9 +142,11 @@ export default function App() {
       getFillColor: weighted ? d => [...bright, 255 * ((c[3] / 255) * d[2]) ** 0.6] : c,
       opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme },
     })]
-    if (world === 'earth' && data) layers.push(new H3HexagonLayer({
-      id: 'h3', data: data.cells, getHexagon: d => d.h3, getFillColor: d => heat(d.score), stroked: false, extruded: false,
-    }))
+    // TEST (solo per noi): i 10 esagoni migliori dell'export; da lontano un puntino, perché un esagono da ~18 km non si vede
+    if (world === 'earth' && data?.top) layers.push(
+      new ScatterplotLayer({ id: 'top-far', data: data.top, getPosition: d => d.pos, radiusUnits: 'pixels', getRadius: 3, getFillColor: [...pal.accent, 255], opacity: dotsFade, visible: dotsFade > 0 }),
+      new H3HexagonLayer({ id: 'top', data: data.top, getHexagon: d => d.h3, getFillColor: [...pal.accent, 150], getLineColor: [255, 255, 255, 230], stroked: true, lineWidthMinPixels: 1, extruded: false, highPrecision: true }),
+    )
     overlay.current?.setProps({ layers })
   }, [world, dots, data, zoom, theme]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -169,12 +170,34 @@ export default function App() {
   const pickZoom = useRef({ moon: 0.65, mars: 1.6 }) // zoom a cui la mappa ricalca il pianeta della prima pagina (aggiornato al click)
   const busy = useRef(false)
   const wait = ms => new Promise(r => setTimeout(r, ms))
-  const fly = async opts => { spinning.current = false; map.current.flyTo({ essential: true, padding: basePad(), ...opts }); await wait(opts.duration) }
-  // un'animazione alla volta: i click durante un movimento si ignorano
+  // coda saltabile del volo in corso: le curve OUT e SOFT rallentano alla fine, nell'ultimo secondo la camera è quasi ferma
+  const tail = useRef(null)
+  const fly = async opts => {
+    spinning.current = false
+    map.current.flyTo({ essential: true, padding: basePad(), ...opts })
+    if (opts.easing === IN) return wait(opts.duration) // IN accelera alla fine: tagliarla darebbe uno stacco
+    await new Promise(r => {
+      const id = setTimeout(r, opts.duration)
+      tail.current = { end: performance.now() + opts.duration, skip: () => { clearTimeout(id); r() } }
+    })
+    tail.current = null
+  }
+  // un'animazione alla volta: i click durante un movimento si ignorano, tranne l'ultimo fatto nell'ultimo secondo.
+  // Quello parte subito se il volo sta solo rallentando (ne taglia la coda), altrimenti appena il movimento finisce
+  const queued = useRef(null)
   const act = fn => async (...a) => {
-    if (busy.current) return
+    if (busy.current) {
+      queued.current = { run: () => fn(...a), at: performance.now() }
+      if (tail.current && tail.current.end - performance.now() <= 1000) tail.current.skip()
+      return
+    }
     busy.current = true
-    try { await fn(...a) } finally { busy.current = false }
+    try { await fn(...a) } finally {
+      busy.current = false
+      const q = queued.current
+      queued.current = null
+      if (q && performance.now() - q.at <= 1000) act(q.run)()
+    }
   }
   // Posa della mappa che ricalca il pianeta a puntini della prima pagina al tempo t: stesso centro e raggio sullo schermo,
   // stessa faccia verso la camera. Così il pianeta cliccato "diventa" la mappa senza stacco, e al ritorno viceversa.
@@ -189,10 +212,11 @@ export default function App() {
     }
   }
   const over = center => ({ center, zoom: 6.5, pitch: 50, bearing: -20 }) // sopra un sito o un posto
+  const globe = center => ({ center, zoom: 1.8, pitch: 0, bearing: 0 }) // la Terra intera con tutte le zone calde
 
   // Cambio di pianeta, uguale nei due versi e specchiato: la camera si allontana e scorre di lato insieme (padding della mappa,
   // così il pianeta è sempre disegnato intero), il pianeta esce di campo, l'altro entra dal lato opposto mentre lo zoom avanti parte.
-  async function warp(to, center, arrive) {
+  async function warp(to, center, pose) {
     const m = map.current, dir = to === 'earth' ? 1 : -1, base = basePad(), W = innerWidth
     // il padding porta il centro del pianeta fino al bordo dello schermo (oltre, la mappa lo limita);
     // l'ultimo tratto lo fa lo scorrimento della mappa intera, quando il pianeta è già piccolo e lontano dal bordo opposto
@@ -209,7 +233,7 @@ export default function App() {
     m.jumpTo({ center, zoom: 1, pitch: 0, bearing: 0, padding: side(-dir) })
     sky(1800, 'cubic-bezier(.15,.65,.55,1)')
     slide(dir, 0, 1800, 'cubic-bezier(0,.5,.3,1)')
-    await fly({ ...over(arrive), duration: T.site, easing: OUT })
+    await fly({ ...pose, duration: T.site, easing: OUT })
   }
 
   // Pianeti ↔ Sito
@@ -222,6 +246,8 @@ export default function App() {
     // parte subito e piano: la dissolvenza incrociata (0,4 s) avviene mentre il pianeta è ancora quasi fermo
     await fly({ ...HOME[w], duration: T.planet, easing: SOFT })
     spinning.current = true
+    // modelli 3D del passo Test pronti in anticipo, uno alla volta (il rover per primo: è quello mostrato all'arrivo)
+    Object.values(MODELS).reduce((p, m) => p.then(() => preload(m.src)).catch(() => {}), Promise.resolve())
   })
   const toPlanets = act(async () => { // anche "Ricomincia", da qualsiasi passo: un solo zoom indietro, la mappa sfuma alla fine
     if (step === 'planet') return
@@ -233,7 +259,7 @@ export default function App() {
   // Sito ↔ Test
   const chooseSite = act(async s => {
     setSite(s); setTestId(null); setStep('test')
-    if (world === 'earth') await warp(s.world, [s.pos[0] + 35, s.pos[1]], s.pos)
+    if (world === 'earth') await warp(s.world, [s.pos[0] + 35, s.pos[1]], over(s.pos))
     else await fly({ ...over(s.pos), duration: T.site, easing: OUT })
   })
   const leaveSite = act(async () => {
@@ -245,7 +271,7 @@ export default function App() {
   const chooseTest = act(async id => {
     setTestId(id); setPicked(0); setStep('results')
     const first = getResults(site.name, id).results[0]
-    await warp('earth', [first.lon + 35, first.lat], [first.lon, first.lat])
+    await warp('earth', [first.lon + 35, first.lat], globe([first.lon, first.lat]))
   })
   // Dove ↔ Scheda
   const choosePlace = act(async i => {
@@ -253,9 +279,9 @@ export default function App() {
     const r = data.results[i]
     await fly({ ...over([r.lon, r.lat]), zoom: 7, duration: step === 'card' ? T.next : T.card, easing: OUT })
   })
-  const leaveCard = act(async () => { // resta sul posto che si stava guardando e si allontana un po'
+  const leaveCard = act(async () => { // torna alla Terra intera, centrata sul posto che si stava guardando
     setStep('results')
-    await fly({ zoom: 6.5, duration: T.card, easing: IN })
+    await fly({ ...globe([result.lon, result.lat]), duration: T.card, easing: IN })
   })
   const back = () => ({ card: leaveCard, results: () => chooseSite(site), test: leaveSite, site: toPlanets })[step]?.()
 
@@ -271,7 +297,7 @@ export default function App() {
       <div className="left">
         <header className={'hero' + (step === 'planet' || step === 'site' ? '' : ' small')}>
           <p className="brand">FVG Station</p>
-          <h1>Dove testare sulla Terra l'hardware<br />per la Luna e per Marte.</h1>
+          <h1>Dove testare sulla Terra<br />l'Hardware per la Luna e per Marte.</h1>
           {step === 'planet' && <p className="lbl pick-hint">Scegli dove vai.</p>}
         </header>
 

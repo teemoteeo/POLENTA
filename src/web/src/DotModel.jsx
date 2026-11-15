@@ -65,6 +65,9 @@ function cloud(src, n = 26000) {
   }))
 }
 
+// Scarica e calcola la nuvola prima che serva: il calcolo blocca il thread per ~0,2 s, meglio a camera ferma
+export const preload = src => cloud(src)
+
 export default function DotModel({ src, color }) {
   const ref = useRef(null)
   useEffect(() => {

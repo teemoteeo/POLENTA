@@ -1,7 +1,7 @@
 import { load as loadYaml } from 'js-yaml'
 // ponytail: copia fissa di tests.yaml v1 (commit 809a1b1): la v2 di Edo (3 test) rompe il pannello. Tornare a data/config quando il web la regge.
 import testsRaw from './tests.yaml?raw'
-import { gridDisk, latLngToCell } from 'h3-js'
+import { cellToLatLng } from 'h3-js'
 import { toView } from './trek.js'
 
 // landing_touchdown (aggiunto da Edo in tests.yaml) è nascosto dal pannello finché non ha dati e modello
@@ -44,7 +44,7 @@ export const FACILITIES = {
 }
 
 // ponytail: dati finti finché non arriva data/export/sites/<site>__<test>.json di Edo.
-// Stessa forma prevista: risultati con score per parametro + celle H3 per la heat map.
+// Stessa forma prevista: risultati con score per parametro.
 const MOCK_PLACES = {
   rover_mobility: [['Etna, Piano delle Concazze', 37.77, 15.03], ['Etna, Cisternazza', 37.72, 14.99], ['Teide, Tenerife', 28.27, -16.64], ['Black Point Lava Flow, Arizona', 35.69, -111.45], ['Lanzarote', 29.0, -13.75]],
   flight_hda_lidar: [['Cinder Lake, Arizona', 35.3, -111.48], ['Meteor Crater, Arizona', 35.03, -111.02], ['Etna, Cisternazza', 37.72, 14.99], ['Kilbourne Hole, New Mexico', 31.98, -106.97]],
@@ -53,17 +53,27 @@ const MOCK_PLACES = {
   eva_traverse: [['San Francisco Volcanic Field, Arizona', 35.58, -111.63], ['Lanzarote', 29.0, -13.75]],
 }
 
+// Export della pipeline (docs/backend_spec.md §2): un file per sito × test, con i risultati (gli esagoni `cells` non si disegnano).
+// ponytail: tutti i file nel bundle (1,4 MB col mock). L'export vero arriva a 20.000 celle per file: allora import pigro (togliere eager).
+const EXPORT = import.meta.glob('../../../data/export/sites/*.json', { eager: true, import: 'default' })
+const slug = s => s.toLowerCase().replace(/\s+/g, '_')
+
 function rnd(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647 }
 
 export function getResults(site, testId) {
+  const file = EXPORT[`../../../data/export/sites/${slug(site)}__${testId}.json`]
+  if (file) {
+    // TEST (solo per noi): i 10 esagoni con il voto più alto, per vedere sulla mappa cosa restituisce il modello. pos = centro, per il puntino da lontano
+    const top = [...file.cells].sort((a, b) => b.score - a.score).slice(0, 10).map(c => { const [lat, lon] = cellToLatLng(c.h3); return { ...c, lat, lon, pos: [lon, lat] } })
+    console.table(top.map(({ h3, score, lat, lon }) => ({ h3, score, lat: +lat.toFixed(3), lon: +lon.toFixed(3) })))
+    return { results: file.results, top }
+  }
+  // nessun file per questa coppia (Marte): dati finti
   const test = TESTS[testId]
   const r = rnd([...site + testId].reduce((a, c) => a + c.charCodeAt(0), 1))
   const results = (MOCK_PLACES[testId] || []).map(([name, lat, lon], i) => {
     const params = Object.fromEntries(Object.keys(test.requisiti).map(p => [p, Math.max(0.05, Math.min(1, 0.95 - i * 0.08 - r() * 0.5))]))
     return { name, lat, lon, score: 0.92 - i * 0.07 - r() * 0.04, params }
   })
-  const cells = results.flatMap(({ lat, lon, score }) =>
-    // H3 res 6: esagoni larghi ~6 km, la misura più vicina ai pixel da 0,05° (~5,5 km) della pipeline. La mappa disegna qualsiasi risoluzione arrivi.
-    gridDisk(latLngToCell(lat, lon, 6), 8).map(h3 => ({ h3, score: score * (0.35 + r() * 0.65) })))
-  return { results, cells }
+  return { results }
 }
