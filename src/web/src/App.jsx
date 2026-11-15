@@ -6,7 +6,7 @@ import { ScatterplotLayer } from '@deck.gl/layers'
 import DotModel, { preload } from './DotModel.jsx'
 import DotPlanet from './DotPlanet.jsx'
 import './trek.js' // registra il protocollo trek:// prima della mappa
-import { SITES, TESTS, MODELS, EXPORTED_AT, loadDots, getResults, loadCells } from './data.js'
+import { SITES, TESTS, MODELS, EXPORTED_AT, AGENCIES, loadDots, getResults, loadCells } from './data.js'
 import { coord } from './format.js'
 import { TEST_EN } from './i18n.js'
 import PlaceCard from './PlaceCard.jsx'
@@ -83,7 +83,9 @@ export default function App() {
   const [heat, setHeat] = useState(null) // { key, cells }: esagoni più simili del test scelto
   const addDots = w => d => setDots(o => ({ ...o, [w]: d }))
 
-  const data = useMemo(() => (site && testId ? getResults(site.id, testId) : null), [site, testId])
+  const [hideKnown, setHideKnown] = useState(true) // nasconde i siti di test già noti (Etna, Lanzarote…): si vedono i posti nuovi
+  const [showAgencies, setShowAgencies] = useState(true) // sedi delle 10 principali agenzie spaziali sulla Terra
+  const data = useMemo(() => (site && testId ? getResults(site.id, testId, hideKnown) : null), [site, testId, hideKnown])
   const test = testId && TESTS[testId]
   const result = data?.results[picked]
   const model = step === 'test' ? MODELS[hoverTest] || MODELS.rover_mobility : null
@@ -174,8 +176,14 @@ export default function App() {
       mk.getElement().title = m.title
       return mk
     }) : []
-    markers.current = [...base, ...extra]
-  }, [world, step, site, data, picked, result]) // eslint-disable-line react-hooks/exhaustive-deps
+    // sedi delle agenzie spaziali (data/config/space_agencies_top10.json), solo sulla Terra
+    const agencies = world === 'earth' && showAgencies && (step === 'results' || step === 'card') ? AGENCIES.map(a => {
+      const mk = pin('agency', `<i></i><span>${a.agency}</span>`, [a.lon, a.lat], () => {})
+      mk.getElement().title = `${a.agency} · ${a.name} (${a.country})`
+      return mk
+    }) : []
+    markers.current = [...base, ...extra, ...agencies]
+  }, [world, step, site, data, picked, result, showAgencies]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Animazioni. Ogni passo ha una posa di camera; ogni passaggio tra due passi vicini ha una durata sola.
   // Avanti la curva rallenta alla fine (OUT), indietro è la stessa rovesciata (IN): il ritorno è l'andata al contrario.
@@ -290,7 +298,7 @@ export default function App() {
   // Test ↔ Dove (il ritorno è chooseSite dalla Terra)
   const chooseTest = act(async id => {
     setTestId(id); setPicked(0); setStep('results')
-    const first = getResults(site.id, id).results[0]
+    const first = getResults(site.id, id, hideKnown).results[0]
     await warp('earth', [first.lon + 35, first.lat], globe([first.lon, first.lat]))
   })
   // Dove ↔ Scheda
@@ -411,7 +419,8 @@ export default function App() {
             </ul>
           </>)}
 
-          {step === 'results' && data && <ResultsList data={data} onPick={choosePlace} />}
+          {step === 'results' && data && <ResultsList data={data} onPick={choosePlace} hideKnown={hideKnown}
+            onHideKnown={v => { setHideKnown(v); setPicked(0) }} showAgencies={showAgencies} onShowAgencies={setShowAgencies} />}
 
           {step === 'card' && result && <PlaceCard data={data} picked={picked} site={site} test={{ name: TEST_EN[testId].name }} testId={testId} onJump={jump} />}
 

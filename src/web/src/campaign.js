@@ -10,9 +10,11 @@ export function haversineKm(a, b) {
 }
 
 export function plan(result, weights) {
-  const rows = Object.entries(result.params)
-    .map(([p, s]) => ({ p, s, w: weights[p] || 0, state: s >= HOLDS ? 'holds' : s >= BREAKS ? 'partial' : 'breaks' }))
-    .filter(r => r.w > 0).sort((a, b) => b.w - a.w)
+  // tutti i parametri con peso > 0 nel test: quelli senza dato restano visibili come 'nodata' (è il motivo di κ < 1)
+  const rows = Object.entries(weights).filter(([, w]) => w > 0).map(([p, w]) => {
+    const s = result.params[p]
+    return { p, s: s ?? null, w, state: s == null ? 'nodata' : s >= HOLDS ? 'holds' : s >= BREAKS ? 'partial' : 'breaks' }
+  }).sort((a, b) => b.w - a.w)
   const tot = rows.reduce((t, r) => t + r.w, 0) || 1
   const share = st => rows.filter(r => r.state === st).reduce((t, r) => t + r.w, 0) / tot
   const facilities = result.campaign.facilities
@@ -22,7 +24,7 @@ export function plan(result, weights) {
   const d = result.dossier
   const low = rows.find(r => r.p === 'low_sun_frac')
   return {
-    rows, fieldShare: share('holds'), partialShare: share('partial'), brokenShare: share('breaks'),
+    rows, fieldShare: share('holds'), partialShare: share('partial'), brokenShare: share('breaks'), nodataShare: share('nodata'),
     facilities, nFacilities: facilities.length, nStops: byPlace.size,
     kmSite, kmIndoor, kmTotal: kmSite + kmIndoor,
     inTurin: facilities.filter(f => f.km_client <= 50),

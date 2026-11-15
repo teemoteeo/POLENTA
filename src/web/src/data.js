@@ -6,8 +6,11 @@ import labels from '../../../data/export/labels.json'
 import facilities from '../../../data/export/facilities.json'
 import benchmark from '../../../data/export/benchmark.json'
 import targets from '../../../data/export/targets.json'
+import { gridDisk, latLngToCell } from 'h3-js'
+import knownAnalogues from '../../../data/config/excluded_known_analogues.json'
+import agencies from '../../../data/config/space_agencies_top10.json'
 import { toView } from './trek.js'
-import { plan, rankByCampaign } from './campaign.js'
+import { plan } from './campaign.js'
 
 export const TESTS = loadYaml(testsRaw).tests
 export const EXPORTED_AT = manifest.generated_at
@@ -16,6 +19,8 @@ export const FACILITIES = facilities
 export const BENCHMARK = benchmark
 export const MANIFEST = manifest
 export const TARGETS = targets
+export const KNOWN_ANALOGUES = knownAnalogues // siti di test già usati (Rocco, data/config)
+export const AGENCIES = agencies // sedi delle 10 principali agenzie spaziali (Rocco, data/config)
 
 // Siti scelti dal team: human_docs/coordinate_6_siti_frontend.csv (stessi id di data/export/targets.json).
 // Coordinate planetocentriche, longitudine est positiva in -180/+180 (Phoenix: 234,2508°E = -125,7492).
@@ -33,7 +38,7 @@ export const SITES = [
 export const MODELS = {
   rover_mobility: { src: '/models/rover.glb', name: 'Rover Perseverance' },
   flight_hda_lidar: { src: '/models/lander.glb', name: 'Lander lunare Apollo' },
-  isru_subsurface: { src: '/models/suit.glb', name: 'Tuta EVA' },
+  isru_subsurface: { src: '/models/rover.glb', name: 'Rover Perseverance (scavo e prelievo)' },
 }
 
 // Pianeti a puntini [lon, lat, peso], precalcolati una volta su 50–59.000 punti di Fibonacci (il generatore è nella storia git, commit 67e90bc).
@@ -45,16 +50,30 @@ export const loadDots = world => fetch(`/${world}-dots.json`).then(r => r.json()
 // Export della pipeline (docs/backend_spec.md §2): un file per sito × test. Nel bundle entra solo `results`
 // (gli esagoni `cells` della mappa di calore, 10.000 per file, restano fuori).
 const EXPORT = import.meta.glob('../../../data/export/sites/*.json', { eager: true, import: 'results' })
-const TOP = 5 // i posti mostrati per ogni sito × test: i primi della classifica della pipeline (già ordinata per voto)
+const TOP = 5 // i posti mostrati per ogni sito × test (l'export ne ha 20: le riserve servono quando si escludono i siti noti)
 
-// null se la pipeline non ha ancora girato per questa coppia (oggi: Aristarchus Plateau)
-export function getResults(siteId, testId) {
-  const top = EXPORT[`../../../data/export/sites/${siteId}__${testId}.json`]?.slice(0, TOP)
-  // i primi 5 per somiglianza, poi riordinati per campagna più semplice (campaign.js)
+// Siti di test già usati (data/config/excluded_known_analogues.json): si esclude l'esagono H3 del sito e i 6 adiacenti.
+// Il raggio di esclusione del file non si usa (decisione del team, dom mattina).
+const EXCLUDED = new Set(knownAnalogues.flatMap(k => gridDisk(latLngToCell(k.lat, k.lon, 5), 1)))
+const nearKnown = r => r.h3_cells.some(h => EXCLUDED.has(h))
+
+// null se la pipeline non ha ancora girato per questa coppia. Ordine: somiglianza col sito (quello della pipeline);
+// la campagna (plan) si calcola per ogni posto e si mostra, ma non decide la classifica.
+export function getResults(siteId, testId, hideKnown = false) {
+  const all = EXPORT[`../../../data/export/sites/${siteId}__${testId}.json`]
+  if (!all) return null
   const w = TESTS[testId].requisiti
-  const results = top && rankByCampaign(top.map(r => ({ ...r, plan: plan(r, w) })), w)
+  const kept = hideKnown ? all.filter(r => !nearKnown(r)) : all
+  const results = kept.slice(0, TOP).map(r => ({ ...r, plan: plan(r, w), nearKnown: nearKnown(r) }))
+  // la campagna più semplice tra i 5: meno ostacoli, poi più test coperto sul campo, poi meno strutture
+  const easiest = results.reduce((b, r, i) => {
+    const A = r.plan, B = results[b].plan
+    return A.blockers < B.blockers || (A.blockers === B.blockers && (A.fieldShare > B.fieldShare + 0.005
+      || (Math.abs(A.fieldShare - B.fieldShare) <= 0.005 && A.nFacilities < B.nFacilities))) ? i : b
+  }, 0)
+  const hidden = hideKnown ? all.slice(0, TOP + (all.length - kept.length)).filter(nearKnown).length : 0
   // zones: gli esagoni H3 di ogni posto (zona = esagoni che si toccano); rank = posto in classifica
-  return results ? { results, zones: results.flatMap((r, i) => r.h3_cells.map(h3 => ({ h3, rank: i + 1 }))) } : null
+  return { results, easiest, hidden, zones: results.flatMap((r, i) => r.h3_cells.map(h3 => ({ h3, rank: i + 1 }))) }
 }
 
 // Mappa di calore: i 10.000 esagoni H3 più simili sulla Terra per sito × test. Un chunk per file, scaricato solo alla scelta del test.

@@ -8,7 +8,7 @@ const w = load(fs.readFileSync('../../data/config/tests.yaml', 'utf8')).tests.ro
 const ps = results.map(r => plan(r, w))
 for (const p of ps) {
   assert(p.fieldShare >= 0 && p.fieldShare <= 1)
-  assert(Math.abs(p.fieldShare + p.partialShare + p.brokenShare - 1) < 1e-9)
+  assert(Math.abs(p.fieldShare + p.partialShare + p.brokenShare + p.nodataShare - 1) < 1e-9)
   assert(p.sunHint === null || typeof p.sunHint === 'number')
   assert(Array.isArray(p.warnings) && p.warnings.every(x => typeof x === 'string'))
 }

@@ -21,6 +21,7 @@ from . import config, features, fine, sites
 TESTS = ("flight_hda_lidar", "rover_mobility", "isru_subsurface")
 N_CANDIDATES = 25
 SCREEN_KAPPA = 0.6
+N_RESULTS = 20   # l'app ne mostra 5; le riserve servono quando si escludono i siti di test noti
 DOSSIER_CACHE = config.INTERIM / "site_dossier.json"
 
 
@@ -235,14 +236,14 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         refine(first)
         feats = pd.read_parquet(config.FEATURES)
     print("3) voto finale")
-    data = run_all(feats, targets, rules, 10)
+    data = run_all(feats, targets, rules, N_RESULTS)
     est = {r["h3_cells"][0] for d in data.values() for r in d["results"]}
     est = [c for c in est if feats.set_index("h3").at[c, "terrain_src"] != "30m"] if do_refine else []
     if est:                                   # secondo giro: i risultati finali rimasti con la stima
         print(f"   secondo giro di 30 m esatti: {len(est)} esagoni")
         refine({("_", "_"): {"results": [{"h3_cells": [c]} for c in est]}})
         feats = pd.read_parquet(config.FEATURES)
-        data = run_all(feats, targets, rules, 10)
+        data = run_all(feats, targets, rules, N_RESULTS)
     if do_dossier:
         print("4) dossier")
         dossier(data, feats)

@@ -7,7 +7,7 @@ import { pct, H3_KM2 } from './format.js'
 import { HOLDS, BREAKS } from './campaign.js'
 
 const TEST_IDS = Object.keys(TEST_EN).filter(t => TESTS[t])
-const top = (s, t) => getResults(s, t)?.results?.[0] ?? null
+const top = (s, t) => getResults(s, t, true)?.results?.[0] ?? null // posti nuovi (siti di test noti esclusi)
 
 function Bar({ plan }) {
   const seg = [['holds', plan.fieldShare], ['partial', plan.partialShare], ['breaks', plan.brokenShare]]
@@ -42,7 +42,7 @@ export function Benchmark({ onOpen }) {
   const tn = t => SHORT[t] || TEST_EN[t].name
   return <>
     <h2>Benchmark: {SITES.length} sites × {TEST_IDS.length} tests</h2>
-    <p className="sh-intro">For every pair, the simplest campaign found on Earth. Click a cell to open that campaign.</p>
+    <p className="sh-intro">For every pair, the most similar new place on Earth (known test sites excluded) and its campaign. Click a cell to open it.</p>
     <table className="bm">
       <thead><tr><th />{TEST_IDS.map(t => <th key={t} title={TEST_EN[t].name}>{tn(t)}</th>)}</tr></thead>
       <tbody>{['moon', 'mars'].map(w => <Fragment key={w}>
