@@ -168,7 +168,7 @@ In ogni risultato c'è `campaign`:
 ### Mentre Timo lavora (Edo, ~1 ora)
 | # | Cosa | Tempo |
 |---|---|---|
-| E1 | **`known_sites.json` vero** (oggi è quello del mock): coordinate da `test-aziende.md` (Etna Concazze e Cisternazza, Teide, Black Point, SFVF, Meteor Crater, Cinder Lake, Death Valley, Mojave/LSPG, Kilbourne Hole, Rye, Kumtag, Tottori, Mauna Kea) con i test per cui sono usati. Decide i flag "nuovo" e "sito noto". Poi ripubblicare | 20 min |
+| E1 ✅ (02:50) | **`known_sites.json` vero**: 19 siti in `data/config/known_sites.csv`, pubblicato in `data/export/known_sites.json`: coordinate da `test-aziende.md` (Etna Concazze e Cisternazza, Teide, Black Point, SFVF, Meteor Crater, Cinder Lake, Death Valley, Mojave/LSPG, Kilbourne Hole, Rye, Kumtag, Tottori, Mauna Kea) con i test per cui sono usati. Decide i flag "nuovo" e "sito noto". Poi ripubblicare | 20 min |
 | E2 | **Escludere i campi coltivati** con la copertura del suolo MODIS (MCD12Q1) su Earth Engine: via gli esagoni dove i campi dominano e il suolo nudo è poco (Sterling, Linghai) | 20 min |
 | E3 | **Numeri per il pitch** dalla validazione, in una tabella pronta per la slide (es. "i siti di test reali escono nel 5-15% migliore della Terra") | 15 min |
 | E4 | Riprovare il gruppo saltato (5 risultati di Gale × rover con il terreno stimato) | 5 min |

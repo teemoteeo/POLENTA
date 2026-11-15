@@ -16,7 +16,8 @@ import numpy as np
 import pandas as pd
 
 from . import config, score as sc
-from .mock_export import FACILITIES, KNOWN_SITES   # finché Rocco non scrive facilities.csv e known_sites.csv
+from .mock_export import FACILITIES   # sostituite in export.py da data/config/facilities.csv
+KNOWN_SITES = config.known_sites()
 
 
 def km(a_lat, a_lon, b_lat, b_lon) -> float:

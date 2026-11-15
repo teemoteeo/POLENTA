@@ -3,19 +3,26 @@
   "id": "etna_piano_concazze",
   "name": "Etna, Piano delle Concazze",
   "lat": 37.77,
-  "lon": 15.03,
+  "lon": 15.02,
   "tests": [
-   "rover_mobility"
-  ]
+   "rover_mobility",
+   "isru_subsurface",
+   "flight_hda_lidar"
+  ],
+  "campaign": "TAS-I + ASI (ULS 2026); DLR + ESA (ARCHES 2022) [coordinate NV]",
+  "source": "docs/test-aziende.md"
  },
  {
   "id": "etna_cisternazza",
   "name": "Etna, Cisternazza",
   "lat": 37.72,
-  "lon": 14.99,
+  "lon": 15.0,
   "tests": [
-   "rover_mobility"
-  ]
+   "rover_mobility",
+   "flight_hda_lidar"
+  ],
+  "campaign": "TAS-I + ASI (ULS 2026) [coordinate NV]",
+  "source": "docs/test-aziende.md"
  },
  {
   "id": "teide",
@@ -24,63 +31,185 @@
   "lon": -16.64,
   "tests": [
    "rover_mobility"
-  ]
+  ],
+  "campaign": "ESA + GMV (LUCID 2017)",
+  "source": "docs/test-aziende.md"
  },
  {
-  "id": "black_point_lava_flow",
-  "name": "Black Point Lava Flow",
-  "lat": 35.69,
+  "id": "black_point",
+  "name": "Black Point Lava Flow, Arizona",
+  "lat": 35.68,
   "lon": -111.45,
   "tests": [
-   "rover_mobility",
-   "eva_traverse"
-  ]
+   "rover_mobility"
+  ],
+  "campaign": "NASA Desert RATS, JETT3",
+  "source": "docs/test-aziende.md"
  },
  {
-  "id": "sf_volcanic_field",
-  "name": "San Francisco Volcanic Field",
-  "lat": 35.58,
-  "lon": -111.63,
+  "id": "sp_crater",
+  "name": "SP Crater / San Francisco Volcanic Field, Arizona",
+  "lat": 35.585,
+  "lon": -111.632,
   "tests": [
-   "eva_traverse"
-  ]
+   "rover_mobility"
+  ],
+  "campaign": "NASA JETT3, JETT5",
+  "source": "docs/test-aziende.md"
  },
  {
   "id": "meteor_crater",
-  "name": "Meteor Crater",
-  "lat": 35.03,
-  "lon": -111.02,
+  "name": "Meteor Crater, Arizona",
+  "lat": 35.0275,
+  "lon": -111.0225,
   "tests": [
-   "rover_mobility",
-   "flight_hda_lidar"
-  ]
+   "rover_mobility"
+  ],
+  "campaign": "Intuitive Machines (LTV 2024)",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "rye_colorado",
+  "name": "Rye, Colorado",
+  "lat": 37.92,
+  "lon": -104.93,
+  "tests": [
+   "rover_mobility"
+  ],
+  "campaign": "Lunar Outpost (LTV 2025)",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "kumtag",
+  "name": "Deserto di Kumtag, Cina",
+  "lat": 40.3,
+  "lon": 91.5,
+  "tests": [
+   "rover_mobility"
+  ],
+  "campaign": "CAST (Yutu, 2011-13) [coordinate NV]",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "tottori",
+  "name": "Dune di Tottori, Giappone",
+  "lat": 35.54,
+  "lon": 134.23,
+  "tests": [
+   "rover_mobility"
+  ],
+  "campaign": "ispace, amulapo",
+  "source": "docs/test-aziende.md"
  },
  {
   "id": "cinder_lake",
-  "name": "Cinder Lake",
-  "lat": 35.3,
-  "lon": -111.48,
+  "name": "Cinder Lake Crater Field, Arizona",
+  "lat": 35.26,
+  "lon": -111.47,
+  "tests": [
+   "rover_mobility",
+   "flight_hda_lidar"
+  ],
+  "campaign": "USGS + NASA (Apollo, 1967-72) [coordinate NV]",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "ksc_alhat",
+  "name": "Campo ALHAT, Kennedy Space Center",
+  "lat": 28.615,
+  "lon": -80.695,
   "tests": [
    "flight_hda_lidar"
-  ]
+  ],
+  "campaign": "NASA Morpheus + ALHAT (2012-14)",
+  "source": "docs/test-aziende.md"
  },
  {
-  "id": "death_valley",
-  "name": "Death Valley",
-  "lat": 36.5,
-  "lon": -117.1,
+  "id": "rogers_lakebed",
+  "name": "Rogers Dry Lake, Edwards AFB",
+  "lat": 34.92,
+  "lon": -117.83,
   "tests": [
-   "flight_hda_lidar",
-   "flight_trn_camera"
-  ]
+   "flight_hda_lidar"
+  ],
+  "campaign": "ALHAT su elicottero (2008-12)",
+  "source": "docs/test-aziende.md"
  },
  {
-  "id": "mojave",
-  "name": "Mojave",
+  "id": "mojave_lspg",
+  "name": "Mojave (LSPG, Xodiac)",
   "lat": 35.06,
   "lon": -118.15,
   "tests": [
-   "flight_trn_camera"
-  ]
+   "flight_hda_lidar"
+  ],
+  "campaign": "Astrobotic + NASA (LSPG 2024-25), COBALT",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "death_valley",
+  "name": "Death Valley, California",
+  "lat": 36.46,
+  "lon": -116.87,
+  "tests": [
+   "flight_hda_lidar"
+  ],
+  "campaign": "Lander Vision System (2019), LSPG",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "huailai",
+  "name": "Huailai, Hebei",
+  "lat": 40.4,
+  "lon": 115.5,
+  "tests": [
+   "flight_hda_lidar"
+  ],
+  "campaign": "CASC (lander Lanyue 2025) [coordinate NV]",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "challakere",
+  "name": "Challakere, Karnataka",
+  "lat": 14.31,
+  "lon": 76.65,
+  "tests": [
+   "flight_hda_lidar"
+  ],
+  "campaign": "ISRO (Chandrayaan-2/3) [coordinate NV]",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "mauna_kea",
+  "name": "Mauna Kea, Hawaii",
+  "lat": 19.82,
+  "lon": -155.47,
+  "tests": [
+   "isru_subsurface"
+  ],
+  "campaign": "NASA + CSA (PISCES 2008, 2012)",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "hi_seas",
+  "name": "HI-SEAS, Mauna Loa",
+  "lat": 19.6,
+  "lon": -155.48,
+  "tests": [
+   "isru_subsurface"
+  ],
+  "campaign": "IMA + EuroMoonMars (ISRU sul basalto)",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "lofoten",
+  "name": "Lofoten, Norvegia",
+  "lat": 68.1,
+  "lon": 13.3,
+  "tests": [
+   "isru_subsurface"
+  ],
+  "campaign": "ESA PANGAEA (anortosite)",
+  "source": "docs/test-aziende.md"
  }
 ]

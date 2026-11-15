@@ -17,7 +17,6 @@ from datetime import datetime, timezone
 import pandas as pd
 
 from . import config, features, fine, sites
-from .mock_export import KNOWN_SITES
 
 TESTS = ("flight_hda_lidar", "rover_mobility", "isru_subsurface")
 N_CANDIDATES = 25
@@ -255,9 +254,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
             r["campaign"] = campaign(r, tmap[site], test, fac, sim, rocks)
     out = config.EXPORT if publish else config.RAW / "export_preview"
     (out / "sites").mkdir(parents=True, exist_ok=True)
-    if not publish:                                   # siti noti: uguali al mock per ora
-        shutil.copy(config.EXPORT / "known_sites.json", out / "known_sites.json")
-    for name, rows in (("facilities.json", fac), ("simulants.json", sim), ("rock_sources.json", rocks), ("labels.json", labels())):
+    for name, rows in (("facilities.json", fac), ("simulants.json", sim), ("rock_sources.json", rocks), ("labels.json", labels()), ("known_sites.json", config.known_sites())):
         (out / name).write_text(json.dumps(rows, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     # benchmark (la slide del pitch): per ogni sito × test il primo risultato, il primo nuovo e le strutture indoor
     bench = {}

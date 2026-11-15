@@ -1,0 +1,20 @@
+id,name,lat,lon,tests,campaign,source
+etna_piano_concazze,"Etna, Piano delle Concazze",37.77,15.02,rover_mobility;isru_subsurface;flight_hda_lidar,"TAS-I + ASI (ULS 2026); DLR + ESA (ARCHES 2022) [coordinate NV]",docs/test-aziende.md
+etna_cisternazza,"Etna, Cisternazza",37.72,15.00,rover_mobility;flight_hda_lidar,"TAS-I + ASI (ULS 2026) [coordinate NV]",docs/test-aziende.md
+teide,"Teide, Tenerife",28.27,-16.64,rover_mobility,ESA + GMV (LUCID 2017),docs/test-aziende.md
+black_point,"Black Point Lava Flow, Arizona",35.68,-111.45,rover_mobility,"NASA Desert RATS, JETT3",docs/test-aziende.md
+sp_crater,"SP Crater / San Francisco Volcanic Field, Arizona",35.585,-111.632,rover_mobility,"NASA JETT3, JETT5",docs/test-aziende.md
+meteor_crater,"Meteor Crater, Arizona",35.0275,-111.0225,rover_mobility,Intuitive Machines (LTV 2024),docs/test-aziende.md
+rye_colorado,"Rye, Colorado",37.92,-104.93,rover_mobility,Lunar Outpost (LTV 2025),docs/test-aziende.md
+kumtag,"Deserto di Kumtag, Cina",40.3,91.5,rover_mobility,"CAST (Yutu, 2011-13) [coordinate NV]",docs/test-aziende.md
+tottori,"Dune di Tottori, Giappone",35.54,134.23,rover_mobility,"ispace, amulapo",docs/test-aziende.md
+cinder_lake,"Cinder Lake Crater Field, Arizona",35.26,-111.47,rover_mobility;flight_hda_lidar,"USGS + NASA (Apollo, 1967-72) [coordinate NV]",docs/test-aziende.md
+ksc_alhat,"Campo ALHAT, Kennedy Space Center",28.615,-80.695,flight_hda_lidar,NASA Morpheus + ALHAT (2012-14),docs/test-aziende.md
+rogers_lakebed,"Rogers Dry Lake, Edwards AFB",34.92,-117.83,flight_hda_lidar,ALHAT su elicottero (2008-12),docs/test-aziende.md
+mojave_lspg,"Mojave (LSPG, Xodiac)",35.06,-118.15,flight_hda_lidar,"Astrobotic + NASA (LSPG 2024-25), COBALT",docs/test-aziende.md
+death_valley,"Death Valley, California",36.46,-116.87,flight_hda_lidar,"Lander Vision System (2019), LSPG",docs/test-aziende.md
+huailai,"Huailai, Hebei",40.40,115.50,flight_hda_lidar,"CASC (lander Lanyue 2025) [coordinate NV]",docs/test-aziende.md
+challakere,"Challakere, Karnataka",14.31,76.65,flight_hda_lidar,"ISRO (Chandrayaan-2/3) [coordinate NV]",docs/test-aziende.md
+mauna_kea,"Mauna Kea, Hawaii",19.82,-155.47,isru_subsurface,"NASA + CSA (PISCES 2008, 2012)",docs/test-aziende.md
+hi_seas,"HI-SEAS, Mauna Loa",19.60,-155.48,isru_subsurface,"IMA + EuroMoonMars (ISRU sul basalto)",docs/test-aziende.md
+lofoten,"Lofoten, Norvegia",68.1,13.3,isru_subsurface,"ESA PANGAEA (anortosite)",docs/test-aziende.md

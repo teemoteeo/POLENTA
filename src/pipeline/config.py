@@ -105,3 +105,10 @@ def set_test_mode() -> None:
 def ensure_dirs() -> None:
     for d in (GEE_DIR, LOLA_DIR, INTERIM, EXPORT / "sites"):
         d.mkdir(parents=True, exist_ok=True)
+
+
+def known_sites() -> list[dict]:
+    """Siti di test già usati (data/config/known_sites.csv): flag "nuovo", nomi vicini, validazione."""
+    with open(CONFIG / "known_sites.csv", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    return [{**r, "lat": float(r["lat"]), "lon": float(r["lon"]), "tests": r["tests"].split(";")} for r in rows]

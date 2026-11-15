@@ -105,7 +105,7 @@ def hurst(df: pd.DataFrame) -> np.ndarray:
 def select_cells(n_sample: int = 3000, seed: int = 0, scope: str = "sample") -> pd.DataFrame:
     """Quali esagoni calcolare, in ordine di priorità: siti noti, campione casuale, candidati, (tutto il resto).
     scope='candidates': solo siti noti e candidati (quello che serve all'export, pochi minuti)."""
-    from .mock_export import KNOWN_SITES
+    KNOWN_SITES = config.known_sites()
     cells = pd.read_parquet(config.INTERIM / "cells.parquet")
     valid = cells[cells["valid_share"] >= 0.05]
     rng = np.random.default_rng(seed)
