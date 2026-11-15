@@ -71,3 +71,31 @@ Niente da cambiare: quando i file sono su `night`, faccio pull e riavvio il serv
 ## Tempi
 
 Submission alle 16:00, submit interno alle 15:30. Se il giro completo costa troppo, in ordine di priorità: prima i tre raggi per **Gale** e **Phoenix** (dove "vicino" funziona e fa la storia del pitch), poi Aristarchus, per ultimi i tre siti polari.
+
+---
+
+## Aggiunta delle 12:30: lo stesso posto ha voti diversi a raggi diversi
+
+**Cosa si vede nell'app.** Near you, Torino, Aristarchus × rover: Bin Qirdan (Tunisia, 1.383 km) ha voto **36** a 1.500 km e **46** a 3.000 km. Stesso esagono (`…0bfffffff`), stesso terreno a 30 m. In tutto l'export `near/` succede per 5 posti, e in 13 casi un posto dentro il raggio piccolo, con voto più alto dell'ultimo della lista piccola, compare solo nella lista grande.
+
+**Causa** (`src/pipeline/sites.py`, `build`):
+
+```python
+best = df.nlargest(max(300, int(len(df) * top_frac)), "score")   # con restrict
+...
+"score": float(sub["score"].median())                             # mediana della zona
+```
+
+- Con `restrict`, `best` sono i 300 migliori **dentro il raggio**. In un raggio piccolo i candidati sono pochi, quindi tra i 300 entrano anche esagoni deboli.
+- Il voto del posto è la **mediana** della zona, cioè degli esagoni di `best` che si toccano. Più esagoni deboli entrano nella zona, più la mediana scende.
+- Quindi lo stesso posto vale meno a 1.500 km che a 3.000 km, e l'ordine tra i posti cambia.
+
+**Correzione proposta** (una riga): il voto del posto è quello della sua cella migliore, che è anche la cella di cui l'export mostra già `params` e `values`.
+
+```python
+"score": float(sub["score"].iloc[0])   # sub è già ordinato per voto decrescente
+```
+
+Così il voto non dipende più dal raggio. Vale anche per le liste globali, dove oggi il voto è la mediana della zona ma i parametri sono della cella migliore. Se preferisci tenere la mediana nelle liste globali, basta applicarlo solo quando `restrict is not None`.
+
+**Controllo dopo la correzione:** per ogni file `near/`, lo stesso `h3_cells[0]` deve avere lo stesso `score` nei tre raggi, e ogni lista deve essere un sottoinsieme ordinato della lista del raggio più grande (tolta la regola dei 100 km tra posti).
