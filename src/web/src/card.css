@@ -148,3 +148,7 @@
 .vals .vm { text-align: right; white-space: nowrap; color: var(--mute); }
 .vals .brk .vm { color: var(--accent); }
 .vals li .vt { grid-column: 1 / -1; margin-top: -4px; font-size: 11px; color: var(--mute); }
+
+/* centro di controllo sulla Terra: niente sfocatura dello sfondo (sopra la mappa in movimento può sfarfallare),
+   fondo quasi pieno, barra di scorrimento con spazio fisso così il contenuto non salta quando compare */
+.left .panel.glass:has(.campaign), .left .panel.glass:has(.reslist) { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--bg) 93%, transparent); scrollbar-gutter: stable; }
