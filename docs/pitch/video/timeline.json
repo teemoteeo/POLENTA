@@ -1,28 +1,21 @@
 {
-  "_doc": "sequence = blocchi del video in ordine. {deck: [[slide 1-7, passo, secondi], ...]} registra il deck; {clip: file, seconds} prende video/demo/<file> (o un segnaposto) tagliato a quei secondi. transition = dissolvenza tra un blocco e l'altro. max_seconds blocca il video se lo supera.",
+  "_doc": "sequence = blocchi del video in ordine. {deck: [[slide 1-7, passo, secondi], ...]} registra il deck; {clip: file, seconds} prende video/demo/<file> (o un segnaposto) tagliato a quei secondi. transition = dissolvenza tra un blocco e l'altro. max_seconds blocca il video se lo supera. Regola: si va subito al passo che mostra tutto il testo della slide; si aspetta solo prima di un passo che sostituisce del testo (slide 1 frase → POLENTA, slide 2 tabella → carte, slide 3 dataset → validazione, slide 5 globo → matrice).",
   "profiles": {
     "pitch": {
       "max_seconds": 240,
-      "transition": { "type": "fade", "seconds": 1.0 },
+      "transition": {"type": "fade", "seconds": 1.0},
       "sequence": [
-        { "deck": [[1, 0, 4.0], [1, 1, 4.5], [1, 2, 6.5]] },
-        { "clip": "demo-platform.mp4", "seconds": 62, "title": "Live demo of the platform" },
-        { "deck": [
-          [2, 0, 12.0], [2, 1, 10.0],
-          [3, 0, 10.0], [3, 1, 10.0], [3, 2, 7.0],
-          [4, 0, 14.0], [4, 1, 10.0],
-          [5, 0, 14.0], [5, 1, 10.0], [5, 2, 7.0],
-          [6, 0, 9.0], [6, 1, 11.0], [6, 2, 9.0],
-          [7, 0, 6.0], [7, 1, 8.0]
-        ] }
+        { "deck": [[1, 0, 4.0], [1, 1, 2.4], [1, 2, 8.6]] },
+        {"clip": "demo-platform.mp4", "seconds": 62, "title": "Live demo of the platform"},
+        { "deck": [[2, 0, 12.0], [2, 1, 10.0], [3, 0, 10.0], [3, 2, 17.0], [4, 1, 24.0], [5, 1, 24.0], [5, 2, 7.0], [6, 2, 29.0], [7, 1, 14.0]] }
       ]
     },
     "submission": {
       "max_seconds": 30,
-      "transition": { "type": "fade", "seconds": 0.5 },
+      "transition": {"type": "fade", "seconds": 0.5},
       "sequence": [
         { "deck": [[1, 0, 1.8], [1, 1, 2.6], [1, 2, 1.6]] },
-        { "clip": "demo-platform-30s.mp4", "seconds": 8, "title": "Live demo of the platform" },
+        {"clip": "demo-platform-30s.mp4", "seconds": 8, "title": "Live demo of the platform"},
         { "deck": [[2, 0, 3.2], [4, 0, 3.4], [5, 0, 3.4], [6, 1, 3.2], [7, 1, 3.6]] }
       ]
     }
