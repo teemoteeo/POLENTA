@@ -81,7 +81,8 @@ def place(r):
         "score": r["score"], "known": known_reason(r), "km_home": r.get("km_home"),
         "breaks": [PARAM_EN.get(b["param"], b["param"]) for b in r.get("breaks", [])],
         "params": {k: v for k, v in (r.get("params") or {}).items() if v is not None},  # voto 0-1 per parametro
-        "facilities": [{"name": en(f["name"]), "lat": f["lat"], "lon": f["lon"], "km": f.get("km_client")}
+        "facilities": [{"name": en(f["name"]), "place": en(f.get("place") or ""), "lat": f["lat"], "lon": f["lon"], "km": f.get("km_client"),
+                        "covers": [PARAM_EN.get(c, c) for c in f.get("covers", [])]}  # cosa chiude al chiuso
                        for f in camp.get("facilities", [])],
         "snow_free_months": dossier.get("snow_free_months"), "valid_share": dossier.get("valid_share"),
     }

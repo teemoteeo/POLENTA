@@ -25,15 +25,16 @@ Tasti: `→`/spazio/telecomando avanti · `←` indietro · `1-7` vai alla slide
 
 Struttura decisa dal team: chi siamo → cosa facciamo → come lo facciamo → che vantaggio portiamo → prospettive di crescita. Obiettivo finale: diventare lo strumento che **prepara e preventiva una campagna di test** in soldi, tempo e persone.
 
-| # | Slide | Fine entro | Durata | Animazione |
+| # | Slide | Fine entro | Durata | Contenuto |
 |---|---|---|---|---|
-| 1 | **Chi siamo**: POLENTA e il team | 0:20 | 20 s | la frase intera compare parola per parola; click: le iniziali si colorano una alla volta e la frase lascia il posto a POLENTA (dissolvenza, nessuna lettera si sposta); click: frase dell'app e team |
-| 2 | **Cosa facciamo**: il problema in una riga + cosa fa l'app | 0:45 | 25 s | tre numeri del problema; click: 4 carte e arco Haworth → primo posto nuovo sulla Terra |
-| 3 | **Cosa facciamo, dal vivo**: demo | 1:55 | 70 s | l'app si apre dal riquadro a tutto schermo |
-| 4 | **Come lo facciamo**: dati NASA, stessa metrica, validazione | 2:30 | 35 s | mappa del mondo a esagoni; barre di validazione; sorpresa e limiti |
-| 5 | **Che vantaggio portiamo**: tempo, soldi, qualità, concorrenza | 3:05 | 35 s | Terra con la campagna da Torino; barra 57 → 20; matrice 2×2 |
-| 6 | **Prospettive**: roadmap fino al preventivo della campagna | 3:40 | 35 s | linea del tempo in 4 tappe (oggi, pilota, piano, preventivo); scheda "preventivo" con le righe vere di oggi e quelle di domani (soldi, tempo, persone) in caricamento; chi paga e modello |
-| 7 | **Obiettivo** e richiesta | 4:00 | 20 s | frase finale, richiesta di un pilota, team |
+| 1 | **Chi siamo**: POLENTA e il team (Timoteo, Edoardo, Rocco) | 0:15 | 15 s | frase intera → le iniziali scivolano in POLENTA → frase dell'app e team |
+| 2 | **Cosa facciamo**: Oggi / Con POLENTA | 0:40 | 25 s | lista dei candidati 3 settimane → minuti; siti noti → 61 su 90 nuovi; 57 → 20 giornate-persona; click: come funziona (ogni punto della Terra senza oceano né vegetazione) |
+| 3 | **Come lo facciamo**: stesse metriche su Terra, Luna e Marte, poi il confronto | 1:10 | 30 s | dati NASA, mappa del caso con anelli di 1.500 / 3.000 / 5.000 km da Torino, validazione, limiti della Terra |
+| 4 | **Cosa abbiamo trovato** | 1:35 | 25 s | matrice 6 siti × 3 test col primo posto inesplorato; sorprese: Tibet, Patagonia, Montana |
+| 5 | **Vantaggio** sul caso guida | 2:05 | 30 s | Best on Earth contro Near you (regione: Middle East · Syria); box delle strutture indoor che chiudono le mancanze; tempo: −37 giornate-persona, 4-8 settimane prima |
+| 6 | **Roadmap** | 2:35 | 30 s | dove testare → pilota → piano → preventivo; preventivo del caso |
+| 7 | **Obiettivo** | 3:00 | 25 s | frase finale, richiesta di un pilota, team |
+| — | **Demo dal vivo** della piattaforma | 4:00 | 60 s | percorso nella sezione "Demo della piattaforma" |
 
 Le note per chi parla (punti chiave, non copione) sono in ogni slide, tasto `N` o `P`.
 

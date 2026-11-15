@@ -95,7 +95,17 @@ body.timer #clock{display:inline}
 .tm span{font:400 16px var(--mono);color:var(--mute)}
 .s1-foot{position:absolute;left:120px;bottom:118px;display:flex;gap:14px}
 
-/* S2: cosa facciamo */
+/* S2: cosa facciamo · oggi contro POLENTA */
+.vs{position:absolute;left:120px;top:326px;width:1680px;display:flex;flex-direction:column;gap:18px}
+.vh,.vr{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.vh span{font:400 18px var(--mono);color:var(--mute);padding-bottom:8px;border-bottom:1px solid var(--line)}
+.vh span.acc{color:var(--accent);border-color:var(--accent)}
+.vr>div{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:baseline}
+.vr b{font:400 40px/1.1 var(--mono);letter-spacing:-.02em;white-space:nowrap}
+.vr>div:last-child b{color:var(--accent)}
+.vr>div>span{font:400 21px/1.35 var(--sans);color:var(--mute)}
+.vr b small{font:300 24px var(--sans);letter-spacing:0;color:var(--mute)}
+.vnote{font:400 16px/1.4 var(--mono);color:var(--mute);margin-top:6px}
 .pain{position:absolute;left:120px;top:318px;width:1680px;display:grid;grid-template-columns:repeat(3,1fr);gap:44px}
 .pain div{display:flex;flex-direction:column;gap:8px}
 .pain b{font:400 52px/1 var(--mono);letter-spacing:-.03em;white-space:nowrap}
@@ -118,19 +128,24 @@ body.timer #clock{display:inline}
 .s3-cap b{color:var(--ink);font-weight:400}
 
 /* S4: demo */
-.frame{position:absolute;left:120px;top:262px;width:1120px;height:630px;overflow:hidden;padding:0}
+.frame{position:absolute;left:120px;top:250px;width:900px;height:506px;overflow:hidden;padding:0}
 .frame video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:28px;display:none}
 .frame.has-video video{display:block}
 .frame.has-video .story{display:none}
-.story{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 70px;gap:26px}
+.story{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 56px;gap:20px}
 .story .lbl{color:var(--accent)}
 .story ol{list-style:none;display:flex;flex-direction:column;gap:16px;counter-reset:s}
-.story li{display:flex;align-items:center;gap:18px;font:300 34px var(--sans);letter-spacing:-.01em;color:var(--mute);transition:color .3s}
+.story li{display:flex;align-items:center;gap:16px;font:300 28px var(--sans);letter-spacing:-.01em;color:var(--mute);transition:color .3s}
 .story li::before{counter-increment:s;content:counter(s);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:400 17px var(--mono);border:1px solid var(--line);flex:none;transition:all .3s}
 .story li.on{color:var(--ink)}
 .story li.on::before{background:var(--accent);border-color:var(--accent);color:#fff}
 .story p{font:400 17px var(--mono);color:var(--mute)}
-.result{position:absolute;left:1290px;top:236px;width:510px;padding:26px 30px;display:flex;flex-direction:column;gap:13px}
+.result{position:absolute;left:1060px;top:236px;width:740px;padding:26px 30px;display:flex;flex-direction:column;gap:13px}
+.bench{position:absolute;left:120px;top:780px;width:900px;padding:18px 26px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 20px}
+.bench h3{font:400 30px/1.15 var(--sans);letter-spacing:-.01em}
+.bench .bs{font:400 34px var(--mono);text-align:right}
+.bench .tag2{justify-self:end;font:400 14px var(--mono);padding:4px 12px;border-radius:12px;border:1px solid var(--line);color:var(--ink)}
+.bench .bsub{grid-column:1/3;font:400 17px var(--mono);color:var(--mute)}
 .result h3{font:400 34px/1.12 var(--sans);letter-spacing:-.015em}
 .badge{align-self:flex-start;font:400 14px var(--mono);padding:4px 12px;border-radius:12px;background:var(--accent);color:#fff}
 .meter{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
@@ -187,19 +202,40 @@ body.timer #clock{display:inline}
 .vrow .nm small{display:block;font:400 14px var(--mono);color:var(--mute)}
 .vrow .pc{font:400 19px var(--mono);text-align:right;color:var(--accent)}
 .vrow .meter{grid-column:1/3;height:6px}
-.band{position:absolute;left:660px;top:850px;width:1140px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.band{position:absolute;left:660px;top:850px;width:1140px;display:grid;grid-template-columns:1fr;gap:40px}
 .band h4{font:400 17px var(--mono);color:var(--mute);margin-bottom:10px}
 .band p{font:400 22px/1.35 var(--sans)}
 .band .pills span{border-style:dashed}
 
-/* S5: vantaggio */
+/* S5: cosa abbiamo trovato */
+.found{position:absolute;left:120px;top:296px;width:1140px;display:grid;grid-template-columns:190px repeat(3,1fr);gap:6px}
+.found .fh{font:400 16px var(--mono);color:var(--mute);padding:0 14px 4px}
+.found .fs{font:400 19px/1.2 var(--sans);align-self:center}
+.found .fs small{display:block;font:400 13px var(--mono);color:var(--mute)}
+.found .fc{padding:9px 14px;border-radius:14px;background:var(--soft);min-width:0}
+.found .fc b{display:block;font:400 18px/1.25 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.found .fc small{font:400 13px var(--mono);color:var(--mute)}
+.found .fc small i{font-style:normal;color:var(--accent)}
+.found .fc.on{box-shadow:inset 0 0 0 2px var(--accent)}
+.sur{position:absolute;left:120px;top:806px;width:1140px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+.sur h4{font:400 16px var(--mono);color:var(--mute);margin-bottom:6px}
+.sur p{font:400 22px/1.35 var(--sans)}
+.sur .fig{font-size:17px}
+
+/* S6: vantaggio */
 .cmp{display:flex;flex-direction:column;gap:2px}
-.cmp>div{display:grid;grid-template-columns:200px 1fr 1fr;gap:18px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font:400 21px/1.3 var(--sans)}
+.cmp>div{display:grid;grid-template-columns:200px 1fr 1fr;gap:18px;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--line);font:400 21px/1.3 var(--sans)}
 .cmp>div>span{font:400 16px var(--mono);color:var(--mute)}
 .cmp>div>b{font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cmp .ch b{font:400 17px var(--mono);color:var(--mute)}
 .cmp .ch b.acc{color:var(--accent)}
 .cmp small{font:400 15px var(--mono);color:var(--accent)}
+.indoor{padding:10px 18px;border-radius:18px;background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent)}
+.indoor h4{font:400 16px var(--mono);color:var(--accent);margin-bottom:6px}
+.indoor ul{list-style:none;display:flex;flex-direction:column;gap:2px}
+.indoor li{font:400 18px/1.3 var(--sans);color:var(--mute)}
+.indoor li b{color:var(--ink);font-weight:500}
+.save .kpis{margin-top:14px}
 .adv ul{list-style:none;display:flex;flex-direction:column;gap:8px}
 .adv li{font:400 22px/1.35 var(--sans);color:var(--mute)}
 .adv li b{color:var(--ink);font-weight:500}
@@ -232,7 +268,7 @@ body.timer #clock{display:inline}
 .biz p{font:400 22px/1.4 var(--sans)}
 
 /* S5-S6: blocchi comuni (ex mercato) */
-.mk{position:absolute;left:120px;top:330px;width:900px;display:flex;flex-direction:column;gap:30px}
+.mk{position:absolute;left:120px;top:276px;width:900px;display:flex;flex-direction:column;gap:18px}
 .mk h4{font:400 17px var(--mono);color:var(--mute);margin-bottom:10px;letter-spacing:.02em}
 .buyers{list-style:none;display:flex;flex-direction:column;gap:6px}
 .buyers li{font:400 23px/1.35 var(--sans)}
@@ -246,7 +282,7 @@ body.timer #clock{display:inline}
 .save .b b{color:var(--ink);font-weight:400}
 .kpis{display:flex;gap:40px}
 .kpis div{font:400 18px/1.35 var(--sans);color:var(--mute)}
-.kpis b{display:block;font:400 44px/1.1 var(--mono);color:var(--ink);letter-spacing:-.02em}
+.kpis b{display:block;font:400 44px/1.1 var(--mono);color:var(--ink);letter-spacing:-.02em;margin-bottom:12px}
 .model{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .model div{padding:18px 18px 16px;border-radius:20px;background:var(--soft);font:400 17px/1.35 var(--sans);color:var(--mute)}
 .model b{display:block;font:500 20px var(--sans);color:var(--ink);margin-bottom:4px}
@@ -316,7 +352,7 @@ body.showhelp #help{display:block}
 <canvas id="sky"></canvas>
 
 <!-- 1 · CHI SIAMO: il nome e il team ------------------------------------------------------->
-<section class="slide" data-title="Who we are" data-end="20" data-criteria="Presentation">
+<section class="slide" data-title="Who we are" data-end="15" data-criteria="Presentation">
   <div class="kick rv">FVG Station <span>· NASA Space Apps Challenge 2026 · Turin</span></div>
   <!-- il nome: frase intera → le iniziali si colorano → la frase lascia il posto a POLENTA (acro() nello script) -->
   <div class="acro" id="acro">
@@ -335,93 +371,56 @@ body.showhelp #help{display:block}
   <p class="acro-sub rv" data-step="1" style="--d:2s"><b>P</b>lanetary <b>O</b>utcrop &amp; <b>L</b>anding <b>E</b>nvironment <b>N</b>earby <b>T</b>estbed <b>A</b>ssistant</p>
   <h1 class="tagline rv" data-step="2">Where on Earth to test hardware for the Moon and Mars.</h1>
   <div class="team1" data-step="2">
-    <div class="tm glass rv" style="--d:.15s"><b>Timo</b><span>web app, map, deploy</span></div>
-    <div class="tm glass rv" style="--d:.25s"><b>Edo</b><span>maths, ML, data pipeline</span></div>
+    <div class="tm glass rv" style="--d:.15s"><b>Timoteo</b><span>web app, map, deploy</span></div>
+    <div class="tm glass rv" style="--d:.25s"><b>Edoardo</b><span>maths, ML, data pipeline</span></div>
     <div class="tm glass rv" style="--d:.35s"><b>Rocco</b><span>physics of the analogy, research</span></div>
   </div>
   <div class="s1-foot rv" data-step="2" style="--d:.45s"><span class="chip"><i></i>Challenge · Earth analogs of permanent Moon-base locations and Mars</span></div>
   <aside class="notes">
-    <h5>0:00 – 0:20 · who we are</h5>
+    <h5>0:00 – 0:15 · who we are</h5>
     <ul><li>The full name writes itself. Read it: “Planetary Outcrop &amp; Landing Environment Nearby Testbed Assistant…”</li>
       <li>Click: the initials turn orange, the phrase gives way to <b>POLENTA</b>. Optional smile: “yes, like the dish from the North of Italy.”</li>
-      <li>Click: who we are. FVG Station: Timo (app), Edo (data and maths), Rocco (physics of the analogy).</li></ul>
+      <li>Click: who we are. FVG Station: Timoteo (app), Edoardo (data and maths), Rocco (physics of the analogy).</li></ul>
     <p class="say">“We are FVG Station, and this is POLENTA: it tells space companies where on Earth to test hardware for the Moon and Mars.”</p>
   </aside>
 </section>
 
 <!-- 2 · COSA FACCIAMO -------------------------------------------------------------------->
-<section class="slide" data-title="What we do" data-end="45" data-criteria="Relevance,Impact,Creativity">
+<section class="slide" data-title="What we do" data-end="40" data-criteria="Relevance,Impact,Creativity">
   <div class="kick rv">01 — <b>What we do</b></div>
   <h2 class="wide rv" style="--d:.1s">Pick a Moon or Mars site and a test. Get your <span class="acc">test campaign</span> on Earth.</h2>
-  <div class="pain">
-    <div class="rv" style="--d:.25s"><b><span data-count="10">10</span> months</b><span>to choose where to test a lunar rover, by hand <span class="tbd" title="ETNA rover, ULS campaign on Mount Etna 2026. Name TAS-I on stage? Team decision">(Etna, 2026)</span></span></div>
-    <div class="rv" style="--d:.4s"><b>$<span data-count="14">14</span>M</b><span>for a crater field built by hand to test landing sensors (Morpheus, NASA KSC)</span></div>
-    <div class="rv" style="--d:.55s"><b>no metric</b><span>tells you how faithful a test site is to the real target</span></div>
+  <div class="vs" data-until="0">
+    <div class="vh rv" style="--d:.2s"><span>Today · finding a test site by hand</span><span class="acc">With POLENTA</span></div>
+    <div class="vr rv" style="--d:.3s"><div><b><span data-count="3">3</span><small> weeks</small></b><span>2 engineers read papers and revisit known sites to build a shortlist</span></div><div><b>minutes</b><span>for the ranked shortlist: every point on Earth without ocean or vegetation, for the target and the test. Then 1 engineer checks it in about 3 days</span></div></div>
+    <div class="vr rv" style="--d:.45s"><div><b>known<small> sites</small></b><span>teams go back to the same few: Etna, Arizona, the Canaries, Atacama</span></div><div><b><span data-count="61" id="cntNew">61</span><small id="cntNewOf"> of 90</small></b><span>of our best places are new: nobody tests there yet</span></div></div>
+    <div class="vr rv" style="--d:.6s"><div><b><span data-count="57">57</span><small> person-days</small></b><span>to choose the site: desk study, survey, samples, permit dossier</span></div><div><b><span data-count="20">20</span><small> person-days</small></b><span>same steps, on a shortlist with the data already there: 4–8 weeks earlier on site</span></div></div>
+    <p class="vnote rv" style="--d:.8s">Our estimates on a real campaign, the ETNA lunar rover on Mount Etna (2026): about 10 months from survey to field, 4–5 of them for permits, which we don’t shorten.</p>
   </div>
-  <div class="flow">
+  <div class="flow rv" data-step="1">
     <svg class="track" width="1680" height="290" viewBox="0 0 1680 290"><path d="M-40 145 H1720"/>
       <circle r="7"><animateMotion dur="3.2s" repeatCount="indefinite" path="M-40 145 H1720"/></circle></svg>
     <div class="cards" data-step="1">
       <div class="card glass rv x-scale"><div class="lbl"><b>01</b> Target</div><div class="big fig">6 sites</div><p>candidate Moon-base regions (3 Artemis III at the South Pole, Aristarchus) and Mars landing sites (Phoenix, Gale)</p></div>
       <div class="card glass rv x-scale" style="--d:.18s"><div class="lbl"><b>02</b> Test</div><div class="big fig">3 tests</div><div class="tests"><span>Lidar landing</span><span>Rover mobility</span><span>In-situ resources</span></div></div>
-      <div class="card glass rv x-scale" style="--d:.36s"><div class="lbl"><b>03</b> Where on Earth</div><div class="big">every land hexagon</div><p>same metrics as the target. Best on Earth, or <b>near your base</b>, with the similarity you give up</p></div>
+      <div class="card glass rv x-scale" style="--d:.36s"><div class="lbl"><b>03</b> Where on Earth</div><div class="big">all bare land</div><p>every point on Earth without ocean or vegetation, scored with the target’s metrics. Best on Earth, or <b>near your base</b></p></div>
       <div class="card glass rv x-scale" style="--d:.54s"><div class="lbl"><b>04</b> Campaign</div><div class="big">field + indoor</div><p>what holds outdoors, where the analogy breaks, which facility closes each gap</p></div>
     </div>
   </div>
-  <div class="s3-cap rv" data-step="1" style="--d:1.2s">Aristarchus Plateau (Moon) → <b data-bind="demoName">—</b> · <span data-bind="demoKmTxt">—</span></div>
   <aside class="notes">
-    <h5>0:20 – 0:45 · what we do (25 s), then straight into the live demo</h5>
-    <ul><li>The pain in one breath: 10 months to choose a rover test site, by hand; crater fields built by hand; nobody measures how faithful a test site is.</li>
-      <li>Click: what POLENTA does. Site + test → the best place on Earth (or near your base), how faithful it is per parameter, where it breaks, which facility closes each gap.</li>
+    <h5>0:15 – 0:40 · what we do (25 s)</h5>
+    <ul><li>Row by row, today vs with POLENTA (our estimates on the ETNA rover campaign): shortlist 3 weeks → minutes (plus ~3 days for one engineer to check it); always the same known sites → 61 of 90 best places new; choosing the site 57 → 20 person-days, 4–8 weeks earlier. Permits stay as they are: we say it.</li>
+      <li>Click: how it works. Site + test → the best place on Earth (or near your base), how faithful it is per parameter, where it breaks, which facility closes each gap.</li>
       <li>New idea: the best analog depends on the test.</li></ul>
-    <p class="say">“Tell us where you land and what you test. We tell you where on Earth, how faithful it is, and what to close indoors. Let me show you, live.”</p>
-  </aside>
-</section>
-
-<!-- 3 · COSA FACCIAMO, DAL VIVO: demo ------------------------------------------------------>
-<section class="slide" data-title="Demo" data-end="115" data-criteria="Validity,Relevance,Presentation">
-  <div class="kick rv">02 — <b>What we do, live</b></div>
-  <h2 class="rv" style="--d:.1s">Aristarchus Plateau, rover mobility.</h2>
-  <div class="frame glass rv x-scale" id="frame" style="--d:.2s">
-    <video id="demo" src="demo.mp4" muted playsinline loop preload="metadata"></video>
-    <div class="story">
-      <div class="lbl">Placeholder · 30 s screen recording goes here (demo.mp4)</div>
-      <ol id="storyline"><li>Moon → Aristarchus Plateau → Rover mobility</li><li>Best on Earth: all already used</li><li>Unexplored: nobody tests there yet</li><li>Near you · Turin · 1,500 → 3,000 km</li><li>Place card near Turin</li></ol>
-      <p>Same path as the 60 s platform demo at the end of the video</p>
-    </div>
-  </div>
-  <div class="result glass rv" style="--d:.35s">
-    <div class="lbl" data-bind="demoRank">First place on Earth</div>
-    <h3 data-bind="demoName">—</h3>
-    <span class="badge" data-bind="demoNew">Not used for tests yet</span>
-    <div><div class="row"><span class="mute">Similarity</span><span class="fig" data-bind="demoScore">—</span></div>
-      <div class="meter" id="demoMeter"><i></i></div></div>
-    <p class="skip" data-bind="demoSkip"></p>
-    <div data-step="1" class="rv"><div class="lbl" style="margin-bottom:8px" data-bind="demoSensors">Match · Earth sensor · Moon sensor</div><ul class="prm" id="demoParams"></ul></div>
-    <div data-step="2" class="rv"><div class="lbl" style="margin-bottom:8px">Close it indoors · km from Turin</div><ul class="fac" id="demoFac"></ul></div>
-  </div>
-  <div class="live rv" style="--d:.5s">Live app · <b data-bind="appUrl">URL to add</b> · press L</div>
-  <aside class="notes">
-    <h5>0:45 – 1:55 · LIVE DEMO (70 s) · the app opens full screen by itself</h5>
-    <ul><li><b>0:45</b> Click <b>Moon</b>, then <b>Aristarchus Plateau</b>. “Basalts and pyroclastic deposits: a candidate site for a lunar base.”</li>
-      <li><b>0:55</b> Click <b>Rover mobility</b>. “The test decides what matters: slopes, boulders, regolith, low sun.”</li>
-      <li><b>1:02</b> <b>Best on Earth</b>, quick scroll. “The best matches are where everyone already tests: Colorado, Utah, Nevada. The tool says so.”</li>
-      <li><b>1:10</b> <b>Unexplored</b>, scroll. “The most similar places nobody tests yet: <span data-bind="unexName">Montana</span>, China, Bolivia…”</li>
-      <li><b>1:20</b> <b>Near you</b> · Turin · <b>1,500 km</b>. “From Turin: <span data-bind="n1500">Tunisia</span>.”</li>
-      <li><b>1:28</b> <b>3,000 km</b>, click the <b>first result</b>. “<span data-bind="nearField">65%</span> of the test holds in the field, <span data-bind="nearWindow">12 months a year</span>. ALTEC in Turin closes low-angle light and regolith density, LUNA the 1/6 g.”</li>
-      <li><b>1:55</b> <b>PageDown</b> (clicker) or the “Next slide” pill → back to slides.</li></ul>
-    <p class="say">“The best place on Earth is already crowded and 8,000 km away. This one is near you, nobody uses it, and these facilities give you the rest.”</p>
-    <h5>If something breaks</h5>
-    <ul><li><b>V</b> switches to the recorded video and the card on this slide. Don’t debug on stage.</li><li>Before the pitch: press <b>Start over</b> in the app, or <b>A</b> to reload it.</li></ul>
+    <p class="say">“Tell us where you land and what you test. We tell you where on Earth, how faithful it is, and what to close indoors.”</p>
   </aside>
 </section>
 
 <!-- 4 · COME LO FACCIAMO: dati NASA e validazione ---------------------------------------->
-<section class="slide" data-title="How we do it" data-end="150" data-criteria="Relevance,Validity,Creativity">
-  <div class="kick rv">03 — <b>How we do it</b></div>
-  <h2 class="wide rv" style="--d:.1s">Same metrics on the Moon, on Mars and on every hexagon of Earth.</h2>
+<section class="slide" data-title="How we do it" data-end="70" data-criteria="Relevance,Validity,Creativity">
+  <div class="kick rv">02 — <b>How we do it</b></div>
+  <h2 class="wide rv" style="--d:.1s">We measure the same metrics on Earth, the Moon and Mars, and match the sites.</h2>
   <div class="datasets rv" data-until="0" style="--d:.2s">
-    <div><h4><b>NASA</b> · Earth, every hexagon</h4><ul><li class="nasa">NASADEM</li><li class="nasa">MOD44W</li><li class="nasa">MOD13A3</li><li class="nasa">MOD11A2</li><li class="nasa">MCD43A3</li><li class="nasa">MOD10A2</li><li class="nasa">VIIRS DNB</li><li class="nasa">MERRA-2</li></ul></div>
+    <div><h4><b>NASA</b> · Earth, all bare land</h4><ul><li class="nasa">NASADEM</li><li class="nasa">MOD44W</li><li class="nasa">MOD13A3</li><li class="nasa">MOD11A2</li><li class="nasa">MCD43A3</li><li class="nasa">MOD10A2</li><li class="nasa">VIIRS DNB</li><li class="nasa">MERRA-2</li></ul></div>
     <div><h4><b>NASA</b> · Moon</h4><ul><li class="nasa">LRO LOLA 20 m</li><li class="pub">Diviner</li><li class="pub">LEND</li><li class="pub">LROC</li><li class="pub">LCROSS</li></ul></div>
     <div><h4><b>NASA</b> · Mars</h4><ul><li class="pub">CTX</li><li class="pub">HiRISE</li><li class="pub">THEMIS</li><li class="pub">TES</li><li class="pub">Phoenix, Curiosity</li></ul></div>
     <div><h4>Partners and open data</h4><ul><li>JAXA AW3D30</li><li>SoilGrids</li><li>GLiM</li><li>JRC Surface Water</li><li>WDPA</li><li>Google Earth Engine</li></ul></div>
@@ -434,42 +433,61 @@ body.showhelp #help{display:block}
   </div>
   <div class="hexmap rv" id="hexmap" style="--d:.3s">
     <div id="hexsvg"></div>
-    <div class="hexcap"><span><i style="background:var(--soft)"></i>land hexagon, scored</span><span><i style="background:var(--accent)"></i>not used for tests yet</span><span><i style="border:1.6px solid var(--ink)"></i>best, but already used</span><span><i style="border:1.6px dashed var(--accent)"></i>1,500 / 3,000 km from Turin</span></div>
+    <div class="hexcap"><span><i style="background:var(--soft)"></i>bare land, scored</span><span><i style="background:var(--accent)"></i>not used for tests yet</span><span><i style="border:1.6px solid var(--ink)"></i>best, but already used</span><span><i style="border:1.6px dashed var(--accent)"></i>1,500 / 3,000 / 5,000 km from Turin</span></div>
   </div>
   <div class="band" data-step="2">
-    <div class="rv"><h4>Surprise</h4><p><b class="fig" data-bind="topNew">—</b> top places are <b>new</b> (outside famous analogue regions, &gt;150 km from test sites). <span class="tbd" title="Phoenix × ISRU first place: 195 km from Qimantag (Qinghai). Check after final export">Martian ground ice: not Antarctica, the <span class="acc">Tibetan Plateau</span>.</span></p></div>
-    <div class="rv" style="--d:.15s"><h4>Where Earth breaks, always</h4><div class="pills"><span>1/6 gravity</span><span>Vacuum</span><span>Electrostatic dust</span><span>Engine plume in vacuum</span><span>Cold of shadowed regions</span></div></div>
+    <div class="rv"><h4>Where Earth breaks, always</h4><div class="pills"><span>1/6 gravity</span><span>Vacuum</span><span>Electrostatic dust</span><span>Engine plume in vacuum</span><span>Cold of shadowed regions</span></div></div>
   </div>
   <aside class="notes">
-    <h5>1:55 – 2:30 · how we do it (35 s)</h5>
+    <h5>0:40 – 1:10 · how we do it (30 s)</h5>
     <ul><li>NASA data is the core: NASADEM, 5 MODIS products, VIIRS, MERRA-2 on Earth; LRO LOLA (computed by us) plus Diviner, LEND, LROC, LCROSS values on the Moon. In the app every value names its sensor.</li>
       <li>Key point: slopes, roughness and craters computed by us on LOLA with the <b>same definition</b> as on Earth (30 m). Filled chips = computed by us; outlined = published mission values.</li>
       <li>If asked: per parameter, similarity = exp(−(D/τ)²) with D the distance in Earth percentiles; weighted per test.</li>
       <li>Map: the demo case. Orange = places nobody tests yet for Aristarchus × rover; white = the best ones, already used; rings = 1,500 and 3,000 km from Turin.</li>
       <li>Click: validation. Sites where agencies and companies really test come out on top without telling the model: SP Crater (NASA training) is the #1 hexagon for Haworth × rover; Mojave, Etna, Mauna Kea in the top 4–11%.</li>
-      <li>Click: surprise + honesty. Strict rule for “new”: outside every famous analogue region (US Southwest, Iceland, Atacama, Hawaii, Canaries, Svalbard, Devon, Antarctica) and >150 km from any known test site. Still most of our top places pass (challenge: “surprise us”). And what Earth can never give (“remember Earth’s limits”).</li></ul>
+      <li>Click: what Earth can never give (challenge: “remember Earth’s limits”).</li></ul>
     <p class="say">“We did not tell the model where companies test. It found those places by itself, and then found better ones.”</p>
   </aside>
 </section>
 
+<!-- 5 · COSA ABBIAMO TROVATO: i posti nuovi, panoramica della piattaforma ------------------>
+<section class="slide" data-title="What we found" data-end="95" data-criteria="Creativity,Impact,Relevance">
+  <div class="kick rv">03 — <b>What we found</b></div>
+  <h2 class="wide rv" style="--d:.1s"><span class="acc" data-bind="topNewTxt">—</span> of our best places are new: nobody tests there yet.</h2>
+  <div class="found" id="found"></div>
+  <div class="sur" data-step="1">
+    <div class="rv"><h4>Mars · ground ice</h4><p>Not Antarctica: the <span class="acc">Tibetan Plateau</span> <span class="fig mute" data-bind="surIce">—</span></p></div>
+    <div class="rv" style="--d:.15s"><h4>Moon · landing sensors</h4><p>Natural crater fields in <span class="acc">Patagonia</span> <span class="fig mute" data-bind="surLidar">—</span></p></div>
+    <div class="rv" style="--d:.3s"><h4>Mars · rovers</h4><p><span class="acc">Montana</span>, far from every famous analog region <span class="fig mute" data-bind="surGale">—</span></p></div>
+  </div>
+  <aside class="notes">
+    <h5>1:10 – 1:35 · what we found (25 s)</h5>
+    <ul><li>The whole platform at a glance: 6 target sites × 3 tests, and for each one the most similar place nobody tests yet.</li>
+      <li>Strict rule for “new”: outside the famous analog regions (US Southwest, Iceland, Atacama, Hawaii, Canaries, Svalbard, Devon, Antarctica) and more than 150 km from any known test site. Challenge: “surprise us”.</li>
+      <li>Click: three surprises straight from the data.</li></ul>
+    <p class="say">“We don’t only find the famous places. Most of our best matches are places nobody has tested yet.”</p>
+  </aside>
+</section>
+
 <!-- 5 · CHE VANTAGGIO PORTIAMO (sul caso guida: Aristarchus × rover da Torino) ------------>
-<section class="slide" data-title="Our advantage" data-end="185" data-criteria="Impact,Creativity">
+<section class="slide" data-title="Our advantage" data-end="125" data-criteria="Impact,Creativity">
   <div class="kick rv">04 — <b>Our advantage</b> · Aristarchus Plateau × rover, from Turin</div>
-  <h2 class="wide rv" style="--d:.1s">The same test, <span class="acc">near you</span>, and cheaper to prepare.</h2>
+  <h2 class="wide rv" style="--d:.1s">The same test, <span class="acc">near you</span>, and faster to prepare.</h2>
   <div class="mk">
     <div class="cmp rv" style="--d:.2s">
       <div class="ch"><span></span><b>Best on Earth</b><b class="acc">Near you · <span data-bind="nearRadius">3,000 km</span></b></div>
-      <div><span>Place</span><b data-bind="bestName">—</b><b><span data-bind="demoName">—</span></b></div>
+      <div><span>Place</span><b data-bind="bestName">—</b><b data-bind="demoRegion">—</b></div>
       <div><span>Status</span><b class="mute" data-bind="bestKnown">—</b><b>not used for tests yet</b></div>
       <div><span>Similarity</span><b class="fig" data-bind="bestScore">—</b><b class="fig"><span data-bind="demoScore">—</span> <small data-bind="giveUp">—</small></b></div>
       <div><span>Test in the field</span><b class="fig" data-bind="bestField">—</b><b class="fig" data-bind="nearField">—</b></div>
       <div><span>Test window</span><b data-bind="bestWindow">—</b><b data-bind="nearWindow">—</b></div>
       <div><span>From Turin</span><b class="fig" data-bind="bestKm">—</b><b class="fig"><span data-bind="nearKm">—</span> <small data-bind="kmSaved">—</small></b></div>
     </div>
-    <div class="save rv" data-step="1"><h4>Preparing this campaign · site selection <span class="tbd" title="Estimate [A], docs/test-aziende.md">(est.)</span></h4>
+    <div class="indoor rv" style="--d:.5s"><h4>What the field can’t give, we close indoors</h4><ul id="indoorList"></ul></div>
+    <div class="save rv" data-step="1"><h4>Time to choose the site for this campaign <span class="tbd" title="Estimate [A], docs/test-aziende.md">(est.)</span></h4>
       <div class="bars"><div class="b old"><span>today</span><div class="meter" style="--v:100%"><i></i></div><b>57 p-days</b></div>
         <div class="b"><span>with us</span><div class="meter" style="--v:35%"><i></i></div><b>20 p-days</b></div></div>
-      <div class="kpis"><div><b class="tbd" title="Estimate [A]">€31k → €12k</b>to prepare the campaign</div><div><b class="tbd" title="Estimate [A]: ULS-size campaign ≈ €90–100k">€100k</b>if it must be redone on the wrong ground</div></div></div>
+      <div class="kpis"><div><b class="tbd" title="Estimate [A]: 57 → 20 person-days">−37</b>person-days</div><div><b class="tbd" title="Estimate [A], docs/test-aziende.md">4–8 weeks</b>earlier on site</div><div><b class="tbd" title="Estimate [A]: €31k → €12k at €480 per person-day">≈ €19k</b>saved, as a bonus</div></div></div>
   </div>
   <div class="quad rv" data-step="2">
     <div class="ax"></div>
@@ -481,16 +499,17 @@ body.showhelp #help{display:block}
     <div class="qp us" style="--x:76%;--y:20%;--d:.7s"><i></i><span class="wm">POLENTA</span></div>
   </div>
   <aside class="notes">
-    <h5>2:30 – 3:05 · our advantage (35 s), on the demo case</h5>
+    <h5>1:35 – 2:05 · our advantage (30 s), on the demo case</h5>
     <ul><li>Best on Earth for Aristarchus × rover: <span data-bind="bestName">Sterling</span>, similarity <span data-bind="bestScore">0.88</span>, but already used and <span data-bind="bestKm">8,400 km</span> from Turin.</li>
+      <li>The box: what the field can’t give (low-angle light, regolith density, 1/6 g…) is closed indoors, at the nearest facility: ALTEC in Turin, LUNA in Cologne.</li>
       <li>Near you: <span data-bind="nearKm">2,781 km</span>, nobody uses it, <span data-bind="nearField">65%</span> of the test still holds in the field, all year round. You give up <span data-bind="giveUp">0.39</span> of similarity and you know exactly what to close indoors.</li>
-      <li>Click: preparing the campaign: site selection 57 → 20 person-days, about €31k → €12k (our estimate on a real campaign).</li>
+      <li>Click: time first. Choosing the site: 57 → 20 person-days, on site 4–8 weeks earlier; about €19k saved as a bonus (our estimates on a real campaign).</li>
       <li>Click: nobody else is top-right.</li></ul>
   </aside>
 </section>
 
 <!-- 6 · PROSPETTIVE DI CRESCITA: roadmap ------------------------------------------------>
-<section class="slide" data-title="What's next" data-end="220" data-criteria="Impact,Validity">
+<section class="slide" data-title="What's next" data-end="155" data-criteria="Impact,Validity">
   <div class="kick rv">05 — <b>What’s next</b></div>
   <h2 class="wide rv" style="--d:.1s">From “where to test” to <span class="acc">what your campaign will cost</span>.</h2>
   <div class="road rv" style="--d:.2s">
@@ -506,9 +525,9 @@ body.showhelp #help{display:block}
     <div class="qrow"><span>In the field</span><b><span data-bind="nearField">—</span> of the test · <span data-bind="nearWindow">—</span></b></div>
     <div class="qrow"><span>Indoor</span><b data-bind="quoteFac">—</b></div>
     <div class="qrow"><span>Breaks</span><b data-bind="quoteBreaks">—</b></div>
-    <div class="qrow next"><span>Money</span><b class="tbd" title="Estimate [A]: site selection, docs/test-aziende.md">≈ €12k to prepare, not €31k</b><i class="skel"></i></div>
-    <div class="qrow next"><span>Time</span><b class="tbd" title="Estimate [A]">20 person-days, not 57</b><i class="skel"></i></div>
+    <div class="qrow next"><span>Time</span><b class="tbd" title="Estimate [A]">20 person-days, not 57: on site 4–8 weeks earlier</b><i class="skel"></i></div>
     <div class="qrow next"><span>People</span><b class="tbd" title="Estimate [A]: 1 engineer × 3 days desk study, 2 people × 3 days survey">1 engineer, then 2 on a 3-day survey</b><i class="skel"></i></div>
+    <div class="qrow next"><span>Money</span><b class="tbd" title="Estimate [A]: site selection, docs/test-aziende.md">≈ €12k to prepare, not €31k</b><i class="skel"></i></div>
     <div class="qleg"><span>today, from our data and estimates</span><span class="nx">next: the full campaign</span></div>
   </div>
   <div class="biz rv" data-step="2">
@@ -517,7 +536,7 @@ body.showhelp #help{display:block}
     <div class="kpis"><div><b>$127B</b>lunar economy by 2050 (PwC)</div></div>
   </div>
   <aside class="notes">
-    <h5>3:05 – 3:40 · what’s next (35 s)</h5>
+    <h5>2:05 – 2:35 · what’s next (30 s)</h5>
     <ul><li>Today: where to test and the campaign plan (field + facilities), on NASA data.</li>
       <li>Next: a pilot on one real campaign with a Turin team; more tests; the permits dossier.</li>
       <li>Click: the goal. POLENTA becomes the tool that <b>prepares and quotes</b> a test campaign: money, time, people. The first rows are already real (field site, facilities, breaks); the cost rows are next.</li>
@@ -526,7 +545,7 @@ body.showhelp #help{display:block}
 </section>
 
 <!-- 7 · OBIETTIVO E RICHIESTA ------------------------------------------------------------>
-<section class="slide" data-title="Our goal" data-end="240" data-criteria="Impact,Presentation">
+<section class="slide" data-title="Our goal" data-end="180" data-criteria="Impact,Presentation">
   <div class="kick rv">06 — <b>Our goal</b></div>
   <p class="closing rv" style="--d:.1s"><span class="tbd" title="Closing line: pick one (alternatives in the notes)">Before you fly, <span class="wm">POLENTA</span> tells you where to test, and what it will cost.</span></p>
   <div class="ask glass rv" data-step="1">
@@ -535,10 +554,10 @@ body.showhelp #help{display:block}
     <div class="url" data-bind="appUrl">URL to add</div>
   </div>
   <div class="team rv" data-step="1" style="--d:.2s">
-    <div>FVG Station<small>NASA Space Apps 2026 · Turin</small></div><div>Timo<small>app, map, deploy</small></div><div>Edo<small>data pipeline, scoring</small></div><div>Rocco<small>physics of the analogy</small></div>
+    <div>FVG Station<small>NASA Space Apps 2026 · Turin</small></div><div>Timoteo<small>app, map, deploy</small></div><div>Edoardo<small>data pipeline, scoring</small></div><div>Rocco<small>physics of the analogy</small></div>
   </div>
   <aside class="notes">
-    <h5>3:40 – 4:00 · our goal (20 s)</h5>
+    <h5>2:35 – 3:00 · our goal (25 s), then the live demo (1:00, path in the README)</h5>
     <ul><li>The goal in one line: a tool that prepares and prices a test campaign in money, time and people.</li>
       <li>Click: the ask, then thank you.</li>
       <li>Alternative lines: “Where to test, how faithful, and how much: before the first truck leaves.” · “Ten months of guessing, now one quote.”</li></ul>
@@ -564,10 +583,10 @@ body.showhelp #help{display:block}
 <script>
 // ---------------------------------------------------------------- impostazioni da riempire
 const APP_URL = ''                         // link pubblico dell'app (Timo, Vercel); per le prove: index.html?app=http://localhost:5173
-const DEMO_SLIDE = 2                        // slide della demo dal vivo (0 = prima)
+const DEMO_SLIDE = -1                       // nessuna slide demo: la demo vera si fa alla fine del pitch (e del video)
 const DEMO_CASE = 'aristarchus_plateau__rover_mobility' // il caso guida: Luna → Aristarchus Plateau → Rover mobility
 const NEAR_PICK = { home: 'turin', radius: '3000', index: 0 } // il posto "Near you" di slide e demo: primo risultato entro 3.000 km da Torino (scelta del team)
-const DRAFT = true                          // false prima del pitch: toglie i tratteggi
+const DRAFT = false                         // true per rivedere i tratteggi della bozza (tasto G)
 const VALIDATION_ROWS = [                   // [sito noto, target, test]: righe dove il sito è usato davvero per quel test
   ['sp_crater', 'haworth', 'rover_mobility'], ['mojave_lspg', 'malapert_massif', 'flight_hda_lidar'],
   ['rogers_lakebed', 'haworth', 'flight_hda_lidar'], ['etna_piano_concazze', 'malapert_massif', 'rover_mobility'],
@@ -613,20 +632,43 @@ function bind() {
   const kmBest = kmFrom(TURIN, best), kmNear = demo.km_home ?? kmFrom(TURIN, demo)
   set('demoKmTxt', `${km(kmNear)} from Turin`)
   set('bestName', `${best.name}${best.country ? ', ' + best.country.replace('United States', 'USA') : ''}`)
-  set('bestScore', best.score.toFixed(2)); set('bestKm', km(kmBest)); set('bestKnown', best.known ? `already used for tests (${best.known})` : 'not used for tests yet')
+  set('bestScore', best.score.toFixed(2)); set('bestKm', km(kmBest)); set('bestKnown', best.known ? `famous test region (${best.known})` : 'not used for tests yet')
+  set('bestTag', best.known ? `famous test region · ${best.known}` : 'not used for tests yet')
   set('bestField', pct(fieldShare(best))); set('bestWindow', `${best.snow_free_months ?? '—'} months a year`)
   set('nearField', pct(fieldShare(demo))); set('nearWindow', `${demo.snow_free_months ?? '—'} months a year`)
   set('nearKm', km(kmNear)); set('kmSaved', `−${Math.round((1 - kmNear / kmBest) * 100)}%`)
   set('giveUp', `−${(best.score - demo.score).toFixed(2)}`)
   set('nearRadius', `${Number(NEAR_PICK.radius).toLocaleString('en')} km`)
+  const REGION = { 'Syrian Arab Republic': 'Middle East · Syria', Syria: 'Middle East · Syria', Tunisia: 'North Africa · Tunisia', Algeria: 'North Africa · Algeria',
+    Morocco: 'North Africa · Morocco', Libya: 'North Africa · Libya', Kazakhstan: 'Central Asia · Kazakhstan', Uzbekistan: 'Central Asia · Uzbekistan', Yemen: 'Arabia · Yemen' }
+  set('demoRegion', REGION[demo.country] || demo.country || demo.name)
+  // cosa chiudono al chiuso le strutture consigliate per il posto vicino (una riga per struttura)
+  const fac = demo.facilities.filter((f, i, a) => a.findIndex(g => g.name === f.name) === i).slice(0, 3)
+  $('#indoorList').innerHTML = fac.map(f => `<li><b>${f.name.replace(' and lunar centre', '').replace(' (coming soon)', '')}</b> · ${(f.place || '').split(',')[0]}, ${km(f.km ?? 0)} → ${(f.covers || []).join(', ').toLowerCase()}</li>`).join('')
   set('unexName', unexplored.name); set('n1500', `${near1500.name}, ${near1500.country} · ${km(near1500.km_home ?? 0)}`)
   set('quoteFac', demo.facilities.slice(0, 3).map(f => f.name.split(/[,(]/)[0].trim()).join(' · ') || '—')
   set('quoteBreaks', Object.entries(demo.params || {}).filter(([, v]) => v < 0.3).map(([k]) => PARAM_LABEL[k] || k).join(', ') || 'none')
   set('demoRank', `Near you · Turin · within ${Number(NEAR_PICK.radius).toLocaleString('en')} km · #${NEAR_PICK.index + 1}`)
-  set('demoSkip', `${km(kmNear)} from Turin · best on Earth ${best.score.toFixed(2)} is already used (${best.known || 'new'}), ${km(kmBest)} away`)
+  set('demoSkip', `${km(kmNear)} from Turin · ${pct(fieldShare(demo))} of the test holds in the field · ${demo.snow_free_months ?? '—'} months a year`)
   set('appUrl', (APP || 'URL to add').replace(/^https?:\/\//, ''))
   set('topNew', D.top_new ? `${D.top_new[0]} of ${D.top_new[1]}` : '—')
-  $('#demoMeter').style.setProperty('--v', `${Math.round(demo.score * 100)}%`)
+  set('topNewTxt', D.top_new ? `${D.top_new[0]} of ${D.top_new[1]}` : '—')
+  if (D.top_new) { $('#cntNew').dataset.count = $('#cntNew').textContent = D.top_new[0]; $('#cntNewOf').textContent = ` of ${D.top_new[1]}` }
+  const ux = k => (D.unexplored?.[k] || [])[0]
+  set('surIce', ux('phoenix__isru_subsurface')?.score.toFixed(2) || ''); set('surLidar', ux('malapert_massif__flight_hda_lidar')?.score.toFixed(2) || ''); set('surGale', ux('gale__rover_mobility')?.score.toFixed(2) || '')
+  // matrice 6 siti × 3 test: il posto più simile dove nessuno testa ancora
+  const TESTS_COLS = [['flight_hda_lidar', 'Lidar landing'], ['rover_mobility', 'Rover mobility'], ['isru_subsurface', 'In-situ resources']]
+  let cells = `<div class="fh"></div>${TESTS_COLS.map(([, n]) => `<div class="fh">${n}</div>`).join('')}`, j = 0
+  for (const t of D.targets) {
+    cells += `<div class="fs rv" style="--d:${0.25 + j * 0.05}s">${t.name}<small>${t.world === 'moon' ? 'Moon' : 'Mars'}</small></div>`
+    for (const [test] of TESTS_COLS) {
+      const p = ux(`${t.id}__${test}`), on = `${t.id}__${test}` === DEMO_CASE ? ' on' : ''
+      cells += `<div class="fc rv${on}" style="--d:${0.3 + j * 0.05}s">${p ? `<b>${p.name}</b><small>${(p.country || '').replace('United States', 'USA').replace('Syrian Arab Republic', 'Syria')} · <i>${p.score.toFixed(2)}</i></small>` : '<small>—</small>'}</div>`
+      j++
+    }
+  }
+  $('#found').innerHTML = cells
+  $('#demoMeter')?.style.setProperty('--v', `${Math.round(demo.score * 100)}%`)
   const world = target(DEMO_CASE.split('__')[0]).world || 'moon'
   const short = v => { // nome breve del sensore: "LRO Diviner Lunar Radiometer" → "LRO Diviner", "GLiM global lithological map" → "GLiM"
     const w = (v || '').split(' (')[0].split(' · ')[0].split(' ')
@@ -634,9 +676,9 @@ function bind() {
     const out = []; for (const t of w) { if (!/^[A-Z]/.test(t) || out.length === 2) break; out.push(t) } return out.join(' ')
   }
   set('demoSensors', `Match · Earth sensor · ${world === 'mars' ? 'Mars' : 'Moon'} sensor`)
-  $('#demoParams').innerHTML = Object.entries(demo.params || {}).map(([k, v]) => `<li class="${v < 0.3 ? 'brk' : ''}"><span>${PARAM_LABEL[k] || k}</span>
+  if ($('#demoParams')) $('#demoParams').innerHTML = Object.entries(demo.params || {}).map(([k, v]) => `<li class="${v < 0.3 ? 'brk' : ''}"><span>${PARAM_LABEL[k] || k}</span>
     <small>${short(D.sensors?.[k]?.earth)} · ${short(D.sensors?.[k]?.[world])}</small><b>${Math.round(v * 100)}%</b></li>`).join('')
-  $('#demoFac').innerHTML = demo.facilities.slice(0, 3).map(f => `<li><span>${f.name}</span><span>${f.km ?? '—'} km</span></li>`).join('')
+  if ($('#demoFac')) $('#demoFac').innerHTML = demo.facilities.slice(0, 3).map(f => `<li><span>${f.name}</span><span>${f.km ?? '—'} km</span></li>`).join('')
   // validazione: percentile 100 = migliore della Terra
   const known = Object.fromEntries(D.known_sites.map(k => [k.id, k.name]))
   $('#vrows').innerHTML = VALIDATION_ROWS.map(([k, site, test], i) => {
@@ -669,12 +711,22 @@ function hexMap() {
   }
   // anelli di 1.500 e 3.000 km intorno a Torino, sulla stessa proiezione delle celle
   const xy = (lat, lon) => [((lon + 180) / 360) * (cols - 1) * w + w / 2, ((LAT0 - lat) / (LAT0 - LAT1)) * (rows - 1) * h + R]
-  const ring = dist => { const d = dist / 6371, a = TURIN.lat * RAD, o = TURIN.lon * RAD; return Array.from({ length: 73 }, (_, i) => {
-    const b = i * 5 * RAD, la = Math.asin(Math.sin(a) * Math.cos(d) + Math.cos(a) * Math.sin(d) * Math.cos(b))
-    const lo = o + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(a), Math.cos(d) - Math.sin(a) * Math.sin(la))
-    return xy(la / RAD, lo / RAD).map(v => v.toFixed(1)).join(',') }).join(' ') }
+  const ring = dist => { // punti dell'anello; si spezza dove attraversa il bordo della mappa (5.000 km passa vicino al polo)
+    const d = dist / 6371, a = TURIN.lat * RAD, o = TURIN.lon * RAD, parts = [[]]
+    const skip = dist > 4000 ? 50 : 0 // 5.000 km: si salta il tratto polare (rotte tra 310° e 50°)
+    for (let i = skip / 5; i <= 72 - skip / 5; i++) {
+      const b = i * 5 * RAD, la = Math.asin(Math.sin(a) * Math.cos(d) + Math.cos(a) * Math.sin(d) * Math.cos(b))
+      let lo = (o + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(a), Math.cos(d) - Math.sin(a) * Math.sin(la))) / RAD
+      lo = ((lo + 540) % 360) - 180
+      const pt = xy(la / RAD, lo), prev = parts.at(-1).at(-1)
+      if (prev && Math.abs(pt[0] - prev[0]) > 400) parts.push([])
+      parts.at(-1).push(pt)
+    }
+    return parts.map(q => q.map(v => v.map(n => n.toFixed(1)).join(',')).join(' '))
+  }
   const [tx, ty] = xy(TURIN.lat, TURIN.lon)
-  const rings = [1500, 3000].map((d, i) => `<polyline class="ring" points="${ring(d)}" style="--d:${2 + i * 0.3}s"/><text class="ringl" x="${tx + 4}" y="${xy(TURIN.lat - d / 111, TURIN.lon)[1] + 13}" style="--d:${2 + i * 0.3}s">${d.toLocaleString('en')} km</text>`).join('')
+  const rings = [1500, 3000, 5000].map((d, i) => ring(d).map(pts => `<polyline class="ring" points="${pts}" style="--d:${2 + i * 0.3}s"/>`).join('') +
+    `<text class="ringl" x="${tx + 4}" y="${xy(TURIN.lat - d / 111, TURIN.lon)[1] + 13}" style="--d:${2 + i * 0.3}s">${d.toLocaleString('en')} km</text>`).join('')
   $('#hexsvg').innerHTML = `<svg viewBox="0 0 1140 ${(rows * h + R).toFixed(0)}">${s}${top}${rings}<circle class="turin" cx="${tx}" cy="${ty}" r="5"/><text class="ringl" x="${tx + 8}" y="${ty - 7}" style="--d:2s">Turin</text></svg>`
 }
 
@@ -792,23 +844,27 @@ function kmFrom(a, b) {
 function scene(i, st) {
   const h = target(DEMO_CASE.split('__')[0])
   const hidden = { moon: { x: 1450, y: 470, r: 290, a: 0, lat: -30, lon: -20 }, mars: { x: 1720, y: 870, r: 130, a: 0, lat: 18, lon: -150 }, earth: { x: 1500, y: 560, r: 360, a: 0, lat: 32, lon: 12 } }
-  switch (i) { // 0 chi siamo · 1 cosa facciamo · 2 demo · 3 come · 4 vantaggio · 5 roadmap · 6 obiettivo
+  switch (i) { // 0 chi siamo · 1 cosa facciamo · 2 come · 3 cosa abbiamo trovato · 4 vantaggio · 5 roadmap · 6 obiettivo
     case 0: return { ...hidden, moon: { x: 1540, y: 450, r: 270, a: st ? 1 : 0.3, lat: -30, lon: -20, spin: 3 }, mars: { x: 1745, y: 860, r: 125, a: st ? 1 : 0.3, lat: 18, lon: -150, spin: 4 },
       earth: { x: 1340, y: 900, r: 52, a: st >= 2 ? 1 : 0, lat: 30, lon: 10, spin: 6 } }
     case 1: return { ...hidden, moon: { x: 290, y: 885, r: 108, a: 1, lat: h.lat * 0.5, lon: h.lon + 12 }, earth: { x: 1630, y: 885, r: 132, a: 1, lat: 34, lon: demo.lon - 20 },
       markers: [{ w: 'moon', lat: h.lat, lon: h.lon, small: true },
         ...(st >= 1 ? [{ w: 'earth', lat: demo.lat, lon: demo.lon, delay: 1.9 }] : [])],
       arcs: st >= 1 ? [{ from: { w: 'moon', lat: h.lat, lon: h.lon }, to: { w: 'earth', lat: demo.lat, lon: demo.lon }, lift: 0.18, delay: 0.9 }] : [] }
+    case 3: { // tutti i posti nuovi, uno per sito × test, sul globo che gira
+      const seen = new Set(), pts = Object.values(D.unexplored || {}).map(l => l[0]).filter(p => p && !seen.has(p.name) && seen.add(p.name))
+      return { ...hidden, earth: { x: 1560, y: 600, r: 300, a: 1, lat: 30, lon: -60, spin: 6 }, markers: pts.map((p, j) => ({ w: 'earth', lat: p.lat, lon: p.lon, small: true, delay: 0.6 + j * 0.08, phase: j * 0.13 })) }
+    }
     case 4: {
       const show = st < 2
       return { ...hidden, earth: { x: 1490, y: 640, r: 360, a: show ? 1 : 0.14, lat: 40, lon: -34 },
         markers: show ? [{ w: 'earth', ...TURIN, label: 'Turin', dx: -18, dy: 26 },
-          { w: 'earth', lat: best.lat, lon: best.lon, label: `best on Earth · ${km(kmFrom(TURIN, best))}`, dx: 18, dy: -20, delay: 1.2, small: true },
-          { w: 'earth', lat: demo.lat, lon: demo.lon, label: `near you · ${km(demo.km_home ?? kmFrom(TURIN, demo))}`, dx: -18, dy: 26, delay: 1.6 }] : [],
+          { w: 'earth', lat: best.lat, lon: best.lon, label: `best on Earth · ${km(kmFrom(TURIN, best))}`, dx: 18, dy: 28, delay: 1.2, small: true },
+          { w: 'earth', lat: demo.lat, lon: demo.lon, label: `near you · ${km(demo.km_home ?? kmFrom(TURIN, demo))}`, dx: -18, dy: -46, delay: 1.6 }] : [],
         arcs: show ? [{ from: { w: 'earth', ...TURIN }, to: { w: 'earth', lat: best.lat, lon: best.lon }, delay: 0.8, lift: 0.22 },
           { from: { w: 'earth', ...TURIN }, to: { w: 'earth', lat: demo.lat, lon: demo.lon }, delay: 1.2, phase: 0.5 }] : [] }
     }
-    case 2: case 3: case 5: return hidden
+    case 2: case 5: return hidden
     case 6: return { moon: { x: 1250, y: 655, r: 112, a: 1, lat: -30, lon: -20, spin: 4 }, earth: { x: 1510, y: 655, r: 140, a: 1, lat: 25, lon: 10, spin: 6 }, mars: { x: 1745, y: 655, r: 82, a: 1, lat: 18, lon: -150, spin: 5 } }
   }
   return hidden
@@ -827,10 +883,10 @@ if (live) {
     try { live.contentWindow.addEventListener('keydown', e => { if (e.key === 'PageDown') { e.preventDefault(); next() } else if (e.key === 'PageUp') { e.preventDefault(); prev() } }) } catch {}
   })
 }
-// il riquadro della slide della demo (left 120, top 262, 1120×630) in pixel della finestra, come inset() di clip-path
+// il riquadro della slide della demo (left 120, top 250, 900×506) in pixel della finestra, come inset() di clip-path
 function frameClip() {
   const r = $('#stage').getBoundingClientRect(), k = r.width / 1920
-  return `inset(${r.top + 262 * k}px ${innerWidth - r.left - 1240 * k}px ${innerHeight - r.top - 892 * k}px ${r.left + 120 * k}px round ${28 * k}px)`
+  return `inset(${r.top + 250 * k}px ${innerWidth - r.left - 1020 * k}px ${innerHeight - r.top - 756 * k}px ${r.left + 120 * k}px round ${28 * k}px)`
 }
 function showLive(on) {
   if (!live || on === liveShown) return
@@ -987,7 +1043,7 @@ if (REC) { // un passo di tempo virtuale: timer scaduti, contatori, transizioni 
   }
 }
 if (location.search.includes('presenter')) document.body.classList.add('presenter')
-$('#demo').addEventListener('loadeddata', () => { $('#frame').classList.add('has-video'); render() })
+$('#demo')?.addEventListener('loadeddata', () => { $('#frame').classList.add('has-video'); render() })
 if (D.generated_at) $('#draftbadge').textContent += ` · export ${D.generated_at.slice(5, 16).replace('T', ' ')} UTC`
 bind(); fit()
 const [hs, hst] = location.hash.slice(1).split('.').map(Number)
