@@ -4,8 +4,7 @@ Dalla radice della repo:
     source src/pipeline/.venv/bin/activate
     python -m src.pipeline.run --step check
 
-Ogni passo di docs/backend_spec.md diventa uno --step: `check` (passo 0), `mock` (passo 1),
-`grid` (passo 2).
+Ogni passo diventa uno --step: `check` (passo 0), `grid` (passo 2), ... `export` (passi 7-8).
 """
 import argparse
 import importlib
@@ -59,12 +58,6 @@ def check() -> int:
     return 0 if ok else 1
 
 
-def mock() -> int:
-    """Passo 1: export di prova con il formato definitivo e numeri finti."""
-    from . import mock_export
-    return mock_export.main()
-
-
 def grid(args) -> int:
     """Passo 2: esagoni H3 di terra, con la quota di area valida."""
     from . import grid as grid_step
@@ -87,31 +80,6 @@ def features(args) -> int:
     """Passo 4: dai raster alla carta d'identità di ogni esagono."""
     from . import features as features_step
     return features_step.main()
-
-
-# Valori lunari provvisori per il primo end-to-end, finché non arriva artemis.csv di Rocco.
-# DICHIARATI COME SEGNAPOSTO nel file esportato (target_source).
-PLACEHOLDER_TARGETS = {
-    "malapert_massif": {"slope_p90": 22.0, "low_sun_frac": 1.0, "roughness": None},
-}
-
-
-def score_one(args) -> int:
-    """Passo 4: voto di un sito × test con i dati disponibili, e file vero per l'app."""
-    import pandas as pd
-    from . import sites
-    feats = pd.read_parquet(config.FEATURES)
-    rules = config.load_tests_file()
-    test = rules["tests"][args.test]
-    target = PLACEHOLDER_TARGETS[args.site]
-    data = sites.build(feats, args.site, args.test, test, target, rules)
-    data["target_source"] = "SEGNAPOSTO: valori provvisori, in attesa di artemis.csv (Rocco)"
-    sites.write(data)
-    print(f"{args.site} × {args.test}: parametri usati {data['params_used']}, mancanti {data['params_missing']}")
-    for r in data["results"]:
-        print(f"  {r['id']} {r['score']:.3f} {'NUOVO' if r['new'] else 'noto '} {r['name']:<28} "
-              f"{r['lat']:>8.3f} {r['lon']:>9.3f}  params={r['params']}")
-    return 0
 
 
 def surface(args) -> int:
@@ -166,9 +134,9 @@ def export(args) -> int:
     return export_step.main(publish=args.publish, do_refine=not args.no_refine, do_dossier=not args.no_dossier)
 
 
-STEPS = {"check": lambda a: check(), "mock": lambda a: mock(), "grid": grid, "sun": sun,
+STEPS = {"check": lambda a: check(), "grid": grid, "sun": sun,
          "terrain": terrain, "surface": surface, "fine": fine, "calibrate": calibrate, "earth": earth,
-         "features": features, "score": score_one, "lola": lola, "lunar": lunar, "export": export}
+         "features": features, "lola": lola, "lunar": lunar, "export": export}
 
 
 def main() -> int:
@@ -183,8 +151,6 @@ def main() -> int:
     parser.add_argument("--limit", type=int, help="fine: al massimo N esagoni (per provare)")
     parser.add_argument("--n-sample", type=int, default=3000, help="fine: esagoni del campione casuale")
     parser.add_argument("--workers", type=int, help="fine: richieste in parallelo (4 in restricted mode, 12 con la quota)")
-    parser.add_argument("--site", default="malapert_massif", help="score: slug del sito Artemis")
-    parser.add_argument("--test", default="rover_mobility", help="score: id del test in tests.yaml")
     parser.add_argument("--publish", action="store_true", help="export: scrive in data/export/ (lo legge l'app)")
     parser.add_argument("--no-refine", action="store_true", help="export: niente 30 m esatti sui candidati (solo stime)")
     parser.add_argument("--no-dossier", action="store_true", help="export: niente aree protette e vento (Earth Engine)")

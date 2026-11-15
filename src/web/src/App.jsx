@@ -15,14 +15,10 @@ import { logisticsLayers, logisticsMarkers, homeMarker, campaignPose, stops, bad
 import { HOMES } from './homes.js'
 import { loadNear, middle } from './near.js'
 import { heatLayer } from './heat.js'
-import { Benchmark, Method, CaseList } from './Sheets.jsx'
+import { Benchmark, Method } from './Sheets.jsx'
 
-const SHOW_CASES = false // casi studio nascosti (decisione del team, dom mattina): il codice resta, basta rimettere true
-
-// Colori per tema e mondo: pagina, sfera, puntini
-const PALETTE = {
-  dark: { page: '#04060a', moon: '#17181c', mars: '#1d1512', earth: '#0b1018', moonDot: [205, 208, 215, 150], marsDot: [255, 165, 120, 225], earthDot: [190, 215, 255, 175], accent: [255, 90, 31] },
-}
+// Colori per mondo: pagina, sfera, puntini
+const PALETTE = { page: '#04060a', moon: '#17181c', mars: '#1d1512', earth: '#0b1018', moonDot: [205, 208, 215, 150], marsDot: [255, 165, 120, 225], earthDot: [190, 215, 255, 175], accent: [255, 90, 31] }
 
 // Luna, Marte e Terra sono lo stesso oggetto: puntini da lontano, foto da vicino, stessa soglia di zoom
 const FADE = [3.5, 5]
@@ -52,7 +48,7 @@ const STYLE = {
       tiles: [location.origin + '/mars-tiles/{z}/{x}/{y}.png'] }, // proxy: S3 non manda CORS (vite.config.js, vercel.json)
   },
   layers: [
-    { id: 'sphere', type: 'background', paint: { 'background-color': PALETTE.dark.moon } },
+    { id: 'sphere', type: 'background', paint: { 'background-color': PALETTE.moon } },
     { id: 'moon', type: 'raster', source: 'moon', minzoom: FADE[0] - 0.5, layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
     { id: 'mars', type: 'raster', source: 'mars', minzoom: FADE[0] - 0.5, layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
     { id: 'gibs', type: 'raster', source: 'gibs', minzoom: FADE[0] - 0.5, layout: { visibility: 'none' }, paint: { 'raster-opacity': IMG_FADE } },
@@ -69,7 +65,6 @@ const basePad = () => (innerWidth > 820 ? { left: innerWidth * 0.5, top: 0, righ
 
 export default function App() {
   const box = useRef(null), stars = useRef(null), map = useRef(null), overlay = useRef(null), spinning = useRef(true), markers = useRef([])
-  const theme = 'dark' // un solo tema
   const [world, setWorld] = useState('moon')
   const [step, setStep] = useState('planet')
   const [site, setSite] = useState(null)
@@ -99,7 +94,7 @@ export default function App() {
   const test = testId && TESTS[testId]
   const result = data?.results[picked]
   const model = step === 'test' ? MODELS[hoverTest] || MODELS.rover_mobility : null
-  const pal = PALETTE[theme]
+  const pal = PALETTE
 
   useEffect(() => {
     for (const w of ['moon', 'mars', 'earth']) loadDots(w).then(addDots(w))
@@ -136,7 +131,7 @@ export default function App() {
         'fog-color': 'rgba(0,0,0,0)', 'atmosphere-blend': world === 'earth' ? ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0] : 0 })
     }
     try { apply() } catch { m.once('load', apply) } // isStyleLoaded() è falso anche solo con tile in arrivo
-  }, [theme, world]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world])
 
   // layer deck: puntini
   useEffect(() => {
@@ -150,16 +145,16 @@ export default function App() {
       id: 'dots-' + world, data: dots[world], getPosition: d => [d[0], d[1]],
       radiusUnits: 'pixels', getRadius: world === 'moon' ? d => 0.7 + 0.7 * d[2] : world === 'mars' ? d => 1.1 + 0.6 * d[2] : 1.4, // Marte ha meno punti per superficie: più grandi radiusScale: weighted ? Math.min(4, 2 ** (zoom - pickZoom.current[world])) : 1,
       getFillColor: weighted ? d => [...bright, 255 * ((c[3] / 255) * d[2]) ** 0.6] : c,
-      opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme },
+      opacity: dotsFade, visible: dotsFade > 0,
     })]
     // le zone del modello, un gruppo di esagoni per posto (il numero in classifica è il pin al centro); nella scheda spicca quella aperta
-    if (world === 'earth' && step === 'results' && heat?.key === site?.id + testId) layers.push(heatLayer({ cells: heat.cells, accent: pal.accent, theme }))
+    if (world === 'earth' && step === 'results' && heat?.key === site?.id + testId) layers.push(heatLayer({ cells: heat.cells, accent: pal.accent }))
     if (world === 'earth' && data) layers.push(new H3HexagonLayer({ id: 'zones', data: data.zones, getHexagon: d => d.h3,
       getFillColor: d => [...pal.accent, step === 'card' && d.rank !== picked + 1 ? 45 : 150], updateTriggers: { getFillColor: [step, picked] },
       getLineColor: [255, 255, 255, 230], stroked: true, lineWidthMinPixels: 1, extruded: false, highPrecision: true }))
-    if (world === 'earth' && step === 'card' && result && !result.partial) layers.push(...logisticsLayers({ result, accent: pal.accent, theme }))
+    if (world === 'earth' && step === 'card' && result && !result.partial) layers.push(...logisticsLayers({ result, accent: pal.accent }))
     overlay.current?.setProps({ layers })
-  }, [world, dots, data, zoom, theme, step, picked, result, heat]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world, dots, data, zoom, step, picked, result, heat]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // pin: siti con il nome su Luna e Marte, risultati numerati sulla Terra
   useEffect(() => {
@@ -213,6 +208,9 @@ export default function App() {
   // un'animazione alla volta: i click durante un movimento si ignorano, tranne l'ultimo fatto nell'ultimo secondo.
   // Quello parte subito se il volo sta solo rallentando (ne taglia la coda), altrimenti appena il movimento finisce
   const queued = useRef(null), again = useRef(false), home = useRef(null)
+  // movimenti di camera chiesti dal pannello (modalità, base, raggio) durante un volo: il contenuto cambia subito, la camera si sposta a fine volo
+  const after = useRef(null)
+  const settle = fn => { if (busy.current) after.current = fn; else fn() }
   const act = fn => async (...a) => {
     if (busy.current) {
       queued.current = { run: () => fn(...a), at: performance.now() }
@@ -220,12 +218,15 @@ export default function App() {
       return
     }
     busy.current = true
+    document.body.classList.add('busy') // i comandi di navigazione si attenuano finché il volo non finisce (app.css)
     try { await fn(...a) } finally {
       busy.current = false
-      const q = queued.current
-      queued.current = null
+      document.body.classList.remove('busy')
+      const q = queued.current, s = after.current
+      queued.current = null; after.current = null
       if (again.current) { again.current = false; setTimeout(() => home.current()) } // "Ricomincia" chiesto durante il movimento: vince su tutto
       else if (q && performance.now() - q.at <= 1000) act(q.run)()
+      else s?.()
     }
   }
   // Posa della mappa che ricalca il pianeta a puntini della prima pagina al tempo t: stesso centro e raggio sullo schermo,
@@ -328,14 +329,13 @@ export default function App() {
   })
   const back = () => ({ card: leaveCard, results: () => chooseSite(site), test: leaveSite, site: toPlanets })[step]?.()
 
-  // Near you: plain flights outside act(); a click during a flight is ignored
+  // Near you: plain flights outside act(). The panel always answers; during a flight the camera move waits for its end (settle)
   const setNear = (m, h) => {
-    if (busy.current || (m === mode && h.id === base.id)) return
+    if (m === mode && h.id === base.id) return
     setMode(m); setBase(h); setPicked(0)
-    const pose = center => map.current.flyTo({ center, zoom: m === 'near' ? 2.2 : 1.8, pitch: 0, bearing: 0, duration: 2000, essential: true, padding: basePad() })
-    spinning.current = false
+    const pose = center => map.current.flyTo({ center, zoom: 1.8, pitch: 0, bearing: 0, duration: 2000, essential: true, padding: basePad() })
     if (m === 'near') flyNear.current = true
-    else { const f = (m === 'new' ? newData : globalData)?.results[0]; if (f) pose([f.lon, f.lat]) }
+    else { const f = (m === 'new' ? newData : globalData)?.results[0]; if (f) settle(() => { spinning.current = false; pose([f.lon, f.lat]) }) }
   }
   useEffect(() => { setMode('earth'); setNearData(null); setBase(HOMES[0]) }, [site, testId])
   useEffect(() => {
@@ -344,9 +344,9 @@ export default function App() {
     loadNear(base, site.id, testId, radius).then(d => {
       if (!live) return
       setNearData({ ...d, key: nearKey })
-      if (flyNear.current && !busy.current) {
+      if (flyNear.current) {
         const f = d.results[0]
-        map.current.flyTo({ center: f ? middle(base, f) : [base.lon, base.lat], zoom: 2.2, pitch: 0, bearing: 0, duration: 2000, essential: true, padding: basePad() })
+        settle(() => { spinning.current = false; map.current.flyTo({ center: f ? middle(base, f) : [base.lon, base.lat], zoom: 2.2, pitch: 0, bearing: 0, duration: 2000, essential: true, padding: basePad() }) })
       }
       flyNear.current = false
     }, () => live && setNearData({ key: nearKey, results: [], zones: [], easiest: -1, hidden: 0, bestOnEarth: null, source: 'cells', home: base }))
@@ -451,7 +451,7 @@ export default function App() {
             </ul>
           </>)}
 
-          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, HOMES[0])} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (busy.current || r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} hideKnown={hideKnown}
+          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, HOMES[0])} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} hideKnown={hideKnown}
             onHideKnown={v => { setHideKnown(v); setPicked(0) }} showAgencies={showAgencies} onShowAgencies={setShowAgencies} />}
 
           {step === 'card' && result && <PlaceCard data={data} picked={picked} site={site} test={{ name: TEST_EN[testId].name }} testId={testId} onJump={jump} />}
@@ -483,14 +483,14 @@ export default function App() {
       <div className="tools">
         <p className="brand" title="Planetary Outcrop & Landing Environment Nearby Testbed Assistant"><b className="wm">POLENTA</b><span>by FVG Station</span></p>
         <div className="tools-row">
-        {SHOW_CASES && <button className="glass pill" onClick={() => setSheet(sheet === 'cases' ? null : 'cases')}>Case studies</button>}
+        <button className="glass pill" onClick={() => setSheet(sheet === 'method' ? null : 'method')}>Method &amp; data</button>
         <button className="glass pill" onClick={() => setSheet(sheet === 'benchmark' ? null : 'benchmark')}>Benchmark</button>
         <button className="glass pill" onClick={() => { caseId.current++; restart() }}>Start over</button>
         </div>
       </div>
-      {sheet && <div className={'sheet glass' + (sheet === 'cases' ? ' narrow' : '')}>
+      {sheet && <div className="sheet glass">
         <button className="close" aria-label="Close" onClick={() => setSheet(null)}>×</button>
-        {sheet === 'benchmark' ? <Benchmark onOpen={startCase} /> : sheet === 'cases' ? <CaseList onOpen={startCase} /> : <Method />}
+        {sheet === 'benchmark' ? <Benchmark onOpen={startCase} /> : <Method />}
       </div>}
     </>
   )

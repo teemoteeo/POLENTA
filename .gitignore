@@ -1,6 +1,20 @@
-2005-Citadel/
-.DS_Store
+# secrets, deps, OS
 .env
+.DS_Store
 node_modules/
-edo/
+
+# downloaded datasets (rebuilt by the pipeline)
 data/raw/
+
+# team working material: notes, plans, agent rules. Not needed to run the code
+AGENTS.md
+CLAUDE.md
+archive/
+human_docs/
+docs/*
+!docs/pitch/
+data/datasets_links.md
+
+# outside the project
+2005-Citadel/
+edo/

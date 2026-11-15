@@ -1,8 +1,7 @@
 import { cellToLatLng } from 'h3-js'
 import { getResults, loadCells, TESTS, knownReason } from './data.js'
-import { plan, haversineKm } from './campaign.js'
+import { plan, haversineKm, unit } from './campaign.js'
 import { coord } from './format.js'
-import { RADIUS_KM } from './homes.js'
 
 // Full files from the pipeline (data/export/near/<home>__<site>__<test>.json): lazy, the folder may not exist yet
 const NEAR = import.meta.glob('../../../data/export/near/*.json', { import: 'default' })
@@ -10,20 +9,19 @@ const PICKS = 5, APART_KM = 60
 
 // midpoint on the sphere, for the camera
 export function middle(a, b) {
-  const R = Math.PI / 180, v = p => [Math.cos(p.lat * R) * Math.cos(p.lon * R), Math.cos(p.lat * R) * Math.sin(p.lon * R), Math.sin(p.lat * R)]
-  const s = v(a).map((x, i) => x + v(b)[i]), n = Math.hypot(...s) || 1
+  const R = Math.PI / 180, s = unit(a).map((x, i) => x + unit(b)[i]), n = Math.hypot(...s) || 1
   return [Math.atan2(s[1], s[0]) / R, Math.asin(s[2] / n) / R]
 }
 
-export async function loadNear(home, siteId, testId, radius = RADIUS_KM) {
+export async function loadNear(home, siteId, testId, radius) {
   const top = getResults(siteId, testId)?.results[0]?.score ?? null
   const file = NEAR[`../../../data/export/near/${home.id}__${siteId}__${testId}.json`]
   let results, source, bestOnEarth = top
   const j = file && await file()
-  const byRadius = j?.results_by_radius?.[radius] // un elenco per raggio (1500, 3000, 5000), oppure un solo raggio in radius_km
-  if (byRadius || (j && (j.radius_km ?? RADIUS_KM) === radius)) {
+  const byRadius = j?.results_by_radius?.[radius] // un elenco per raggio (1500, 3000, 5000)
+  if (byRadius) {
     const w = TESTS[testId].requisiti
-    results = (byRadius || j.results || []).slice(0, PICKS).map(r => ({ ...r, plan: plan(r, w, home), known: knownReason(r) }))
+    results = byRadius.slice(0, PICKS).map(r => ({ ...r, plan: plan(r, w, home), known: knownReason(r) }))
     bestOnEarth = j.best_on_earth ?? top
     source = 'export'
   } else {

@@ -36,7 +36,6 @@ export function placeName(name = '') {
   for (const [it, en] of WORDS) s = s.replaceAll(it, en)
   return s
 }
-export const placeEN = placeName
 
 const FACILITY = [
   ['Sfera a vuoto da 60 ft', '60 ft vacuum sphere'], ['Campo ALHAT', 'ALHAT hazard field'], ['Campo di prova di Huailai', 'Huailai proving ground'],
@@ -49,13 +48,6 @@ export function facilityName(name = '') {
   let s = name
   for (const [it, en] of FACILITY) s = s.replaceAll(it, en)
   return placeName(s)
-}
-
-export function whyEN(why = '') {
-  return why
-    .replace(/^voto sotto (\d),(\d+)$/, 'score below $1.$2')
-    .replace('la Terra non lo riproduce (indoor)', 'Earth cannot reproduce it (indoor only)')
-    .replace(/^la Terra non arriva al valore lunare \(differenza (.+)\)$/, 'Earth does not reach the lunar value (gap $1)')
 }
 
 const ROCK = {

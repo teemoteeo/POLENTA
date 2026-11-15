@@ -1,17 +1,12 @@
 import { PathLayer } from '@deck.gl/layers'
-import { TURIN } from './campaign.js'
+import { TURIN, haversineKm as kmBetween, unit as v } from './campaign.js'
 import { facilityName, label, placeName } from './i18n.js'
 import './logistics.css'
 
 const R = Math.PI / 180
-const kmBetween = (a, b) => { // haversine
-  const h = Math.sin((b.lat - a.lat) * R / 2) ** 2 + Math.cos(a.lat * R) * Math.cos(b.lat * R) * Math.sin((b.lon - a.lon) * R / 2) ** 2
-  return 12742 * Math.asin(Math.sqrt(h))
-}
 
 // great-circle polyline split at the antimeridian: [[[lon,lat],...], ...]
 function route(a, b, n = 64) {
-  const v = p => [Math.cos(p.lat * R) * Math.cos(p.lon * R), Math.cos(p.lat * R) * Math.sin(p.lon * R), Math.sin(p.lat * R)]
   const A = v(a), B = v(b)
   const w = Math.acos(Math.min(1, Math.max(-1, A[0] * B[0] + A[1] * B[1] + A[2] * B[2])))
   if (w < 1e-6) return []
@@ -53,14 +48,12 @@ function groups(result) {
 const covers = facs => [...new Set(facs.flatMap(f => f.covers || []))].map(label).join(', ')
 const short = f => facilityName(f.name).replace(/\s*\(.*?\)/g, '').split(/ (?:and|e) /)[0]
 
-export function logisticsLayers({ result, accent, theme }) {
-  const base = baseOf(result)
-  const mk = (id, a, b, color, w) => new PathLayer({
-    id, data: route(a, b).map(path => ({ path })), getPath: d => d.path, getColor: color,
-    widthUnits: 'pixels', getWidth: w, capRounded: true, pickable: false,
-  })
+export function logisticsLayers({ result, accent }) {
   // solo la rotta sede → posto; le strutture indoor restano come tappe a lettere, senza linee
-  return result.lat != null ? [mk('logi-site', base, result, [...accent, 235], 3)] : []
+  return result.lat != null ? [new PathLayer({
+    id: 'logi-site', data: route(baseOf(result), result).map(path => ({ path })), getPath: d => d.path, getColor: [...accent, 235],
+    widthUnits: 'pixels', getWidth: 3, capRounded: true, pickable: false,
+  })] : []
 }
 
 export function homeMarker(n = 0, title = 'Customer', home = TURIN) {
@@ -75,7 +68,7 @@ export function stops(result) {
   const { out, home } = groups(result), base = baseOf(result)
   return {
     home: home.map(short),
-    out: out.map(g => ({ g, km: Math.round(kmBetween(base, g)) })).sort((a, b) => a.km - b.km).map(({ g, km }, i) => ({
+    out: out.map(g => ({ g, km: kmBetween(base, g) })).sort((a, b) => a.km - b.km).map(({ g, km }, i) => ({
       g, km, letter: String.fromCharCode(65 + i), names: g.facs.map(short).join(' + '), city: placeName(g.facs[0].place).split(',')[0],
     })),
   }
@@ -88,15 +81,12 @@ export function logisticsMarkers(result) {
     ...out.map(s => ({
       lngLat: [s.g.lon, s.g.lat], className: 'logi logi-fac', html: s.letter,
       title: `${s.names}, ${s.city} · ${s.km.toLocaleString('en')} km from ${baseOf(result).name} · closes: ${covers(s.g.facs)}`,
-    })),
-    // la distanza sede → posto, scritta accanto al pin del posto (sempre visibile, anche da vicino)
-    ...(result.plan?.kmSite != null ? [{ lngLat: [result.lon, result.lat], className: 'dist', html: `<span>${result.plan.kmSite.toLocaleString('en')} km</span>`, title: `${result.plan.kmSite.toLocaleString('en')} km from ${baseOf(result).name}` }] : [])]
+    }))]
 }
 
 // camera pose showing the base, the site and all facilities: spherical centroid + zoom from the widest angle
 export function campaignPose(result) {
   const pts = [baseOf(result), ...(result.lat != null ? [result] : []), ...groups(result).out]
-  const v = p => [Math.cos(p.lat * R) * Math.cos(p.lon * R), Math.cos(p.lat * R) * Math.sin(p.lon * R), Math.sin(p.lat * R)]
   const c = [0, 0, 0]
   for (const p of pts) v(p).forEach((x, i) => { c[i] += x })
   const n = Math.hypot(...c) || 1

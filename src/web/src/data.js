@@ -2,10 +2,6 @@ import { load as loadYaml } from 'js-yaml'
 // catalogo dei test: quello della pipeline (Edo e Rocco), stessi id dei file di export
 import testsRaw from '../../../data/config/tests.yaml?raw'
 import manifest from '../../../data/export/manifest.json'
-import labels from '../../../data/export/labels.json'
-import facilities from '../../../data/export/facilities.json'
-import benchmark from '../../../data/export/benchmark.json'
-import targets from '../../../data/export/targets.json'
 import validation from '../../../data/export/validation.json'
 import knownAnalogues from '../../../data/config/excluded_known_analogues.json'
 import knownRegions from '../../../data/config/known_analogue_regions.json'
@@ -17,19 +13,14 @@ import { plan, haversineKm } from './campaign.js'
 
 export const TESTS = loadYaml(testsRaw).tests
 export const EXPORTED_AT = manifest.generated_at
-export const LABELS = labels
-export const FACILITIES = facilities
-export const BENCHMARK = benchmark
 export const MANIFEST = manifest
-export const TARGETS = targets
-export const SENSORS = sensors // sensore di ogni parametro: Terra (pipeline), Luna e Marte (Rocco, sensori_per_parametro_e_pianeta.csv)
+// sensors: sensore di ogni parametro: Terra (pipeline), Luna e Marte (Rocco, sensori_per_parametro_e_pianeta.csv)
 // nome breve del sensore (senza le parentesi) e nome completo per il tooltip; world: 'earth' | 'moon' | 'mars'
 export const sensor = (p, world) => {
   const full = sensors[p]?.[world]
   return full ? { short: full.replace(/\s*\([^)]*\)/g, '').replace(/ above 60°N/, '').replace(/, mean annual.*$/, '').trim(), full } : null
 }
 export const VALIDATION = validation // percentile dei siti di test noti per sito × test (pipeline)
-export const KNOWN_ANALOGUES = knownAnalogues // siti di test già usati (Rocco, data/config)
 export const AGENCIES = agencies // sedi delle 10 principali agenzie spaziali (Rocco, data/config)
 
 // Siti scelti dal team: human_docs/coordinate_6_siti_frontend.csv (stessi id di data/export/targets.json).
@@ -68,7 +59,7 @@ const TOP = 5 // i posti mostrati per ogni sito × test (l'export ne ha 20: le r
 //    Hawaii, Canarie, Svalbard, Artico canadese, Antartide; le prime quattro le cita la challenge), oppure
 //  - sta entro KNOWN_KM da un sito di test noto (lista di Rocco + data/export/known_sites.json, tutti i test).
 // La stessa regola decide il toggle "Hide known test sites" e l'etichetta "new site".
-export const KNOWN_KM = 150
+const KNOWN_KM = 150
 const KNOWN_POINTS = [...knownAnalogues, ...knownSites].map(k => ({ name: k.name, lat: k.lat, lon: k.lon }))
 export function knownReason(r) {
   const reg = knownRegions.find(g => r.lat >= g.lat_min && r.lat <= g.lat_max && r.lon >= g.lon_min && r.lon <= g.lon_max)

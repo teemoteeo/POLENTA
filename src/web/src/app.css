@@ -138,3 +138,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .brand .wm{font:400 22px/1 "Michroma","Libre Franklin",sans-serif;letter-spacing:.06em;color:var(--ink)}
 .brand span{font:400 12px var(--mono);color:var(--mute)}
 .hero.small .brand .wm{font-size:15px}
+
+/* durante un volo i comandi di navigazione aspettano: attenuati, cursore normale (modalità, base e raggio restano attivi) */
+:is(.backbtn,.grid2 button,.panel .list button,.logi-toggle){transition:opacity .25s}
+body.busy :is(.backbtn,.grid2 button,.panel .list button,.logi-toggle){opacity:.5}
+body.busy :is(.backbtn,.grid2 button,.panel .list button,.logi-toggle,.pin,.site,.planet){cursor:default}

@@ -34,13 +34,6 @@ MASK_NATIVE_M = 1000      # risoluzione dell'NDVI MODIS: la maschera si calcola 
 # I siti della demo (data/config/siti_coordinate.csv, Rocco): 4 sulla Luna, 2 su Marte
 SITES = ["Malapert Massif", "Haworth", "Nobile Rim 1", "Aristarchus Plateau", "Phoenix", "Gale"]
 
-# I 9 siti candidati di Artemis III: li usa solo l'export di prova (mock_export.py)
-ARTEMIS_SITES = [
-    "Peak near Cabeus B", "Haworth", "Malapert Massif", "Mons Mouton Plateau", "Mons Mouton",
-    "Nobile Rim 1", "Nobile Rim 2", "de Gerlache Rim 2", "Slater Plain",
-]
-
-
 def slug(name: str) -> str:
     """'Malapert Massif' -> 'malapert_massif': l'identificativo usato nei nomi dei file."""
     return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")

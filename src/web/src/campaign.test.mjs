@@ -1,7 +1,7 @@
 import fs from 'fs'
 import assert from 'assert'
 import { load } from 'js-yaml'
-import { plan, rankByCampaign } from './campaign.js'
+import { plan } from './campaign.js'
 
 const results = JSON.parse(fs.readFileSync('../../data/export/sites/haworth__rover_mobility.json')).results.slice(0, 5)
 const w = load(fs.readFileSync('../../data/config/tests.yaml', 'utf8')).tests.rover_mobility.requisiti
@@ -14,13 +14,4 @@ for (const p of ps) {
 }
 const nv = results.findIndex(r => /Winnemucca/.test(r.name))
 assert(nv >= 0 && Math.abs(ps[nv].kmSite - 9000) <= 600, 'kmSite Nevada ' + ps[nv]?.kmSite)
-const ranked = rankByCampaign(results, w)
-assert.deepStrictEqual(ranked.map(r => r.id).sort(), results.map(r => r.id).sort())
-for (let i = 1; i < ranked.length; i++) {
-  const a = ranked[i - 1].plan, b = ranked[i].plan
-  assert.ok(a.blockers <= b.blockers)
-  if (a.blockers !== b.blockers) continue
-  assert(a.fieldShare - b.fieldShare >= -0.005, 'order')
-  if (Math.abs(a.fieldShare - b.fieldShare) < 0.005) assert(a.kmTotal <= b.kmTotal)
-}
 console.log('ok')

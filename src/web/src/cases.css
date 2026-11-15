@@ -1,8 +1,0 @@
-.sheet.narrow{width:min(420px,calc(100vw - 40px));bottom:auto}
-.case-rows{display:flex;flex-direction:column;gap:8px}
-.case-rows button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:12px 14px;border-radius:14px;background:var(--soft);border:1px solid transparent;color:var(--ink);cursor:pointer;transition:background .15s,border-color .15s}
-.case-rows button:hover{background:var(--line);border-color:var(--accent)}
-.case-rows button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.case-rows .ct{font-size:15px;line-height:1.25}
-.case-rows .cs{font-size:11px;color:var(--mute)}
-.case-rows .cl{font-size:12px;line-height:1.4;color:var(--mute);margin-top:2px}

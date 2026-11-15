@@ -16,7 +16,19 @@ import numpy as np
 import pandas as pd
 
 from . import config, score as sc
-from .mock_export import FACILITIES   # sostituite in export.py da data/config/facilities.csv
+
+# Chi copre cosa la Terra non dà (bozza: export.py le sostituisce con data/config/facilities.csv)
+FACILITIES = {
+    "gravity_1_6": ["LUNA, Colonia (offload)", "ARGOS, NASA JSC"],
+    "vacuum": ["camere a vuoto ESTEC", "Chamber B, NASA JSC"],
+    "electrostatic_dust": ["LUNA Dust Lab, Colonia", "Swamp Works, NASA KSC"],
+    "plume_vacuum": ["sfera da 60 ft, NASA Langley"],
+    "cryo_psr": ['TVAC "sporca" ALTEC, Torino (in arrivo)'],
+    "agglutinates": ["vasche di simulante LHS-1 / LMS-1"],
+    "soil_density": ["vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"],
+    "low_sun_frac": ["Ames Lunar Lab", "ALTEC (luci a ~8°)"],
+    "slope_p90": ["ALTEC (rampa a 25°)"],
+}
 KNOWN_SITES = config.known_sites()
 
 

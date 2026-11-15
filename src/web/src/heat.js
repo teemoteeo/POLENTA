@@ -14,10 +14,10 @@ function prep(cells) {
   return p
 }
 
-export function heatLayer({ cells, accent, theme }) {
+export function heatLayer({ cells, accent }) {
   return new ScatterplotLayer({
     id: 'heat', data: prep(cells), getPosition: d => d, radiusUnits: 'pixels', radiusMinPixels: 2,
     getRadius: d => 2 + 2.2 * d[2], getFillColor: d => [...accent, 70 + 185 * d[2] ** 1.2],
-    pickable: false, updateTriggers: { getFillColor: theme },
+    pickable: false,
   })
 }

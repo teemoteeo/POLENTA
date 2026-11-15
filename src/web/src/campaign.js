@@ -9,6 +9,12 @@ export function haversineKm(a, b) {
   return Math.round(2 * 6371 * Math.asin(Math.sqrt(h)))
 }
 
+// lon/lat in gradi → versore sulla sfera
+export function unit(p) {
+  const R = Math.PI / 180
+  return [Math.cos(p.lat * R) * Math.cos(p.lon * R), Math.cos(p.lat * R) * Math.sin(p.lon * R), Math.sin(p.lat * R)]
+}
+
 export function plan(result, weights, home = TURIN) {
   // tutti i parametri con peso > 0 nel test: quelli senza dato restano visibili come 'nodata' (è il motivo di κ < 1)
   const rows = Object.entries(weights).filter(([, w]) => w > 0).map(([p, w]) => {
@@ -41,13 +47,4 @@ export function plan(result, weights, home = TURIN) {
     // ostacoli che fermano una campagna vera: poco suolo nudo nell'esagono, finestra senza neve di 3 mesi o meno
     blockers: (d.valid_share != null && d.valid_share < 0.15 ? 1 : 0) + (d.snow_free_months <= 3 ? 1 : 0),
   }
-}
-
-export function rankByCampaign(results, weights) {
-  return results.map(r => (r.plan ? r : { ...r, plan: plan(r, weights) })).sort((a, b) => {
-    const A = a.plan, B = b.plan
-    if (A.blockers !== B.blockers) return A.blockers - B.blockers // prima i posti dove la campagna si può fare davvero
-    if (Math.abs(A.fieldShare - B.fieldShare) >= 0.005) return B.fieldShare - A.fieldShare
-    return A.kmTotal - B.kmTotal || b.score - a.score
-  })
 }
