@@ -5,6 +5,7 @@
 Where on Earth to test hardware for the Moon and Mars.
 
 - **Live app:** https://polenta-fvg.vercel.app
+- **Demo (7 slides):** https://polenta-fvg.vercel.app/pitch/
 - **Team:** FVG Station (Timoteo, Edoardo, Rocco)
 - **Event:** NASA Space Apps Challenge 2026, Turin
 - **Challenge:** [Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars](https://www.spaceappschallenge.org/2026/challenges/permanent-moon-base-locations-and-mars/)

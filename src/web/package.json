@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "rm -rf public/pitch && mkdir -p public/pitch && cp -R ../../docs/pitch/index.html ../../docs/pitch/data.js ../../docs/pitch/fonts public/pitch/ && cp scripts/pitch-public.js public/pitch/public.js && echo '<script src=\"public.js\"></script>' >> public/pitch/index.html",
     "build": "vite build",
     "preview": "vite preview"
   },

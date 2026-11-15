@@ -395,8 +395,8 @@ body.showhelp #help{display:block}
   <h2 class="wide rv" style="--d:.1s">Pick a Moon or Mars site and a test. Get your <span class="acc">test campaign</span> on Earth.</h2>
   <div class="vs" data-until="0">
     <div class="vh rv" style="--d:.2s"><span>Today · finding a test site by hand</span><span class="acc">With POLENTA</span></div>
-    <div class="vr rv" style="--d:.3s"><div><b><span data-count="3">3</span><small> weeks</small></b><span>2 engineers read papers and revisit known sites to build a shortlist</span></div><div><b>minutes</b><span>for the ranked shortlist: every point on Earth without ocean or vegetation, for the target and the test. Then 1 engineer checks it in about 3 days</span></div></div>
-    <div class="vr rv" style="--d:.45s"><div><b>known<small> sites</small></b><span>teams go back to the same few: Etna, Arizona, the Canaries, Atacama</span></div><div><b><span data-count="61" id="cntNew">61</span><small id="cntNewOf"> of 90</small></b><span>of our best places are new: nobody tests there yet</span></div></div>
+    <div class="vr rv" style="--d:.3s"><div><b><span data-count="3">3</span><small> weeks</small></b><span>2 engineers read papers and revisit known sites to build a shortlist</span></div><div><b>minutes</b><span>for the ranked shortlist: all bare land we have data for, for the target and the test. Then 1 engineer checks it in about 3 days</span></div></div>
+    <div class="vr rv" style="--d:.45s"><div><b>known<small> sites</small></b><span>teams go back to the same few: Etna, Arizona, the Canaries, Atacama</span></div><div><b><span data-count="61" id="cntNew">61</span><small id="cntNewOf"> of 90</small></b><span>of our best places are outside every known test site and analog region</span></div></div>
     <div class="vr rv" style="--d:.6s"><div><b><span data-count="57">57</span><small> person-days</small></b><span>to choose the site: desk study, survey, samples, permit dossier</span></div><div><b><span data-count="20">20</span><small> person-days</small></b><span>same steps, on a shortlist with the data already there: 4–8 weeks earlier on site</span></div></div>
     <p class="vnote rv" style="--d:.8s">Our estimates on a real campaign, the ETNA lunar rover on Mount Etna (2026): about 10 months from survey to field, 4–5 of them for permits, which we don’t shorten.</p>
   </div>
@@ -406,7 +406,7 @@ body.showhelp #help{display:block}
     <div class="cards" data-step="1">
       <div class="card glass rv x-scale"><div class="lbl"><b>01</b> Target</div><div class="big fig">6 sites</div><p>candidate Moon-base regions (3 Artemis III at the South Pole, Aristarchus) and Mars landing sites (Phoenix, Gale)</p></div>
       <div class="card glass rv x-scale" style="--d:.18s"><div class="lbl"><b>02</b> Test</div><div class="big fig">3 tests</div><div class="tests"><span>Lidar landing</span><span>Rover mobility</span><span>In-situ resources</span></div></div>
-      <div class="card glass rv x-scale" style="--d:.36s"><div class="lbl"><b>03</b> Where on Earth</div><div class="big">all bare land</div><p>every point on Earth without ocean or vegetation, scored with the target’s metrics. Best on Earth, or <b>near your base</b></p></div>
+      <div class="card glass rv x-scale" style="--d:.36s"><div class="lbl"><b>03</b> Where on Earth</div><div class="big">all bare land</div><p>every bare-land cell we have data for, scored with the target’s metrics. Best on Earth, or <b>near your base</b></p></div>
       <div class="card glass rv x-scale" style="--d:.54s"><div class="lbl"><b>04</b> Campaign</div><div class="big">field + indoor</div><p>what holds outdoors, where the analogy breaks, which facility closes each gap</p></div>
     </div>
   </div>
@@ -422,7 +422,7 @@ body.showhelp #help{display:block}
 <!-- 4 · COME LO FACCIAMO: dati NASA e validazione ---------------------------------------->
 <section class="slide" data-title="How we do it" data-end="70" data-criteria="Relevance,Validity,Creativity">
   <div class="kick rv">02 — <b>How we do it</b></div>
-  <h2 class="wide rv" style="--d:.1s">We measure the same metrics on Earth, the Moon and Mars, and match the sites.</h2>
+  <h2 class="wide rv" style="--d:.1s">We compare the same metrics on Earth, the Moon and Mars, and match the sites.</h2>
   <div class="datasets rv" data-until="0" style="--d:.2s">
     <div><h4><b>NASA</b> · Earth, all bare land</h4><ul><li class="nasa">NASADEM</li><li class="nasa">MOD44W</li><li class="nasa">MOD13A3</li><li class="nasa">MOD11A2</li><li class="nasa">MCD43A3</li><li class="nasa">MOD10A2</li><li class="nasa">VIIRS DNB</li><li class="nasa">MERRA-2</li></ul></div>
     <div><h4><b>NASA</b> · Moon</h4><ul><li class="nasa">LRO LOLA 20 m</li><li class="pub">Diviner</li><li class="pub">LEND</li><li class="pub">LROC</li><li class="pub">LCROSS</li></ul></div>
@@ -432,12 +432,12 @@ body.showhelp #help{display:block}
     <div class="dlegend">in the app, every value names its sensor</div>
   </div>
   <div class="valid rv" data-step="1">
-    <h4><b>Validation</b> · real test sites rank near the top</h4>
+    <h4><b>Validation</b> · some real test sites rank near the top</h4>
     <div id="vrows"></div>
   </div>
   <div class="hexmap rv" id="hexmap" style="--d:.3s">
     <div id="hexsvg"></div>
-    <div class="hexcap"><span><i style="background:var(--soft)"></i>bare land, scored</span><span><i style="background:var(--accent)"></i>not used for tests yet</span><span><i style="border:1.6px solid var(--ink)"></i>best, but already used</span><span><i style="border:1.6px dashed var(--accent)"></i>1,500 / 3,000 / 5,000 km from Turin</span></div>
+    <div class="hexcap"><span><i style="background:var(--soft)"></i>bare land, scored</span><span><i style="background:var(--accent)"></i>not a known test site</span><span><i style="border:1.6px solid var(--ink)"></i>best, but already used</span><span><i style="border:1.6px dashed var(--accent)"></i>1,500 / 3,000 / 5,000 km from Turin</span></div>
   </div>
   <div class="band" data-step="2">
     <div class="rv"><h4>Where Earth breaks, always</h4><div class="pills"><span>1/6 gravity</span><span>Vacuum</span><span>Electrostatic dust</span><span>Engine plume in vacuum</span><span>Cold of shadowed regions</span></div></div>
@@ -457,19 +457,19 @@ body.showhelp #help{display:block}
 <!-- 5 · COSA ABBIAMO TROVATO: i posti nuovi, panoramica della piattaforma ------------------>
 <section class="slide" data-title="What we found" data-end="95" data-criteria="Creativity,Impact,Relevance">
   <div class="kick rv">03 — <b>What we found</b></div>
-  <h2 class="wide rv" style="--d:.1s"><span class="acc" data-bind="topNewTxt">—</span> of our best places are new: nobody tests there yet.</h2>
+  <h2 class="wide rv" style="--d:.1s"><span class="acc" data-bind="topNewTxt">—</span> of our best places are outside every known test site and analog region.</h2>
   <div class="found" id="found"></div>
   <div class="sur" data-step="1">
-    <div class="rv"><h4>Mars · ground ice</h4><p>Not Antarctica: the <span class="acc">Tibetan Plateau</span> <span class="fig mute" data-bind="surIce">—</span></p></div>
-    <div class="rv" style="--d:.15s"><h4>Moon · landing sensors</h4><p>Natural crater fields in <span class="acc">Patagonia</span> <span class="fig mute" data-bind="surLidar">—</span></p></div>
-    <div class="rv" style="--d:.3s"><h4>Mars · rovers</h4><p><span class="acc">Montana</span>, far from every famous analog region <span class="fig mute" data-bind="surGale">—</span></p></div>
+    <div class="rv"><h4>Mars · ground ice</h4><p>The <span class="acc">Tibetan Plateau</span> <span class="fig mute" data-bind="surIce">—</span></p></div>
+    <div class="rv" style="--d:.15s"><h4>Moon · landing sensors</h4><p>Natural fields of crater-like depressions in <span class="acc">Patagonia</span> <span class="fig mute" data-bind="surLidar">—</span></p></div>
+    <div class="rv" style="--d:.3s"><h4>Mars · rovers</h4><p><span class="acc">Montana</span>: Gale’s terrain is common on Earth <span class="fig mute" data-bind="surGale">—</span></p></div>
   </div>
   <aside class="notes">
     <h5>1:10 – 1:35 · what we found (25 s)</h5>
     <ul><li>The whole platform at a glance: 6 target sites × 3 tests, and for each one the most similar place nobody tests yet.</li>
       <li>Strict rule for “new”: outside the famous analog regions (US Southwest, Iceland, Atacama, Hawaii, Canaries, Svalbard, Devon, Antarctica) and more than 150 km from any known test site. Challenge: “surprise us”.</li>
       <li>Click: three surprises straight from the data.</li></ul>
-    <p class="say">“We don’t only find the famous places. Most of our best matches are places nobody has tested yet.”</p>
+    <p class="say">“We don’t only find the famous places. Most of our best matches are outside every known test site.”</p>
   </aside>
 </section>
 
@@ -481,7 +481,7 @@ body.showhelp #help{display:block}
     <div class="cmp rv" style="--d:.2s">
       <div class="ch"><span></span><b>Best on Earth</b><b class="acc">Near you · <span data-bind="nearRadius">3,000 km</span></b></div>
       <div><span>Place</span><b data-bind="bestName">—</b><b data-bind="demoRegion">—</b></div>
-      <div><span>Status</span><b class="mute" data-bind="bestKnown">—</b><b>not used for tests yet</b></div>
+      <div><span>Status</span><b class="mute" data-bind="bestKnown">—</b><b>not a known test site</b></div>
       <div><span>Similarity</span><b class="fig" data-bind="bestScore">—</b><b class="fig"><span data-bind="demoScore">—</span> <small data-bind="giveUp">—</small></b></div>
       <div><span>Test in the field</span><b class="fig" data-bind="bestField">—</b><b class="fig" data-bind="nearField">—</b></div>
       <div><span>Test window</span><b data-bind="bestWindow">—</b><b data-bind="nearWindow">—</b></div>
@@ -491,7 +491,7 @@ body.showhelp #help{display:block}
     <div class="save rv" data-step="1"><h4>Time to choose the site for this campaign <span class="tbd" title="Estimate [A], docs/test-aziende.md">(est.)</span></h4>
       <div class="bars"><div class="b old"><span>today</span><div class="meter" style="--v:100%"><i></i></div><b>57 p-days</b></div>
         <div class="b"><span>with us</span><div class="meter" style="--v:35%"><i></i></div><b>20 p-days</b></div></div>
-      <div class="kpis"><div><b class="tbd" title="Estimate [A]: 57 → 20 person-days">−37</b>person-days</div><div><b class="tbd" title="Estimate [A], docs/test-aziende.md">4–8 weeks</b>earlier on site</div><div><b class="tbd" title="Estimate [A]: €31k → €12k at €480 per person-day">≈ €19k</b>saved, as a bonus</div></div></div>
+      <div class="kpis"><div><b class="tbd" title="Estimate [A]: 57 → 20 person-days">−37</b>person-days</div><div><b class="tbd" title="Estimate [A], docs/test-aziende.md">4–8 weeks</b>earlier on site</div></div></div>
   </div>
   <div class="quad rv" data-step="2">
     <div class="ax"></div>
@@ -507,7 +507,7 @@ body.showhelp #help{display:block}
     <ul><li>Best on Earth for Aristarchus × rover: <span data-bind="bestName">Sterling</span>, similarity <span data-bind="bestScore">0.88</span>, but already used and <span data-bind="bestKm">8,400 km</span> from Turin.</li>
       <li>The box: what the field can’t give (low-angle light, regolith density, 1/6 g…) is closed indoors, at the nearest facility: ALTEC in Turin, LUNA in Cologne.</li>
       <li>Near you: <span data-bind="nearKm">2,781 km</span>, nobody uses it, <span data-bind="nearField">65%</span> of the test still holds in the field, all year round. You give up <span data-bind="giveUp">0.39</span> of similarity and you know exactly what to close indoors.</li>
-      <li>Click: time first. Choosing the site: 57 → 20 person-days, on site 4–8 weeks earlier; about €19k saved as a bonus (our estimates on a real campaign).</li>
+      <li>Click: time first. Choosing the site: 57 → 20 person-days, on site 4–8 weeks earlier (our estimates on a real campaign).</li>
       <li>Click: nobody else is top-right.</li></ul>
   </aside>
 </section>
@@ -529,13 +529,13 @@ body.showhelp #help{display:block}
     <div class="qrow"><span>In the field</span><b><span data-bind="nearField">—</span> of the test · <span data-bind="nearWindow">—</span></b></div>
     <div class="qrow"><span>Indoor</span><b data-bind="quoteFac">—</b></div>
     <div class="qrow"><span>Breaks</span><b data-bind="quoteBreaks">—</b></div>
-    <div class="qrow next"><span>Time</span><b class="tbd" title="Estimate [A]">20 person-days, not 57: on site 4–8 weeks earlier</b><i class="skel"></i></div>
-    <div class="qrow next"><span>People</span><b class="tbd" title="Estimate [A]: 1 engineer × 3 days desk study, 2 people × 3 days survey">1 engineer, then 2 on a 3-day survey</b><i class="skel"></i></div>
-    <div class="qrow next"><span>Money</span><b class="tbd" title="Estimate [A]: site selection, docs/test-aziende.md">≈ €12k to prepare, not €31k</b><i class="skel"></i></div>
+    <div class="qrow next"><span>Time</span><b class="tbd" title="Estimate [A]">20 person-days, not 57: 4–8 weeks earlier (est.)</b><i class="skel"></i></div>
+    <div class="qrow next"><span>People</span><b class="tbd" title="Estimate [A]: 1 engineer × 3 days desk study, 2 people × 3 days survey">1 engineer, then 2 on a 3-day survey (est.)</b><i class="skel"></i></div>
+    <div class="qrow next"><span>Money</span><b>not priced yet</b><i class="skel"></i></div>
     <div class="qleg"><span>today, from our data and estimates</span><span class="nx">next: the full campaign</span></div>
   </div>
   <div class="biz rv" data-step="2">
-    <div><h4>Who pays</h4><p>Turin first: Thales Alenia Space, ALTEC, Argotec, AIKO, Evolunar. Then ESA, ASI, ISRO, ispace: the base can be anywhere (today Turin or ISRO Bengaluru).</p></div>
+    <div><h4>Target customers</h4><p>Turin first: Thales Alenia Space, ALTEC, Argotec, AIKO, Evolunar. Then ESA, ASI, ISRO, ispace: the base can be anywhere (today Turin or ISRO Bengaluru).</p></div>
     <div><h4>Model</h4><p>Report per campaign → subscription → quote per campaign. Facilities are partners; schools use it free.</p></div>
     <div class="kpis"><div><b>$127B</b>lunar economy by 2050 (PwC)</div></div>
   </div>
@@ -626,13 +626,13 @@ function bind() {
   const set = (k, v) => $$(`[data-bind="${k}"]`).forEach(e => (e.textContent = v))
   set('demoName', demo.name)
   set('demoScore', demo.score.toFixed(2))
-  set('demoNew', demo.known ? `Already used for tests · ${demo.known}` : 'Not used for tests yet')
+  set('demoNew', demo.known ? `Already used for tests · ${demo.known}` : 'Not a known test site')
   set('demoShort', demo.name)
   const kmBest = kmFrom(TURIN, best), kmNear = demo.km_home ?? kmFrom(TURIN, demo)
   set('demoKmTxt', `${km(kmNear)} from Turin`)
   set('bestName', `${best.name}${best.country ? ', ' + best.country.replace('United States', 'USA') : ''}`)
-  set('bestScore', best.score.toFixed(2)); set('bestKm', km(kmBest)); set('bestKnown', best.known ? `famous test region (${best.known})` : 'not used for tests yet')
-  set('bestTag', best.known ? `famous test region · ${best.known}` : 'not used for tests yet')
+  set('bestScore', best.score.toFixed(2)); set('bestKm', km(kmBest)); set('bestKnown', best.known ? `famous test region (${best.known})` : 'not a known test site')
+  set('bestTag', best.known ? `famous test region · ${best.known}` : 'not a known test site')
   set('bestField', pct(fieldShare(best))); set('bestWindow', `${best.snow_free_months ?? '—'} months a year`)
   set('nearField', pct(fieldShare(demo))); set('nearWindow', `${demo.snow_free_months ?? '—'} months a year`)
   set('nearKm', km(kmNear)); set('kmSaved', `−${Math.round((1 - kmNear / kmBest) * 100)}%`)
@@ -643,9 +643,9 @@ function bind() {
   set('demoRegion', REGION[demo.country] || demo.country || demo.name)
   // cosa chiudono al chiuso le strutture consigliate per il posto vicino (una riga per struttura)
   const fac = demo.facilities.filter((f, i, a) => a.findIndex(g => g.name === f.name) === i).slice(0, 3)
-  $('#indoorList').innerHTML = fac.map(f => `<li><b>${f.name.replace(' and lunar centre', '').replace(' (coming soon)', '')}</b> · ${(f.place || '').split(',')[0]}, ${km(f.km ?? 0)} → ${(f.covers || []).join(', ').toLowerCase()}</li>`).join('')
+  $('#indoorList').innerHTML = fac.map(f => `<li><b>${f.name.replace(' and lunar centre', '').replace(' (coming soon)', ' (coming)')}</b> · ${(f.place || '').split(',')[0]}, ${km(f.km ?? 0)} → ${(f.covers || []).join(', ').toLowerCase()}</li>`).join('')
   set('unexName', unexplored.name); set('n1500', `${near1500.name}, ${near1500.country} · ${km(near1500.km_home ?? 0)}`)
-  set('quoteFac', demo.facilities.slice(0, 3).map(f => f.name.split(/[,(]/)[0].trim()).join(' · ') || '—')
+  set('quoteFac', demo.facilities.slice(0, 3).map(f => f.name.split(/[,(]/)[0].replace(' and lunar centre', '').replace('ALTEC dusty thermal-vacuum chamber', 'TVAC').trim() + (f.name.includes('coming') ? ' (coming)' : '')).join(' · ') || '—')
   set('quoteBreaks', Object.entries(demo.params || {}).filter(([, v]) => v < 0.3).map(([k]) => PARAM_LABEL[k] || k).join(', ') || 'none')
   set('demoRank', `Near you · Turin · within ${Number(NEAR_PICK.radius).toLocaleString('en')} km · #${NEAR_PICK.index + 1}`)
   set('demoSkip', `${km(kmNear)} from Turin · ${pct(fieldShare(demo))} of the test holds in the field · ${demo.snow_free_months ?? '—'} months a year`)
