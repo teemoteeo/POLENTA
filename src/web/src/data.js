@@ -1,7 +1,6 @@
 import { load as loadYaml } from 'js-yaml'
 // ponytail: copia fissa di tests.yaml v1 (commit 809a1b1): la v2 di Edo (3 test) rompe il pannello. Tornare a data/config quando il web la regge.
 import testsRaw from './tests.yaml?raw'
-import { cellToLatLng } from 'h3-js'
 import { toView } from './trek.js'
 
 // landing_touchdown (aggiunto da Edo in tests.yaml) è nascosto dal pannello finché non ha dati e modello
@@ -62,12 +61,8 @@ function rnd(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) /
 
 export function getResults(site, testId) {
   const file = EXPORT[`../../../data/export/sites/${slug(site)}__${testId}.json`]
-  if (file) {
-    // TEST (solo per noi): i 10 esagoni con il voto più alto, per vedere sulla mappa cosa restituisce il modello. pos = centro, per il puntino da lontano
-    const top = [...file.cells].sort((a, b) => b.score - a.score).slice(0, 10).map(c => { const [lat, lon] = cellToLatLng(c.h3); return { ...c, lat, lon, pos: [lon, lat] } })
-    console.table(top.map(({ h3, score, lat, lon }) => ({ h3, score, lat: +lat.toFixed(3), lon: +lon.toFixed(3) })))
-    return { results: file.results, top }
-  }
+  // TEST (solo per noi): le zone trovate dal modello. Ogni risultato è una zona (esagoni che si toccano, la migliore per prima); rank = posto in classifica
+  if (file) return { results: file.results, zones: file.results.flatMap((r, i) => r.h3_cells.map(h3 => ({ h3, rank: i + 1 }))) }
   // nessun file per questa coppia (Marte): dati finti
   const test = TESTS[testId]
   const r = rnd([...site + testId].reduce((a, c) => a + c.charCodeAt(0), 1))

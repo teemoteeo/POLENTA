@@ -142,11 +142,9 @@ export default function App() {
       getFillColor: weighted ? d => [...bright, 255 * ((c[3] / 255) * d[2]) ** 0.6] : c,
       opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme },
     })]
-    // TEST (solo per noi): i 10 esagoni migliori dell'export; da lontano un puntino, perché un esagono da ~18 km non si vede
-    if (world === 'earth' && data?.top) layers.push(
-      new ScatterplotLayer({ id: 'top-far', data: data.top, getPosition: d => d.pos, radiusUnits: 'pixels', getRadius: 3, getFillColor: [...pal.accent, 255], opacity: dotsFade, visible: dotsFade > 0 }),
-      new H3HexagonLayer({ id: 'top', data: data.top, getHexagon: d => d.h3, getFillColor: [...pal.accent, 150], getLineColor: [255, 255, 255, 230], stroked: true, lineWidthMinPixels: 1, extruded: false, highPrecision: true }),
-    )
+    // TEST (solo per noi): le zone del modello, un gruppo di esagoni per risultato. Il numero in classifica è il pin al centro della zona
+    if (world === 'earth' && data?.zones) layers.push(new H3HexagonLayer({ id: 'zones', data: data.zones, getHexagon: d => d.h3,
+      getFillColor: [...pal.accent, 150], getLineColor: [255, 255, 255, 230], stroked: true, lineWidthMinPixels: 1, extruded: false, highPrecision: true }))
     overlay.current?.setProps({ layers })
   }, [world, dots, data, zoom, theme]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -184,7 +182,7 @@ export default function App() {
   }
   // un'animazione alla volta: i click durante un movimento si ignorano, tranne l'ultimo fatto nell'ultimo secondo.
   // Quello parte subito se il volo sta solo rallentando (ne taglia la coda), altrimenti appena il movimento finisce
-  const queued = useRef(null)
+  const queued = useRef(null), again = useRef(false), home = useRef(null)
   const act = fn => async (...a) => {
     if (busy.current) {
       queued.current = { run: () => fn(...a), at: performance.now() }
@@ -196,7 +194,8 @@ export default function App() {
       busy.current = false
       const q = queued.current
       queued.current = null
-      if (q && performance.now() - q.at <= 1000) act(q.run)()
+      if (again.current) { again.current = false; setTimeout(() => home.current()) } // "Ricomincia" chiesto durante il movimento: vince su tutto
+      else if (q && performance.now() - q.at <= 1000) act(q.run)()
     }
   }
   // Posa della mappa che ricalca il pianeta a puntini della prima pagina al tempo t: stesso centro e raggio sullo schermo,
@@ -256,6 +255,13 @@ export default function App() {
     setStep('planet'); setSite(null); setTestId(null)
     await wait(400)
   })
+  // "Ricomincia" vale sempre: da fermi parte subito, durante un movimento lo lascia finire (tagliandone la coda lenta) e poi torna all'inizio
+  home.current = toPlanets // sempre l'ultima versione: legge passo e mondo correnti
+  const restart = () => {
+    if (!busy.current) return toPlanets()
+    again.current = true
+    if (tail.current && tail.current.end - performance.now() <= 1000) tail.current.skip()
+  }
   // Sito ↔ Test
   const chooseSite = act(async s => {
     setSite(s); setTestId(null); setStep('test')
@@ -391,7 +397,7 @@ export default function App() {
       </div>
 
       <div className="tools">
-        <button className="glass pill" onClick={toPlanets}>Ricomincia</button>
+        <button className="glass pill" onClick={restart}>Ricomincia</button>
         <button className="glass pill" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Chiaro' : 'Scuro'}</button>
       </div>
     </>
