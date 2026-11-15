@@ -11,7 +11,6 @@ Siti della demo: 3 lunari e 2 marziani (SITES). Finché Rocco non manda i valori
 Di default scrive in data/raw/export_preview/; con publish=True in data/export/ (quello che legge l'app).
 """
 import json
-import shutil
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -133,7 +132,6 @@ REMOTE = [
 ]
 def name_places(data: dict) -> None:
     """Nome leggibile al posto delle coordinate (GeoNames offline, reverse_geocoder) e paese."""
-    import math
     import pycountry
     import reverse_geocoder as rg
     todo = [r for d in data.values() for r in d["results"]]

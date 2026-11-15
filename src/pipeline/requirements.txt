@@ -9,8 +9,6 @@ pvlib             # posizione del Sole
 pyyaml            # tests.yaml
 scipy
 shapely
-geopandas         # mappa geologica USGS della Luna
-matplotlib        # figura di validazione
 scikit-learn
 reverse_geocoder
 pycountry

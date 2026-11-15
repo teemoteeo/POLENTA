@@ -3,7 +3,7 @@ import { pct, km, blockNotes } from './format.js'
 import { placeName } from './i18n.js'
 import { HOMES, RADII } from './homes.js'
 
-export default function ResultsList({ data, mode, onMode, home, onHome, onPick, radius, onRadius, hideKnown, onHideKnown, showAgencies, onShowAgencies }) {
+export default function ResultsList({ data, mode, onMode, home, onHome, onPick, radius, onRadius }) {
   const near = mode === 'near'
   const base = home.name
   return (<div className="reslist">

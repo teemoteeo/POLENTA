@@ -6,7 +6,7 @@ import { ScatterplotLayer } from '@deck.gl/layers'
 import DotModel, { preload } from './DotModel.jsx'
 import DotPlanet from './DotPlanet.jsx'
 import './trek.js' // registra il protocollo trek:// prima della mappa
-import { SITES, TESTS, MODELS, EXPORTED_AT, AGENCIES, loadDots, getResults, loadCells } from './data.js'
+import { SITES, TESTS, MODELS, EXPORTED_AT, loadDots, getResults, loadCells } from './data.js'
 import { coord } from './format.js'
 import { TEST_EN } from './i18n.js'
 import PlaceCard from './PlaceCard.jsx'
@@ -77,8 +77,6 @@ export default function App() {
   const [heat, setHeat] = useState(null) // { key, cells }: esagoni più simili del test scelto
   const addDots = w => d => setDots(o => ({ ...o, [w]: d }))
 
-  const [hideKnown, setHideKnown] = useState(false) // nasconde i siti di test già noti (Etna, Lanzarote…): si vedono i posti nuovi
-  const [showAgencies, setShowAgencies] = useState(false) // sedi delle 10 principali agenzie spaziali sulla Terra
   // "Near you": customer base, mode and the near list. Turin keeps the pipeline's own distances (no home passed)
   const [base, setBase] = useState(HOMES[0]) // sede: sempre Torino all'inizio, non si salva tra le sessioni
   const [mode, setMode] = useState('earth') // 'earth' | 'near'
@@ -87,7 +85,7 @@ export default function App() {
   const [radius, setRadius] = useState(1500) // km: raggio di Near you (1500, 3000, 5000)
   const nearKey = `${base.id}|${site?.id}|${testId}|${radius}`
   const flyNear = useRef(false)
-  const globalData = useMemo(() => (site && testId ? getResults(site.id, testId, hideKnown, homeArg) : null), [site, testId, hideKnown, base]) // eslint-disable-line react-hooks/exhaustive-deps
+  const globalData = useMemo(() => (site && testId ? getResults(site.id, testId, false, homeArg) : null), [site, testId, base]) // eslint-disable-line react-hooks/exhaustive-deps
   // Unexplored: gli stessi risultati globali, senza i posti già usati per i test (regioni studiate e 150 km dai siti noti)
   const newData = useMemo(() => (site && testId ? getResults(site.id, testId, true, homeArg) : null), [site, testId, base]) // eslint-disable-line react-hooks/exhaustive-deps
   const data = mode === 'near' ? (nearData?.key === nearKey ? nearData : null) : mode === 'new' ? newData : globalData
@@ -152,7 +150,7 @@ export default function App() {
     if (world === 'earth' && data) layers.push(new H3HexagonLayer({ id: 'zones', data: data.zones, getHexagon: d => d.h3,
       getFillColor: d => [...pal.accent, step === 'card' && d.rank !== picked + 1 ? 45 : 150], updateTriggers: { getFillColor: [step, picked] },
       getLineColor: [255, 255, 255, 230], stroked: true, lineWidthMinPixels: 1, extruded: false, highPrecision: true }))
-    if (world === 'earth' && step === 'card' && result && !result.partial) layers.push(...logisticsLayers({ result, accent: pal.accent }))
+    if (world === 'earth' && step === 'card' && result) layers.push(...logisticsLayers({ result, accent: pal.accent }))
     overlay.current?.setProps({ layers })
   }, [world, dots, data, zoom, step, picked, result, heat]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -170,23 +168,17 @@ export default function App() {
         pin('site' + (s === site ? ' on' : ''), `<svg><line x2="${s.tag[0]}" y2="${s.tag[1]}"/></svg><i></i>`
           + `<span style="left:${s.tag[0]}px;top:${s.tag[1]}px;--tx:${s.tag[0] < 0 ? -100 : s.tag[0] > 0 ? 0 : -50}%">${s.name}</span>`, s.pos, () => chooseSite(s)))
       : !data ? [] : data.results.map((r, i) => pin('pin' + (i === picked ? ' on' : ''), i + 1, [r.lon, r.lat], () => jump(i)))
-    const extra = world === 'earth' && step === 'card' && result && !result.partial ? logisticsMarkers(result).map(m => {
+    const extra = world === 'earth' && step === 'card' && result ? logisticsMarkers(result).map(m => {
       const mk = pin(m.className, m.html, m.lngLat, () => {})
       mk.getElement().title = m.title || ''
       return mk
-    }) : world === 'earth' && (step === 'results' || (step === 'card' && result?.partial)) ? [homeMarker(0, 'Customer', homeArg)].map(m => {
+    }) : world === 'earth' && step === 'results' ? [homeMarker(0, 'Customer', homeArg)].map(m => {
       const mk = pin(m.className, m.html, m.lngLat, () => {})
       mk.getElement().title = m.title
       return mk
     }) : []
-    // sedi delle agenzie spaziali (data/config/space_agencies_top10.json), solo sulla Terra
-    const agencies = world === 'earth' && showAgencies && (step === 'results' || step === 'card') ? AGENCIES.map(a => {
-      const mk = pin('agency', `<i></i><span>${a.agency}</span>`, [a.lon, a.lat], () => {})
-      mk.getElement().title = `${a.agency} · ${a.name} (${a.country})`
-      return mk
-    }) : []
-    markers.current = [...base, ...extra, ...agencies]
-  }, [world, step, site, data, picked, result, showAgencies, base]) // eslint-disable-line react-hooks/exhaustive-deps
+    markers.current = [...base, ...extra]
+  }, [world, step, site, data, picked, result, base]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Animazioni. Ogni passo ha una posa di camera; ogni passaggio tra due passi vicini ha una durata sola.
   // Avanti la curva rallenta alla fine (OUT), indietro è la stessa rovesciata (IN): il ritorno è l'andata al contrario.
@@ -307,7 +299,7 @@ export default function App() {
   // Test ↔ Dove (il ritorno è chooseSite dalla Terra)
   const chooseTest = act(async id => {
     setTestId(id); setPicked(0); setStep('results')
-    const first = getResults(site.id, id, hideKnown).results[0]
+    const first = getResults(site.id, id).results[0]
     await warp('earth', [first.lon + 35, first.lat], globe([first.lon, first.lat]))
   })
   // Dove ↔ Scheda
@@ -349,7 +341,7 @@ export default function App() {
         settle(() => { spinning.current = false; map.current.flyTo({ center: f ? middle(base, f) : [base.lon, base.lat], zoom: 2.2, pitch: 0, bearing: 0, duration: 2000, essential: true, padding: basePad() }) })
       }
       flyNear.current = false
-    }, () => live && setNearData({ key: nearKey, results: [], zones: [], easiest: -1, hidden: 0, bestOnEarth: null, source: 'cells', home: base }))
+    }, () => live && setNearData({ key: nearKey, results: [], zones: [], easiest: -1, bestOnEarth: null, home: base }))
     return () => { live = false }
   }, [mode, base, site, testId, radius]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -390,9 +382,9 @@ export default function App() {
   // campaign view: plain flights, outside act(); the effect below resets the label on any place/step change
   const [campaignView, setCampaignView] = useState(false)
   useEffect(() => setCampaignView(false), [picked, step, site, testId])
-  useEffect(() => { box.current.classList.toggle('campaign', campaignView || step !== 'card' || !!result?.partial) }, [campaignView, step, result]) // markers only hidden in the card view
+  useEffect(() => { box.current.classList.toggle('campaign', campaignView || step !== 'card') }, [campaignView, step]) // markers only hidden in the card view
   const toggleCampaign = () => {
-    if (busy.current || !result || result.partial) return
+    if (busy.current || !result) return
     const next = !campaignView
     setCampaignView(next)
     map.current.flyTo({ ...(next ? campaignPose(result) : { ...over([result.lon, result.lat]), zoom: 7 }), duration: 1600, essential: true, padding: basePad() })
@@ -451,8 +443,7 @@ export default function App() {
             </ul>
           </>)}
 
-          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, HOMES[0])} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} hideKnown={hideKnown}
-            onHideKnown={v => { setHideKnown(v); setPicked(0) }} showAgencies={showAgencies} onShowAgencies={setShowAgencies} />}
+          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, HOMES[0])} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} />}
 
           {step === 'card' && result && <PlaceCard data={data} picked={picked} site={site} test={{ name: TEST_EN[testId].name }} testId={testId} onJump={jump} />}
 
@@ -470,7 +461,7 @@ export default function App() {
       </div>
 
       {world === 'earth' && step === 'results' && heat?.key === site?.id + testId && <p className="heat-note glass"><i />The {heat.cells.length.toLocaleString('en')} hexagons on Earth most similar to {site.name} for this test</p>}
-      {world === 'earth' && step === 'card' && result && !result.partial && <div className="logi-ctl">
+      {world === 'earth' && step === 'card' && result && <div className="logi-ctl">
         <button className="logi-toggle glass pill" onClick={toggleCampaign}>{campaignView ? 'Back to site' : 'Campaign view'}</button>
         {campaignView && <div className="logi-legend glass">
           <ul>

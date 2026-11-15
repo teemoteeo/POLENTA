@@ -7,7 +7,6 @@ import knownAnalogues from '../../../data/config/excluded_known_analogues.json'
 import knownRegions from '../../../data/config/known_analogue_regions.json'
 import sensors from '../../../data/config/sensors.json'
 import knownSites from '../../../data/export/known_sites.json'
-import agencies from '../../../data/config/space_agencies_top10.json'
 import { toView } from './trek.js'
 import { plan, haversineKm } from './campaign.js'
 
@@ -21,7 +20,6 @@ export const sensor = (p, world) => {
   return full ? { short: full.replace(/\s*\([^)]*\)/g, '').replace(/ above 60°N/, '').replace(/, mean annual.*$/, '').trim(), full } : null
 }
 export const VALIDATION = validation // percentile dei siti di test noti per sito × test (pipeline)
-export const AGENCIES = agencies // sedi delle 10 principali agenzie spaziali (Rocco, data/config)
 
 // Siti scelti dal team: human_docs/coordinate_6_siti_frontend.csv (stessi id di data/export/targets.json).
 // Coordinate planetocentriche, longitudine est positiva in -180/+180 (Phoenix: 234,2508°E = -125,7492).
@@ -82,9 +80,8 @@ export function getResults(siteId, testId, hideKnown = false, home) {
     return A.blockers < B.blockers || (A.blockers === B.blockers && (A.fieldShare > B.fieldShare + 0.005
       || (Math.abs(A.fieldShare - B.fieldShare) <= 0.005 && A.nFacilities < B.nFacilities))) ? i : b
   }, 0)
-  const hidden = hideKnown ? all.slice(0, TOP).filter(r => knownReason(r)).length : 0 // quanti dei primi 5 sono stati tolti
   // zones: gli esagoni H3 di ogni posto (zona = esagoni che si toccano); rank = posto in classifica
-  return { results, easiest, hidden, zones: results.flatMap((r, i) => r.h3_cells.map(h3 => ({ h3, rank: i + 1 }))) }
+  return { results, easiest, zones: results.flatMap((r, i) => r.h3_cells.map(h3 => ({ h3, rank: i + 1 }))) }
 }
 
 // Mappa di calore: i 10.000 esagoni H3 più simili sulla Terra per sito × test. Un chunk per file, scaricato solo alla scelta del test.

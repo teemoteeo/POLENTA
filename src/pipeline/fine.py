@@ -138,7 +138,7 @@ def main(batch: int = 20, workers: int | None = None, limit: int | None = None, 
     # 12 con la quota del piano Contributor; in restricted mode (quota mensile finita) Earth Engine regge
     # poche richieste insieme: lì serve --workers 4 (con 8 i gruppi saltavano per il 429, 14/11 23:30)
     workers = workers or 12
-    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from concurrent.futures import ThreadPoolExecutor
     g.init()
     import ee
     ee.data.setDeadline(DEADLINE_MS)

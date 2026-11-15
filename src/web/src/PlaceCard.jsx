@@ -58,7 +58,6 @@ function Places({ data, picked, onJump }) {
 
 export default function PlaceCard({ data, picked, site, test, onJump }) {
   const result = data.results[picked]
-  if (result.partial) return <PartialCard data={data} picked={picked} site={site} test={test} onJump={onJump} />
   const { plan } = result
   const { rows } = plan
   const d = result.dossier
@@ -163,25 +162,5 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
     {sims.length > 0 && <p className="lbl">Regolith simulants for this terrain: {join(sims)}</p>}
     <p className="lbl">No cost figures: the plan counts what can be measured — share covered, facilities, km.</p>
     <p className="lbl disclaimer">Limits: values are averages over a ~250 km² hexagon from 30 m terrain and ~1 km satellite data; Earth ground ice is a MODIS temperature proxy; rock type is coarse (GLiM, ~55 km); Mars and Aristarchus terrain come from literature; Antarctica is not covered. Verify on site before planning.</p>
-  </div>)
-}
-
-// nearby place computed from the heat-map cells only: no params, breaks, dossier or campaign yet
-function PartialCard({ data, picked, site, test, onJump }) {
-  const result = data.results[picked], home = data.home.name
-  return (<div className="campaign">
-    <Places data={data} picked={picked} onJump={onJump} />
-    <p className="lbl eyebrow">{test.name} for {site.name}, near {home}</p>
-    <h2>{placeName(result.name)}</h2>
-    <p className="lbl"><span className="fig">{coord(result.lat, 'N', 'S')} {coord(result.lon, 'E', 'W')}</span> ·{' '}
-      <a href={`https://www.google.com/maps/@${result.lat},${result.lon},40000m/data=!3m1!1e3`} target="_blank" rel="noreferrer">satellite view</a></p>
-    <div className="heads">
-      <p><b className="fig key">{pct(result.score)}</b><span>similarity /100</span></p>
-      <p><b className="fig">{pct(data.bestOnEarth)}</b><span>best on Earth</span></p>
-      <p><b className="fig">{km(result.km_home)}</b><span>km from {home}</span></p>
-    </div>
-    <p className="verdict-line">{pct(result.score)} against {pct(data.bestOnEarth)} for the best place on Earth: {pct(data.bestOnEarth) - pct(result.score)} {pct(data.bestOnEarth) - pct(result.score) === 1 ? "point" : "points"} of similarity given up for a place {km(result.km_home)} km from {home}.</p>
-    <p className="lbl">{result.known ? `Not new: ${result.known.text}` : 'New site: outside well-studied analogue regions'} · hexagon of ~{num(H3_KM2, 0)} km², outlined on the map.</p>
-    <p className="note">Parameters, breaks and the indoor campaign for nearby places come with the next pipeline export.</p>
   </div>)
 }

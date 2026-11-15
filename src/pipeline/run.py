@@ -20,7 +20,7 @@ def check() -> int:
 
     print("1) Librerie")
     for mod in ("ee", "numpy", "pandas", "pyarrow", "rasterio", "h3", "pvlib", "yaml", "scipy",
-                "shapely", "geopandas", "matplotlib"):
+                "shapely"):
         try:
             m = importlib.import_module(mod)
             print(f"   ok  {mod} {getattr(m, '__version__', '')}")
