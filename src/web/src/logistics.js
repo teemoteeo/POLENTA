@@ -55,7 +55,7 @@ const short = f => facilityName(f.name).replace(/\s*\(.*?\)/g, '').split(/ (?:an
 
 export function logisticsLayers({ result, accent, theme }) {
   const { out } = groups(result), base = baseOf(result)
-  const neutral = theme === 'light' ? [20, 20, 20, 130] : [255, 255, 255, 150]
+  const neutral = [255, 255, 255, 150]
   const mk = (id, a, b, color, w) => new PathLayer({
     id, data: route(a, b).map(path => ({ path })), getPath: d => d.path, getColor: color,
     widthUnits: 'pixels', getWidth: w, capRounded: true, pickable: false,

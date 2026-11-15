@@ -22,8 +22,6 @@ const SHOW_CASES = false // casi studio nascosti (decisione del team, dom mattin
 // Colori per tema e mondo: pagina, sfera, puntini
 const PALETTE = {
   dark: { page: '#04060a', moon: '#17181c', mars: '#1d1512', earth: '#0b1018', moonDot: [205, 208, 215, 150], marsDot: [255, 165, 120, 225], earthDot: [190, 215, 255, 175], accent: [255, 90, 31] },
-  // chiaro ma non abbagliante: fondo grigio-azzurro medio, pianeti con corpo; i puntini sono scurissimi perché la curva di resa li schiarisce
-  light: { page: '#c9ced6', moon: '#b4b8bf', mars: '#d0ad9c', earth: '#b3bfcd', moonDot: [8, 9, 12, 215], marsDot: [70, 14, 4, 220], earthDot: [17, 40, 80, 170], accent: [255, 90, 31] },
 }
 
 // Luna, Marte e Terra sono lo stesso oggetto: puntini da lontano, foto da vicino, stessa soglia di zoom
@@ -68,17 +66,13 @@ const HOME = { moon: { center: [-4, -6], zoom: 2.45, pitch: 35, bearing: -18 }, 
 // il pianeta sta a destra del pannello (desktop) o sopra (mobile)
 const basePad = () => (innerWidth > 820 ? { left: innerWidth * 0.5, top: 0, right: 0, bottom: 0 } : { left: 0, top: 0, right: 0, bottom: innerHeight * 0.42 })
 
-function initialTheme() {
-  try { return localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') } catch { return 'dark' }
-}
-
 function initialHome() {
   try { return HOMES.find(h => h.id === localStorage.getItem('home')) || HOMES[0] } catch { return HOMES[0] }
 }
 
 export default function App() {
   const box = useRef(null), stars = useRef(null), map = useRef(null), overlay = useRef(null), spinning = useRef(true), markers = useRef([])
-  const [theme, setTheme] = useState(initialTheme)
+  const theme = 'dark' // un solo tema
   const [world, setWorld] = useState('moon')
   const [step, setStep] = useState('planet')
   const [site, setSite] = useState(null)
@@ -135,13 +129,11 @@ export default function App() {
 
   // tema e mondo: colore della sfera, atmosfera, raster solo sulla Terra
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try { localStorage.setItem('theme', theme) } catch { /* modalità privata */ }
     const m = map.current
     const apply = () => {
       m.setPaintProperty('sphere', 'background-color', pal[world])
       for (const [w, ids] of Object.entries(RASTERS)) for (const id of ids) m.setLayoutProperty(id, 'visibility', w === world ? 'visible' : 'none')
-      m.setSky({ 'sky-color': 'rgba(0,0,0,0)', 'horizon-color': world === 'earth' ? (theme === 'dark' ? '#2a5aa0' : '#a9c6ea') : pal.page,
+      m.setSky({ 'sky-color': 'rgba(0,0,0,0)', 'horizon-color': world === 'earth' ? '#2a5aa0' : pal.page,
         'fog-color': 'rgba(0,0,0,0)', 'atmosphere-blend': world === 'earth' ? ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0] : 0 })
     }
     try { apply() } catch { m.once('load', apply) } // isStyleLoaded() è falso anche solo con tile in arrivo
@@ -444,7 +436,7 @@ export default function App() {
             <h2>What do you want to test?</h2>
             {model && (
               <figure className="panel-model" key={model.src}>
-                <DotModel src={model.src} color={theme === 'dark' ? '#e6edf7' : '#1a1d24'} />
+                <DotModel src={model.src} color="#e6edf7" />
                 <figcaption className="lbl">{model.name} · NASA 3D Resources</figcaption>
               </figure>
             )}
@@ -493,9 +485,7 @@ export default function App() {
       <div className="tools">
         {SHOW_CASES && <button className="glass pill" onClick={() => setSheet(sheet === 'cases' ? null : 'cases')}>Case studies</button>}
         <button className="glass pill" onClick={() => setSheet(sheet === 'benchmark' ? null : 'benchmark')}>Benchmark</button>
-        <button className="glass pill" onClick={() => setSheet(sheet === 'method' ? null : 'method')}>Method &amp; data</button>
         <button className="glass pill" onClick={() => { caseId.current++; restart() }}>Start over</button>
-        <button className="glass pill" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
       </div>
       {sheet && <div className={'sheet glass' + (sheet === 'cases' ? ' narrow' : '')}>
         <button className="close" aria-label="Close" onClick={() => setSheet(null)}>×</button>

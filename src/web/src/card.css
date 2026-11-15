@@ -139,3 +139,11 @@
 .tag.use { margin: 0; white-space: nowrap; }
 .tag.use.free { color: var(--accent); border-color: var(--accent); }
 .tag.use.used { color: var(--mute); }
+
+/* parametri: etichetta + sensore, valore nel posto, percentuale di match (niente barre) */
+.vals { list-style: none; padding: 0; display: grid; gap: 6px; }
+.vals li { display: grid; grid-template-columns: minmax(0, 1fr) auto 92px; gap: 10px; align-items: baseline; font-size: 12px; }
+.vals .vl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vals .vv { text-align: right; white-space: nowrap; }
+.vals .vm { text-align: right; white-space: nowrap; color: var(--mute); }
+.vals .brk .vm { color: var(--accent); }
