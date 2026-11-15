@@ -213,18 +213,20 @@ def tables() -> tuple[list, list, list]:
     return fac, sim, rocks
 
 
-def campaign(r: dict, target: dict, test: str, fac: list, sim: list, rocks: list) -> dict:
+def campaign(r: dict, target: dict, test: str, fac: list, sim: list, rocks: list, client: tuple = CLIENT) -> dict:
+    """client = (nome, lat, lon) della sede del cliente: decide la struttura più vicina e i km (Torino di default)."""
+    kmc = {f["id"]: round(sites.km(client[1], client[2], f["lat"], f["lon"])) for f in fac}
     gaps = list(dict.fromkeys(b["param"] for b in r["breaks"]))
-    by_gap = {g: sorted((f for f in fac if g in f["covers"]), key=lambda f: f["km_client"]) for g in gaps}
+    by_gap = {g: sorted((f for f in fac if g in f["covers"]), key=lambda f: kmc[f["id"]]) for g in gaps}
     for b in r["breaks"]:                              # chi copre ogni "si rompe", la più vicina al cliente per prima
         b["label"] = GAP_LABELS.get(b["param"], b["param"])
         b["covered_by"] = [f["name"] for f in by_gap[b["param"]][:3]] or ["nessuna struttura nota"]
     left, chosen = {g for g in gaps if by_gap[g]}, []
     while left:                                        # insieme minimo: chi copre più gap, a parità il più vicino
-        best = max(fac, key=lambda f: (len(left & set(f["covers"])), -f["km_client"]))
+        best = max(fac, key=lambda f: (len(left & set(f["covers"])), -kmc[f["id"]]))
         got = sorted(left & set(best["covers"]))
         chosen.append({"id": best["id"], "name": best["name"], "place": f"{best['place']}, {best['country']}",
-                       "lat": best["lat"], "lon": best["lon"], "km_client": best["km_client"],
+                       "lat": best["lat"], "lon": best["lon"], "km_client": kmc[best["id"]],
                        "covers": got, "covers_labels": [GAP_LABELS.get(g, g) for g in got], "source": best["source"]})
         left -= set(got)
     by_material = {"rock_class"}                      # il tipo di roccia lo chiudono simulante o roccia naturale
@@ -238,7 +240,7 @@ def campaign(r: dict, target: dict, test: str, fac: list, sim: list, rocks: list
         rock = "anorthosite" if target["values"].get("rock_class") == "anorthosite" else "basalt"
         cand = [x for x in rocks if x["rock"] == rock]
         near = lambda la, lo: min(cand, key=lambda x: sites.km(la, lo, x["lat"], x["lon"]))
-        for label, (la, lo) in (("near_client", CLIENT[1:]), ("near_site", (r["lat"], r["lon"]))):
+        for label, (la, lo) in (("near_client", client[1:]), ("near_site", (r["lat"], r["lon"]))):
             x = near(la, lo)
             out[f"rock_source_{label}"] = {"id": x["id"], "name": x["name"], "rock": rock, "lat": x["lat"], "lon": x["lon"],
                                            "km": round(sites.km(la, lo, x["lat"], x["lon"])), "use": x["use"], "source": x["source"]}
@@ -248,7 +250,49 @@ def campaign(r: dict, target: dict, test: str, fac: list, sim: list, rocks: list
         out["rock_note"] = ("Roccia naturale da cava: 8-20 volte più economica del simulante commerciale (precedente: "
                             "LUNA a Colonia), ma i grani terrestri sono arrotondati, quelli lunari taglienti: combacia "
                             "in chimica, non in geotecnica.")
-    out["client"] = CLIENT[0]
+    out["client"] = client[0]
+    return out
+
+
+# --- Near you: i posti migliori vicino alla sede del cliente (docs/near-you-timo.md) -------------------------
+HOMES = {"turin": ("Torino", 45.07, 7.69), "amman": ("Amman", 31.95, 35.93)}
+NEAR_KM = 1500
+KNOWN_KM = 150
+
+
+def _hav(lat, lon, la, lo):
+    import numpy as np
+    p1, p2 = np.radians(lat), np.radians(la)
+    a = np.sin((p2 - p1) / 2) ** 2 + np.cos(p1) * np.cos(p2) * np.sin(np.radians(lo - lon) / 2) ** 2
+    return 2 * 6371 * np.arcsin(np.sqrt(a))
+
+
+def not_new_mask(feats: pd.DataFrame):
+    """Esagoni NON nuovi, con la stessa regola dell'app: regione di analoghi già studiata
+    (known_analogue_regions.json) oppure entro 150 km da un sito di test noto (lista di Rocco + known_sites.csv)."""
+    import numpy as np
+    lat, lon = feats["lat"].to_numpy(), feats["lon"].to_numpy()
+    m = np.zeros(len(feats), dtype=bool)
+    for g in json.loads((config.CONFIG / "known_analogue_regions.json").read_text()):
+        m |= (lat >= g["lat_min"]) & (lat <= g["lat_max"]) & (lon >= g["lon_min"]) & (lon <= g["lon_max"])
+    pts = json.loads((config.CONFIG / "excluded_known_analogues.json").read_text()) + config.known_sites()
+    for k in pts:
+        m |= _hav(lat, lon, k["lat"], k["lon"]) <= KNOWN_KM
+    return m
+
+
+def run_near(feats: pd.DataFrame, targets: list, rules: dict, not_new) -> dict:
+    lat, lon = feats["lat"].to_numpy(), feats["lon"].to_numpy()
+    out = {}
+    for hid, (_, hla, hlo) in HOMES.items():
+        within = (_hav(lat, lon, hla, hlo) <= NEAR_KM) & ~not_new
+        for t in targets:
+            for test in TESTS:
+                try:
+                    d = sites.build(feats, t["id"], test, rules["tests"][test], t["values"], rules, n_sites=5, restrict=within)
+                except RuntimeError:
+                    d = {"results": []}
+                out[(hid, t["id"], test)] = d
     return out
 
 
@@ -274,15 +318,32 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         refine({("_", "_"): {"results": [{"h3_cells": [c]} for c in est]}})
         feats = pd.read_parquet(config.FEATURES)
         data = run_all(feats, targets, rules, N_RESULTS)
+    print("3b) Near you: i migliori entro 1.500 km da ogni sede")
+    not_new = not_new_mask(feats)
+    near = run_near(feats, targets, rules, not_new)
+    est = {r["h3_cells"][0] for d in near.values() for r in d["results"]}
+    est = [c for c in est if feats.set_index("h3").at[c, "terrain_src"] != "30m"] if do_refine else []
+    if est:
+        print(f"   30 m esatti per Near you: {len(est)} esagoni")
+        refine({("_", "_"): {"results": [{"h3_cells": [c]} for c in est]}})
+        feats = pd.read_parquet(config.FEATURES)
+        near = run_near(feats, targets, rules, not_new)
     if do_dossier:
         print("4) dossier")
         dossier(data, feats)
+        dossier(near, feats)
     name_places(data)
+    name_places(near)
     fac, sim, rocks = tables()
     tmap = {t["id"]: t for t in targets}
     for (site, test), d in data.items():
         for r in d["results"]:
             r["campaign"] = campaign(r, tmap[site], test, fac, sim, rocks)
+    for (hid, site, test), d in near.items():
+        home = HOMES[hid]
+        for r in d["results"]:
+            r["campaign"] = campaign(r, tmap[site], test, fac, sim, rocks, client=home)
+            r["km_home"] = round(sites.km(home[1], home[2], r["lat"], r["lon"]))
     out = config.EXPORT if publish else config.RAW / "export_preview"
     (out / "sites").mkdir(parents=True, exist_ok=True)
     for name, rows in (("facilities.json", fac), ("simulants.json", sim), ("rock_sources.json", rocks), ("labels.json", labels()),
@@ -306,6 +367,17 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         path = out / "sites" / f"{site}__{test}.json"
         path.write_text(json.dumps(d, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
         files.append(f"sites/{site}__{test}.json")
+    (out / "near").mkdir(parents=True, exist_ok=True)
+    for stale in (out / "near").glob("*.json"):
+        stale.unlink()
+    for (hid, site, test), d in near.items():
+        name, hla, hlo = HOMES[hid]
+        best = data.get((site, test), {}).get("results") or [{}]
+        doc = {"home": {"id": hid, "name": name, "lat": hla, "lon": hlo}, "radius_km": NEAR_KM, "site": site, "test": test,
+               "best_on_earth": best[0].get("score"), "rule": "regioni già studiate e 150 km dai siti noti esclusi",
+               "results": d["results"]}
+        (out / "near" / f"{hid}__{site}__{test}.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+        files.append(f"near/{hid}__{site}__{test}.json")
     manifest = json.loads((config.EXPORT / "manifest.json").read_text())
     manifest.update({"version": "1.0", "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                      "mock": False, "targets_mock": bool(targets[0].get("mock")), "sites": list(SITES), "tests": list(TESTS),

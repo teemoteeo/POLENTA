@@ -28,19 +28,19 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.111,
+    "score": 0.112,
     "percentile": 82
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.223,
+    "score": 0.222,
     "percentile": 96
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
-    "score": 0.062,
+    "score": 0.061,
     "percentile": 61
    },
    {
@@ -151,7 +151,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.032,
-    "percentile": 34
+    "percentile": 33
    },
    {
     "id": "etna_cisternazza",
@@ -187,7 +187,7 @@
     "id": "death_valley",
     "name": "Death Valley, California",
     "score": 0.028,
-    "percentile": 27
+    "percentile": 26
    },
    {
     "id": "huailai",
@@ -230,7 +230,7 @@
    {
     "id": "sp_crater",
     "name": "SP Crater / San Francisco Volcanic Field, Arizona",
-    "score": 0.205,
+    "score": 0.206,
     "percentile": 100
    },
    {
@@ -297,7 +297,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.035,
-    "percentile": 37
+    "percentile": 36
    },
    {
     "id": "etna_cisternazza",
@@ -320,19 +320,19 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.147,
+    "score": 0.148,
     "percentile": 90
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.187,
+    "score": 0.186,
     "percentile": 94
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
-    "score": 0.049,
+    "score": 0.048,
     "percentile": 54
    },
    {
@@ -467,7 +467,7 @@
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
     "score": 0.097,
-    "percentile": 80
+    "percentile": 79
    },
    {
     "id": "mojave_lspg",
@@ -589,7 +589,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.017,
-    "percentile": 2
+    "percentile": 3
    },
    {
     "id": "etna_cisternazza",
@@ -618,7 +618,7 @@
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.067,
+    "score": 0.066,
     "percentile": 49
    },
    {
@@ -758,7 +758,7 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.744,
+    "score": 0.743,
     "percentile": 97
    },
    {
@@ -771,7 +771,7 @@
     "id": "death_valley",
     "name": "Death Valley, California",
     "score": 0.016,
-    "percentile": 7
+    "percentile": 8
    },
    {
     "id": "huailai",
