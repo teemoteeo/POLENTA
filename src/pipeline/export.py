@@ -267,7 +267,8 @@ def campaign(r: dict, target: dict, test: str, fac: list, sim: list, rocks: list
 
 
 # --- Near you: i posti migliori vicino alla sede del cliente (docs/near-you-timo.md) -------------------------
-HOMES = {"turin": ("Torino", 45.07, 7.69), "amman": ("Amman", 31.95, 35.93)}
+# sedi dei clienti (docs/richiesta-edo-isro.md): Torino e ISRO Bengaluru (voce isro_bengaluru di space_agencies_top10.json)
+HOMES = {"turin": ("Torino", 45.07, 7.69), "isro": ("ISRO Bengaluru", 12.9592, 77.6611)}
 NEAR_KM = 1500
 NEAR_RADII = (1500, 3000, 5000)        # l'app fa scegliere il raggio (src/web/src/homes.js)
 KNOWN_KM = 150

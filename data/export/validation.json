@@ -28,7 +28,7 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.111,
+    "score": 0.11,
     "percentile": 81
    },
    {
@@ -72,7 +72,7 @@
    {
     "id": "teide",
     "name": "Teide, Tenerife",
-    "score": 0.067,
+    "score": 0.066,
     "percentile": 84
    },
    {
@@ -174,7 +174,7 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.226,
+    "score": 0.225,
     "percentile": 95
    },
    {
@@ -187,7 +187,7 @@
     "id": "death_valley",
     "name": "Death Valley, California",
     "score": 0.028,
-    "percentile": 26
+    "percentile": 25
    },
    {
     "id": "huailai",
@@ -297,7 +297,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.035,
-    "percentile": 36
+    "percentile": 35
    },
    {
     "id": "etna_cisternazza",
@@ -376,7 +376,7 @@
    {
     "id": "sp_crater",
     "name": "SP Crater / San Francisco Volcanic Field, Arizona",
-    "score": 0.079,
+    "score": 0.08,
     "percentile": 91
    },
    {
@@ -443,7 +443,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.015,
-    "percentile": 18
+    "percentile": 17
    },
    {
     "id": "etna_cisternazza",
@@ -466,20 +466,20 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.097,
+    "score": 0.098,
     "percentile": 78
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
     "score": 0.04,
-    "percentile": 44
+    "percentile": 43
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
     "score": 0.012,
-    "percentile": 6
+    "percentile": 5
    },
    {
     "id": "huailai",
@@ -613,7 +613,7 @@
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
     "score": 0.16,
-    "percentile": 88
+    "percentile": 87
    },
    {
     "id": "mojave_lspg",
@@ -758,14 +758,14 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.744,
+    "score": 0.747,
     "percentile": 97
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
     "score": 0.234,
-    "percentile": 80
+    "percentile": 79
    },
    {
     "id": "death_valley",
