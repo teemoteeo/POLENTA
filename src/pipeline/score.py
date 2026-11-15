@@ -85,6 +85,8 @@ def score(feats: pd.DataFrame, test: dict, target: dict, rules: dict) -> dict:
     ok = feats["valid_share"].to_numpy() >= 0.05
     if "snow_free_months" in feats.columns:           # ghiacci permanenti: niente vegetazione, ma non sono suolo
         ok &= feats["snow_free_months"].fillna(0).to_numpy() >= 1
+    if "crop_urban_share" in feats.columns:            # campi coltivati e città (MODIS MCD12Q1) sull'area valida
+        ok &= feats["crop_urban_share"].fillna(0).to_numpy() <= rules.get("crop_urban_max", 0.5)
     if "night_lights" in feats.columns:               # città: il cemento ha NDVI basso come il suolo nudo e passava
         ok &= feats["night_lights"].fillna(0).to_numpy() <= rules.get("night_lights_max", 5)   # (Tokyo, 15/11)
     for p, rule in (test.get("filtri") or {}).items():

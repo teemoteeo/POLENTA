@@ -43,14 +43,17 @@ def components(cells: list[str]) -> list[list[str]]:
 
 
 def build(feats: pd.DataFrame, site_id: str, test_id: str, test: dict, target: dict, rules: dict,
-          top_frac: float = 0.01, n_sites: int = 10) -> dict:
+          top_frac: float = 0.01, n_sites: int = 10, restrict: np.ndarray | None = None) -> dict:
     res = sc.score(feats, test, target, rules)
     total = res["total"]
     df = feats[["h3", "lat", "lon"]].assign(score=total, kappa=res["kappa"])
     df = df[np.isfinite(df["score"])]
+    if restrict is not None:                         # Near you: solo gli esagoni ammessi (raggio dalla sede, posti nuovi)
+        df = df[restrict[df.index.to_numpy()]]
     if df.empty:
         raise RuntimeError(f"{site_id} × {test_id}: nessun esagono valido (filtri o κ troppo severi)")
-    best = df[df["score"] >= df["score"].quantile(1 - top_frac)]
+    best = (df.nlargest(max(300, int(len(df) * top_frac)), "score") if restrict is not None
+            else df[df["score"] >= df["score"].quantile(1 - top_frac)])
     idx = feats.reset_index().set_index("h3")["index"]
     sites = []
     for comp in components(best["h3"].tolist()):
@@ -93,7 +96,7 @@ def build(feats: pd.DataFrame, site_id: str, test_id: str, test: dict, target: d
                         "low_sun_hours": round(float(feats.at[row, "low_sun_hours"]), 1)
                         if "low_sun_hours" in feats else None},
         })
-    top_cells = df.nlargest(config.MAX_CELLS_EXPORT, "score")
+    top_cells = df.nlargest(config.MAX_CELLS_EXPORT if restrict is None else 0, "score")
     return {"site": site_id, "test": test_id, "status": test.get("stato"),
             "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "mock": False,
             "params_used": res["used"], "params_missing": res["missing"],

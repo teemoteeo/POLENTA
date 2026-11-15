@@ -1,0 +1,92 @@
+[
+  {
+    "id": "etna",
+    "name": "Mount Etna (Piano del Lago / Cisternazza)",
+    "country": "Italy",
+    "lat": 37.734,
+    "lon": 15.004,
+    "exclusion_radius_km": 15,
+    "target_type": "Moon / Mars Volcanic"
+  },
+  {
+    "id": "lanzarote",
+    "name": "Lanzarote (Timanfaya / Pangaea)",
+    "country": "Spain",
+    "lat": 29.0064,
+    "lon": -13.7292,
+    "exclusion_radius_km": 20,
+    "target_type": "Moon / Mars Basaltic"
+  },
+  {
+    "id": "atacama_yungay",
+    "name": "Atacama Desert (Yungay Station)",
+    "country": "Chile",
+    "lat": -24.085,
+    "lon": -69.914,
+    "exclusion_radius_km": 25,
+    "target_type": "Mars Hyper-Arid"
+  },
+  {
+    "id": "mojave_cinder_lake",
+    "name": "Cinder Lake Crater Field (Flagstaff)",
+    "country": "USA",
+    "lat": 35.331,
+    "lon": -111.517,
+    "exclusion_radius_km": 15,
+    "target_type": "Apollo / Moon Cratered"
+  },
+  {
+    "id": "mojave_dumont",
+    "name": "Mojave Desert (Dumont Dunes / Silver Lake)",
+    "country": "USA",
+    "lat": 35.691,
+    "lon": -116.225,
+    "exclusion_radius_km": 20,
+    "target_type": "Mars Rover Mobility"
+  },
+  {
+    "id": "devon_island",
+    "name": "Devon Island (Haughton Crater / FMARS)",
+    "country": "Canada",
+    "lat": 75.432,
+    "lon": -89.868,
+    "exclusion_radius_km": 25,
+    "target_type": "Mars Polar / Periglacial"
+  },
+  {
+    "id": "svalbard",
+    "name": "Svalbard (Bockfjorden / Ny-Ålesund)",
+    "country": "Norway",
+    "lat": 78.925,
+    "lon": 11.93,
+    "exclusion_radius_km": 25,
+    "target_type": "Mars Permafrost / ISRU"
+  },
+  {
+    "id": "rio_tinto",
+    "name": "Río Tinto (Peña de Hierro)",
+    "country": "Spain",
+    "lat": 37.721,
+    "lon": -6.551,
+    "exclusion_radius_km": 15,
+    "target_type": "Mars Mineralogy / Acidic"
+  },
+  {
+    "id": "mauna_kea",
+    "name": "Mauna Kea (HI-SEAS / Pu'u Nene)",
+    "country": "USA",
+    "lat": 19.759,
+    "lon": -155.456,
+    "exclusion_radius_km": 20,
+    "target_type": "Moon / Mars Pyroclastic"
+  },
+  {
+    "id": "ice_dry_valleys",
+    "name": "McMurdo Dry Valleys (University Valley)",
+    "country": "Antarctica",
+    "lat": -77.862,
+    "lon": 160.704,
+    "exclusion_radius_km": 30,
+    "target_type": "Mars Phoenix Permafrost"
+  }
+]

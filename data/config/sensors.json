@@ -1,0 +1,112 @@
+{
+ "slope_p90": {
+  "moon": "LRO LOLA (Lunar Orbiter Laser Altimeter)",
+  "mars": "MRO CTX & HiRISE (Stereo DTM)",
+  "earth": "NASADEM (SRTM radar) · JAXA ALOS AW3D30 above 60°N"
+ },
+ "roughness": {
+  "moon": "LRO LOLA (Lunar Orbiter Laser Altimeter)",
+  "mars": "MRO HiRISE & CTX (Stereo DTM)",
+  "earth": "NASADEM (SRTM radar) · JAXA ALOS AW3D30 above 60°N"
+ },
+ "crater_density": {
+  "moon": "LRO LOLA & LROC NAC (Narrow Angle Camera)",
+  "mars": "MRO CTX & HiRISE",
+  "earth": "NASADEM (SRTM radar) · JAXA ALOS AW3D30 above 60°N"
+ },
+ "rock_cover": {
+  "moon": "LRO Diviner Lunar Radiometer",
+  "mars": "MGS TES & MRO HiRISE",
+  "earth": "SoilGrids (ISRIC, model from soil profiles + remote sensing)"
+ },
+ "grain_proxy": {
+  "moon": "LRO Diviner Lunar Radiometer",
+  "mars": "Mars Odyssey THEMIS & MGS TES",
+  "earth": "Terra/Aqua MODIS (LST MOD11A2 + albedo MCD43A3)"
+ },
+ "albedo": {
+  "moon": "LRO LOLA (1064 nm) & Diviner Radiometer",
+  "mars": "MGS TES & Curiosity Mastcam",
+  "earth": "Terra/Aqua MODIS MCD43A3"
+ },
+ "low_sun_frac": {
+  "moon": "LRO LOLA (Illumination Model)",
+  "mars": "Astronomical Solar Geometry / Mars Climate Database (MCD)",
+  "earth": "solar geometry (pvlib) + Terra MODIS snow MOD10A2"
+ },
+ "bulk_density_0_5": {
+  "moon": "Apollo Core Tubes (In-situ Regolith Samples)",
+  "mars": "Phoenix Robotic Arm & Curiosity SAM/MGS-1 Calibration",
+  "earth": "SoilGrids (ISRIC)"
+ },
+ "rock_class": {
+  "moon": "Kaguya Multiband Imager (MI) & LRO Diviner",
+  "mars": "Phoenix WCL & Curiosity APXS / CheMin",
+  "earth": "GLiM global lithological map (Hartmann & Moosdorf 2012)"
+ },
+ "temperature": {
+  "moon": "LRO Diviner Lunar Radiometer",
+  "mars": "Phoenix MET & Curiosity REMS",
+  "earth": "Terra MODIS LST (MOD11A2)"
+ },
+ "density_profile_0_2m": {
+  "moon": "Apollo Deep Drill Cores (In-situ Regolith Samples)",
+  "mars": "MRO SHARAD & Phoenix/Curiosity Geotechnical Models",
+  "earth": null
+ },
+ "elevation": {
+  "moon": "LRO LOLA (Lunar Orbiter Laser Altimeter)",
+  "mars": "MGS MOLA (Mars Orbiter Laser Altimeter)",
+  "earth": "NASADEM (SRTM radar) · JAXA ALOS AW3D30"
+ },
+ "atmosphere_wind": {
+  "moon": "Apollo LACE (Lunar Atmospheric Composition Experiment)",
+  "mars": "Phoenix MET/Telltale & Curiosity REMS",
+  "earth": "NASA MERRA-2 reanalysis"
+ },
+ "permafrost_share": {
+  "moon": "LRO LEND (Lunar Exploration Neutron Detector)",
+  "mars": "Mars Odyssey GRS, Phoenix TEGA-SSI & Curiosity DAN/SAM",
+  "earth": "Terra MODIS LST (MOD11A2), mean annual < −1 °C"
+ },
+ "snow_free_months": {
+  "moon": null,
+  "mars": null,
+  "earth": "Terra MODIS snow MOD10A2"
+ },
+ "low_sun_hours": {
+  "moon": null,
+  "mars": null,
+  "earth": "solar geometry (pvlib)"
+ },
+ "wind_10m": {
+  "moon": null,
+  "mars": null,
+  "earth": "NASA MERRA-2 reanalysis"
+ },
+ "night_lights": {
+  "moon": null,
+  "mars": null,
+  "earth": "Suomi NPP VIIRS Day/Night Band"
+ },
+ "protected_area": {
+  "moon": null,
+  "mars": null,
+  "earth": "WDPA (UNEP-WCMC)"
+ },
+ "valid_share": {
+  "moon": null,
+  "mars": null,
+  "earth": "Terra MODIS NDVI MOD13A3 + MOD44W"
+ },
+ "crop_urban_share": {
+  "moon": null,
+  "mars": null,
+  "earth": "Terra/Aqua MODIS land cover MCD12Q1"
+ },
+ "terrain_src": {
+  "moon": null,
+  "mars": null,
+  "earth": "NASADEM (SRTM radar) · JAXA ALOS AW3D30"
+ }
+}

@@ -1,0 +1,10 @@
+[
+ {"id": "us_southwest", "name": "US Southwest (Arizona, Utah, Nevada, California, Colorado Plateau)", "lat_min": 31, "lat_max": 42, "lon_min": -120, "lon_max": -103, "why": "Apollo training, NASA D-RATS/JETT, Mojave/LSPG, Death Valley, MDRS: the most studied analogue region"},
+ {"id": "iceland", "name": "Iceland", "lat_min": 63, "lat_max": 67, "lon_min": -25, "lon_max": -13, "why": "named by the challenge as already widely studied; Apollo training, JETT2"},
+ {"id": "atacama", "name": "Atacama Desert", "lat_min": -28, "lat_max": -18, "lon_min": -71, "lon_max": -67, "why": "named by the challenge as already widely studied"},
+ {"id": "hawaii", "name": "Hawaii", "lat_min": 18.5, "lat_max": 22.5, "lon_min": -160.5, "lon_max": -154.5, "why": "named by the challenge; PISCES, HI-SEAS"},
+ {"id": "canaries", "name": "Canary Islands", "lat_min": 27.5, "lat_max": 29.5, "lon_min": -18.5, "lon_max": -13, "why": "Teide (LUCID), Lanzarote (ESA PANGAEA)"},
+ {"id": "svalbard", "name": "Svalbard", "lat_min": 76, "lat_max": 81, "lon_min": 10, "lon_max": 35, "why": "AMASE Mars analogue expeditions, Bockfjorden"},
+ {"id": "devon_arctic", "name": "Canadian High Arctic (Devon Island)", "lat_min": 72, "lat_max": 78, "lon_min": -96, "lon_max": -80, "why": "Haughton Crater, FMARS"},
+ {"id": "antarctica", "name": "Antarctica", "lat_min": -90, "lat_max": -60, "lon_min": -180, "lon_max": 180, "why": "named by the challenge as already widely studied"}
+]

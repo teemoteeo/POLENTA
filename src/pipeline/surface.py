@@ -14,7 +14,7 @@ import ee
 from . import config, gee_common as g
 
 KELVIN = 273.15
-TILE_DEG = {"thermal": 10, "soil": 15, "snow": 10, "dossier": 15, "isru": 10}   # gruppi pesanti → quadrati più piccoli
+TILE_DEG = {"thermal": 10, "soil": 15, "snow": 10, "dossier": 15, "isru": 10, "landcover": 10, "landcover_hex": 10}   # gruppi pesanti → quadrati più piccoli
 
 
 def every_16_days() -> list[str]:
@@ -92,6 +92,21 @@ def isru(m: ee.Image) -> dict:
     }
 
 
+def landcover(m: ee.Image) -> dict:
+    """Quota dell'area valida coperta da campi coltivati o città (MODIS MCD12Q1, IGBP: 12 campi, 13 urbano,
+    14 mosaico campi/vegetazione). Il cemento e i campi a riposo passano la maschera NDVI: qui si riconoscono."""
+    lc = (ee.ImageCollection("MODIS/061/MCD12Q1").filterDate("2022-01-01", "2023-01-01").first().select("LC_Type1"))
+    crop_urban = lc.remap([12, 13, 14], [1, 1, 1], 0)
+    return {"crop_urban_share": g.to_grid(crop_urban.updateMask(m), ee.Reducer.mean(), 500)}
+
+
+def landcover_hex(m: ee.Image) -> dict:
+    """Quota di TUTTO il pixel a campi coltivati o città (senza maschera): un esagono di campi con il 6% di suolo
+    nudo sparso (Sterling, Colorado) non si vede sul solo suolo nudo, che MODIS non classifica come campo."""
+    lc = (ee.ImageCollection("MODIS/061/MCD12Q1").filterDate("2022-01-01", "2023-01-01").first().select("LC_Type1"))
+    return {"crop_urban_hex": g.to_grid(lc.remap([12, 13, 14], [1, 1, 1], 0), ee.Reducer.mean(), 500)}
+
+
 def site_dossier(points: list[tuple[str, float, float]]) -> dict:
     """Per pochi punti (id, lat, lon): area protetta WDPA (nome e tipo) e vento medio a 10 m (MERRA-2, 2023)."""
     wdpa = ee.FeatureCollection("WCMC/WDPA/current/polygons")
@@ -117,7 +132,7 @@ def site_dossier(points: list[tuple[str, float, float]]) -> dict:
     return out
 
 
-GROUPS = {"thermal": thermal, "soil": soil, "snow": snow, "dossier": dossier, "isru": isru}
+GROUPS = {"thermal": thermal, "soil": soil, "snow": snow, "dossier": dossier, "isru": isru, "landcover": landcover, "landcover_hex": landcover_hex}
 
 
 def main(groups: list[str] | None = None, tile_deg: int | None = None) -> int:

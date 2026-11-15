@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FVG Station · Pitch</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Deck del pitch (Edo). Stessi token dell'app: src/web/src/app.css. Tasti: ? per l'aiuto. -->
+<style>
+:root{--bg:#04060a;--ink:#f2f3f5;--mute:#8f96a0;--line:rgba(255,255,255,.12);--soft:rgba(255,255,255,.07);--accent:#ff5a1f;
+  --glass-a:rgba(30,34,44,.72);--glass-b:rgba(14,16,22,.58);--rim:rgba(255,255,255,.16);--star:rgba(255,255,255,.45);
+  --sans:"Libre Franklin",system-ui,sans-serif;--mono:"Space Mono",ui-monospace,monospace;--ease:cubic-bezier(.2,.7,.2,1)}
+:root[data-theme="light"]{--bg:#c9ced6;--ink:#111;--mute:#4d525a;--line:rgba(17,17,17,.1);--soft:rgba(17,17,17,.06);
+  --glass-a:rgba(255,255,255,.62);--glass-b:rgba(255,255,255,.42);--rim:rgba(255,255,255,.7);--star:rgba(0,0,0,.6)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
+body{font:400 14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+.stars{position:fixed;inset:0;background-color:var(--bg);
+  background-image:radial-gradient(1px 1px at 20px 30px,var(--star),transparent),radial-gradient(1px 1px at 120px 80px,var(--star),transparent),
+    radial-gradient(1.5px 1.5px at 60px 150px,var(--star),transparent),radial-gradient(1px 1px at 170px 190px,var(--star),transparent),
+    radial-gradient(1px 1px at 90px 230px,var(--star),transparent);background-size:240px 260px}
+
+/* palco fisso 1920×1080, scalato per stare nella finestra */
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%) scale(var(--k,.5));overflow:hidden}
+#sky{position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none}
+.slide{position:absolute;inset:0;padding:92px 120px 0;opacity:0;visibility:hidden;transition:opacity .5s ease,visibility 0s .5s}
+.slide.on{opacity:1;visibility:visible;transition:opacity .6s ease .1s}
+.notes{display:none}
+
+/* comparsa a passi: .rv entra quando il suo passo (data-step) è raggiunto; data-until lo fa uscire dopo */
+.rv{opacity:0;transform:translateY(28px);filter:blur(8px);
+  transition:opacity .7s var(--ease) var(--d,0s),transform .9s var(--ease) var(--d,0s),filter .7s ease var(--d,0s)}
+.rv.in{opacity:1;transform:none;filter:none}
+.rv.x-left{transform:translateX(-40px)}.rv.x-scale{transform:scale(.92)}
+.rv.x-left.in,.rv.x-scale.in{transform:none}
+
+/* tipografia */
+.kick{font:400 22px var(--mono);color:var(--mute);letter-spacing:.02em}
+.kick b{color:var(--accent);font-weight:400}
+h1.hero{font:300 128px/1.0 var(--sans);letter-spacing:-.035em;width:1100px;margin-top:150px}
+h2{font:300 76px/1.04 var(--sans);letter-spacing:-.028em;max-width:1240px;margin-top:20px}
+h2.wide{max-width:1600px;font-size:68px}
+.acc{color:var(--accent)}
+.mute{color:var(--mute)}
+.sub{font:400 22px var(--mono);color:var(--mute);margin-top:22px}
+.lead{font:400 32px/1.42 var(--sans);color:var(--mute);width:980px;margin-top:52px}
+.lead b{color:var(--ink);font-weight:500}
+.fig{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;align-items:center;gap:10px;font:400 18px var(--mono);padding:9px 18px;border-radius:22px;border:1px solid var(--line);color:var(--mute);background:var(--soft)}
+.chip i{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none}
+.abs{position:absolute}
+.glass{position:relative;isolation:isolate;border-radius:28px;background:linear-gradient(160deg,var(--glass-a),var(--glass-b));
+  -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(1.8);
+  box-shadow:inset 0 1px 0 var(--rim),inset 0 0 0 .5px var(--rim),0 18px 50px -14px rgba(0,0,0,.35)}
+.lbl{font:400 17px var(--mono);color:var(--mute);letter-spacing:.02em}
+
+/* bozza: numeri e frasi da confermare */
+body.draft .tbd{outline:2px dashed var(--accent);outline-offset:5px;border-radius:6px}
+#draftbadge{position:fixed;top:14px;right:16px;z-index:20;font:400 12px var(--mono);color:#fff;background:var(--accent);padding:4px 10px;border-radius:12px;display:none}
+body.draft #draftbadge{display:block}
+
+/* piè di pagina */
+.foot{position:absolute;left:120px;right:120px;bottom:36px;display:flex;align-items:center;justify-content:space-between;font:400 16px var(--mono);color:var(--mute);z-index:3}
+.dots{display:flex;gap:10px;align-items:center}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .4s var(--ease)}
+.dots i.done{background:var(--mute)}
+.dots i.on{width:34px;border-radius:4px;background:var(--accent)}
+#clock{display:none;margin-left:22px;color:var(--ink)}
+#clock.late{color:var(--accent)}
+body.timer #clock{display:inline}
+
+/* S1 */
+.s1-foot{position:absolute;left:120px;bottom:118px;display:flex;gap:14px}
+
+/* S2: linea del tempo e numeri */
+.timeline{position:absolute;left:120px;top:440px;width:1000px;height:150px}
+.timeline svg{position:absolute;left:0;top:0;overflow:visible}
+.timeline .base{stroke:var(--mute);stroke-width:2;fill:none;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.6s var(--ease) .3s}
+.timeline .permit{stroke:var(--accent);stroke-width:8;stroke-linecap:round;fill:none;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.1s var(--ease) 1.3s}
+.timeline.in .base,.timeline.in .permit{stroke-dashoffset:0}
+.timeline ol{list-style:none}
+.timeline li{position:absolute;top:0;left:var(--x);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;transition:opacity .5s ease var(--t)}
+.timeline.in li{opacity:1}
+.timeline li::before{content:'';width:16px;height:16px;border-radius:50%;background:var(--bg);border:2px solid var(--ink);margin-top:32px;margin-bottom:6px}
+.timeline li.end::before{background:var(--accent);border-color:var(--accent)}
+.timeline li b{font:400 20px var(--mono)}
+.timeline li span{font:400 18px var(--sans);color:var(--mute);white-space:nowrap}
+.timeline .plabel{position:absolute;left:72%;top:-6px;transform:translateX(-50%);font:400 18px var(--mono);color:var(--accent);white-space:nowrap;opacity:0;transition:opacity .5s ease 2s}
+.timeline.in .plabel{opacity:1}
+.stats{position:absolute;left:120px;top:650px;width:1040px;display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+.stat .big{font:400 78px/1 var(--mono);letter-spacing:-.03em}
+.stat .big small{font:300 28px var(--sans);letter-spacing:0;color:var(--mute)}
+.stat p{font:400 21px/1.4 var(--sans);color:var(--mute);margin-top:14px}
+.stat p b{color:var(--ink);font-weight:500}
+.punch{position:absolute;left:120px;top:900px;width:1040px;font:400 27px/1.4 var(--sans)}
+
+/* S3: flusso in 4 carte */
+.flow{position:absolute;left:120px;top:360px;width:1680px;height:330px}
+.flow svg.track{position:absolute;inset:0;overflow:visible}
+.flow svg.track path{stroke:var(--line);stroke-width:2;fill:none;stroke-dasharray:6 10}
+.flow svg.track circle{fill:var(--accent)}
+.cards{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:40px;height:100%}
+.card{padding:30px 30px 28px;display:flex;flex-direction:column;gap:10px}
+.card .lbl b{color:var(--accent);font-weight:400}
+.card .big{font:300 56px/1.05 var(--sans);letter-spacing:-.02em;margin-top:8px}
+.card p{font:400 21px/1.42 var(--sans);color:var(--mute)}
+.card .tests{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.card .tests span{font:400 15px var(--mono);padding:5px 12px;border-radius:14px;background:var(--soft);color:var(--ink)}
+.s3-cap{position:absolute;left:0;right:0;top:912px;text-align:center;font:400 22px var(--mono);color:var(--mute)}
+.s3-cap b{color:var(--ink);font-weight:400}
+
+/* S4: demo */
+.frame{position:absolute;left:120px;top:262px;width:1120px;height:630px;overflow:hidden;padding:0}
+.frame video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:28px;display:none}
+.frame.has-video video{display:block}
+.frame.has-video .story{display:none}
+.story{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 70px;gap:26px}
+.story .lbl{color:var(--accent)}
+.story ol{list-style:none;display:flex;flex-direction:column;gap:16px;counter-reset:s}
+.story li{display:flex;align-items:center;gap:18px;font:300 34px var(--sans);letter-spacing:-.01em;color:var(--mute);transition:color .3s}
+.story li::before{counter-increment:s;content:counter(s);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:400 17px var(--mono);border:1px solid var(--line);flex:none;transition:all .3s}
+.story li.on{color:var(--ink)}
+.story li.on::before{background:var(--accent);border-color:var(--accent);color:#fff}
+.story p{font:400 17px var(--mono);color:var(--mute)}
+.result{position:absolute;left:1290px;top:262px;width:510px;padding:30px;display:flex;flex-direction:column;gap:16px}
+.result h3{font:400 34px/1.12 var(--sans);letter-spacing:-.015em}
+.badge{align-self:flex-start;font:400 14px var(--mono);padding:4px 12px;border-radius:12px;background:var(--accent);color:#fff}
+.meter{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--accent);border-radius:4px;transition:width 1.3s var(--ease) .4s}
+.in .meter i,.meter.in i{width:var(--v)}
+.row{display:flex;justify-content:space-between;align-items:baseline;font:400 18px var(--sans)}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pills span{font:400 16px var(--sans);padding:5px 12px;border-radius:14px;border:1px solid var(--line);color:var(--ink)}
+.pills.earth span{border-style:dashed;color:var(--mute)}
+.fac{list-style:none;display:flex;flex-direction:column;gap:8px}
+.fac li{display:flex;justify-content:space-between;gap:12px;font:400 18px/1.3 var(--sans)}
+.fac li span:last-child{font:400 16px var(--mono);color:var(--mute);white-space:nowrap}
+.live{position:absolute;left:120px;top:918px;font:400 18px var(--mono);color:var(--mute)}
+.live b{color:var(--accent);font-weight:400}
+
+/* S5: dati, mappa a esagoni, validazione */
+.datasets{position:absolute;left:120px;top:340px;width:470px;display:flex;flex-direction:column;gap:20px}
+.datasets h4,.valid h4{font:400 17px var(--mono);color:var(--mute);margin-bottom:8px;letter-spacing:.02em}
+.datasets h4 b,.valid h4 b{color:var(--accent);font-weight:400}
+.datasets ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.datasets li{font:400 16px var(--mono);padding:5px 12px;border-radius:14px;background:var(--soft)}
+.datasets li.nasa{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--ink)}
+.hexmap{position:absolute;left:660px;top:330px;width:1140px}
+.hexmap svg{width:100%;height:auto;overflow:visible}
+.hexmap polygon{fill:var(--soft);opacity:0;transition:opacity .4s ease var(--d)}
+.hexmap.in polygon{opacity:1}
+.hexmap polygon.hot{fill:var(--accent);opacity:0;transition:opacity .5s ease var(--d)}
+.hexmap.in polygon.hot{opacity:var(--o)}
+.hexmap polygon.known{fill:none;stroke:var(--ink);stroke-width:1.6}
+.hexmap.in polygon.known{opacity:.9}
+.hexcap{display:flex;gap:28px;margin-top:14px;font:400 17px var(--mono);color:var(--mute)}
+.hexcap i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:8px;vertical-align:-2px}
+.valid{position:absolute;left:120px;top:340px;width:470px}
+.vrow{display:grid;grid-template-columns:1fr 92px;gap:4px 14px;align-items:center;margin-bottom:16px}
+.vrow .nm{font:400 19px/1.25 var(--sans)}
+.vrow .nm small{display:block;font:400 14px var(--mono);color:var(--mute)}
+.vrow .pc{font:400 19px var(--mono);text-align:right;color:var(--accent)}
+.vrow .meter{grid-column:1/3;height:6px}
+.band{position:absolute;left:660px;top:850px;width:1140px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.band h4{font:400 17px var(--mono);color:var(--mute);margin-bottom:10px}
+.band p{font:400 24px/1.35 var(--sans)}
+.band .pills span{border-style:dashed}
+
+/* S6: mercato */
+.mk{position:absolute;left:120px;top:330px;width:900px;display:flex;flex-direction:column;gap:30px}
+.mk h4{font:400 17px var(--mono);color:var(--mute);margin-bottom:10px;letter-spacing:.02em}
+.buyers{list-style:none;display:flex;flex-direction:column;gap:6px}
+.buyers li{font:400 23px/1.35 var(--sans)}
+.buyers li span{color:var(--mute)}
+.save{display:flex;flex-direction:column;gap:12px}
+.save .bars{display:flex;flex-direction:column;gap:10px}
+.save .b{display:grid;grid-template-columns:110px 1fr 150px;align-items:center;gap:16px;font:400 18px var(--mono);color:var(--mute)}
+.save .b .meter{height:22px;border-radius:6px}
+.save .b .meter i{border-radius:6px}
+.save .b.old .meter i{background:var(--mute)}
+.save .b b{color:var(--ink);font-weight:400}
+.kpis{display:flex;gap:40px}
+.kpis div{font:400 18px/1.35 var(--sans);color:var(--mute)}
+.kpis b{display:block;font:400 44px/1.1 var(--mono);color:var(--ink);letter-spacing:-.02em}
+.model{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.model div{padding:18px 18px 16px;border-radius:20px;background:var(--soft);font:400 17px/1.35 var(--sans);color:var(--mute)}
+.model b{display:block;font:500 20px var(--sans);color:var(--ink);margin-bottom:4px}
+.quad{position:absolute;left:1120px;top:330px;width:680px;height:620px}
+.quad .ax{position:absolute;inset:0;border-left:2px solid var(--line);border-bottom:2px solid var(--line)}
+.quad .ax::before,.quad .ax::after{content:'';position:absolute;background:var(--line)}
+.quad .ax::before{left:50%;top:0;bottom:0;width:1px}.quad .ax::after{top:50%;left:0;right:0;height:1px}
+.quad .xl,.quad .yl{position:absolute;font:400 16px var(--mono);color:var(--mute)}
+.quad .xl{left:0;right:0;bottom:-38px;display:flex;justify-content:space-between}
+.quad .yl{left:-30px;top:0;bottom:0;writing-mode:vertical-rl;transform:rotate(180deg);display:flex;justify-content:space-between}
+.qp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:12px;font:400 20px/1.2 var(--sans);white-space:nowrap;
+  transition:left 1.1s var(--ease) var(--d),top 1.1s var(--ease) var(--d),opacity .5s ease var(--d);opacity:0}
+.quad.in .qp{left:var(--x);top:var(--y);opacity:1}
+.qp i{width:16px;height:16px;border-radius:50%;background:var(--mute);flex:none}
+.qp small{display:block;font:400 14px var(--mono);color:var(--mute)}
+.qp.us{font-weight:500}
+.qp.us i{width:26px;height:26px;background:var(--accent);box-shadow:0 0 0 8px rgba(255,90,31,.22)}
+
+/* S7: chiusura */
+.closing{font:300 92px/1.03 var(--sans);letter-spacing:-.033em;width:1500px;margin-top:70px}
+.ask{position:absolute;left:120px;top:560px;width:900px;padding:32px 36px;display:flex;flex-direction:column;gap:14px}
+.ask p{font:400 30px/1.35 var(--sans)}
+.ask .url{font:400 22px var(--mono);color:var(--accent)}
+.team{position:absolute;left:120px;top:860px;display:flex;gap:56px}
+.team div{font:400 24px var(--sans)}
+.team small{display:block;font:400 16px var(--mono);color:var(--mute);margin-top:2px}
+
+/* note e presentatore */
+#notes{position:fixed;right:16px;top:16px;bottom:16px;width:min(520px,44vw);padding:22px 24px;z-index:10;overflow:auto;display:none;font:400 16px/1.5 var(--sans)}
+body.shownotes #notes{display:block}
+#notes h5,#pnotes h5{font:400 13px var(--mono);color:var(--mute);margin-bottom:8px}
+#notes ul,#pnotes ul{padding-left:18px;display:flex;flex-direction:column;gap:6px}
+#notes .say,#pnotes .say{margin-top:12px;padding:10px 14px;border-left:3px solid var(--accent);font-style:italic}
+#pnotes{display:none}
+body.presenter #stage{left:24px;top:24px;transform-origin:0 0;transform:scale(var(--k,.5))}
+body.presenter #pnotes{display:flex;flex-direction:column;gap:16px;position:fixed;right:24px;top:24px;bottom:24px;width:calc(38vw - 48px);font:400 19px/1.5 var(--sans);overflow:auto}
+body.presenter #pnotes .t{font:400 64px/1 var(--mono)}
+body.presenter #pnotes .t.late{color:var(--accent)}
+body.presenter #pinfo{position:fixed;left:24px;bottom:24px;font:400 16px var(--mono);color:var(--mute)}
+#pinfo{display:none}body.presenter #pinfo{display:block}
+#black{position:fixed;inset:0;background:#000;z-index:30;display:none}
+body.blackout #black{display:block}
+#help{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:40;padding:28px 34px;display:none;font:400 16px/1.9 var(--mono)}
+body.showhelp #help{display:block}
+#help b{display:inline-block;min-width:110px;color:var(--accent);font-weight:400}
+@media (prefers-reduced-motion:reduce){.rv,.rv *{transition-duration:.01s!important}}
+</style>
+</head>
+<body class="draft">
+<div class="stars"></div>
+<div id="draftbadge">DRAFT · dashed = to verify · G hides</div>
+
+<div id="stage">
+<canvas id="sky"></canvas>
+
+<!-- 1 · TITOLO ------------------------------------------------------------------------------>
+<section class="slide" data-title="Title" data-end="15">
+  <div class="kick rv">FVG Station <span>· NASA Space Apps Challenge 2026 · Turin</span></div>
+  <h1 class="hero rv" style="--d:.15s">Where on Earth to test hardware for the Moon and Mars.</h1>
+  <p class="lead rv" data-step="1">Pick a lunar or Martian site and the test you need. We tell you <b>where on Earth</b> to run it, <b>how faithful</b> it is, <b>where the analogy breaks</b>, and <b>which indoor facility</b> closes the gap.</p>
+  <div class="s1-foot rv" data-step="1" style="--d:.25s">
+    <span class="chip"><i></i>Challenge · Earth analogs of permanent Moon-base locations and Mars</span>
+    <span class="chip">Timo · Edo · Rocco</span>
+  </div>
+  <aside class="notes">
+    <h5>0:00 – 0:15 · hook</h5>
+    <ul><li>Who we are, one line. The question is not “which place looks like the Moon”.</li>
+      <li>It is: <b>where do I test this hardware, for that landing site</b>.</li>
+      <li>Click once: the promise in four parts (where, how faithful, where it breaks, which facility).</li></ul>
+    <p class="say">“Space companies in Turin build hardware for the Moon. Before it flies, it has to be tested on Earth. We tell them where.”</p>
+  </aside>
+</section>
+
+<!-- 2 · PROBLEMA ---------------------------------------------------------------------------->
+<section class="slide" data-title="Problem" data-end="50">
+  <div class="kick rv">01 — <b>The problem</b></div>
+  <h2 class="rv" style="--d:.1s">Picking where to test a lunar rover took <span class="acc">ten months</span>.</h2>
+  <p class="sub rv" style="--d:.2s"><span class="tbd" title="Name TAS-I on stage? Team decision (they are in the jury)">ETNA rover · ULS campaign on Mount Etna, 2026</span></p>
+  <div class="timeline rv" style="--d:.25s">
+    <svg width="1000" height="60" viewBox="0 0 1000 60"><path class="base" d="M0 47 H1000" pathLength="1"/><path class="permit" d="M500 47 H900" pathLength="1"/></svg>
+    <div class="plabel">4–5 months of permits (Natura 2000)</div>
+    <ol>
+      <li style="--x:0%;--t:.4s"><b>Sep 2025</b><span>site survey</span></li>
+      <li style="--x:50%;--t:1s"><b>Feb 2026</b><span>test plan</span></li>
+      <li class="end" style="--x:100%;--t:2.2s"><b>Jul 2026</b><span>32 days at 2,800 m</span></li>
+    </ol>
+  </div>
+  <div class="stats" data-step="1">
+    <div class="stat rv"><div class="big"><span data-count="10">10</span><small> months</small></div><p>from survey to campaign, <b>chosen by hand</b> on written criteria</p></div>
+    <div class="stat rv" style="--d:.15s"><div class="big"><span data-count="57">57</span><small> person-days</small></div><p>desk study, survey, samples, permit dossier <span class="tbd" title="Estimate [A], docs/test-aziende.md">(est.)</span></p></div>
+    <div class="stat rv" style="--d:.3s"><div class="big">$<span data-count="14">14</span><small>M</small></div><p>for a crater field <b>built by hand</b> to test landing sensors (Morpheus, NASA KSC)</p></div>
+  </div>
+  <p class="punch rv" data-step="2">And nobody measures how faithful a test site is to the real target. <span class="mute tbd" title="Check wording and source (docs/test-aziende.md)">Curiosity’s wheels were tested on smoother ground than Mars, and got damaged early.</span></p>
+  <aside class="notes">
+    <h5>0:15 – 0:50 · problem (35 s)</h5>
+    <ul><li>Real case, public documents: survey Sep 2025 → plan Feb 2026 → 4–5 months of permits → campaign Jul 2026.</li>
+      <li>Click: three numbers. 10 months; 57 person-days (our estimate); crater fields for landing sensors are built by hand (Morpheus ~$14M).</li>
+      <li>Click: the real pain is fidelity. If the test ground is easier than the target, the test lies.</li></ul>
+    <p class="say">“Ten months to choose a test site, by hand. And nobody can tell you how close it really is to the Moon.”</p>
+  </aside>
+</section>
+
+<!-- 3 · SOLUZIONE --------------------------------------------------------------------------->
+<section class="slide" data-title="Solution" data-end="85">
+  <div class="kick rv">02 — <b>What we built</b></div>
+  <h2 class="wide rv" style="--d:.1s">Pick a site and a test. Get a <span class="acc">test campaign</span>.</h2>
+  <div class="flow">
+    <svg class="track" width="1680" height="330" viewBox="0 0 1680 330"><path id="trk" d="M-40 165 H1720"/>
+      <circle r="7"><animateMotion dur="3.2s" repeatCount="indefinite" path="M-40 165 H1720"/></circle></svg>
+    <div class="cards" data-step="1">
+      <div class="card glass rv x-scale"><div class="lbl"><b>01</b> Target</div><div class="big fig">6 sites</div><p>3 Artemis III regions at the lunar South Pole, Aristarchus Plateau, Phoenix and Gale on Mars</p></div>
+      <div class="card glass rv x-scale" style="--d:.18s"><div class="lbl"><b>02</b> Test</div><div class="big fig">3 tests</div><div class="tests"><span>Lidar landing</span><span>Rover mobility</span><span>In-situ resources</span></div></div>
+      <div class="card glass rv x-scale" style="--d:.36s"><div class="lbl"><b>03</b> Where on Earth</div><div class="big">every land hexagon</div><p>scored with the same terrain, surface and ice metrics as the target</p></div>
+      <div class="card glass rv x-scale" style="--d:.54s"><div class="lbl"><b>04</b> Campaign</div><div class="big">field + indoor</div><p>what holds outdoors, where the analogy breaks, which facility closes each gap</p></div>
+    </div>
+  </div>
+  <div class="s3-cap rv" data-step="2" style="--d:.9s">Haworth (Moon) → <b data-bind="demoName">—</b></div>
+  <aside class="notes">
+    <h5>0:50 – 1:25 · solution (35 s)</h5>
+    <ul><li>Input: one of 6 target sites + one of 3 tests (chosen from the challenge text: landing, mobility, resources).</li>
+      <li>We score every land hexagon on Earth with the <b>same definitions</b> used on the Moon.</li>
+      <li>Output is not a dot on a map: it is a campaign. Field site + indoor facilities for what the field can’t give.</li>
+      <li>Click: the arc. From Haworth to its best place on Earth.</li></ul>
+    <p class="say">“The field gives you for free what matches. For the rest, we tell you which facility to book.”</p>
+  </aside>
+</section>
+
+<!-- 4 · DEMO -------------------------------------------------------------------------------->
+<section class="slide" data-title="Demo" data-end="135">
+  <div class="kick rv">03 — <b>Demo</b></div>
+  <h2 class="rv" style="--d:.1s">Haworth, rover mobility.</h2>
+  <div class="frame glass rv x-scale" id="frame" style="--d:.2s">
+    <video id="demo" src="demo.mp4" muted playsinline loop preload="metadata"></video>
+    <div class="story">
+      <div class="lbl">Placeholder · 30 s screen recording goes here (demo.mp4)</div>
+      <ol id="storyline"><li>Moon → Haworth</li><li>Rover mobility</li><li>Best places on Earth</li><li>Place card: what holds, what breaks</li><li>Campaign view from Turin</li></ol>
+      <p>Path from docs/night-timo.md · same video can be the 30 s submission</p>
+    </div>
+  </div>
+  <div class="result glass rv" style="--d:.35s">
+    <div class="lbl">First place on Earth</div>
+    <h3 data-bind="demoName">—</h3>
+    <span class="badge" data-bind="demoNew">New place</span>
+    <div><div class="row"><span class="mute">Similarity</span><span class="fig" data-bind="demoScore">—</span></div>
+      <div class="meter" id="demoMeter"><i></i></div></div>
+    <div data-step="1" class="rv"><div class="lbl" style="margin-bottom:8px">Breaks in the field</div><div class="pills" id="demoBreaks"></div></div>
+    <div data-step="1" class="rv" style="--d:.15s"><div class="lbl" style="margin-bottom:8px">Earth can’t do it</div><div class="pills earth" id="demoEarth"></div></div>
+    <div data-step="2" class="rv"><div class="lbl" style="margin-bottom:8px">Close it indoors · km from Turin</div><ul class="fac" id="demoFac"></ul></div>
+  </div>
+  <div class="live rv" style="--d:.5s">Live app · <b data-bind="appUrl">URL to add</b> · press L</div>
+  <aside class="notes">
+    <h5>1:25 – 2:15 · demo (50 s)</h5>
+    <ul><li>Play the recording (or go live with L if the network is solid).</li>
+      <li>Say what the card says: best place, similarity, it is <b>new</b> (not a known test site).</li>
+      <li>Click: where it breaks (field) and what Earth can never do (1/6 g, vacuum, dust).</li>
+      <li>Click: the facilities that close each gap, with km from Turin.</li></ul>
+    <p class="say">“No place on Earth is Haworth. But this one gives you most of it, and these facilities give you the rest.”</p>
+  </aside>
+</section>
+
+<!-- 5 · DATI NASA E VALIDAZIONE ------------------------------------------------------------->
+<section class="slide" data-title="Data & validation" data-end="175">
+  <div class="kick rv">04 — <b>NASA data and validation</b></div>
+  <h2 class="wide rv" style="--d:.1s">Same metrics on the Moon, on Mars and on every hexagon of Earth.</h2>
+  <div class="datasets rv" data-until="0" style="--d:.2s">
+    <div><h4><b>NASA</b> · Earth</h4><ul><li class="nasa">NASADEM</li><li class="nasa">MODIS ×5</li><li class="nasa">VIIRS</li><li class="nasa">MERRA-2</li></ul></div>
+    <div><h4><b>NASA</b> · Moon (LRO)</h4><ul><li class="nasa">LOLA</li><li class="nasa">Diviner</li><li class="nasa">LEND</li><li class="nasa">LROC</li><li class="nasa">GRAIL</li></ul></div>
+    <div><h4><b>NASA</b> · Mars</h4><ul><li class="nasa">CTX / HiRISE</li><li class="nasa">THEMIS</li><li class="nasa">TES</li></ul></div>
+    <div><h4>Partners and open data</h4><ul><li>JAXA AW3D30</li><li>SoilGrids</li><li>GLiM</li><li>Google Earth Engine</li></ul></div>
+  </div>
+  <div class="valid rv" data-step="1">
+    <h4><b>Validation</b> · real test sites rank near the top</h4>
+    <div id="vrows"></div>
+  </div>
+  <div class="hexmap rv" id="hexmap" style="--d:.3s">
+    <div id="hexsvg"></div>
+    <div class="hexcap"><span><i style="background:var(--soft)"></i>land hexagon, scored</span><span><i style="background:var(--accent)"></i>our best places (18 site × test)</span><span><i style="border:1.6px solid var(--ink)"></i>known test sites</span></div>
+  </div>
+  <div class="band" data-step="2">
+    <div class="rv"><h4>Surprise</h4><p><b class="fig" data-bind="firstNew">—</b> first places are <b>new</b>. <span class="tbd" title="Phoenix × ISRU first place: check name after final export">For Martian ground ice the best analog is not Antarctica: it is the <span class="acc">Tibetan Plateau</span>.</span></p></div>
+    <div class="rv" style="--d:.15s"><h4>Where Earth breaks, always</h4><div class="pills"><span>1/6 gravity</span><span>Vacuum</span><span>Electrostatic dust</span><span>Engine plume in vacuum</span><span>Cold of shadowed regions</span></div></div>
+  </div>
+  <aside class="notes">
+    <h5>2:15 – 2:55 · science (40 s)</h5>
+    <ul><li>NASA data is the core: NASADEM, MODIS, VIIRS, MERRA-2 on Earth; LRO (LOLA, Diviner, LEND, LROC) and GRAIL on the Moon.</li>
+      <li>Key point: slopes, roughness and craters computed by us on LOLA with the <b>same definition</b> as on Earth (30 m).</li>
+      <li>Click: validation. Sites where companies really test (Mojave, SP Crater, Etna, Mauna Kea) come out in the top few percent, without telling the model.</li>
+      <li>Click: surprise + honesty. All first places are new. And what Earth can never give.</li></ul>
+    <p class="say">“We did not tell the model where companies test. It found those places by itself, and then found better ones.”</p>
+  </aside>
+</section>
+
+<!-- 6 · MERCATO, MODELLO, CONCORRENZA ------------------------------------------------------->
+<section class="slide" data-title="Market" data-end="215">
+  <div class="kick rv">05 — <b>Market</b></div>
+  <h2 class="rv" style="--d:.1s">Turin builds lunar hardware. We give it the test plan.</h2>
+  <div class="mk">
+    <div class="rv" style="--d:.2s"><h4>Who buys, here first</h4>
+      <ul class="buyers"><li>Thales Alenia Space Italia <span>· rover ETNA, lander Argonaut</span></li><li>ALTEC <span>· lunar simulation centre: partner and channel</span></li><li>Argotec · AIKO · Evolunar <span>· then ESA, ASI, ispace</span></li></ul></div>
+    <div class="save rv" data-step="1"><h4>Choosing a test site, per campaign <span class="tbd" title="Estimate [A], docs/test-aziende.md">(est.)</span></h4>
+      <div class="bars"><div class="b old"><span>today</span><div class="meter" style="--v:100%"><i></i></div><b>57 p-days</b></div>
+        <div class="b"><span>with us</span><div class="meter" style="--v:35%"><i></i></div><b>20 p-days</b></div></div>
+      <div class="kpis"><div><b class="tbd" title="Estimate [A]">≈ €28k</b>saved per campaign</div><div><b>$127B</b>lunar economy by 2050 (PwC)</div></div></div>
+    <div class="rv" data-step="2"><h4>Business model</h4>
+      <div class="model"><div><b>Campaign report</b>per test campaign</div><div><b>Subscription</b>for test teams</div><div><b>Free for schools</b>ESA Moon Camp, ESERO</div></div></div>
+  </div>
+  <div class="quad rv" data-step="3">
+    <div class="ax"></div>
+    <div class="xl"><span>hand-picked</span><span>global, data-driven →</span></div>
+    <div class="yl"><span>“where” only</span><span>full test plan →</span></div>
+    <div class="qp" style="--x:18%;--y:80%;--d:.1s"><i></i><span>NASA Analog Explorer<small>image pairs</small></span></div>
+    <div class="qp" style="--x:24%;--y:34%;--d:.25s"><i></i><span>Indoor facilities<small>sell fidelity, don’t measure it</small></span></div>
+    <div class="qp" style="--x:66%;--y:76%;--d:.4s"><i></i><span>Other analog maps<small>similarity only</small></span></div>
+    <div class="qp us" style="--x:76%;--y:20%;--d:.7s"><i></i><span>FVG Station</span></div>
+  </div>
+  <aside class="notes">
+    <h5>2:55 – 3:35 · market, model, competition (40 s)</h5>
+    <ul><li>Buyers are few and concentrated, and the first ones are in this room / this city.</li>
+      <li>Click: site selection from 57 to 20 person-days (estimate). Market context: $127B lunar economy by 2050 (PwC).</li>
+      <li>Click: report per campaign or subscription; facilities are partners (we send them customers); free tier for schools as a channel.</li>
+      <li>Click: nobody else is top-right. Facilities sell fidelity without measuring it; other tools only answer “where”.</li></ul>
+  </aside>
+</section>
+
+<!-- 7 · CHIUSURA ---------------------------------------------------------------------------->
+<section class="slide" data-title="Close" data-end="240">
+  <div class="kick rv">06 — <b>Next</b></div>
+  <p class="closing rv" style="--d:.1s"><span class="tbd" title="Closing line: pick one (alternatives in the notes)">Nature gives you what matches.<br>We tell you where to close the rest.</span></p>
+  <div class="ask glass rv" data-step="1">
+    <div class="lbl">Our ask</div>
+    <p>One pilot on a real campaign: the next rover or lander test of a Turin team.</p>
+    <div class="url" data-bind="appUrl">URL to add</div>
+  </div>
+  <div class="team rv" data-step="1" style="--d:.2s">
+    <div>Timo<small>app, map, deploy</small></div><div>Edo<small>data pipeline, scoring</small></div><div>Rocco<small>physics of the analogy</small></div>
+  </div>
+  <aside class="notes">
+    <h5>3:35 – 4:00 · close (25 s)</h5>
+    <ul><li>Closing line first, then the ask, then the team (names only).</li>
+      <li>Alternative lines: “No place on Earth is the Moon. We tell you which part of it you can test here.” · “Ten months, now one minute.”</li></ul>
+    <p class="say">“Give us your next campaign. We’ll tell you where.”</p>
+  </aside>
+</section>
+
+<div class="foot"><span>FVG Station · NASA Space Apps 2026 · Turin<span id="clock" class="fig">0:00</span></span><div class="dots" id="dots"></div><span class="fig" id="num">01 / 07</span></div>
+</div>
+
+<aside id="notes" class="glass"></aside>
+<aside id="pnotes" class="glass"></aside>
+<div id="pinfo">← → navigate · S start timer · R reset · keys work in both windows</div>
+<div id="black"></div>
+<div id="help" class="glass">
+  <div><b>→ Space</b>next step / slide</div><div><b>←</b>back</div><div><b>1–7</b>go to slide</div>
+  <div><b>N</b>speaker notes</div><div><b>P</b>presenter window</div><div><b>T</b>timer · <b>S</b> start · <b>R</b> reset</div>
+  <div><b>L</b>open live app</div><div><b>D</b>dark / light</div><div><b>G</b>draft marks</div><div><b>F</b>fullscreen · <b>B</b> blackout</div><div><b>?</b>this help</div>
+</div>
+
+<script src="data.js"></script>
+<script>
+// ---------------------------------------------------------------- impostazioni da riempire
+const APP_URL = ''                         // link pubblico dell'app (Timo, Vercel)
+const DEMO_CASE = 'haworth__rover_mobility' // casella del caso della demo
+const DRAFT = true                          // false prima del pitch: toglie i tratteggi
+const VALIDATION_ROWS = [                   // [sito noto, target, test]: righe dove il sito è usato davvero per quel test
+  ['mojave_lspg', 'malapert_massif', 'flight_hda_lidar'], ['rogers_lakebed', 'haworth', 'flight_hda_lidar'],
+  ['sp_crater', 'malapert_massif', 'rover_mobility'], ['etna_piano_concazze', 'malapert_massif', 'rover_mobility'],
+  ['mauna_kea', 'phoenix', 'isru_subsurface'],
+]
+const TEST_SHORT = { flight_hda_lidar: 'lidar landing', rover_mobility: 'rover', isru_subsurface: 'ISRU' }
+const EARTH_ONLY = ['1/6 gravity', 'Vacuum', 'Electrostatic dust', 'Engine plume in vacuum', 'Cold of shadowed regions', 'Agglutinates', 'Regolith density']
+
+const D = window.PITCH_DATA || { targets: [], results: {}, validation: {}, known_sites: [], facilities: [], dots: {} }
+const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)]
+const RAD = Math.PI / 180, TAU = Math.PI * 2
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
+const ease = t => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2)
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+const target = id => D.targets.find(t => t.id === id) || { lat: 0, lon: 0, name: id }
+const demo = (D.results[DEMO_CASE] || [])[0] || { name: '—', lat: 0, lon: 0, score: 0, breaks: [], facilities: [] }
+
+// ---------------------------------------------------------------- dati nelle slide
+function bind() {
+  const set = (k, v) => $$(`[data-bind="${k}"]`).forEach(e => (e.textContent = v))
+  set('demoName', demo.name + (demo.country ? `, ${demo.country}` : ''))
+  set('demoScore', demo.score.toFixed(2))
+  set('demoNew', demo.new ? 'New place · not a known test site' : 'Known test site')
+  set('appUrl', APP_URL || 'URL to add')
+  set('firstNew', D.first_is_new ? `${D.first_is_new[0]} of ${D.first_is_new[1]}` : '—')
+  $('#demoMeter').style.setProperty('--v', `${Math.round(demo.score * 100)}%`)
+  const field = demo.breaks.filter(b => !EARTH_ONLY.includes(b)), earth = demo.breaks.filter(b => EARTH_ONLY.includes(b))
+  $('#demoBreaks').innerHTML = field.map(b => `<span>${b}</span>`).join('') || '<span>none</span>'
+  $('#demoEarth').innerHTML = earth.map(b => `<span>${b}</span>`).join('')
+  $('#demoFac').innerHTML = demo.facilities.slice(0, 4).map(f => `<li><span>${f.name}</span><span>${f.km ?? '—'} km</span></li>`).join('')
+  // validazione: percentile 100 = migliore della Terra
+  const known = Object.fromEntries(D.known_sites.map(k => [k.id, k.name]))
+  $('#vrows').innerHTML = VALIDATION_ROWS.map(([k, site, test], i) => {
+    const p = (D.validation[site]?.[test] || []).find(r => r.id === k)?.percentile
+    if (p == null) return ''
+    return `<div class="vrow"><div class="nm">${known[k] || k}<small>${target(site).name} · ${TEST_SHORT[test]}</small></div>
+      <div class="pc">top ${Math.max(1, 100 - p)}%</div><div class="meter" style="--v:${p}%"><i style="transition-delay:${0.2 + i * 0.12}s"></i></div></div>`
+  }).join('')
+  hexMap()
+}
+
+// mappa del mondo a esagoni dai puntini della Terra: arancio = primi 5 posti di ogni casella, contorno = siti noti
+function hexMap() {
+  const e = D.dots.earth || [], cols = 96, R = 1140 / (cols * Math.sqrt(3) + Math.sqrt(3) / 2), w = Math.sqrt(3) * R, h = 1.5 * R
+  const LAT0 = 84, LAT1 = -58, rows = Math.round((LAT0 - LAT1) / 3.2)
+  const cell = (lat, lon) => { const r = Math.round(((LAT0 - lat) / (LAT0 - LAT1)) * (rows - 1)); return [r, Math.round(((lon + 180) / 360) * (cols - 1) - (r % 2) / 2)] }
+  const land = new Map(), key = (r, c) => r * 1000 + c
+  for (let i = 0; i < e.length; i += 3) { const [r, c] = cell(e[i + 1], e[i]); if (r >= 0 && r < rows) land.set(key(r, c), (land.get(key(r, c)) || 0) + 1) }
+  const hot = new Map()
+  for (const list of Object.values(D.results)) list.forEach(p => { const [r, c] = cell(p.lat, p.lon); hot.set(key(r, c), Math.max(hot.get(key(r, c)) || 0, p.score)) })
+  const known = new Set(D.known_sites.filter(k => k.lat != null).map(k => key(...cell(k.lat, k.lon))))
+  const poly = (r, c) => { const cx = c * w + (r % 2) * w / 2 + w / 2, cy = r * h + R; return Array.from({ length: 6 }, (_, i) => { const a = (60 * i - 30) * RAD; return `${(cx + R * 0.92 * Math.cos(a)).toFixed(1)},${(cy + R * 0.92 * Math.sin(a)).toFixed(1)}` }).join(' ') }
+  let s = '', top = ''
+  for (const [k, n] of land) {
+    const r = Math.floor(k / 1000), c = k % 1000, d = (c / cols) * 1.1
+    if (hot.has(k)) top += `<polygon class="hot" points="${poly(r, c)}" style="--d:${(1.3 + Math.random() * 0.5).toFixed(2)}s;--o:${(0.55 + 0.45 * hot.get(k)).toFixed(2)}"/>`
+    else s += `<polygon points="${poly(r, c)}" style="--d:${d.toFixed(2)}s"/>`
+    if (known.has(k)) top += `<polygon class="known" points="${poly(r, c)}" style="--d:2s"/>`
+  }
+  $('#hexsvg').innerHTML = `<svg viewBox="0 0 1140 ${(rows * h + R).toFixed(0)}">${s}${top}</svg>`
+}
+
+// ---------------------------------------------------------------- pianeti a puntini (canvas)
+const THEME = {
+  dark: { ink: '#f2f3f5', pill: 'rgba(4,6,10,.82)', rim: 'rgba(255,255,255,.18)', moon: ['#17181c', [205, 208, 215], 0.62], mars: ['#1d1512', [255, 165, 120], 0.88], earth: ['#0b1018', [190, 215, 255], 0.72] },
+  light: { ink: '#111111', pill: 'rgba(201,206,214,.9)', rim: 'rgba(255,255,255,.7)', moon: ['#b4b8bf', [8, 9, 12], 0.84], mars: ['#d0ad9c', [70, 14, 4], 0.86], earth: ['#b3bfcd', [17, 40, 80], 0.68] },
+}
+const sky = $('#sky'), ctx = sky.getContext('2d')
+function prep(flat) {
+  if (!flat || !flat.length) { // senza data.js: sfera di Fibonacci
+    flat = []; const n = 4000
+    for (let i = 0; i < n; i++) { const y = 1 - (2 * i + 1) / n; flat.push(((i * 137.508) % 360) - 180, Math.asin(y) / RAD, 0.8) }
+  }
+  const n = flat.length / 3, o = { n, lam: new Float32Array(n), sp: new Float32Array(n), cp: new Float32Array(n), w: new Float32Array(n), jx: new Float32Array(n), jy: new Float32Array(n) }
+  for (let i = 0; i < n; i++) {
+    const ph = flat[3 * i + 1] * RAD
+    o.lam[i] = flat[3 * i] * RAD; o.sp[i] = Math.sin(ph); o.cp[i] = Math.cos(ph); o.w[i] = flat[3 * i + 2]
+    const a = Math.random() * TAU, d = 0.6 + Math.random() * 2.4; o.jx[i] = Math.cos(a) * d; o.jy[i] = Math.sin(a) * d
+  }
+  return o
+}
+const W = {}
+for (const k of ['moon', 'mars', 'earth']) W[k] = { pts: prep(D.dots[k]), x: 960, y: 540, r: 1, a: 0, lat: 0, lonEff: 0, spinOff: 0, from: null, to: null, t0: 0, delta: 0 }
+
+let markers = [], arcs = [], sceneT0 = 0, sceneKey = '', introT0 = performance.now()
+function setScene(sc) {
+  const key = JSON.stringify(sc)
+  if (key === sceneKey) return
+  sceneKey = key; sceneT0 = performance.now()
+  for (const k in W) {
+    const p = W[k], to = { ...{ x: p.x, y: p.y, r: p.r, lat: p.lat, lon: p.lonEff, spin: 0 }, ...(sc[k] || {}), a: sc[k]?.a ?? 0 }
+    p.from = { x: p.x, y: p.y, r: p.r, a: p.a, lat: p.lat, lon: p.lonEff }
+    p.to = to; p.t0 = sceneT0; p.spinOff = 0
+    p.delta = ((((to.lon - p.lonEff) % 360) + 540) % 360) - 180
+  }
+  markers = sc.markers || []; arcs = sc.arcs || []
+}
+function project(p, lat, lon) {
+  const f0 = p.lat * RAD, dl = lon * RAD - p.lonEff * RAD, ph = lat * RAD
+  const z = Math.sin(f0) * Math.sin(ph) + Math.cos(f0) * Math.cos(ph) * Math.cos(dl)
+  return { x: p.x + p.r * Math.cos(ph) * Math.sin(dl), y: p.y - p.r * (Math.cos(f0) * Math.sin(ph) - Math.sin(f0) * Math.cos(ph) * Math.cos(dl)), z }
+}
+function drawPlanet(k, th, intro) {
+  const p = W[k], P = p.pts, [fill, dot, k0] = th[k]
+  if (p.a < 0.01 || p.r < 2) return
+  const l0 = p.lonEff * RAD, f0 = p.lat * RAD, sf = Math.sin(f0), cf = Math.cos(f0), size = clamp(p.r / 140, 1.2, 2.6)
+  ctx.globalAlpha = p.a; ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, TAU); ctx.fill()
+  const bins = 6, paths = Array.from({ length: bins }, () => new Path2D()), spread = (1 - intro) * p.r
+  for (let i = 0; i < P.n; i++) {
+    const dl = P.lam[i] - l0, c = Math.cos(dl), z = sf * P.sp[i] + cf * P.cp[i] * c
+    if (z <= 0) continue
+    let x = p.x + p.r * P.cp[i] * Math.sin(dl), y = p.y - p.r * (cf * P.sp[i] - sf * P.cp[i] * c)
+    if (spread > 0.5) { x += P.jx[i] * spread; y += P.jy[i] * spread }
+    const b = Math.min(bins - 1, (P.w[i] * (0.3 + 0.7 * z) * bins) | 0)
+    paths[b].rect(x - size / 2, y - size / 2, size, size)
+  }
+  ctx.fillStyle = `rgb(${dot})`
+  for (let b = 0; b < bins; b++) { ctx.globalAlpha = p.a * k0 * ((b + 0.6) / bins) * (0.3 + 0.7 * intro); ctx.fill(paths[b]) }
+  ctx.globalAlpha = p.a * 0.5; ctx.strokeStyle = th.rim; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, TAU); ctx.stroke()
+}
+function drawMarker(m, th, t) {
+  const p = W[m.w], q = project(p, m.lat, m.lon), a = p.a * clamp((t - (m.delay ?? 0.9)) / 0.5) * clamp(q.z * 5)
+  if (a <= 0.01) return
+  const pulse = ((t * 0.7 + (m.phase || 0)) % 1)
+  ctx.globalAlpha = a * (1 - pulse) * 0.8; ctx.strokeStyle = '#ff5a1f'; ctx.lineWidth = 2
+  ctx.beginPath(); ctx.arc(q.x, q.y, 6 + pulse * 18, 0, TAU); ctx.stroke()
+  ctx.globalAlpha = a; ctx.fillStyle = '#ff5a1f'; ctx.beginPath(); ctx.arc(q.x, q.y, m.small ? 4 : 6.5, 0, TAU); ctx.fill()
+  if (!m.label) return
+  ctx.font = '400 19px "Space Mono", monospace'
+  const tw = ctx.measureText(m.label).width, dx = m.dx ?? 18, dy = m.dy ?? -18, bx = dx < 0 ? q.x + dx - tw - 24 : q.x + dx, by = q.y + dy - 16
+  ctx.fillStyle = th.pill; ctx.strokeStyle = th.rim; ctx.lineWidth = 1
+  ctx.beginPath(); ctx.roundRect(bx, by, tw + 24, 32, 16); ctx.fill(); ctx.stroke()
+  ctx.fillStyle = th.ink; ctx.textBaseline = 'middle'; ctx.fillText(m.label, bx + 12, by + 16.5)
+}
+function drawArc(arc, t) {
+  const A = project(W[arc.from.w], arc.from.lat, arc.from.lon), B = project(W[arc.to.w], arc.to.lat, arc.to.lon)
+  const a = Math.min(W[arc.from.w].a, W[arc.to.w].a) * clamp(Math.min(A.z, B.z) * 6)
+  const prog = ease(clamp((t - (arc.delay ?? 0.8)) / 1.1))
+  if (a <= 0.01 || prog <= 0) return
+  const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, len = Math.hypot(B.x - A.x, B.y - A.y), cx = mx, cy = my - len * (arc.lift ?? 0.32)
+  const pt = s => [(1 - s) ** 2 * A.x + 2 * (1 - s) * s * cx + s * s * B.x, (1 - s) ** 2 * A.y + 2 * (1 - s) * s * cy + s * s * B.y]
+  ctx.globalAlpha = a * 0.85; ctx.strokeStyle = '#ff5a1f'; ctx.lineWidth = 2; ctx.setLineDash([2, 7]); ctx.beginPath()
+  for (let i = 0; i <= 64 * prog; i++) { const [x, y] = pt(i / 64); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y) }
+  ctx.stroke(); ctx.setLineDash([])
+  if (prog >= 1) { const [x, y] = pt((t * 0.45 + (arc.phase || 0)) % 1); ctx.globalAlpha = a; ctx.fillStyle = '#ff5a1f'; ctx.beginPath(); ctx.arc(x, y, 5, 0, TAU); ctx.fill() }
+}
+let last = performance.now(), K = 0.5
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now
+  const th = THEME[document.documentElement.dataset.theme] || THEME.dark, t = (now - sceneT0) / 1000
+  const intro = reduced ? 1 : ease(clamp((now - introT0) / 2400))
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, sky.width, sky.height)
+  const s = K * Math.min(devicePixelRatio, 2); ctx.setTransform(s, 0, 0, s, 0, 0)
+  for (const k in W) {
+    const p = W[k]; if (!p.to) continue
+    const e = reduced ? 1 : ease(clamp((now - p.t0) / 1500)), f = p.from, to = p.to
+    p.x = f.x + (to.x - f.x) * e; p.y = f.y + (to.y - f.y) * e; p.r = f.r + (to.r - f.r) * e; p.a = f.a + (to.a - f.a) * e; p.lat = f.lat + (to.lat - f.lat) * e
+    p.spinOff += (to.spin || 0) * (reduced ? 0.3 : 1) * dt
+    p.lonEff = f.lon + p.delta * e + p.spinOff
+  }
+  for (const k of ['earth', 'mars', 'moon']) drawPlanet(k, th, intro)
+  arcs.forEach(a => drawArc(a, t)); markers.forEach(m => drawMarker(m, th, t))
+  ctx.globalAlpha = 1
+  requestAnimationFrame(frame)
+}
+
+// scena dei pianeti per slide e passo
+function scene(i, st) {
+  const h = target('haworth'), moonSites = D.targets.filter(t => t.world === 'moon')
+  const hidden = { moon: { x: 1450, y: 470, r: 290, a: 0, lat: -30, lon: -20 }, mars: { x: 1720, y: 870, r: 130, a: 0, lat: 18, lon: -150 }, earth: { x: 1500, y: 560, r: 360, a: 0, lat: 32, lon: 12 } }
+  switch (i) {
+    case 0: return { ...hidden, moon: { x: 1540, y: 450, r: 270, a: 1, lat: -30, lon: -20, spin: 3 }, mars: { x: 1745, y: 860, r: 125, a: 1, lat: 18, lon: -150, spin: 4 },
+      earth: { x: 1340, y: 900, r: 52, a: st >= 1 ? 1 : 0, lat: 30, lon: 10, spin: 6 } }
+    case 1: return { ...hidden, moon: { x: 1880, y: 160, r: 60, a: 0, lat: -30, lon: -20 }, earth: { x: 1500, y: 560, r: 360, a: 1, lat: 34, lon: 13 },
+      markers: [{ w: 'earth', lat: 37.75, lon: 15.0, label: 'Mount Etna · rover test 2026', dy: 22 }, { w: 'earth', lat: 45.07, lon: 7.69, label: 'Turin', small: true, dx: -18, phase: 0.5 }] }
+    case 2: return { ...hidden, moon: { x: 290, y: 885, r: 108, a: 1, lat: -58, lon: -10 }, earth: { x: 1630, y: 885, r: 132, a: 1, lat: 28, lon: demo.lon + 20 },
+      markers: [...moonSites.filter(t => t.lat < -80).map(t => ({ w: 'moon', lat: t.lat, lon: t.lon, small: true, phase: Math.random() })),
+        ...(st >= 2 ? [{ w: 'earth', lat: demo.lat, lon: demo.lon, delay: 1.6 }] : [])],
+      arcs: st >= 2 ? [{ from: { w: 'moon', lat: h.lat, lon: h.lon }, to: { w: 'earth', lat: demo.lat, lon: demo.lon }, lift: 0.18, delay: 0.3 }] : [] }
+    case 3: case 4: return hidden
+    case 5: {
+      const T = { lat: 45.07, lon: 7.69 }, fac = demo.facilities.filter((f, j, a) => a.findIndex(g => g.lat === f.lat && g.lon === f.lon) === j && Math.hypot(f.lat - T.lat, f.lon - T.lon) > 1)
+      const show = st < 3
+      return { ...hidden, earth: { x: 1490, y: 640, r: 360, a: show ? 1 : 0.14, lat: 38, lon: -48 },
+        markers: show ? [{ w: 'earth', ...T, label: 'Turin · test team', dx: -18, dy: 26 }, { w: 'earth', lat: demo.lat, lon: demo.lon, label: 'field site', dx: -18, delay: 1.4 },
+          ...fac.map((f, j) => ({ w: 'earth', lat: f.lat, lon: f.lon, label: f.name.split(/[,(]/)[0].trim(), small: true, dx: f.lon < -30 ? -18 : 18, dy: j % 2 ? 20 : -18, delay: 1.6 + j * 0.2 }))] : [],
+        arcs: show ? [{ from: { w: 'earth', ...T }, to: { w: 'earth', lat: demo.lat, lon: demo.lon }, delay: 1 }, ...fac.map((f, j) => ({ from: { w: 'earth', ...T }, to: { w: 'earth', lat: f.lat, lon: f.lon }, delay: 1.3 + j * 0.2, phase: j * 0.3 }))] : [] }
+    }
+    case 6: return { moon: { x: 1250, y: 655, r: 112, a: 1, lat: -30, lon: -20, spin: 4 }, earth: { x: 1510, y: 655, r: 140, a: 1, lat: 25, lon: 10, spin: 6 }, mars: { x: 1745, y: 655, r: 82, a: 1, lat: 18, lon: -150, spin: 5 } }
+  }
+  return hidden
+}
+
+// ---------------------------------------------------------------- navigazione, passi, timer
+const slides = $$('.slide'), dotsEl = $('#dots'), bc = 'BroadcastChannel' in window ? new BroadcastChannel('fvg-pitch') : null
+let cur = 0, step = 0, t0 = null, remote = false
+const stepOf = el => +(el.closest('[data-step]')?.dataset.step || 0)
+const untilOf = el => { const u = el.closest('[data-until]'); return u ? +u.dataset.until : Infinity }
+const maxStep = s => Math.max(0, ...$$('[data-step]', s).map(e => +e.dataset.step))
+slides.forEach(() => dotsEl.append(document.createElement('i')))
+
+function countUp(el) {
+  const to = +el.dataset.count, t1 = performance.now()
+  const tick = now => { const e = ease(clamp((now - t1) / 1200)); el.textContent = Math.round(to * e); if (e < 1 && el._on) requestAnimationFrame(tick) }
+  requestAnimationFrame(tick)
+}
+function render() {
+  slides.forEach((s, i) => { s.classList.toggle('on', i === cur); if (i !== cur) $$('.rv.in', s).forEach(e => e.classList.remove('in')) })
+  const s = slides[cur]
+  requestAnimationFrame(() => requestAnimationFrame(() => { // due frame: la slide è visibile prima che partano le transizioni
+    $$('.rv', s).forEach(e => e.classList.toggle('in', stepOf(e) <= step && step <= untilOf(e)))
+    $$('[data-count]', s).forEach(e => { const on = stepOf(e) <= step; if (on && !e._on) { e._on = true; countUp(e) } else if (!on) { e._on = false; e.textContent = '0' } })
+  }))
+  slides.forEach((o, i) => i !== cur && $$('[data-count]', o).forEach(e => { e._on = false }))
+  const v = $('#demo'); if (v && $('#frame').classList.contains('has-video')) cur === 3 ? v.play().catch(() => {}) : v.pause()
+  storyline()
+  setScene(scene(cur, step))
+  $$('i', dotsEl).forEach((d, i) => { d.className = i === cur ? 'on' : i < cur ? 'done' : '' })
+  $('#num').textContent = `${String(cur + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`
+  const n = $('.notes', s)?.innerHTML || ''
+  $('#notes').innerHTML = n
+  $('#pnotes').innerHTML = `<div class="t fig" id="ptime">0:00</div><div class="lbl">Slide ${cur + 1}/${slides.length} · ${s.dataset.title} · step ${step}/${maxStep(s)} · end by ${fmt(+s.dataset.end)}</div>${n}<div class="lbl">Next: ${slides[cur + 1]?.dataset.title || '—'}</div>`
+  history.replaceState(null, '', `${location.search}#${cur + 1}.${step}`)
+  if (!remote && bc) bc.postMessage({ cur, step, t0 })
+  clock()
+}
+function go(i, st = 0) { cur = clamp(i, 0, slides.length - 1); step = clamp(st, 0, maxStep(slides[cur])); render() }
+function next() {
+  if (t0 == null) t0 = Date.now()
+  if (step < maxStep(slides[cur])) { step++; render() } else if (cur < slides.length - 1) go(cur + 1, 0)
+}
+function prev() { if (step > 0) { step--; render() } else if (cur > 0) go(cur - 1, maxStep(slides[cur - 1])) }
+
+// scaletta del video segnaposto: un passo ogni 1,6 s
+let storyTimer = null
+function storyline() {
+  clearInterval(storyTimer); const li = $$('#storyline li'); li.forEach(l => l.classList.remove('on'))
+  if (cur !== 3) return
+  let j = 0; storyTimer = setInterval(() => { li.forEach((l, k) => l.classList.toggle('on', k === j % li.length)); j++ }, 1600)
+}
+
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
+function clock() {
+  const el = $('#clock'), pt = $('#ptime'), s = t0 == null ? 0 : (Date.now() - t0) / 1000, late = s > +slides[cur].dataset.end
+  el.textContent = `${fmt(s)} / 4:00`; el.classList.toggle('late', late)
+  if (pt) { pt.textContent = fmt(s); pt.classList.toggle('late', late) }
+}
+setInterval(clock, 250)
+
+if (bc) bc.onmessage = e => { const m = e.data; remote = true; t0 = m.t0; go(m.cur, m.step); remote = false }
+
+// ---------------------------------------------------------------- tasti e adattamento
+const toggle = c => document.body.classList.toggle(c)
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return
+  const k = e.key
+  if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); next() }
+  else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); prev() }
+  else if (k === 'Home') go(0); else if (k === 'End') go(slides.length - 1, 99)
+  else if (/^[1-9]$/.test(k)) go(+k - 1)
+  else if (k === 'n' || k === 'N') toggle('shownotes')
+  else if (k === 't' || k === 'T') toggle('timer')
+  else if (k === 's' || k === 'S') { t0 = Date.now(); render() }
+  else if (k === 'r' || k === 'R') { t0 = null; render() }
+  else if (k === 'g' || k === 'G') toggle('draft')
+  else if (k === 'b' || k === 'B' || k === '.') toggle('blackout')
+  else if (k === '?') toggle('showhelp')
+  else if (k === 'Escape') document.body.classList.remove('showhelp', 'shownotes', 'blackout')
+  else if (k === 'f' || k === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()
+  else if (k === 'p' || k === 'P') open(`${location.pathname}?presenter#${cur + 1}.${step}`, 'fvg-presenter', 'width=1400,height=820')
+  else if (k === 'l' || k === 'L') APP_URL && open(APP_URL, '_blank')
+  else if (k === 'd' || k === 'D') document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
+})
+$('#stage').addEventListener('click', e => { if (!e.target.closest('a,button,video')) next() })
+
+function fit() {
+  const pres = document.body.classList.contains('presenter')
+  const w = pres ? innerWidth * 0.62 - 24 : innerWidth, h = pres ? innerHeight - 90 : innerHeight
+  K = Math.min(w / 1920, h / 1080)
+  document.getElementById('stage').style.setProperty('--k', K)
+  const s = K * Math.min(devicePixelRatio, 2); sky.width = Math.round(1920 * s); sky.height = Math.round(1080 * s)
+}
+addEventListener('resize', fit)
+
+// ---------------------------------------------------------------- avvio
+if (!DRAFT) document.body.classList.remove('draft')
+if (location.search.includes('presenter')) document.body.classList.add('presenter')
+$('#demo').addEventListener('loadeddata', () => { $('#frame').classList.add('has-video'); render() })
+if (D.generated_at) $('#draftbadge').textContent += ` · export ${D.generated_at.slice(5, 16).replace('T', ' ')} UTC`
+bind(); fit()
+const [hs, hst] = location.hash.slice(1).split('.').map(Number)
+go((hs || 1) - 1, hst || 0)
+requestAnimationFrame(frame)
+</script>
+</body>
+</html>

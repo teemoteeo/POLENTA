@@ -1,0 +1,878 @@
+{
+ "malapert_massif": {
+  "flight_hda_lidar": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.035,
+    "percentile": 38
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "ksc_alhat",
+    "name": "Campo ALHAT, Kennedy Space Center",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "rogers_lakebed",
+    "name": "Rogers Dry Lake, Edwards AFB",
+    "score": 0.11,
+    "percentile": 81
+   },
+   {
+    "id": "mojave_lspg",
+    "name": "Mojave (LSPG, Xodiac)",
+    "score": 0.223,
+    "percentile": 96
+   },
+   {
+    "id": "death_valley",
+    "name": "Death Valley, California",
+    "score": 0.061,
+    "percentile": 60
+   },
+   {
+    "id": "huailai",
+    "name": "Huailai, Hebei",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "challakere",
+    "name": "Challakere, Karnataka",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "rover_mobility": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.077,
+    "percentile": 89
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "teide",
+    "name": "Teide, Tenerife",
+    "score": 0.066,
+    "percentile": 84
+   },
+   {
+    "id": "black_point",
+    "name": "Black Point Lava Flow, Arizona",
+    "score": 0.059,
+    "percentile": 76
+   },
+   {
+    "id": "sp_crater",
+    "name": "SP Crater / San Francisco Volcanic Field, Arizona",
+    "score": 0.082,
+    "percentile": 90
+   },
+   {
+    "id": "meteor_crater",
+    "name": "Meteor Crater, Arizona",
+    "score": 0.074,
+    "percentile": 88
+   },
+   {
+    "id": "rye_colorado",
+    "name": "Rye, Colorado",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "kumtag",
+    "name": "Deserto di Kumtag, Cina",
+    "score": 0.036,
+    "percentile": 49
+   },
+   {
+    "id": "tottori",
+    "name": "Dune di Tottori, Giappone",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "isru_subsurface": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.023,
+    "percentile": 25
+   },
+   {
+    "id": "mauna_kea",
+    "name": "Mauna Kea, Hawaii",
+    "score": 0.048,
+    "percentile": 66
+   },
+   {
+    "id": "hi_seas",
+    "name": "HI-SEAS, Mauna Loa",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "lofoten",
+    "name": "Lofoten, Norvegia",
+    "score": null,
+    "percentile": null
+   }
+  ]
+ },
+ "haworth": {
+  "flight_hda_lidar": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.032,
+    "percentile": 32
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "ksc_alhat",
+    "name": "Campo ALHAT, Kennedy Space Center",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "rogers_lakebed",
+    "name": "Rogers Dry Lake, Edwards AFB",
+    "score": 0.225,
+    "percentile": 95
+   },
+   {
+    "id": "mojave_lspg",
+    "name": "Mojave (LSPG, Xodiac)",
+    "score": 0.068,
+    "percentile": 65
+   },
+   {
+    "id": "death_valley",
+    "name": "Death Valley, California",
+    "score": 0.028,
+    "percentile": 25
+   },
+   {
+    "id": "huailai",
+    "name": "Huailai, Hebei",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "challakere",
+    "name": "Challakere, Karnataka",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "rover_mobility": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.063,
+    "percentile": 77
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "teide",
+    "name": "Teide, Tenerife",
+    "score": 0.042,
+    "percentile": 55
+   },
+   {
+    "id": "black_point",
+    "name": "Black Point Lava Flow, Arizona",
+    "score": 0.065,
+    "percentile": 79
+   },
+   {
+    "id": "sp_crater",
+    "name": "SP Crater / San Francisco Volcanic Field, Arizona",
+    "score": 0.206,
+    "percentile": 100
+   },
+   {
+    "id": "meteor_crater",
+    "name": "Meteor Crater, Arizona",
+    "score": 0.08,
+    "percentile": 85
+   },
+   {
+    "id": "rye_colorado",
+    "name": "Rye, Colorado",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "kumtag",
+    "name": "Deserto di Kumtag, Cina",
+    "score": 0.032,
+    "percentile": 44
+   },
+   {
+    "id": "tottori",
+    "name": "Dune di Tottori, Giappone",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "isru_subsurface": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.022,
+    "percentile": 24
+   },
+   {
+    "id": "mauna_kea",
+    "name": "Mauna Kea, Hawaii",
+    "score": 0.038,
+    "percentile": 50
+   },
+   {
+    "id": "hi_seas",
+    "name": "HI-SEAS, Mauna Loa",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "lofoten",
+    "name": "Lofoten, Norvegia",
+    "score": null,
+    "percentile": null
+   }
+  ]
+ },
+ "nobile_rim_1": {
+  "flight_hda_lidar": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.035,
+    "percentile": 35
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "ksc_alhat",
+    "name": "Campo ALHAT, Kennedy Space Center",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "rogers_lakebed",
+    "name": "Rogers Dry Lake, Edwards AFB",
+    "score": 0.147,
+    "percentile": 89
+   },
+   {
+    "id": "mojave_lspg",
+    "name": "Mojave (LSPG, Xodiac)",
+    "score": 0.185,
+    "percentile": 94
+   },
+   {
+    "id": "death_valley",
+    "name": "Death Valley, California",
+    "score": 0.047,
+    "percentile": 53
+   },
+   {
+    "id": "huailai",
+    "name": "Huailai, Hebei",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "challakere",
+    "name": "Challakere, Karnataka",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "rover_mobility": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.077,
+    "percentile": 90
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "teide",
+    "name": "Teide, Tenerife",
+    "score": 0.063,
+    "percentile": 83
+   },
+   {
+    "id": "black_point",
+    "name": "Black Point Lava Flow, Arizona",
+    "score": 0.059,
+    "percentile": 77
+   },
+   {
+    "id": "sp_crater",
+    "name": "SP Crater / San Francisco Volcanic Field, Arizona",
+    "score": 0.08,
+    "percentile": 91
+   },
+   {
+    "id": "meteor_crater",
+    "name": "Meteor Crater, Arizona",
+    "score": 0.075,
+    "percentile": 89
+   },
+   {
+    "id": "rye_colorado",
+    "name": "Rye, Colorado",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "kumtag",
+    "name": "Deserto di Kumtag, Cina",
+    "score": 0.035,
+    "percentile": 49
+   },
+   {
+    "id": "tottori",
+    "name": "Dune di Tottori, Giappone",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "isru_subsurface": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.023,
+    "percentile": 26
+   },
+   {
+    "id": "mauna_kea",
+    "name": "Mauna Kea, Hawaii",
+    "score": 0.043,
+    "percentile": 61
+   },
+   {
+    "id": "hi_seas",
+    "name": "HI-SEAS, Mauna Loa",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "lofoten",
+    "name": "Lofoten, Norvegia",
+    "score": null,
+    "percentile": null
+   }
+  ]
+ },
+ "aristarchus_plateau": {
+  "flight_hda_lidar": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.015,
+    "percentile": 17
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "ksc_alhat",
+    "name": "Campo ALHAT, Kennedy Space Center",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "rogers_lakebed",
+    "name": "Rogers Dry Lake, Edwards AFB",
+    "score": 0.098,
+    "percentile": 78
+   },
+   {
+    "id": "mojave_lspg",
+    "name": "Mojave (LSPG, Xodiac)",
+    "score": 0.04,
+    "percentile": 43
+   },
+   {
+    "id": "death_valley",
+    "name": "Death Valley, California",
+    "score": 0.012,
+    "percentile": 5
+   },
+   {
+    "id": "huailai",
+    "name": "Huailai, Hebei",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "challakere",
+    "name": "Challakere, Karnataka",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "rover_mobility": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.012,
+    "percentile": 1
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "teide",
+    "name": "Teide, Tenerife",
+    "score": 0.02,
+    "percentile": 41
+   },
+   {
+    "id": "black_point",
+    "name": "Black Point Lava Flow, Arizona",
+    "score": 0.028,
+    "percentile": 53
+   },
+   {
+    "id": "sp_crater",
+    "name": "SP Crater / San Francisco Volcanic Field, Arizona",
+    "score": 0.035,
+    "percentile": 60
+   },
+   {
+    "id": "meteor_crater",
+    "name": "Meteor Crater, Arizona",
+    "score": 0.138,
+    "percentile": 84
+   },
+   {
+    "id": "rye_colorado",
+    "name": "Rye, Colorado",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "kumtag",
+    "name": "Deserto di Kumtag, Cina",
+    "score": 0.012,
+    "percentile": 7
+   },
+   {
+    "id": "tottori",
+    "name": "Dune di Tottori, Giappone",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "isru_subsurface": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.079,
+    "percentile": 5
+   },
+   {
+    "id": "mauna_kea",
+    "name": "Mauna Kea, Hawaii",
+    "score": 0.125,
+    "percentile": 9
+   },
+   {
+    "id": "hi_seas",
+    "name": "HI-SEAS, Mauna Loa",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "lofoten",
+    "name": "Lofoten, Norvegia",
+    "score": null,
+    "percentile": null
+   }
+  ]
+ },
+ "phoenix": {
+  "flight_hda_lidar": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.017,
+    "percentile": 3
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "ksc_alhat",
+    "name": "Campo ALHAT, Kennedy Space Center",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "rogers_lakebed",
+    "name": "Rogers Dry Lake, Edwards AFB",
+    "score": 0.16,
+    "percentile": 87
+   },
+   {
+    "id": "mojave_lspg",
+    "name": "Mojave (LSPG, Xodiac)",
+    "score": 0.067,
+    "percentile": 48
+   },
+   {
+    "id": "death_valley",
+    "name": "Death Valley, California",
+    "score": 0.027,
+    "percentile": 11
+   },
+   {
+    "id": "huailai",
+    "name": "Huailai, Hebei",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "challakere",
+    "name": "Challakere, Karnataka",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "rover_mobility": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.027,
+    "percentile": 22
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "teide",
+    "name": "Teide, Tenerife",
+    "score": 0.027,
+    "percentile": 22
+   },
+   {
+    "id": "black_point",
+    "name": "Black Point Lava Flow, Arizona",
+    "score": 0.058,
+    "percentile": 56
+   },
+   {
+    "id": "sp_crater",
+    "name": "SP Crater / San Francisco Volcanic Field, Arizona",
+    "score": 0.121,
+    "percentile": 90
+   },
+   {
+    "id": "meteor_crater",
+    "name": "Meteor Crater, Arizona",
+    "score": 0.025,
+    "percentile": 18
+   },
+   {
+    "id": "rye_colorado",
+    "name": "Rye, Colorado",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "kumtag",
+    "name": "Deserto di Kumtag, Cina",
+    "score": 0.121,
+    "percentile": 90
+   },
+   {
+    "id": "tottori",
+    "name": "Dune di Tottori, Giappone",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "isru_subsurface": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.045,
+    "percentile": 59
+   },
+   {
+    "id": "mauna_kea",
+    "name": "Mauna Kea, Hawaii",
+    "score": 0.113,
+    "percentile": 95
+   },
+   {
+    "id": "hi_seas",
+    "name": "HI-SEAS, Mauna Loa",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "lofoten",
+    "name": "Lofoten, Norvegia",
+    "score": null,
+    "percentile": null
+   }
+  ]
+ },
+ "gale": {
+  "flight_hda_lidar": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.012,
+    "percentile": 0
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "ksc_alhat",
+    "name": "Campo ALHAT, Kennedy Space Center",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "rogers_lakebed",
+    "name": "Rogers Dry Lake, Edwards AFB",
+    "score": 0.747,
+    "percentile": 97
+   },
+   {
+    "id": "mojave_lspg",
+    "name": "Mojave (LSPG, Xodiac)",
+    "score": 0.234,
+    "percentile": 79
+   },
+   {
+    "id": "death_valley",
+    "name": "Death Valley, California",
+    "score": 0.016,
+    "percentile": 7
+   },
+   {
+    "id": "huailai",
+    "name": "Huailai, Hebei",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "challakere",
+    "name": "Challakere, Karnataka",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "rover_mobility": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.012,
+    "percentile": 1
+   },
+   {
+    "id": "etna_cisternazza",
+    "name": "Etna, Cisternazza",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "teide",
+    "name": "Teide, Tenerife",
+    "score": 0.039,
+    "percentile": 18
+   },
+   {
+    "id": "black_point",
+    "name": "Black Point Lava Flow, Arizona",
+    "score": 0.2,
+    "percentile": 64
+   },
+   {
+    "id": "sp_crater",
+    "name": "SP Crater / San Francisco Volcanic Field, Arizona",
+    "score": 0.188,
+    "percentile": 61
+   },
+   {
+    "id": "meteor_crater",
+    "name": "Meteor Crater, Arizona",
+    "score": 0.218,
+    "percentile": 68
+   },
+   {
+    "id": "rye_colorado",
+    "name": "Rye, Colorado",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "kumtag",
+    "name": "Deserto di Kumtag, Cina",
+    "score": 0.227,
+    "percentile": 71
+   },
+   {
+    "id": "tottori",
+    "name": "Dune di Tottori, Giappone",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "cinder_lake",
+    "name": "Cinder Lake Crater Field, Arizona",
+    "score": null,
+    "percentile": null
+   }
+  ],
+  "isru_subsurface": [
+   {
+    "id": "etna_piano_concazze",
+    "name": "Etna, Piano delle Concazze",
+    "score": 0.212,
+    "percentile": 44
+   },
+   {
+    "id": "mauna_kea",
+    "name": "Mauna Kea, Hawaii",
+    "score": 0.212,
+    "percentile": 45
+   },
+   {
+    "id": "hi_seas",
+    "name": "HI-SEAS, Mauna Loa",
+    "score": null,
+    "percentile": null
+   },
+   {
+    "id": "lofoten",
+    "name": "Lofoten, Norvegia",
+    "score": null,
+    "percentile": null
+   }
+  ]
+ }
+}
