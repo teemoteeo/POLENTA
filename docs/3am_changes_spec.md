@@ -204,3 +204,23 @@ In ogni risultato c'è `campaign`:
   - tipo di roccia GLiM grossolano (celle da ~55 km);
   - niente Antartide (l'NDVI MODIS non la copre);
   - alcune voci delle strutture da verificare (`[NV]`).
+
+---
+
+## 4. Decisioni delle 03:00 e piano della mattina
+
+**Aggiunte:**
+- finestra di test (mese migliore): **sì**, la fa Edo;
+- stima dei costi: **in pausa** (fonti poco solide);
+- brief scaricabile: **dopo**, quando tutto funziona;
+- **casi studio per la giuria: sì**, bozza in `docs/case_studies.md`, con un bottone per caso nell'app (Timo);
+- LLM explainer: **dopo**, quando tutto funziona.
+
+| Ora | Edo | Timo | Rocco |
+|---|---|---|---|
+| 08:00-09:30 | finestra di test, via i campi coltivati, numeri di validazione, ripubblicazione | T1-T6 (app sui dati veri) | verifiche `[NV]`, rifinitura dei casi studio |
+| 09:30-11:00 | prova di integrazione (checklist), correzioni al backend | T7-T8 (campagna, pin), bottoni dei casi studio, benchmark, **deploy** | testi delle slide |
+| **11:00** | **freeze delle funzionalità**: da qui solo bug | | |
+| 11:00-14:30 | numeri e screenshot per le slide | slide e video da 30 s | slide, descrizione per il form |
+| 14:30-15:30 | revisione finale | link pubblici controllati | form (dataset NASA, uso dell'AI), prova del pitch |
+| **15:30** | **submit interno** · 16:00 consegna · 16:15 pitch | | |
