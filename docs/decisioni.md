@@ -21,6 +21,13 @@
   - `isru_resources`: risorse in situ per una base permanente, cioè ghiaccio nel suolo e regolite da lavorare.
   - Fuori: camera, EVA, contatto col suolo, trivella.
 - **Card di ogni risultato:** cosa combacia, cosa no, dove l'analogia si rompe.
+- **Campagna consigliata (dom 02:20)** per ogni risultato:
+  - il sito all'aperto;
+  - le poche strutture indoor che coprono quello che il sito non ha, prima chi copre di più e a parità la più vicina a Torino;
+  - i simulanti adatti (LSP-2 e LHS-1 per la Luna, MGS-1 e JEZ-1 per Marte);
+  - la fonte di roccia naturale più vicina al cliente e al sito.
+
+  Le liste stanno in `data/config/facilities.csv`, `simulants.csv` e `rock_sources.csv`, con le fonti; le voci `[NV]` sono da verificare (Rocco). L'LLM explainer di Timo racconta la campagna e non inventa strutture.
 - **Claim sul materiale:** "la roccia sorgente giusta vicino a te", non "un sostituto del simulante". I grani terrestri sono arrotondati, quelli lunari taglienti (lo ha detto la mentor).
 
 ## Parametri (sab 23:30)
@@ -39,7 +46,7 @@ Per ogni sito serve il valore (o un intervallo min-max) e la fonte, **calcolati 
 | `albedo` | riflettanza a banda larga | LOLA / Diviner | TES | 0,05 / — / — |
 | `low_sun_frac` | quota di luce con il Sole a 0-7° | 1,0 | da latitudine | — / 0,10 / — |
 | `bulk_density_0_5` | densità dei primi 5 cm (g/cm³) | Apollo 1,5 | Phoenix, Curiosity | — / — / 0,20 |
-| `rock_class` | tipo di roccia (fonte terrestre da decidere: fuori dal voto finché manca) | anortosite | basalto, sedimentario | 0,05 / 0,05 / 0,15 |
+| `rock_class` | tipo di roccia: GLiM 0,5° sulla Terra + tabella di somiglianza `rock_similarity.csv` (bozza da confermare) | anortosite | basalto, basalto-sedimentario | 0,05 / 0,05 / 0,15 |
 | `subsurface_ice` → `permafrost_share` | ghiaccio nel sottosuolo (% in peso) → sulla Terra permafrost probabile (MODIS) | **scenario B**: 5,6% nelle zone in ombra vicine (LCROSS) | Phoenix 55%, Gale 2,25% | — / — / 0,35 |
 
 Valori, pesi e reference: `data/config/siti_e_pesi.csv` (Rocco). Un test nuovo è una colonna, un parametro nuovo una riga; peso 0 = non conta per quel test.
@@ -76,7 +83,7 @@ Valori, pesi e reference: `data/config/siti_e_pesi.csv` (Rocco). Un test nuovo �
 
 - Kit di analoghi (T1, "nessun posto basta, tre insieme sì"): non convince, non deciso.
 - Motore della mappa: Cesium o deck.gl.
-- Fonte di `rock_class` sulla Terra (vedi Prossimi passi). Attenzione: EMIT non misura il plagioclasio, cioè l'anortosite del Polo Sud.
+- `rock_class`: GLiM a 0,5° è grossolana (l'Etna risulta sedimentaria): pesa poco nel voto; per la roccia da cava si usa la lista curata `rock_sources.csv`.
 - `low_sun_hours` (ore al giorno con il Sole a 0-7°) al posto di `low_sun_frac` nel voto: distingue meglio le alte latitudini.
 
 ## Orari e submission

@@ -1,0 +1,9 @@
+id,name,producer,body,terrain,price,source,notes
+lhs1,LHS-1 (Lunar Highlands Simulant),Space Resource Technologies,moon,altipiani (anortosite),"LHS-1E ~9.500 $/t",https://spaceresourcetech.com/,simulante degli altipiani lunari
+lsp2,LSP-2 (Lunar South Pole simulant),Space Resource Technologies,moon,altipiani del Polo Sud,,https://spaceresourcetech.com/,pensato per i siti polari
+lms1,LMS-1 (Lunar Mare Simulant),Space Resource Technologies,moon,mari (basalto),"LMS-1E ~3.550 $/t",https://spaceresourcetech.com/,più economico; composizione dei mari
+eac1a,EAC-1A,ESA (European Astronaut Centre),moon,mari (basalto vulcanico dell'Eifel),,docs/test-aziende.md,usato nella hall di LUNA a Colonia
+bp1,BP-1 (Black Point 1),NASA,moon,basalto della colata di Black Point (Arizona),,docs/test-aziende.md,usato nelle vasche SLOPE di NASA Glenn
+grc1,GRC-1,NASA Glenn,moon,simulante geotecnico,,docs/test-aziende.md,per prove di trazione e scavo
+mgs1,MGS-1 (Mars Global Simulant),Space Resource Technologies,mars,regolite basaltica globale (Rocknest),,https://spaceresourcetech.com/,riferimento per Phoenix e Gale
+jez1,JEZ-1 (Jezero simulant),Space Resource Technologies,mars,sedimenti del delta di Jezero,,https://spaceresourcetech.com/,componente sedimentaria (utile per Gale)

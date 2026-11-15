@@ -1,0 +1,82 @@
+[
+ {
+  "id": "lhs1",
+  "name": "LHS-1 (Lunar Highlands Simulant)",
+  "producer": "Space Resource Technologies",
+  "body": "moon",
+  "terrain": "altipiani (anortosite)",
+  "price": "LHS-1E ~9.500 $/t",
+  "source": "https://spaceresourcetech.com/",
+  "notes": "simulante degli altipiani lunari"
+ },
+ {
+  "id": "lsp2",
+  "name": "LSP-2 (Lunar South Pole simulant)",
+  "producer": "Space Resource Technologies",
+  "body": "moon",
+  "terrain": "altipiani del Polo Sud",
+  "price": "",
+  "source": "https://spaceresourcetech.com/",
+  "notes": "pensato per i siti polari"
+ },
+ {
+  "id": "lms1",
+  "name": "LMS-1 (Lunar Mare Simulant)",
+  "producer": "Space Resource Technologies",
+  "body": "moon",
+  "terrain": "mari (basalto)",
+  "price": "LMS-1E ~3.550 $/t",
+  "source": "https://spaceresourcetech.com/",
+  "notes": "più economico; composizione dei mari"
+ },
+ {
+  "id": "eac1a",
+  "name": "EAC-1A",
+  "producer": "ESA (European Astronaut Centre)",
+  "body": "moon",
+  "terrain": "mari (basalto vulcanico dell'Eifel)",
+  "price": "",
+  "source": "docs/test-aziende.md",
+  "notes": "usato nella hall di LUNA a Colonia"
+ },
+ {
+  "id": "bp1",
+  "name": "BP-1 (Black Point 1)",
+  "producer": "NASA",
+  "body": "moon",
+  "terrain": "basalto della colata di Black Point (Arizona)",
+  "price": "",
+  "source": "docs/test-aziende.md",
+  "notes": "usato nelle vasche SLOPE di NASA Glenn"
+ },
+ {
+  "id": "grc1",
+  "name": "GRC-1",
+  "producer": "NASA Glenn",
+  "body": "moon",
+  "terrain": "simulante geotecnico",
+  "price": "",
+  "source": "docs/test-aziende.md",
+  "notes": "per prove di trazione e scavo"
+ },
+ {
+  "id": "mgs1",
+  "name": "MGS-1 (Mars Global Simulant)",
+  "producer": "Space Resource Technologies",
+  "body": "mars",
+  "terrain": "regolite basaltica globale (Rocknest)",
+  "price": "",
+  "source": "https://spaceresourcetech.com/",
+  "notes": "riferimento per Phoenix e Gale"
+ },
+ {
+  "id": "jez1",
+  "name": "JEZ-1 (Jezero simulant)",
+  "producer": "Space Resource Technologies",
+  "body": "mars",
+  "terrain": "sedimenti del delta di Jezero",
+  "price": "",
+  "source": "https://spaceresourcetech.com/",
+  "notes": "componente sedimentaria (utile per Gale)"
+ }
+]

@@ -12,7 +12,7 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from . import calibrate, config, gee_common as g, sun
+from . import calibrate, config, gee_common as g, geology, sun
 
 # parametro di params.csv → raster da usare, in ordine di preferenza (il 30 m batte il 90 m)
 SOURCES = {
@@ -72,6 +72,11 @@ def main() -> int:
         fine = pd.read_parquet(fine_path).drop(columns=["role", "n_px"], errors="ignore")
         cells = cells.merge(fine.add_suffix("_fine").rename(columns={"h3_fine": "h3"}), on="h3", how="left")
         used["fine_30m"] = f"{fine['h3'].nunique():,} esagoni"
+
+    # tipo di roccia dominante (GLiM, griglia da 0,5°): geology.py
+    if geology.GLIM.exists():
+        cells["rock_class"] = geology.rock_class(cells["lat"].to_numpy(), cells["lon"].to_numpy())
+        used["rock_class"] = "GLiM 0,5°"
 
     # neve per mese (12 bande, se scaricata) → mesi senza neve
     snow_paths = [find(f"snow_m{i:02d}") for i in range(1, 13)]

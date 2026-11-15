@@ -59,3 +59,18 @@ Valori, pesi e reference: `data/config/siti_e_pesi.csv` (Rocco). Un test nuovo �
   - l'export vero ha lo stesso formato del mock: `data/export/sites/<sito>__<test>.json`, 15 file;
   - nel `dossier` ci sono campi in più: `terrain_src` (`30m` esatto o `est`), `snow_free_months`, `night_lights`, `wind_10m`, `protected_area_name`;
   - nei tuoi documenti vanno aggiornati 9 siti → 5 e 3 test (`requirements-tecnici.md`, `mercato.md`).
+
+## 6. Campagna consigliata (dom 02:20): campi nuovi nell'export, per Timo
+
+In ogni risultato di `data/export/sites/<sito>__<test>.json` c'è `campaign`:
+- `outdoor`: il sito all'aperto (nome, lat, lon);
+- `facilities`: le poche strutture indoor che coprono i gap. Per ognuna: `name`, `place`, `lat`, `lon`, `km_client` (distanza da Torino), `covers` e `covers_labels` (cosa copre, in italiano), `source`;
+- `uncovered`: i gap che nessuna struttura nota copre (es. agglutinati della regolite);
+- `simulants`: i simulanti adatti (nome, produttore, terreno, prezzo se noto, link);
+- `rock_source_near_client` e `rock_source_near_site`: la fonte di roccia naturale più vicina a Torino e al sito, con km, uso e fonte; `rock_note` spiega il limite (grani arrotondati contro grani taglienti).
+
+Ogni voce di `breaks` ha anche `label`, in italiano.
+
+File nuovi accanto ai siti: `facilities.json` (con coordinate, per i pin sulla mappa), `simulants.json`, `rock_sources.json`.
+
+**LLM explainer:** passargli il risultato con la sua `campaign` e chiedere di usare solo le strutture, i simulanti e le fonti lì presenti. Le spiegazioni conviene generarle in anticipo e salvarle nel JSON: l'app è statica e una chiave API nel browser sarebbe pubblica.

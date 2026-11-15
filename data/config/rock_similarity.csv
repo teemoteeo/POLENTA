@@ -1,0 +1,14 @@
+glim,nome,anorthosite,basalt_volcanic,basalt_sedimentary
+pb,plutoniche basiche (gabbro anortosite),1.0,0.7,0.5
+mt,metamorfiche,0.5,0.3,0.3
+pi,plutoniche intermedie,0.5,0.4,0.4
+vb,vulcaniche basiche (basalto),0.4,1.0,0.8
+vi,vulcaniche intermedie,0.4,0.6,0.5
+py,piroclastiche,0.3,0.8,0.7
+pa,plutoniche acide (granito),0.3,0.2,0.2
+va,vulcaniche acide,0.2,0.2,0.2
+su,sedimenti sciolti,0.2,0.5,0.8
+ss,sedimentarie silicoclastiche,0.15,0.3,0.9
+sm,sedimentarie miste,0.1,0.2,0.8
+sc,sedimentarie carbonatiche,0.05,0.1,0.3
+ev,evaporiti,0.05,0.2,0.6

@@ -1,6 +1,6 @@
 {
  "version": "0.2-earth",
- "generated_at": "2026-11-15T00:52:54+00:00",
+ "generated_at": "2026-11-15T01:20:28+00:00",
  "mock": false,
  "contract": "docs/backend_spec.md §2",
  "files": [
@@ -22,6 +22,8 @@
   "sites/gale__isru_subsurface.json",
   "benchmark.json",
   "facilities.json",
+  "simulants.json",
+  "rock_sources.json",
   "known_sites.json"
  ],
  "sites": [

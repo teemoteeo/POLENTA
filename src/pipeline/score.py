@@ -15,10 +15,6 @@ import pandas as pd
 
 from . import config
 
-ROCK_SIMILARITY = {   # bozza: la tabella vera la scrive Rocco
-    ("anorthosite", "anorthosite"): 1.0, ("anorthosite", "impact_breccia"): 0.6,
-    ("anorthosite", "basalt_volcanic"): 0.4, ("anorthosite", "sedimentary"): 0.1,
-}
 
 
 # Frazioni 0-1 con un grosso blocco di valori uguali: si confrontano in distanza fisica, non in percentile.
@@ -50,7 +46,10 @@ def s_param(x: np.ndarray, lo: float, hi: float, tau: float, eps: float, physica
 
 
 def s_rock(x: pd.Series, target: str) -> np.ndarray:
-    return np.array([ROCK_SIMILARITY.get((target, v), 0.1) if isinstance(v, str) else np.nan for v in x])
+    """Somiglianza tra la classe GLiM dell'esagono e la roccia del sito (data/config/rock_similarity.csv)."""
+    from .geology import similarity
+    sim = similarity()
+    return np.array([sim.get((target, v), 0.1) if isinstance(v, str) else np.nan for v in x])
 
 
 def passes(series: pd.Series, rule: str) -> np.ndarray:

@@ -1,0 +1,12 @@
+id,name,rock,country,lat,lon,use,source
+greenland_anorthosite,"Anortosite della Groenlandia sud-occidentale",anorthosite,Denmark,63.1,-50.7,"20 t fornite a LUNA (Colonia); posizione del complesso [NV]",docs/test-aziende.md
+lofoten_anorthosite,"Anortosite delle Lofoten (Flakstadøy)",anorthosite,Norway,68.1,13.3,"formazione geologica PANGAEA (ESA): anortosite come gli altipiani lunari",docs/test-aziende.md
+rogaland_anorthosite,"Provincia anortositica del Rogaland (Egersund)",anorthosite,Norway,58.45,6.0,"uno dei massicci di anortosite più grandi d'Europa [NV]",letteratura [NV]
+sittampundi_anorthosite,"Anortosite di Sittampundi",anorthosite,India,11.25,77.9,"sito di riferimento per l'anortosite (tests.yaml v0)",data/config/tests.yaml v0 [NV]
+stillwater_anorthosite,"Complesso di Stillwater",anorthosite,United States,45.4,-109.9,"anortositi e gabbri stratificati [NV]",letteratura [NV]
+adirondack_anorthosite,"Massiccio anortositico di Marcy (Adirondack)",anorthosite,United States,44.1,-73.9,"anortosite massiva [NV]",letteratura [NV]
+eifel_basalt,"Basalti dell'Eifel",basalt,Germany,50.3,6.9,"origine del simulante ESA EAC-1A; LUNA ha usato basalto di una cava a 30-40 km da Colonia",docs/test-aziende.md
+etna_basalt,"Depositi vulcanici dell'Etna",basalt,Italy,37.75,15.0,"valutati come simulante (Materials Today Advances, 2026); campagne ARCHES e ULS",docs/mercato.md
+black_point_basalt,"Colata di Black Point (Arizona)",basalt,United States,35.68,-111.45,"origine del simulante NASA BP-1",docs/test-aziende.md
+lanzarote_basalt,"Basalti di Lanzarote",basalt,Spain,29.0,-13.7,"formazione geologica PANGAEA (ESA)",docs/test-aziende.md
+mauna_kea_tephra,"Tefra del Mauna Kea (Hawaii)",basalt,United States,19.8,-155.47,"campagne ISRU PISCES (NASA + CSA)",docs/test-aziende.md

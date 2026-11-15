@@ -113,21 +113,6 @@ REMOTE = [
     (73, 77.5, 135, 160, "Isole della Nuova Siberia", "Russia"), (59, 84, -65, -11, "Groenlandia", "Denmark"),
     (70, 84, -125, -65, "Arcipelago artico canadese", "Canada"),
 ]
-# "Dove si rompe" anche per i parametri naturali: chi riproduce in modo controllato quello che il sito non ha.
-# Nomi dai documenti del team (test-aziende.md, decisioni.md); l'elenco vero lo completa Rocco (facilities).
-PARAM_FACILITIES = {
-    "rock_cover": ["campi di pericoli costruiti (LSPG Mojave, Huailai, Challakere)", "JSC Rock Yard, Houston", "Moonyard, Lussemburgo"],
-    "roughness": ["campi di pericoli costruiti (LSPG Mojave, Huailai, Challakere)", "Moonyard, Lussemburgo"],
-    "crater_density": ["campi di crateri costruiti (LSPG Mojave, Huailai, Challakere)"],
-    "slope_p90": ["ALTEC (rampa a 25°)", "Moonyard, Lussemburgo"],
-    "grain_proxy": ["vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"],
-    "bulk_density_0_5": ["vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"],
-    "albedo": ["Flat Floor Facility, NASA Marshall", "vasche di simulante scuro (LHS-1)"],
-    "low_sun_frac": ["Flat Floor Facility, NASA Marshall", "Ames Lunar Lab", "ALTEC (luci a ~8°)"],
-    "permafrost_share": ['TVAC "sporca" ALTEC, Torino (in arrivo)', "Swamp Works, NASA KSC"],
-}
-
-
 def name_places(data: dict) -> None:
     """Nome leggibile al posto delle coordinate (GeoNames offline, reverse_geocoder) e paese."""
     import math
@@ -152,9 +137,69 @@ def name_places(data: dict) -> None:
         else:
             r["name"] = f"Area remota, {d_km:.0f} km da {g['name']}"
         r["country"] = country
-        for b in r["breaks"]:                          # strutture anche per i "si rompe" naturali
-            if b["covered_by"] == ["da cercare in facilities.csv"] and b["param"] in PARAM_FACILITIES:
-                b["covered_by"] = PARAM_FACILITIES[b["param"]]
+
+
+# --- Campagna consigliata: sito all'aperto + strutture indoor + simulanti + roccia naturale ------------------
+CLIENT = ("Torino", 45.07, 7.69)          # i clienti della demo (TAS-I, ALTEC)
+GAP_LABELS = {
+    "gravity_1_6": "gravità a 1/6", "vacuum": "vuoto", "electrostatic_dust": "polvere elettrostatica",
+    "plume_vacuum": "getto del motore sulla regolite nel vuoto", "cryo_psr": "freddo delle zone in ombra (40-110 K)",
+    "agglutinates": "agglutinati e ferro nanofase della regolite", "soil_density": "densità e compattazione della regolite",
+    "rock_cover": "massi", "roughness": "rugosità", "crater_density": "crateri", "slope_p90": "pendenze",
+    "grain_proxy": "grana della regolite", "bulk_density_0_5": "densità superficiale", "albedo": "albedo",
+    "low_sun_frac": "luce radente", "permafrost_share": "ghiaccio nel suolo", "rock_class": "tipo di roccia",
+}
+REGOLITH = {"soil_density", "grain_proxy", "bulk_density_0_5", "agglutinates", "rock_class", "permafrost_share"}
+SIMULANTS_FOR = {"moon": ["lsp2", "lhs1"], "phoenix": ["mgs1"], "gale": ["mgs1", "jez1"]}
+
+
+def tables() -> tuple[list, list, list]:
+    """Strutture, simulanti e fonti di roccia da data/config (con la distanza dal cliente)."""
+    fac = pd.read_csv(config.CONFIG / "facilities.csv").to_dict("records")
+    for f in fac:
+        f["covers"] = f["covers"].split(";")
+        f["km_client"] = round(sites.km(CLIENT[1], CLIENT[2], f["lat"], f["lon"]))
+    sim = pd.read_csv(config.CONFIG / "simulants.csv").fillna("").to_dict("records")
+    rocks = pd.read_csv(config.CONFIG / "rock_sources.csv").to_dict("records")
+    return fac, sim, rocks
+
+
+def campaign(r: dict, target: dict, test: str, fac: list, sim: list, rocks: list) -> dict:
+    gaps = list(dict.fromkeys(b["param"] for b in r["breaks"]))
+    by_gap = {g: sorted((f for f in fac if g in f["covers"]), key=lambda f: f["km_client"]) for g in gaps}
+    for b in r["breaks"]:                              # chi copre ogni "si rompe", la più vicina al cliente per prima
+        b["label"] = GAP_LABELS.get(b["param"], b["param"])
+        b["covered_by"] = [f["name"] for f in by_gap[b["param"]][:3]] or ["nessuna struttura nota"]
+    left, chosen = {g for g in gaps if by_gap[g]}, []
+    while left:                                        # insieme minimo: chi copre più gap, a parità il più vicino
+        best = max(fac, key=lambda f: (len(left & set(f["covers"])), -f["km_client"]))
+        got = sorted(left & set(best["covers"]))
+        chosen.append({"id": best["id"], "name": best["name"], "place": f"{best['place']}, {best['country']}",
+                       "lat": best["lat"], "lon": best["lon"], "km_client": best["km_client"],
+                       "covers": got, "covers_labels": [GAP_LABELS.get(g, g) for g in got], "source": best["source"]})
+        left -= set(got)
+    by_material = {"rock_class"}                      # il tipo di roccia lo chiudono simulante o roccia naturale
+    out = {"outdoor": {"name": r["name"], "lat": r["lat"], "lon": r["lon"]}, "facilities": chosen,
+           "uncovered": [{"param": g, "label": GAP_LABELS.get(g, g)} for g in gaps if not by_gap[g] and g not in by_material]}
+    if test != "flight_hda_lidar" or REGOLITH & set(gaps):   # simulanti: quando conta il suolo
+        key = target["id"] if target["world"] == "mars" else "moon"
+        out["simulants"] = [{k: s[k] for k in ("id", "name", "producer", "terrain", "price", "source")}
+                            for s in sim if s["id"] in SIMULANTS_FOR.get(key, [])]
+        rock = "anorthosite" if target["values"].get("rock_class") == "anorthosite" else "basalt"
+        cand = [x for x in rocks if x["rock"] == rock]
+        near = lambda la, lo: min(cand, key=lambda x: sites.km(la, lo, x["lat"], x["lon"]))
+        for label, (la, lo) in (("near_client", CLIENT[1:]), ("near_site", (r["lat"], r["lon"]))):
+            x = near(la, lo)
+            out[f"rock_source_{label}"] = {"id": x["id"], "name": x["name"], "rock": rock, "lat": x["lat"], "lon": x["lon"],
+                                           "km": round(sites.km(la, lo, x["lat"], x["lon"])), "use": x["use"], "source": x["source"]}
+        for b in r["breaks"]:
+            if b["param"] in by_material:
+                b["covered_by"] = [x["name"] for x in out["simulants"]] + [out["rock_source_near_client"]["name"]]
+        out["rock_note"] = ("Roccia naturale da cava: 8-20 volte più economica del simulante commerciale (precedente: "
+                            "LUNA a Colonia), ma i grani terrestri sono arrotondati, quelli lunari taglienti: combacia "
+                            "in chimica, non in geotecnica.")
+    out["client"] = CLIENT[0]
+    return out
 
 
 def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True) -> int:
@@ -183,19 +228,24 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         print("4) dossier")
         dossier(data, feats)
     name_places(data)
+    fac, sim, rocks = tables()
+    tmap = {t["id"]: t for t in targets}
+    for (site, test), d in data.items():
+        for r in d["results"]:
+            r["campaign"] = campaign(r, tmap[site], test, fac, sim, rocks)
     out = config.EXPORT if publish else config.RAW / "export_preview"
     (out / "sites").mkdir(parents=True, exist_ok=True)
-    if not publish:                                   # facility e siti noti: uguali al mock per ora
-        for name in ("facilities.json", "known_sites.json"):
-            shutil.copy(config.EXPORT / name, out / name)
+    if not publish:                                   # siti noti: uguali al mock per ora
+        shutil.copy(config.EXPORT / "known_sites.json", out / "known_sites.json")
+    for name, rows in (("facilities.json", fac), ("simulants.json", sim), ("rock_sources.json", rocks)):
+        (out / name).write_text(json.dumps(rows, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     # benchmark (la slide del pitch): per ogni sito × test il primo risultato, il primo nuovo e le strutture indoor
-    from .mock_export import FACILITIES
     bench = {}
     for (site, test), d in data.items():
         rs = d["results"]
         bench.setdefault(site, {})[test] = {
             "best": rs[0]["id"] if rs else None, "best_new": next((r["id"] for r in rs if r["new"]), None),
-            "facility": sorted({f for p in rules["tests"][test].get("indoor", []) for f in FACILITIES.get(p, [])})}
+            "facility": [f["name"] for f in rs[0]["campaign"]["facilities"]] if rs else []}
     (out / "benchmark.json").write_text(json.dumps(bench, ensure_ascii=False, indent=1), encoding="utf-8")
     files = ["targets.json"]
     for stale in (out / "sites").glob("*.json"):     # il manifest è la verità: via i file di siti o test tolti
@@ -209,7 +259,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         files.append(f"sites/{site}__{test}.json")
     manifest = json.loads((config.EXPORT / "manifest.json").read_text())
     manifest.update({"version": "0.2-earth", "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                     "mock": False, "targets_mock": True, "files": files + ["benchmark.json", "facilities.json", "known_sites.json"]})
+                     "mock": False, "targets_mock": True, "files": files + ["benchmark.json", "facilities.json", "simulants.json", "rock_sources.json", "known_sites.json"]})
     (out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"5) {len(data)} file in {out.relative_to(config.ROOT)}")
     for (site, test), d in list(data.items())[:3]:

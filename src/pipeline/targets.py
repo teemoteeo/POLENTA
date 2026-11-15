@@ -87,8 +87,8 @@ def site_targets(feats: pd.DataFrame) -> list[dict]:
             v, s = parse(raw)
             lo, hi = v - s, v + s
             if p == "rock_class":
-                name = raw.split(" (")[0].split("/")[0].strip()
-                values["rock_class"] = ROCK.get(name, name)
+                name = raw.split(" (")[0].strip()
+                values["rock_class"] = "basalt_sedimentary" if "/" in name else ROCK.get(name, name)
                 card["feo_wt_pct"] = parse(raw.split("(")[1])[0] if "(" in raw else None
             elif p == "rock_cover":
                 values[p] = [lo / 100, hi / 100]

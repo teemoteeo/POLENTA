@@ -16,7 +16,7 @@ sand_pct,regolith,%,num,score,regolite: ~metà sabbia fine (Apollo); Marte: Phoe
 clay_pct,regolith,%,num,score,regolite: pochi % di argilla (Apollo); Marte: argille a Gale,SoilGrids clay 0-5 cm,parziale,mvp
 soc_gkg,regolith,g/kg,num,card,0 (niente organico),SoilGrids soc 0-5 cm (inaffidabile nell'alto Artico: solo card),parziale,mvp
 lst_mean_c,thermal,°C,num,card,Diviner / Mars Climate Database,MODIS MOD11A2: (giorno + notte) / 2 delle mediane,si,mvp
-rock_class,composition,classe,cat,score,anortosite (altipiani lunari); basalto / sedimentario (Marte),DA DECIDERE: GVP + Earth Impact Database a regole (proposta) o GLiM,no,mvp
+rock_class,composition,classe,cat,score,anortosite (altipiani lunari); basalto / basalto-sedimentario (Marte),GLiM 0.5° (Hartmann & Moosdorf 2012) + rock_similarity.csv (bozza da confermare con Rocco); grossolana: celle da ~55 km,parziale,mvp
 t_min_c,thermal,°C,num,card,Diviner (Luna) / Mars Climate Database,MODIS MOD11A2 (minimo notturno),si,mvp
 t_max_c,thermal,°C,num,card,Diviner (Luna) / Mars Climate Database,MODIS MOD11A2 (massimo diurno),si,mvp
 elevation_m,altitude,m,num,card,—,DEM,si,mvp

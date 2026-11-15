@@ -155,6 +155,8 @@ Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue quest
 | 26 | Nomi dei posti | coordinate | città più vicina e paese (GeoNames offline, `reverse_geocoder`); "N km da Città" fino a 250 km; nome dell'area per le isole artiche; province cinesi tolte (GeoNames le sbaglia) | nella demo un nome si legge, una coordinata no |
 | 27 | Permafrost nel voto | percentile | **distanza fisica** (frazione 0-1, tolleranza 2τ) | l'85% degli esagoni ha permafrost 0: in percentile quelli con un po' di permafrost finivano tutti nel 10% più alto (7,5% prendeva 0,98 contro un target 42-100%) e l'ISRU lunare dava 10 risultati a pari voto |
 | 28 | Risultati con la stima | — | secondo giro di 30 m esatti sui risultati finali rimasti con la stima; nomi delle isole artiche con le coordinate | i candidati dello screening e i 10 finali non coincidono sempre |
+| 29 | Tipo di roccia | mancava (fuori dal voto) | **GLiM 0,5°** (Hartmann & Moosdorf 2012, PANGAEA, CC-BY) per esagono, celle costiere riempite dalla vicina; somiglianza da `rock_similarity.csv` (bozza) | grossolana (celle da ~55 km: Etna ed Eifel non si vedono), ma pesa poco; per la roccia da cava c'è la lista curata |
+| 30 | Campagna consigliata | strutture del mock, senza coordinate | `campaign` in ogni risultato: strutture indoor (insieme minimo, a parità la più vicina a Torino), gap scoperti, simulanti, roccia naturale più vicina al cliente e al sito; tabelle in `data/config/` con fonti | è la domanda vera dei clienti ("dove faccio la campagna") e la risposta a "what is different" della challenge |
 
 **Limiti noti da dichiarare:**
 - **L'Antartide manca:** l'NDVI MODIS non la copre.

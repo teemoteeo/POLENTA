@@ -4,34 +4,28 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
+    "Sfera a vuoto da 60 ft, NASA Langley",
+    "LUNA (DLR + ESA)",
+    "Rock Yard, NASA JSC"
    ]
   },
   "rover_mobility": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "camere a vuoto ESTEC",
-    "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
+    "LUNA (DLR + ESA)",
+    "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Crateri di Challakere (ISRO)",
+    "Swamp Works, NASA KSC"
    ]
   },
   "isru_subsurface": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "Chamber B, NASA JSC",
-    "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC",
-    "vasche di simulante LHS-1 / LMS-1"
+    "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Mars Terrain Simulator e centro lunare ALTEC",
+    "Campo ALHAT, Shuttle Landing Facility KSC"
    ]
   }
  },
@@ -40,34 +34,28 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
+    "LUNA (DLR + ESA)",
+    "Sfera a vuoto da 60 ft, NASA Langley",
+    "Flat Floor Facility, NASA Marshall"
    ]
   },
   "rover_mobility": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "camere a vuoto ESTEC",
-    "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
+    "Mars Terrain Simulator e centro lunare ALTEC",
+    "TVAC \"sporca\" ALTEC (in arrivo)",
+    "LUNA (DLR + ESA)",
+    "Swamp Works, NASA KSC"
    ]
   },
   "isru_subsurface": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "Chamber B, NASA JSC",
-    "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC",
-    "vasche di simulante LHS-1 / LMS-1"
+    "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Mars Terrain Simulator e centro lunare ALTEC",
+    "Campo ALHAT, Shuttle Landing Facility KSC"
    ]
   }
  },
@@ -76,34 +64,28 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
+    "Sfera a vuoto da 60 ft, NASA Langley",
+    "LUNA (DLR + ESA)",
+    "Rock Yard, NASA JSC"
    ]
   },
   "rover_mobility": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "camere a vuoto ESTEC",
-    "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
+    "LUNA (DLR + ESA)",
+    "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Crateri di Challakere (ISRO)",
+    "Swamp Works, NASA KSC"
    ]
   },
   "isru_subsurface": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "Chamber B, NASA JSC",
-    "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC",
-    "vasche di simulante LHS-1 / LMS-1"
+    "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Mars Terrain Simulator e centro lunare ALTEC",
+    "Campo ALHAT, Shuttle Landing Facility KSC"
    ]
   }
  },
@@ -112,34 +94,27 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
+    "Sfera a vuoto da 60 ft, NASA Langley",
+    "LUNA (DLR + ESA)",
+    "Flat Floor Facility, NASA Marshall"
    ]
   },
   "rover_mobility": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
+    "LUNA (DLR + ESA)",
+    "TVAC \"sporca\" ALTEC (in arrivo)",
     "Swamp Works, NASA KSC",
-    "camere a vuoto ESTEC",
-    "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
+    "Rock Yard, NASA JSC"
    ]
   },
   "isru_subsurface": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "Chamber B, NASA JSC",
-    "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC",
-    "vasche di simulante LHS-1 / LMS-1"
+    "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Campo ALHAT, Shuttle Landing Facility KSC"
    ]
   }
  },
@@ -148,34 +123,24 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
+    "Sfera a vuoto da 60 ft, NASA Langley",
+    "LUNA (DLR + ESA)"
    ]
   },
   "rover_mobility": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "camere a vuoto ESTEC",
-    "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
+    "LUNA (DLR + ESA)",
+    "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Swamp Works, NASA KSC"
    ]
   },
   "isru_subsurface": {
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "Chamber B, NASA JSC",
-    "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC",
-    "vasche di simulante LHS-1 / LMS-1"
+    "TVAC \"sporca\" ALTEC (in arrivo)"
    ]
   }
  }

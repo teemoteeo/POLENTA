@@ -1,0 +1,112 @@
+[
+ {
+  "id": "greenland_anorthosite",
+  "name": "Anortosite della Groenlandia sud-occidentale",
+  "rock": "anorthosite",
+  "country": "Denmark",
+  "lat": 63.1,
+  "lon": -50.7,
+  "use": "20 t fornite a LUNA (Colonia); posizione del complesso [NV]",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "lofoten_anorthosite",
+  "name": "Anortosite delle Lofoten (Flakstadøy)",
+  "rock": "anorthosite",
+  "country": "Norway",
+  "lat": 68.1,
+  "lon": 13.3,
+  "use": "formazione geologica PANGAEA (ESA): anortosite come gli altipiani lunari",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "rogaland_anorthosite",
+  "name": "Provincia anortositica del Rogaland (Egersund)",
+  "rock": "anorthosite",
+  "country": "Norway",
+  "lat": 58.45,
+  "lon": 6.0,
+  "use": "uno dei massicci di anortosite più grandi d'Europa [NV]",
+  "source": "letteratura [NV]"
+ },
+ {
+  "id": "sittampundi_anorthosite",
+  "name": "Anortosite di Sittampundi",
+  "rock": "anorthosite",
+  "country": "India",
+  "lat": 11.25,
+  "lon": 77.9,
+  "use": "sito di riferimento per l'anortosite (tests.yaml v0)",
+  "source": "data/config/tests.yaml v0 [NV]"
+ },
+ {
+  "id": "stillwater_anorthosite",
+  "name": "Complesso di Stillwater",
+  "rock": "anorthosite",
+  "country": "United States",
+  "lat": 45.4,
+  "lon": -109.9,
+  "use": "anortositi e gabbri stratificati [NV]",
+  "source": "letteratura [NV]"
+ },
+ {
+  "id": "adirondack_anorthosite",
+  "name": "Massiccio anortositico di Marcy (Adirondack)",
+  "rock": "anorthosite",
+  "country": "United States",
+  "lat": 44.1,
+  "lon": -73.9,
+  "use": "anortosite massiva [NV]",
+  "source": "letteratura [NV]"
+ },
+ {
+  "id": "eifel_basalt",
+  "name": "Basalti dell'Eifel",
+  "rock": "basalt",
+  "country": "Germany",
+  "lat": 50.3,
+  "lon": 6.9,
+  "use": "origine del simulante ESA EAC-1A; LUNA ha usato basalto di una cava a 30-40 km da Colonia",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "etna_basalt",
+  "name": "Depositi vulcanici dell'Etna",
+  "rock": "basalt",
+  "country": "Italy",
+  "lat": 37.75,
+  "lon": 15.0,
+  "use": "valutati come simulante (Materials Today Advances, 2026); campagne ARCHES e ULS",
+  "source": "docs/mercato.md"
+ },
+ {
+  "id": "black_point_basalt",
+  "name": "Colata di Black Point (Arizona)",
+  "rock": "basalt",
+  "country": "United States",
+  "lat": 35.68,
+  "lon": -111.45,
+  "use": "origine del simulante NASA BP-1",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "lanzarote_basalt",
+  "name": "Basalti di Lanzarote",
+  "rock": "basalt",
+  "country": "Spain",
+  "lat": 29.0,
+  "lon": -13.7,
+  "use": "formazione geologica PANGAEA (ESA)",
+  "source": "docs/test-aziende.md"
+ },
+ {
+  "id": "mauna_kea_tephra",
+  "name": "Tefra del Mauna Kea (Hawaii)",
+  "rock": "basalt",
+  "country": "United States",
+  "lat": 19.8,
+  "lon": -155.47,
+  "use": "campagne ISRU PISCES (NASA + CSA)",
+  "source": "docs/test-aziende.md"
+ }
+]
