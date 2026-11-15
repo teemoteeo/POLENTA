@@ -72,10 +72,11 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "Rock Yard, NASA JSC",
-    "LUNA (DLR + ESA)",
+    "Mars Terrain Simulator e centro lunare ALTEC",
     "TVAC \"sporca\" ALTEC (in arrivo)",
-    "Swamp Works, NASA KSC"
+    "LUNA (DLR + ESA)",
+    "Swamp Works, NASA KSC",
+    "Rock Yard, NASA JSC"
    ]
   },
   "isru_subsurface": {
@@ -119,9 +120,8 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "Sfera a vuoto da 60 ft, NASA Langley",
     "LUNA (DLR + ESA)",
-    "Rock Yard, NASA JSC"
+    "Sfera a vuoto da 60 ft, NASA Langley"
    ]
   },
   "rover_mobility": {

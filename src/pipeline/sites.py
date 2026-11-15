@@ -59,7 +59,10 @@ def build(feats: pd.DataFrame, site_id: str, test_id: str, test: dict, target: d
     for comp in components(best["h3"].tolist()):
         sub = best.set_index("h3").loc[comp].sort_values("score", ascending=False)
         top = sub.index[0]                           # la cella migliore va per prima in h3_cells
-        sites.append({"cells": sub.index.tolist(), "score": float(sub["score"].median()), "h3": top,
+        # voto del posto = voto della sua cella migliore, la stessa di cui l'export mostra params e values. Con la mediana
+        # della zona lo stesso posto valeva meno in un raggio piccolo di Near you (Bin Qirdan 36 a 1.500 km, 46 a 3.000;
+        # segnalato da Timo, docs/richiesta-edo-isro.md, dom 12:30)
+        sites.append({"cells": sub.index.tolist(), "score": float(sub["score"].iloc[0]), "h3": top,
                       "lat": float(sub.loc[top, "lat"]), "lon": float(sub.loc[top, "lon"]),
                       "kappa": float(sub.loc[top, "kappa"])})
     sites.sort(key=lambda s: -s["score"])

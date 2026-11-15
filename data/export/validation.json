@@ -5,7 +5,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.035,
-    "percentile": 38
+    "percentile": 37
    },
    {
     "id": "etna_cisternazza",
@@ -40,8 +40,8 @@
    {
     "id": "death_valley",
     "name": "Death Valley, California",
-    "score": 0.061,
-    "percentile": 60
+    "score": 0.06,
+    "percentile": 59
    },
    {
     "id": "huailai",
@@ -151,7 +151,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.032,
-    "percentile": 32
+    "percentile": 31
    },
    {
     "id": "etna_cisternazza",
@@ -174,20 +174,20 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.225,
+    "score": 0.226,
     "percentile": 95
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.068,
-    "percentile": 65
+    "score": 0.067,
+    "percentile": 64
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
     "score": 0.028,
-    "percentile": 25
+    "percentile": 24
    },
    {
     "id": "huailai",
@@ -326,14 +326,14 @@
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.185,
-    "percentile": 94
+    "score": 0.184,
+    "percentile": 93
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
-    "score": 0.047,
-    "percentile": 53
+    "score": 0.046,
+    "percentile": 51
    },
    {
     "id": "huailai",
@@ -365,7 +365,7 @@
     "id": "teide",
     "name": "Teide, Tenerife",
     "score": 0.063,
-    "percentile": 83
+    "percentile": 82
    },
    {
     "id": "black_point",
@@ -466,7 +466,7 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.098,
+    "score": 0.099,
     "percentile": 78
    },
    {
@@ -618,14 +618,14 @@
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.067,
-    "percentile": 48
+    "score": 0.066,
+    "percentile": 46
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
     "score": 0.027,
-    "percentile": 11
+    "percentile": 10
    },
    {
     "id": "huailai",
@@ -686,7 +686,7 @@
    {
     "id": "kumtag",
     "name": "Deserto di Kumtag, Cina",
-    "score": 0.121,
+    "score": 0.12,
     "percentile": 90
    },
    {
