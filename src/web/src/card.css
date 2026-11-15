@@ -131,3 +131,11 @@
 .near-ctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .near-ctl .seg { margin: 0; }
 .src { font-size: 10px; opacity: .65; padding: 0 4px; border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: 3px; white-space: nowrap; cursor: help; }
+
+/* interruttore Best on Earth / Near you: largo quanto i due bottoni, non quanto il pannello */
+.seg { align-self: flex-start; width: fit-content; }
+/* bandierina su ogni posto: già usato per i test oppure no */
+.res-flag { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+.tag.use { margin: 0; white-space: nowrap; }
+.tag.use.free { color: var(--accent); border-color: var(--accent); }
+.tag.use.used { color: var(--mute); }

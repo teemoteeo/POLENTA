@@ -15,14 +15,15 @@ export function middle(a, b) {
   return [Math.atan2(s[1], s[0]) / R, Math.asin(s[2] / n) / R]
 }
 
-export async function loadNear(home, siteId, testId) {
+export async function loadNear(home, siteId, testId, radius = RADIUS_KM) {
   const top = getResults(siteId, testId)?.results[0]?.score ?? null
   const file = NEAR[`../../../data/export/near/${home.id}__${siteId}__${testId}.json`]
   let results, source, bestOnEarth = top
-  if (file) {
-    const j = await file()
+  const j = file && await file()
+  const byRadius = j?.results_by_radius?.[radius] // un elenco per raggio (1500, 3000, 5000), oppure un solo raggio in radius_km
+  if (byRadius || (j && (j.radius_km ?? RADIUS_KM) === radius)) {
     const w = TESTS[testId].requisiti
-    results = (j.results || []).slice(0, PICKS).map(r => ({ ...r, plan: plan(r, w, home), known: knownReason(r) }))
+    results = (byRadius || j.results || []).slice(0, PICKS).map(r => ({ ...r, plan: plan(r, w, home), known: knownReason(r) }))
     bestOnEarth = j.best_on_earth ?? top
     source = 'export'
   } else {
@@ -31,7 +32,7 @@ export async function loadNear(home, siteId, testId) {
     for (const c of await loadCells(siteId, testId)) {
       const [lat, lon] = cellToLatLng(c.h3)
       const km_home = haversineKm(home, { lat, lon })
-      if (km_home > RADIUS_KM || picked.some(p => haversineKm(p, { lat, lon }) < APART_KM)) continue
+      if (km_home > radius || picked.some(p => haversineKm(p, { lat, lon }) < APART_KM)) continue
       picked.push({ id: 'n0' + (picked.length + 1), name: `${coord(lat, 'N', 'S')} ${coord(lon, 'E', 'W')}`, lat, lon, score: c.score, h3_cells: [c.h3], km_home, partial: true, known: knownReason({ lat, lon }) })
       if (picked.length === PICKS) break
     }

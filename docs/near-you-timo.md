@@ -37,7 +37,7 @@ L'app oggi ha parametri, `breaks`, `dossier` e `campaign` solo per i primi 20 po
 ```
 
 - **Sedi:** `turin` (45.07, 7.69) e `amman` (31.95, 35.93). Altre solo se costa zero.
-- **Raggio:** 1.500 km in linea d'aria dalla sede.
+- **Raggio:** l'utente sceglie 1.500, 3.000 o 5.000 km in linea d'aria dalla sede (aggiunto alle 11:20). Servono i primi 5 per **ognuno** dei tre raggi: al posto di `results` metti `"results_by_radius": {"1500": [...], "3000": [...], "5000": [...]}`. Se fai un solo raggio, lascia `results` e `radius_km`: l'app usa il file solo per quel raggio e per gli altri ripiega sulla lista ridotta.
 - **Risultati:** i primi 5 per voto dentro il raggio, dopo gli stessi filtri di oggi (suolo nudo, campi, città, κ) e senza gli esagoni dei siti noti (`excluded_known_analogues.json`). Zone distinte, come nei file globali.
 - **Ogni risultato:** stessi campi di oggi (`params`, `values`, `target`, `breaks`, `dossier`, `campaign`, `h3_cells`, `name`, `country`…) più `km_home`.
 - **`campaign` calcolata per quella sede:** `km_client` e la scelta "la più vicina al cliente" riferiti alla sede, non a Torino. `campaign.client` = nome della sede.

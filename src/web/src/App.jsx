@@ -91,14 +91,15 @@ export default function App() {
   const [heat, setHeat] = useState(null) // { key, cells }: esagoni più simili del test scelto
   const addDots = w => d => setDots(o => ({ ...o, [w]: d }))
 
-  const [hideKnown, setHideKnown] = useState(true) // nasconde i siti di test già noti (Etna, Lanzarote…): si vedono i posti nuovi
-  const [showAgencies, setShowAgencies] = useState(true) // sedi delle 10 principali agenzie spaziali sulla Terra
+  const [hideKnown, setHideKnown] = useState(false) // nasconde i siti di test già noti (Etna, Lanzarote…): si vedono i posti nuovi
+  const [showAgencies, setShowAgencies] = useState(false) // sedi delle 10 principali agenzie spaziali sulla Terra
   // "Near you": customer base, mode and the near list. Turin keeps the pipeline's own distances (no home passed)
   const [base, setBase] = useState(initialHome)
   const [mode, setMode] = useState('earth') // 'earth' | 'near'
   const [nearData, setNearData] = useState(null) // { key, ...loadNear() }
   const homeArg = base.id === 'turin' ? undefined : base
-  const nearKey = `${base.id}|${site?.id}|${testId}`
+  const [radius, setRadius] = useState(1500) // km: raggio di Near you (1500, 3000, 5000)
+  const nearKey = `${base.id}|${site?.id}|${testId}|${radius}`
   const flyNear = useRef(false)
   const globalData = useMemo(() => (site && testId ? getResults(site.id, testId, hideKnown, homeArg) : null), [site, testId, hideKnown, base]) // eslint-disable-line react-hooks/exhaustive-deps
   const data = mode === 'near' ? (nearData?.key === nearKey ? nearData : null) : globalData
@@ -349,7 +350,7 @@ export default function App() {
   useEffect(() => {
     if (mode !== 'near' || !site || !testId) return
     let live = true
-    loadNear(base, site.id, testId).then(d => {
+    loadNear(base, site.id, testId, radius).then(d => {
       if (!live) return
       setNearData({ ...d, key: nearKey })
       if (flyNear.current && !busy.current) {
@@ -359,7 +360,7 @@ export default function App() {
       flyNear.current = false
     }, () => live && setNearData({ key: nearKey, results: [], zones: [], easiest: -1, hidden: 0, bestOnEarth: null, source: 'cells', home: base }))
     return () => { live = false }
-  }, [mode, base, site, testId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mode, base, site, testId, radius]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // heat map: cells load when a test is chosen (one lazy chunk per site x test)
   useEffect(() => {
@@ -460,7 +461,7 @@ export default function App() {
             </ul>
           </>)}
 
-          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, base)} home={base} onHome={h => setNear('near', h)} onPick={choosePlace} hideKnown={hideKnown}
+          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, base)} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (busy.current || r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} hideKnown={hideKnown}
             onHideKnown={v => { setHideKnown(v); setPicked(0) }} showAgencies={showAgencies} onShowAgencies={setShowAgencies} />}
 
           {step === 'card' && result && <PlaceCard data={data} picked={picked} site={site} test={{ name: TEST_EN[testId].name }} testId={testId} onJump={jump} />}
