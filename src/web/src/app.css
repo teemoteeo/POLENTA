@@ -130,3 +130,9 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* testo piccolo in alto a sinistra: leggibile anche sopra le immagini satellitari */
 .hero.small{width:fit-content;padding:8px 12px;margin:-8px -12px;border-radius:14px;background:color-mix(in srgb,var(--bg) 62%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+
+/* nome: POLENTA in Michroma, come nel deck (docs/pitch) */
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand .wm{font:400 22px/1 "Michroma","Libre Franklin",sans-serif;letter-spacing:.06em;color:var(--ink)}
+.brand span{font:400 12px var(--mono);color:var(--mute)}
+.hero.small .brand .wm{font-size:15px}

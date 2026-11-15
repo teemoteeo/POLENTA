@@ -48,7 +48,7 @@ export function brief(result, site, test) {
     `- ${facilityName(f.name)}, ${placeName(f.place)} (${f.km_client <= 50 ? `in ${plan.home.name}` : `${km(f.km_client)} km from ${plan.home.name}`}): ${join(f.covers.map(c => label(c).toLowerCase()))}`)
   const [lat, lon] = [result.lat, result.lon]
   return [
-    'FVG Station — campaign brief',
+    'POLENTA — campaign brief',
     `${test.name} for ${site.name} (${coord(site.lat, 'N', 'S')} ${coord(site.lon, 'E', 'W')})`,
     `Field site: ${placeName(result.name)}, ${result.country} (${lat}, ${lon})`,
     `https://www.google.com/maps/@${lat},${lon},40000m/data=!3m1!1e3`,
@@ -67,6 +67,6 @@ export function brief(result, site, test) {
     `Still open: ${plan.uncovered.length ? join(plan.uncovered.map(u => label(u.param).toLowerCase())) : 'nothing'}`,
     '',
     `Similarity to ${site.name}: ${pct(result.score)}/100, data on ${pct(result.kappa)}% of the weight.`,
-    'Source: FVG Station model on NASA, ESA and JAXA open data. No cost figures: only measurable quantities.',
+    'Source: POLENTA (FVG Station) on NASA, ESA and JAXA open data. No cost figures: only measurable quantities.',
   ].filter(l => l != null).join('\n')
 }

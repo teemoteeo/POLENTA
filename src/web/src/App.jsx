@@ -408,7 +408,7 @@ export default function App() {
 
       <div className="left">
         <header className={'hero' + (step === 'planet' || step === 'site' ? '' : ' small')}>
-          <p className="brand">FVG Station</p>
+          <p className="brand" title="Planetary Outcrop & Landing Environment Nearby Testbed Assistant"><b className="wm">POLENTA</b><span>by FVG Station</span></p>
           <h1>Where on Earth to test hardware<br />for the Moon and Mars.</h1>
           {step === 'planet' && <p className="lbl pick-hint">Pick where you go.</p>}
         </header>
@@ -436,7 +436,7 @@ export default function App() {
             {model && (
               <figure className="panel-model" key={model.src}>
                 <DotModel src={model.src} color="#e6edf7" />
-                <figcaption className="lbl">{model.name}{model.own ? ' · FVG Station model' : ' · NASA 3D Resources'}</figcaption>
+                <figcaption className="lbl">{model.name}{model.own ? ' · POLENTA model' : ' · NASA 3D Resources'}</figcaption>
               </figure>
             )}
             <ul className="list">
@@ -457,7 +457,7 @@ export default function App() {
 
           {step === 'card' && result && <PlaceCard data={data} picked={picked} site={site} test={{ name: TEST_EN[testId].name }} testId={testId} onJump={jump} />}
 
-          <p className="lbl foot">Model by FVG Station on NASA, ESA and JAXA data · export of {new Date(EXPORTED_AT).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+          <p className="lbl foot">POLENTA by FVG Station · NASA, ESA and JAXA data · export of {new Date(EXPORTED_AT).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
         </section>}
       </div>
 
