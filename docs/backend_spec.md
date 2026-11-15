@@ -150,6 +150,9 @@ Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue quest
 | 21 | Terreno lunare | valori di letteratura | **calcolato da noi** su LOLA LDEM_80S_20M → 30 m con le definizioni della Terra (`lola_fetch.py`, `lunar.py`): crateri 0,07-0,14/km² invece di 1,8-2,4 da catalogo | i valori di catalogo stavano 4-5 volte sopra qualunque posto terrestre: il parametro più pesante del lidar non distingueva più |
 | 22 | Voto | percentile "≤ x", κ ≥ 0,7, rover con pendenza ≥ 15° | percentile **medio sulle parità**, **κ ≥ 0,8**, filtro di pendenza tolto | con molti valori uguali (permafrost 0 sull'85% degli esagoni) i suoli secchi prendevano 0,94 contro un target ghiacciato; con κ 0,7 gli esagoni con meno dati salivano in testa; il filtro escludeva Gale |
 | 23 | Richieste appese a Earth Engine | si aspettava | tempo massimo 2 min; se per 3 min nessun gruppo finisce, i rimasti si abbandonano e si annotano (`fine_failed.txt`) | un gruppo appeso bloccava l'export per 15-20 minuti |
+| 24 | Città | passavano la maschera | esclusi gli esagoni con luci notturne > 5 nW/cm²/sr (~1,5% più luminoso; `night_lights_max` in `tests.yaml`) | il cemento ha NDVI basso come il suolo nudo: per Gale × lidar usciva la baia di Tokyo |
+| 25 | Scelta dei candidati | stesso κ del voto finale | screening con **κ ≥ 0,6**, poi 30 m esatti sui candidati, poi voto finale con κ ≥ 0,8 | i crateri ci sono solo dove c'è il 30 m esatto: con κ 0,8 il lidar cercava solo nel campione casuale (3.227 esagoni in gara invece di ~200 mila) |
+| 26 | Nomi dei posti | coordinate | città più vicina e paese (GeoNames offline, `reverse_geocoder`); "N km da Città" fino a 250 km; nome dell'area per le isole artiche; province cinesi tolte (GeoNames le sbaglia) | nella demo un nome si legge, una coordinata no |
 
 **Limiti noti da dichiarare:**
 - **L'Antartide manca:** l'NDVI MODIS non la copre.

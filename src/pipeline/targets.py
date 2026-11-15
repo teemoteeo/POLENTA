@@ -121,6 +121,7 @@ def site_targets(feats: pd.DataFrame) -> list[dict]:
                 sources[p] = (f"calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra "
                               f"(lunar.py), regione USGS {mine['area_km2']:.0f} km². Letteratura: {sources.get(p, '')}")
         dims = df["Dimensione (challenge)"] if "Dimensione (challenge)" in df else pd.Series(dtype=str)
+        values = {k: ([round(x, 4) for x in v] if isinstance(v, list) else v) for k, v in values.items()}
         out.append({"id": sid, "name": col.split(" (")[0], "lat": lat, "lon": lon, "world": world, "mock": False,
                     "values": values, "card": card,
                     "sources": sources,
