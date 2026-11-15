@@ -257,6 +257,7 @@ def campaign(r: dict, target: dict, test: str, fac: list, sim: list, rocks: list
 # --- Near you: i posti migliori vicino alla sede del cliente (docs/near-you-timo.md) -------------------------
 HOMES = {"turin": ("Torino", 45.07, 7.69), "amman": ("Amman", 31.95, 35.93)}
 NEAR_KM = 1500
+NEAR_RADII = (1500, 3000, 5000)        # l'app fa scegliere il raggio (src/web/src/homes.js)
 KNOWN_KM = 150
 
 
@@ -282,17 +283,20 @@ def not_new_mask(feats: pd.DataFrame):
 
 
 def run_near(feats: pd.DataFrame, targets: list, rules: dict, not_new) -> dict:
+    """{(sede, sito, test, raggio): risultati}: i primi 5 entro ogni raggio dalla sede, posti nuovi soltanto."""
     lat, lon = feats["lat"].to_numpy(), feats["lon"].to_numpy()
     out = {}
     for hid, (_, hla, hlo) in HOMES.items():
-        within = (_hav(lat, lon, hla, hlo) <= NEAR_KM) & ~not_new
-        for t in targets:
-            for test in TESTS:
-                try:
-                    d = sites.build(feats, t["id"], test, rules["tests"][test], t["values"], rules, n_sites=5, restrict=within)
-                except RuntimeError:
-                    d = {"results": []}
-                out[(hid, t["id"], test)] = d
+        dist = _hav(lat, lon, hla, hlo)
+        for R in NEAR_RADII:
+            within = (dist <= R) & ~not_new
+            for t in targets:
+                for test in TESTS:
+                    try:
+                        d = sites.build(feats, t["id"], test, rules["tests"][test], t["values"], rules, n_sites=5, restrict=within)
+                    except RuntimeError:
+                        d = {"results": []}
+                    out[(hid, t["id"], test, R)] = d
     return out
 
 
@@ -339,7 +343,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
     for (site, test), d in data.items():
         for r in d["results"]:
             r["campaign"] = campaign(r, tmap[site], test, fac, sim, rocks)
-    for (hid, site, test), d in near.items():
+    for (hid, site, test, _R), d in near.items():
         home = HOMES[hid]
         for r in d["results"]:
             r["campaign"] = campaign(r, tmap[site], test, fac, sim, rocks, client=home)
@@ -370,12 +374,15 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
     (out / "near").mkdir(parents=True, exist_ok=True)
     for stale in (out / "near").glob("*.json"):
         stale.unlink()
-    for (hid, site, test), d in near.items():
+    for (hid, site, test, R), d in near.items():
+        if R != NEAR_KM:
+            continue
         name, hla, hlo = HOMES[hid]
         best = data.get((site, test), {}).get("results") or [{}]
         doc = {"home": {"id": hid, "name": name, "lat": hla, "lon": hlo}, "radius_km": NEAR_KM, "site": site, "test": test,
                "best_on_earth": best[0].get("score"), "rule": "regioni già studiate e 150 km dai siti noti esclusi",
-               "results": d["results"]}
+               "results": d["results"],
+               "results_by_radius": {str(r): near[(hid, site, test, r)]["results"] for r in NEAR_RADII}}
         (out / "near" / f"{hid}__{site}__{test}.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
         files.append(f"near/{hid}__{site}__{test}.json")
     manifest = json.loads((config.EXPORT / "manifest.json").read_text())
