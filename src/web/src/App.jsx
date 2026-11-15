@@ -66,9 +66,6 @@ const HOME = { moon: { center: [-4, -6], zoom: 2.45, pitch: 35, bearing: -18 }, 
 // il pianeta sta a destra del pannello (desktop) o sopra (mobile)
 const basePad = () => (innerWidth > 820 ? { left: innerWidth * 0.5, top: 0, right: 0, bottom: 0 } : { left: 0, top: 0, right: 0, bottom: innerHeight * 0.42 })
 
-function initialHome() {
-  try { return HOMES.find(h => h.id === localStorage.getItem('home')) || HOMES[0] } catch { return HOMES[0] }
-}
 
 export default function App() {
   const box = useRef(null), stars = useRef(null), map = useRef(null), overlay = useRef(null), spinning = useRef(true), markers = useRef([])
@@ -88,7 +85,7 @@ export default function App() {
   const [hideKnown, setHideKnown] = useState(false) // nasconde i siti di test già noti (Etna, Lanzarote…): si vedono i posti nuovi
   const [showAgencies, setShowAgencies] = useState(false) // sedi delle 10 principali agenzie spaziali sulla Terra
   // "Near you": customer base, mode and the near list. Turin keeps the pipeline's own distances (no home passed)
-  const [base, setBase] = useState(initialHome)
+  const [base, setBase] = useState(HOMES[0]) // sede: sempre Torino all'inizio, non si salva tra le sessioni
   const [mode, setMode] = useState('earth') // 'earth' | 'near'
   const [nearData, setNearData] = useState(null) // { key, ...loadNear() }
   const homeArg = base.id === 'turin' ? undefined : base
@@ -333,12 +330,11 @@ export default function App() {
   const setNear = (m, h) => {
     if (busy.current || (m === mode && h.id === base.id)) return
     setMode(m); setBase(h); setPicked(0)
-    try { localStorage.setItem('home', h.id) } catch { /* private mode */ }
     const pose = center => map.current.flyTo({ center, zoom: m === 'near' ? 2.2 : 1.8, pitch: 0, bearing: 0, duration: 2000, essential: true, padding: basePad() })
     spinning.current = false
     if (m === 'earth') { const f = globalData?.results[0]; if (f) pose([f.lon, f.lat]) } else flyNear.current = true
   }
-  useEffect(() => { setMode('earth'); setNearData(null) }, [site, testId])
+  useEffect(() => { setMode('earth'); setNearData(null); setBase(HOMES[0]) }, [site, testId])
   useEffect(() => {
     if (mode !== 'near' || !site || !testId) return
     let live = true
@@ -453,7 +449,7 @@ export default function App() {
             </ul>
           </>)}
 
-          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, base)} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (busy.current || r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} hideKnown={hideKnown}
+          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, HOMES[0])} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (busy.current || r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} hideKnown={hideKnown}
             onHideKnown={v => { setHideKnown(v); setPicked(0) }} showAgencies={showAgencies} onShowAgencies={setShowAgencies} />}
 
           {step === 'card' && result && <PlaceCard data={data} picked={picked} site={site} test={{ name: TEST_EN[testId].name }} testId={testId} onJump={jump} />}
