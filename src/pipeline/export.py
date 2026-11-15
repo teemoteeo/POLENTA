@@ -146,8 +146,9 @@ def name_places(data: dict) -> None:
             r["name"] = f"{g['name']}{region}"
         elif d_km <= 250:
             r["name"] = f"{d_km:.0f} km da {g['name']}{region}"
-        elif box:
-            r["name"], country = box[4], box[5]
+        elif box:                                      # con le coordinate: le isole sono grandi e i siti tanti
+            r["name"] = f"{box[4]}, {abs(r['lat']):.1f}°{'N' if r['lat'] >= 0 else 'S'} {abs(r['lon']):.1f}°{'E' if r['lon'] >= 0 else 'W'}"
+            country = box[5]
         else:
             r["name"] = f"Area remota, {d_km:.0f} km da {g['name']}"
         r["country"] = country
@@ -171,6 +172,13 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         feats = pd.read_parquet(config.FEATURES)
     print("3) voto finale")
     data = run_all(feats, targets, rules, 10)
+    est = {r["h3_cells"][0] for d in data.values() for r in d["results"]}
+    est = [c for c in est if feats.set_index("h3").at[c, "terrain_src"] != "30m"] if do_refine else []
+    if est:                                   # secondo giro: i risultati finali rimasti con la stima
+        print(f"   secondo giro di 30 m esatti: {len(est)} esagoni")
+        refine({("_", "_"): {"results": [{"h3_cells": [c]} for c in est]}})
+        feats = pd.read_parquet(config.FEATURES)
+        data = run_all(feats, targets, rules, 10)
     if do_dossier:
         print("4) dossier")
         dossier(data, feats)

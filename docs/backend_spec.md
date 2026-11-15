@@ -153,6 +153,8 @@ Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue quest
 | 24 | Città | passavano la maschera | esclusi gli esagoni con luci notturne > 5 nW/cm²/sr (~1,5% più luminoso; `night_lights_max` in `tests.yaml`) | il cemento ha NDVI basso come il suolo nudo: per Gale × lidar usciva la baia di Tokyo |
 | 25 | Scelta dei candidati | stesso κ del voto finale | screening con **κ ≥ 0,6**, poi 30 m esatti sui candidati, poi voto finale con κ ≥ 0,8 | i crateri ci sono solo dove c'è il 30 m esatto: con κ 0,8 il lidar cercava solo nel campione casuale (3.227 esagoni in gara invece di ~200 mila) |
 | 26 | Nomi dei posti | coordinate | città più vicina e paese (GeoNames offline, `reverse_geocoder`); "N km da Città" fino a 250 km; nome dell'area per le isole artiche; province cinesi tolte (GeoNames le sbaglia) | nella demo un nome si legge, una coordinata no |
+| 27 | Permafrost nel voto | percentile | **distanza fisica** (frazione 0-1, tolleranza 2τ) | l'85% degli esagoni ha permafrost 0: in percentile quelli con un po' di permafrost finivano tutti nel 10% più alto (7,5% prendeva 0,98 contro un target 42-100%) e l'ISRU lunare dava 10 risultati a pari voto |
+| 28 | Risultati con la stima | — | secondo giro di 30 m esatti sui risultati finali rimasti con la stima; nomi delle isole artiche con le coordinate | i candidati dello screening e i 10 finali non coincidono sempre |
 
 **Limiti noti da dichiarare:**
 - **L'Antartide manca:** l'NDVI MODIS non la copre.

@@ -21,8 +21,17 @@ ROCK_SIMILARITY = {   # bozza: la tabella vera la scrive Rocco
 }
 
 
-def s_param(x: np.ndarray, lo: float, hi: float, tau: float, eps: float) -> tuple[np.ndarray, float]:
+# Frazioni 0-1 con un grosso blocco di valori uguali: si confrontano in distanza fisica, non in percentile.
+# permafrost_share è 0 per l'85% degli esagoni: in percentile tutti quelli con un po' di permafrost finivano
+# schiacciati nel 10% più alto (7,5% di permafrost prendeva 0,98 contro un target 42-100%, 15/11 01:55).
+PHYSICAL = {"permafrost_share"}
+
+
+def s_param(x: np.ndarray, lo: float, hi: float, tau: float, eps: float, physical: bool = False) -> tuple[np.ndarray, float]:
     """Voto 0-1 per un parametro numerico; restituisce anche il gap fisico se la Luna è fuori dalla Terra."""
+    if physical:
+        D = np.maximum(0, np.maximum(lo - x, x - hi))
+        return np.where(np.isfinite(x), np.maximum(eps, np.exp(-(D / (2 * tau)) ** 2)), np.nan), 0.0
     earth = x[np.isfinite(x)]
     q = np.sort(earth)
     # percentile medio sulle parità (mid-rank): con "≤ v" un parametro con molti valori uguali (permafrost_share
@@ -65,7 +74,7 @@ def score(feats: pd.DataFrame, test: dict, target: dict, rules: dict) -> dict:
             S[p] = s_rock(feats[p], t)
         else:
             lo, hi = (t, t) if not isinstance(t, (list, tuple)) else t
-            S[p], gaps[p] = s_param(feats[p].to_numpy(dtype=float), lo, hi, tau, eps)
+            S[p], gaps[p] = s_param(feats[p].to_numpy(dtype=float), lo, hi, tau, eps, physical=p in PHYSICAL)
     w = np.array([w_all[p] for p in usable])
     M = np.column_stack([S[p] for p in usable]) if usable else np.empty((len(feats), 0))
     avail = np.isfinite(M)
