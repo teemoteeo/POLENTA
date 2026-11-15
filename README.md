@@ -130,7 +130,7 @@ After a new export, refresh the numbers of the pitch deck: `python3 docs/pitch/s
 
 ## Pitch
 
-`docs/pitch/index.html` is the 7-slide deck. Open it with `cd docs/pitch && python3 -m http.server 5192`. The recorded video is `docs/pitch/video/out/POLENTA-FINAL.mp4`.
+`docs/pitch/index.html` is the 7-slide deck. Open it with `cd docs/pitch && python3 -m http.server 5192`.
 
 ## Use of AI
 

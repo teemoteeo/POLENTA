@@ -1,6 +1,5 @@
 node_modules/
-# video: si tiene solo il finale da proiettare; segmenti, master 4K e file di lavoro restano in locale
-out/*
-!out/POLENTA-FINAL.mp4
+# video: tutti i file video restano in locale
+out/
 demo/*.mp4
 demo/*.mov
