@@ -118,13 +118,14 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
                 <span className="vl">{label(p)} <Src p={p} world="earth" /></span>
                 <span className="fig vv">{val(p, result.values?.[p])}</span>
                 <span className="fig vm">{state === 'nodata' || s == null ? 'no data' : pct(s) + '% match'}</span>
+                <small className="vt">{site.name}: <span className="fig">{tgt}</span> <Src p={p} world={site.world} /></small>
               </li>
             )
           })}
         </ul>
       </div>
     ))}
-    <p className="lbl">For each parameter: the sensor or dataset it comes from, its value at this place, and how closely it matches {site.name}. Hover a row for the value at {site.name}.</p>
+    <p className="lbl">For each parameter: the sensor or dataset it comes from, its value at this place, how closely it matches {site.name}, and below the value at {site.name} with its own sensor.</p>
     {plan.sunHint != null && <p className="note">Low-angle sunlight: this site has {num(plan.sunHint)} h a day of Sun at 0–7°. Schedule the runs then and this is covered in the field.</p>}
     {d.snow_free_mask && <div className="window">
       <p className="lbl">Test window: snow-free months{d.best_month ? <>, best month <b>{MONTHS_LONG[d.best_month - 1]}</b> (lowest Sun without snow)</> : ''} <Src p="snow_free_months" world="earth" /> <Src p="low_sun_hours" world="earth" /></p>

@@ -39,6 +39,18 @@ MARS_PLACEHOLDER = {   # SEGNAPOSTO finché Rocco non manda i valori veri (DTM C
 }
 
 
+def clean(o):
+    """NaN e infiniti → None, ricorsivo: json.dumps li scriverebbe come NaN, che il build dell'app rifiuta."""
+    import math
+    if isinstance(o, float):
+        return None if not math.isfinite(o) else o
+    if isinstance(o, dict):
+        return {k: clean(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [clean(v) for v in o]
+    return o
+
+
 def load_targets(feats: pd.DataFrame | None = None) -> list[dict]:
     """I valori dei 5 siti: dalla matrice di Rocco (targets.py) se c'è, altrimenti i segnaposto."""
     from . import targets
@@ -102,7 +114,7 @@ def dossier(data: dict, feats: pd.DataFrame) -> None:
             if row is not None:
                 r["dossier"]["snow_free_months"] = int(row["snow_free_months"]) if pd.notna(row["snow_free_months"]) else None
                 r["dossier"]["night_lights"] = round(float(row["night_lights"]), 2) if pd.notna(row["night_lights"]) else None
-                r["dossier"]["terrain_src"] = row.get("terrain_src")
+                r["dossier"]["terrain_src"] = row.get("terrain_src") if isinstance(row.get("terrain_src"), str) else None
                 r["dossier"]["valid_share"] = round(float(row["valid_share"]), 3)   # quota di suolo nudo dell'esagono
                 # finestra di test: mesi senza neve (gen → dic) e il mese migliore (senza neve, Sole più radente)
                 r["dossier"]["snow_free_mask"] = row.get("snow_free_mask")
@@ -352,7 +364,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
     (out / "sites").mkdir(parents=True, exist_ok=True)
     for name, rows in (("facilities.json", fac), ("simulants.json", sim), ("rock_sources.json", rocks), ("labels.json", labels()),
                        ("known_sites.json", config.known_sites()), ("validation.json", validation(feats, targets, rules))):
-        (out / name).write_text(json.dumps(rows, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+        (out / name).write_text(json.dumps(clean(rows), allow_nan=False, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     # benchmark (la slide del pitch): per ogni sito × test il primo risultato, il primo nuovo e le strutture indoor
     bench = {}
     for (site, test), d in data.items():
@@ -360,16 +372,16 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         bench.setdefault(site, {})[test] = {
             "best": rs[0]["id"] if rs else None, "best_new": next((r["id"] for r in rs if r["new"]), None),
             "facility": [f["name"] for f in rs[0]["campaign"]["facilities"]] if rs else []}
-    (out / "benchmark.json").write_text(json.dumps(bench, ensure_ascii=False, indent=1), encoding="utf-8")
+    (out / "benchmark.json").write_text(json.dumps(clean(bench), allow_nan=False, ensure_ascii=False, indent=1), encoding="utf-8")
     files = ["targets.json"]
     for stale in (out / "sites").glob("*.json"):     # il manifest è la verità: via i file di siti o test tolti
         stale.unlink()
-    (out / "targets.json").write_text(json.dumps(targets, ensure_ascii=False, indent=1), encoding="utf-8")
+    (out / "targets.json").write_text(json.dumps(clean(targets), allow_nan=False, ensure_ascii=False, indent=1), encoding="utf-8")
     for (site, test), d in data.items():
         d["target_source"] = ("data/config/siti_e_pesi.csv (Rocco); unità convertite in targets.py"
                               if not targets[0].get("mock") else "SEGNAPOSTO: valori provvisori, in attesa dei valori di Rocco")
         path = out / "sites" / f"{site}__{test}.json"
-        path.write_text(json.dumps(d, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+        path.write_text(json.dumps(clean(d), allow_nan=False, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
         files.append(f"sites/{site}__{test}.json")
     (out / "near").mkdir(parents=True, exist_ok=True)
     for stale in (out / "near").glob("*.json"):
@@ -383,7 +395,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
                "best_on_earth": best[0].get("score"), "rule": "regioni già studiate e 150 km dai siti noti esclusi",
                "results": d["results"],
                "results_by_radius": {str(r): near[(hid, site, test, r)]["results"] for r in NEAR_RADII}}
-        (out / "near" / f"{hid}__{site}__{test}.json").write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
+        (out / "near" / f"{hid}__{site}__{test}.json").write_text(json.dumps(clean(doc), allow_nan=False, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
         files.append(f"near/{hid}__{site}__{test}.json")
     manifest = json.loads((config.EXPORT / "manifest.json").read_text())
     manifest.update({"version": "1.0", "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -393,7 +405,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
                                   "Moosdorf 2012). Luna: LRO LOLA LDEM_80S_20M (PDS) + valori di letteratura (siti_e_pesi.csv). "
                                   "Marte: valori di letteratura (siti_e_pesi.csv). Dettagli: docs/backend_spec.md sez. E"),
                      "contract": "docs/3am_changes_spec.md", "files": files + ["benchmark.json", "facilities.json", "simulants.json", "rock_sources.json", "labels.json", "known_sites.json", "validation.json"]})
-    (out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
+    (out / "manifest.json").write_text(json.dumps(clean(manifest), allow_nan=False, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"5) {len(data)} file in {out.relative_to(config.ROOT)}")
     for (site, test), d in list(data.items())[:3]:
         r = d["results"][0] if d["results"] else {}

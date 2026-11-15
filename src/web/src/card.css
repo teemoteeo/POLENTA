@@ -147,3 +147,4 @@
 .vals .vv { text-align: right; white-space: nowrap; }
 .vals .vm { text-align: right; white-space: nowrap; color: var(--mute); }
 .vals .brk .vm { color: var(--accent); }
+.vals li .vt { grid-column: 1 / -1; margin-top: -4px; font-size: 11px; color: var(--mute); }
