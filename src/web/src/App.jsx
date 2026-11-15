@@ -15,6 +15,8 @@ import { logisticsLayers, logisticsMarkers, homeMarker, campaignPose, stops } fr
 import { heatLayer } from './heat.js'
 import { Benchmark, Method, CaseList } from './Sheets.jsx'
 
+const SHOW_CASES = false // casi studio nascosti (decisione del team, dom mattina): il codice resta, basta rimettere true
+
 // Colori per tema e mondo: pagina, sfera, puntini
 const PALETTE = {
   dark: { page: '#04060a', moon: '#17181c', mars: '#1d1512', earth: '#0b1018', moonDot: [205, 208, 215, 150], marsDot: [255, 165, 120, 225], earthDot: [190, 215, 255, 175], accent: [255, 90, 31] },
@@ -449,7 +451,7 @@ export default function App() {
         </div>}
       </div>}
       <div className="tools">
-        <button className="glass pill" onClick={() => setSheet(sheet === 'cases' ? null : 'cases')}>Case studies</button>
+        {SHOW_CASES && <button className="glass pill" onClick={() => setSheet(sheet === 'cases' ? null : 'cases')}>Case studies</button>}
         <button className="glass pill" onClick={() => setSheet(sheet === 'benchmark' ? null : 'benchmark')}>Benchmark</button>
         <button className="glass pill" onClick={() => setSheet(sheet === 'method' ? null : 'method')}>Method &amp; data</button>
         <button className="glass pill" onClick={() => { caseId.current++; restart() }}>Start over</button>
