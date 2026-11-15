@@ -85,3 +85,11 @@
 .left .panel.glass{background:color-mix(in srgb,var(--bg) 80%,transparent)}
 
 .verdict-line{font-size:15px;line-height:1.5;color:var(--ink);margin:12px 0 16px}
+/* schermi bassi (proiettore 1280x720): la lista dei 5 posti sta nel pannello senza scroll */
+@media(min-width:821px) and (max-height:800px){
+  .reslist{gap:6px}
+  .reslist>.lbl{display:none}
+  .reslist .list{gap:0}
+  .reslist .list .res{padding:5px 12px;gap:1px}
+  .reslist .res-rec{margin-bottom:2px}
+}

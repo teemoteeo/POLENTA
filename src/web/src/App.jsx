@@ -12,8 +12,7 @@ import { TEST_EN } from './i18n.js'
 import PlaceCard from './PlaceCard.jsx'
 import ResultsList from './ResultsList.jsx'
 import { logisticsLayers, logisticsMarkers, homeMarker, campaignPose } from './logistics.js'
-import { Benchmark, Method } from './Sheets.jsx'
-import { CASES } from './cases.js'
+import { Benchmark, Method, CaseList } from './Sheets.jsx'
 
 // Colori per tema e mondo: pagina, sfera, puntini
 const PALETTE = {
@@ -360,10 +359,6 @@ export default function App() {
           {step === 'planet' && <p className="lbl pick-hint">Pick where you go.</p>}
         </header>
 
-        {step === 'planet' && <section className="cases">
-          <p className="lbl">Case studies</p>
-          {CASES.map(c => <button key={c.id} onClick={() => openCase(c.site, c.test)}><span>{c.title}</span><small>{c.sub}</small></button>)}
-        </section>}
 
         {step !== 'planet' && <section className="panel glass">
           <nav className="steps">
@@ -429,14 +424,15 @@ export default function App() {
         </div>}
       </div>}
       <div className="tools">
+        <button className="glass pill" onClick={() => setSheet(sheet === 'cases' ? null : 'cases')}>Case studies</button>
         <button className="glass pill" onClick={() => setSheet(sheet === 'benchmark' ? null : 'benchmark')}>Benchmark</button>
         <button className="glass pill" onClick={() => setSheet(sheet === 'method' ? null : 'method')}>Method &amp; data</button>
         <button className="glass pill" onClick={() => { caseId.current++; restart() }}>Start over</button>
         <button className="glass pill" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
       </div>
-      {sheet && <div className="sheet glass">
+      {sheet && <div className={'sheet glass' + (sheet === 'cases' ? ' narrow' : '')}>
         <button className="close" aria-label="Close" onClick={() => setSheet(null)}>×</button>
-        {sheet === 'benchmark' ? <Benchmark onOpen={(s, t) => { setSheet(null); openCase(s, t) }} /> : <Method />}
+        {sheet === 'benchmark' ? <Benchmark onOpen={(s, t) => { setSheet(null); openCase(s, t) }} /> : sheet === 'cases' ? <CaseList onOpen={(s, t) => { setSheet(null); openCase(s, t) }} /> : <Method />}
       </div>}
     </>
   )
