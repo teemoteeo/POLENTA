@@ -27,6 +27,7 @@ tau: 0.1
 eps: 0.01
 break_below: 0.3
 kappa_min: 0.8      # quota minima di peso con dati per entrare in classifica
+crop_urban_max: 0.5  # quota massima dell'area valida a campi coltivati o città (MODIS MCD12Q1): sopra si esclude
 night_lights_max: 3.5 # nW/cm²/sr: sopra è città o periferia (il cemento passa la maschera NDVI); 3,5 esclude Qingdao (3,9) e tiene l Etna (3,2)
 
 tests:

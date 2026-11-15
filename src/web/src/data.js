@@ -6,6 +6,7 @@ import labels from '../../../data/export/labels.json'
 import facilities from '../../../data/export/facilities.json'
 import benchmark from '../../../data/export/benchmark.json'
 import targets from '../../../data/export/targets.json'
+import validation from '../../../data/export/validation.json'
 import { gridDisk, latLngToCell } from 'h3-js'
 import knownAnalogues from '../../../data/config/excluded_known_analogues.json'
 import agencies from '../../../data/config/space_agencies_top10.json'
@@ -19,6 +20,7 @@ export const FACILITIES = facilities
 export const BENCHMARK = benchmark
 export const MANIFEST = manifest
 export const TARGETS = targets
+export const VALIDATION = validation // percentile dei siti di test noti per sito × test (pipeline)
 export const KNOWN_ANALOGUES = knownAnalogues // siti di test già usati (Rocco, data/config)
 export const AGENCIES = agencies // sedi delle 10 principali agenzie spaziali (Rocco, data/config)
 

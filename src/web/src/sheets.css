@@ -42,3 +42,7 @@
   .bm th,.bm td{padding:3px}
   .bm .big{font-size:14px}
 }
+
+.val-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 6px 0; }
+.val-table th, .val-table td { text-align: left; padding: 4px 6px; border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent); }
+.val-table th { font-weight: 500; opacity: .7; }

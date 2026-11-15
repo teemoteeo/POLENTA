@@ -6,6 +6,9 @@ import { useState } from 'react'
 
 export { brief, verdict }
 
+const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
+const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
 function copy(text) {
   try {
     if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text).then(() => true, () => false)
@@ -108,6 +111,10 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
     ))}
     <p className="lbl">Bar = similarity of each parameter (0–100); ×% = its weight in this test. Values compare the place on Earth with the target site in the same units (lunar and Martian values converted).</p>
     {plan.sunHint != null && <p className="note">Low-angle sunlight: this site has {num(plan.sunHint)} h a day of Sun at 0–7°. Schedule the runs then and this is covered in the field.</p>}
+    {d.snow_free_mask && <div className="window">
+      <p className="lbl">Test window: snow-free months{d.best_month ? <>, best month <b>{MONTHS_LONG[d.best_month - 1]}</b> (lowest Sun without snow)</> : ''}</p>
+      <ol className="months">{MONTHS.map((m, i) => <li key={i} className={(d.snow_free_mask[i] === '1' ? 'ok' : '') + (d.best_month === i + 1 ? ' best' : '')} title={MONTHS_LONG[i]}>{m}</li>)}</ol>
+    </div>}
     <dl className="facts">
       <dt>Snow-free months</dt><dd className="fig">{d.snow_free_months} of 12</dd>
       <dt>Low-angle sun (0–7°)</dt><dd className="fig">{num(d.low_sun_hours)} h per day</dd>

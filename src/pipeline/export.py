@@ -104,6 +104,11 @@ def dossier(data: dict, feats: pd.DataFrame) -> None:
                 r["dossier"]["night_lights"] = round(float(row["night_lights"]), 2) if pd.notna(row["night_lights"]) else None
                 r["dossier"]["terrain_src"] = row.get("terrain_src")
                 r["dossier"]["valid_share"] = round(float(row["valid_share"]), 3)   # quota di suolo nudo dell'esagono
+                # finestra di test: mesi senza neve (gen → dic) e il mese migliore (senza neve, Sole più radente)
+                r["dossier"]["snow_free_mask"] = row.get("snow_free_mask")
+                r["dossier"]["best_month"] = int(row["low_sun_best_month"]) if pd.notna(row.get("low_sun_best_month")) else None
+                if "crop_urban_share" in row and pd.notna(row["crop_urban_share"]):
+                    r["dossier"]["crop_urban_share"] = round(float(row["crop_urban_share"]), 3)
 
 
 # Isole artiche dove GeoNames (città con più di 1.000 abitanti) non ha centri: lì la "città più vicina" è a
@@ -169,6 +174,31 @@ def labels() -> dict:
                     "dimension": row.get("Dimensione (challenge)"), "unit": EARTH_UNITS.get(key, "")}
     for key, lab in GAP_LABELS.items():
         out.setdefault(key, {"label": lab, "definition": None, "dimension": "Limiti della Terra (struttura indoor)", "unit": ""})
+    return out
+
+
+def validation(feats: pd.DataFrame, targets: list, rules: dict) -> dict:
+    """Dove si piazzano i siti di test già usati (known_sites.csv) tra tutti gli esagoni con un voto, per ogni
+    sito × test: percentile 0-100 (100 = il migliore). È la prova che il metodo ritrova i posti che usano le aziende."""
+    import h3
+    import numpy as np
+    from . import score as sc
+    idx = pd.Series(range(len(feats)), index=feats["h3"])
+    known = config.known_sites()
+    out = {}
+    for t in targets:
+        for test in TESTS:
+            tot = sc.score(feats, rules["tests"][test], t["values"], rules)["total"]
+            ok = tot[np.isfinite(tot)]
+            rows = []
+            for k in known:
+                if test not in k["tests"]:
+                    continue
+                c = h3.latlng_to_cell(k["lat"], k["lon"], config.H3_RES)
+                v = tot[idx[c]] if c in idx.index else np.nan
+                rows.append({"id": k["id"], "name": k["name"], "score": None if not np.isfinite(v) else round(float(v), 3),
+                             "percentile": None if not np.isfinite(v) else round(float(100 * (ok < v).mean()))})
+            out.setdefault(t["id"], {})[test] = rows
     return out
 
 
@@ -255,7 +285,8 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
             r["campaign"] = campaign(r, tmap[site], test, fac, sim, rocks)
     out = config.EXPORT if publish else config.RAW / "export_preview"
     (out / "sites").mkdir(parents=True, exist_ok=True)
-    for name, rows in (("facilities.json", fac), ("simulants.json", sim), ("rock_sources.json", rocks), ("labels.json", labels()), ("known_sites.json", config.known_sites())):
+    for name, rows in (("facilities.json", fac), ("simulants.json", sim), ("rock_sources.json", rocks), ("labels.json", labels()),
+                       ("known_sites.json", config.known_sites()), ("validation.json", validation(feats, targets, rules))):
         (out / name).write_text(json.dumps(rows, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     # benchmark (la slide del pitch): per ogni sito × test il primo risultato, il primo nuovo e le strutture indoor
     bench = {}
@@ -282,7 +313,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
                                   "MERRA-2, JAXA AW3D30, JRC Global Surface Water, SoilGrids (ISRIC), WDPA, GLiM (Hartmann & "
                                   "Moosdorf 2012). Luna: LRO LOLA LDEM_80S_20M (PDS) + valori di letteratura (siti_e_pesi.csv). "
                                   "Marte: valori di letteratura (siti_e_pesi.csv). Dettagli: docs/backend_spec.md sez. E"),
-                     "contract": "docs/3am_changes_spec.md", "files": files + ["benchmark.json", "facilities.json", "simulants.json", "rock_sources.json", "labels.json", "known_sites.json"]})
+                     "contract": "docs/3am_changes_spec.md", "files": files + ["benchmark.json", "facilities.json", "simulants.json", "rock_sources.json", "labels.json", "known_sites.json", "validation.json"]})
     (out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"5) {len(data)} file in {out.relative_to(config.ROOT)}")
     for (site, test), d in list(data.items())[:3]:

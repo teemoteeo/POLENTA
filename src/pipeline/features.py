@@ -28,7 +28,7 @@ SOURCES = {
     "bulk_density_0_5": ["bulk_0_5"], "bulk_density_30_60": ["bulk_30_60"],
     "bulk_density_100_200": ["bulk_100_200"], "night_lights": ["night_lights"],
     "protected_area": ["protected_area"], "wind_10m": ["wind_10m"],
-    "sand_pct": ["sand_pct"], "clay_pct": ["clay_pct"], "soc_gkg": ["soc_gkg"],
+    "sand_pct": ["sand_pct"], "clay_pct": ["clay_pct"], "soc_gkg": ["soc_gkg"], "crop_urban_share": ["crop_urban_share"],
     "lst_mean_c": ["lst_mean_c"], "permafrost_share": ["permafrost_share"],
 }
 SNOW_FREE = 10   # mese senza neve: copertura media < 10%
@@ -85,6 +85,8 @@ def main() -> int:
         snow = np.stack([per_cell(g.read(p)[rows, cols]) for p in snow_paths], axis=1)
         snow_free = snow < SNOW_FREE
         cells["snow_free_months"] = np.where(np.isnan(snow).all(1), np.nan, snow_free.sum(1))
+        # quali mesi sono senza neve, gennaio → dicembre ("000111111100"): la finestra di test nella scheda
+        cells["snow_free_mask"] = ["".join("1" if x else "0" for x in row) for row in snow_free]
         used["snow_free_months"] = "snow_m01..12"
     else:
         snow_free = np.ones((ncell, 12), dtype=bool)   # finché manca la neve, tutti i mesi valgono

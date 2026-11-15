@@ -1,7 +1,7 @@
 import { CASES } from './cases.js'
 import { Fragment } from 'react'
 import './sheets.css'
-import { SITES, TESTS, getResults, MANIFEST } from './data.js'
+import { SITES, TESTS, getResults, MANIFEST, VALIDATION } from './data.js'
 import { TEST_EN, placeName, facilityName } from './i18n.js'
 import { pct, H3_KM2 } from './format.js'
 import { HOLDS, BREAKS } from './campaign.js'
@@ -104,6 +104,21 @@ const LIMITS = [
   'Some facility entries are still to be verified.',
 ]
 
+const TESTS_ORDER = ['flight_hda_lidar', 'rover_mobility', 'isru_subsurface']
+const TEST_SHORT = { flight_hda_lidar: 'Lidar landing', rover_mobility: 'Rover', isru_subsurface: 'ISRU' }
+// per ogni sito noto: mediana del percentile sui 4 siti lunari, per test
+function valRows() {
+  const moon = ['malapert_massif', 'haworth', 'nobile_rim_1', 'aristarchus_plateau']
+  const by = new Map()
+  for (const t of TESTS_ORDER) for (const s of moon) for (const k of VALIDATION[s]?.[t] || []) {
+    if (!by.has(k.id)) by.set(k.id, { id: k.id, name: k.name, v: {} })
+    if (k.percentile != null) (by.get(k.id).v[t] ||= []).push(k.percentile)
+  }
+  const med = a => { const b = [...a].sort((x, y) => x - y); return b[Math.floor(b.length / 2)] }
+  return [...by.values()].map(r => ({ id: r.id, name: r.name, ...Object.fromEntries(TESTS_ORDER.map(t => [t, r.v[t] ? med(r.v[t]) : null])) }))
+    .filter(r => TESTS_ORDER.some(t => r[t] != null))
+}
+
 export function Method() {
   const nasa = DATA.filter(d => d[1]), other = DATA.filter(d => !d[1])
   const row = ([k, , u]) => <li key={k}><b>{k}</b> <span className="mute">{u}</span></li>
@@ -120,7 +135,8 @@ export function Method() {
       <li>A parameter holds in the field from {HOLDS}, is partial between {BREAKS} and {HOLDS}, and breaks below {BREAKS}.</li>
       <li>Share covered in the field = weight of the parameters that hold.</li>
       <li>The indoor facilities are the smallest set that closes every gap, chosen by the pipeline: most gaps covered first, then nearest to Turin.</li>
-      <li>Places are ranked by workability first (at least 15% bare ground in the hexagon and more than 3 snow-free months a year), then share covered in the field, then total km from Turin, then similarity.</li>
+      <li>Places are ranked by similarity to the target site. The campaign (share in the field, facilities, km from Turin) is shown for each place; the simplest one is tagged, but it does not change the order.</li>
+      <li>Known test sites (Etna, Lanzarote, Mojave, Devon Island…) can be hidden: their hexagon and its neighbours are excluded and the next places move up.</li>
       <li>Low-angle sunlight that the site only offers for a few hours a day is flagged as covered by timing, not by a facility.</li>
       <li>No cost figures: we have no solid source for them.</li>
     </ul>
@@ -130,6 +146,11 @@ export function Method() {
     <ul className="sh-list">{nasa.map(row)}</ul>
     <p className="lbl">Other sources</p>
     <ul className="sh-list">{other.map(row)}</ul>
+    <h3 className="lbl">Validation: do real test sites come out on top?</h3>
+    <p className="small mute">Percentile of each known test site among all scored Earth hexagons (100 = best), for the tests it is used for.</p>
+    <table className="val-table"><thead><tr><th>Known test site</th>{TESTS_ORDER.map(t => <th key={t}>{TEST_SHORT[t]}</th>)}</tr></thead>
+      <tbody>{valRows().map(r => <tr key={r.id}><td>{r.name}</td>{TESTS_ORDER.map(t => <td key={t} className="fig">{r[t] == null ? '' : `top ${100 - r[t]}%`}</td>)}</tr>)}</tbody></table>
+    <p className="small mute">Median over the four lunar sites. Empty: the site is not used for that test, or its hexagon is filtered out (too little bare ground, city lights, farmland).</p>
     <h3 className="lbl">Where the analogy never holds</h3>
     <p>Always indoor or not reproducible on Earth:</p>
     <ul className="sh-list"><li>1/6 gravity</li><li>vacuum</li><li>electrostatic dust</li><li>engine plume in vacuum</li><li>lunar agglutinates</li></ul>

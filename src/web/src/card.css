@@ -117,3 +117,10 @@
 .bars li.nod { opacity: .55; }
 .stack i.nodata, .legend i.nodata { background: repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 5px); opacity: .5; }
 .heads { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* finestra di test: 12 mesi, pieni = senza neve, bordo = mese migliore */
+.window { margin: 10px 0 6px; }
+.months { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; list-style: none; padding: 0; margin: 4px 0 0; }
+.months li { text-align: center; font-size: 10px; padding: 3px 0; border-radius: 4px; background: color-mix(in srgb, currentColor 8%, transparent); opacity: .55; }
+.months li.ok { background: color-mix(in srgb, var(--accent, #ff5a1f) 35%, transparent); opacity: 1; }
+.months li.best { outline: 2px solid var(--accent, #ff5a1f); outline-offset: -1px; font-weight: 700; }
