@@ -1,0 +1,110 @@
+[
+  {
+    "id": "nasa_jsc",
+    "agency": "NASA",
+    "name": "Johnson Space Center (JSC) / Rock Yard",
+    "country": "USA",
+    "lat": 29.5593,
+    "lon": -95.09,
+    "type": "agency_hq_test"
+  },
+  {
+    "id": "nasa_jpl",
+    "agency": "NASA",
+    "name": "Jet Propulsion Laboratory (JPL) / Mars Yard",
+    "country": "USA",
+    "lat": 34.2013,
+    "lon": -118.1714,
+    "type": "agency_center_test"
+  },
+  {
+    "id": "esa_eac_luna",
+    "agency": "ESA / DLR",
+    "name": "European Astronaut Centre (EAC) — LUNA Facility",
+    "country": "Germany",
+    "lat": 50.8528,
+    "lon": 7.1319,
+    "type": "agency_center_indoor"
+  },
+  {
+    "id": "esa_estec",
+    "agency": "ESA",
+    "name": "ESTEC — Planetary Robotics Lab",
+    "country": "Netherlands",
+    "lat": 52.2167,
+    "lon": 4.4167,
+    "type": "agency_tech_hq"
+  },
+  {
+    "id": "asi_altec",
+    "agency": "ASI / ALTEC",
+    "name": "ALTEC — Mars Terrain Simulator & ROXY (Turin Hub)",
+    "country": "Italy",
+    "lat": 45.0931,
+    "lon": 7.6481,
+    "type": "agency_partner_indoor"
+  },
+  {
+    "id": "jaxa_tsukuba",
+    "agency": "JAXA",
+    "name": "Tsukuba Space Center (TKSC)",
+    "country": "Japan",
+    "lat": 36.0658,
+    "lon": 140.1283,
+    "type": "agency_hq"
+  },
+  {
+    "id": "csa_st_hubert",
+    "agency": "CSA",
+    "name": "John H. Chapman Space Centre — Mars Emulation Terrain",
+    "country": "Canada",
+    "lat": 45.5194,
+    "lon": -73.3939,
+    "type": "agency_hq_test"
+  },
+  {
+    "id": "isro_bengaluru",
+    "agency": "ISRO",
+    "name": "U R Rao Satellite Centre (URSC) / HQ",
+    "country": "India",
+    "lat": 12.9592,
+    "lon": 77.6611,
+    "type": "agency_hq"
+  },
+  {
+    "id": "cnsa_beijing",
+    "agency": "CNSA",
+    "name": "CNSA Headquarters / CAST",
+    "country": "China",
+    "lat": 39.9219,
+    "lon": 116.3264,
+    "type": "agency_hq"
+  },
+  {
+    "id": "kari_daejeon",
+    "agency": "KARI",
+    "name": "Korea Aerospace Research Institute (Daejeon)",
+    "country": "South Korea",
+    "lat": 36.3772,
+    "lon": 127.3536,
+    "type": "agency_hq"
+  },
+  {
+    "id": "mbrsc_dubai",
+    "agency": "MBRSC",
+    "name": "Mohammed Bin Rashid Space Centre",
+    "country": "UAE",
+    "lat": 25.2225,
+    "lon": 55.465,
+    "type": "agency_hq"
+  },
+  {
+    "id": "uksa_harwell",
+    "agency": "UKSA",
+    "name": "Harwell Space Cluster / RAL Space",
+    "country": "UK",
+    "lat": 51.5736,
+    "lon": -1.3147,
+    "type": "agency_hub"
+  }
+]
