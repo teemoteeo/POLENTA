@@ -302,11 +302,15 @@ body.timer #clock{display:inline}
 .qp.us i{width:26px;height:26px;background:var(--accent);box-shadow:0 0 0 8px rgba(255,90,31,.22)}
 
 /* S7: chiusura */
-.closing{font:300 92px/1.03 var(--sans);letter-spacing:-.033em;width:1500px;margin-top:70px}
+.closing{font:300 92px/1.03 var(--sans);letter-spacing:-.033em;width:1640px;margin-top:60px}
+/* la frase finale in un riquadro arrotondato: bordo arancione tenue e alone, il testo resta allineato al margine */
+.closing .qb{display:inline-block;white-space:nowrap;margin-left:-48px;padding:30px 48px 38px;border-radius:48px;
+  background:linear-gradient(160deg,rgba(255,90,31,.12),rgba(255,90,31,.02) 60%);
+  box-shadow:inset 0 0 0 1.5px rgba(255,90,31,.5),0 34px 90px -36px rgba(255,90,31,.55)}
 .ask{position:absolute;left:120px;top:560px;width:900px;padding:32px 36px;display:flex;flex-direction:column;gap:14px}
 .ask p{font:400 30px/1.35 var(--sans)}
 .ask .url{font:400 22px var(--mono);color:var(--accent)}
-.team{position:absolute;left:120px;top:860px;display:flex;gap:56px}
+.team{position:absolute;left:120px;top:830px;display:flex;gap:56px}
 .team div{font:400 24px var(--sans)}
 .team small{display:block;font:400 16px var(--mono);color:var(--mute);margin-top:2px}
 
@@ -547,19 +551,14 @@ body.showhelp #help{display:block}
 <!-- 7 · OBIETTIVO E RICHIESTA ------------------------------------------------------------>
 <section class="slide" data-title="Our goal" data-end="180" data-criteria="Impact,Presentation">
   <div class="kick rv">06 — <b>Our goal</b></div>
-  <p class="closing rv" style="--d:.1s"><span class="tbd" title="Closing line: pick one (alternatives in the notes)">Before you fly, <span class="wm">POLENTA</span> tells you where to test, and what it will cost.</span></p>
-  <div class="ask glass rv" data-step="1">
-    <div class="lbl">Our ask</div>
-    <p>One pilot on a real campaign: the next rover or lander test of a Turin team.</p>
-    <div class="url" data-bind="appUrl">URL to add</div>
-  </div>
+  <p class="closing rv" style="--d:.1s"><span class="qb">Before you fly, <span class="wm">POLENTA</span> tells you<br>where to test, and what it will cost.</span></p>
   <div class="team rv" data-step="1" style="--d:.2s">
     <div>FVG Station<small>NASA Space Apps 2026 · Turin</small></div><div>Timoteo<small>app, map, deploy</small></div><div>Edoardo<small>data pipeline, scoring</small></div><div>Rocco<small>physics of the analogy</small></div>
   </div>
   <aside class="notes">
     <h5>2:35 – 3:00 · our goal (25 s), then the live demo (1:00, path in the README)</h5>
     <ul><li>The goal in one line: a tool that prepares and prices a test campaign in money, time and people.</li>
-      <li>Click: the ask, then thank you.</li>
+      <li>Click: the team, then thank you and straight into the live demo.</li>
       <li>Alternative lines: “Where to test, how faithful, and how much: before the first truck leaves.” · “Ten months of guessing, now one quote.”</li></ul>
     <p class="say">“Give us your next campaign. We’ll tell you where, and what it will cost.”</p>
   </aside>
@@ -650,7 +649,8 @@ function bind() {
   set('quoteBreaks', Object.entries(demo.params || {}).filter(([, v]) => v < 0.3).map(([k]) => PARAM_LABEL[k] || k).join(', ') || 'none')
   set('demoRank', `Near you · Turin · within ${Number(NEAR_PICK.radius).toLocaleString('en')} km · #${NEAR_PICK.index + 1}`)
   set('demoSkip', `${km(kmNear)} from Turin · ${pct(fieldShare(demo))} of the test holds in the field · ${demo.snow_free_months ?? '—'} months a year`)
-  set('appUrl', (APP || 'URL to add').replace(/^https?:\/\//, ''))
+  set('appUrl', (APP || '').replace(/^https?:\/\//, ''))
+  $$('[data-bind="appUrl"]').forEach(e => { e.style.display = APP ? '' : 'none' }) // senza link non si mostra nulla
   set('topNew', D.top_new ? `${D.top_new[0]} of ${D.top_new[1]}` : '—')
   set('topNewTxt', D.top_new ? `${D.top_new[0]} of ${D.top_new[1]}` : '—')
   if (D.top_new) { $('#cntNew').dataset.count = $('#cntNew').textContent = D.top_new[0]; $('#cntNewOf').textContent = ` of ${D.top_new[1]}` }
