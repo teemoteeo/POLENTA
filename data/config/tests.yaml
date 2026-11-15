@@ -26,6 +26,7 @@ version: 0
 tau: 0.1
 eps: 0.01
 break_below: 0.3
+kappa_min: 0.8      # quota minima di peso con dati per entrare in classifica
 
 tests:
 
@@ -53,8 +54,7 @@ tests:
       atmosphere_wind: 0.00
       permafrost_share: 0.00
     filtri:
-      ndvi: "< 0.2"
-      slope_p90: ">= 15"
+      ndvi: "< 0.2"   # 15/11 01:20: tolto slope_p90 >= 15 (pensato per i massicci lunari, escludeva Gale: 6,5°)
     indoor: [gravity_1_6, vacuum, electrostatic_dust, soil_density]
     validazione: [etna_piano_concazze, etna_cisternazza]
 

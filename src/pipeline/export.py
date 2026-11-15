@@ -121,9 +121,18 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         dossier(data, feats)
     out = config.EXPORT if publish else config.RAW / "export_preview"
     (out / "sites").mkdir(parents=True, exist_ok=True)
-    if not publish:                                   # gli altri file del contratto, uguali al mock per ora
-        for name in ("benchmark.json", "facilities.json", "known_sites.json"):
+    if not publish:                                   # facility e siti noti: uguali al mock per ora
+        for name in ("facilities.json", "known_sites.json"):
             shutil.copy(config.EXPORT / name, out / name)
+    # benchmark (la slide del pitch): per ogni sito × test il primo risultato, il primo nuovo e le strutture indoor
+    from .mock_export import FACILITIES
+    bench = {}
+    for (site, test), d in data.items():
+        rs = d["results"]
+        bench.setdefault(site, {})[test] = {
+            "best": rs[0]["id"] if rs else None, "best_new": next((r["id"] for r in rs if r["new"]), None),
+            "facility": sorted({f for p in rules["tests"][test].get("indoor", []) for f in FACILITIES.get(p, [])})}
+    (out / "benchmark.json").write_text(json.dumps(bench, ensure_ascii=False, indent=1), encoding="utf-8")
     files = ["targets.json"]
     for stale in (out / "sites").glob("*.json"):     # il manifest è la verità: via i file di siti o test tolti
         stale.unlink()
@@ -132,7 +141,7 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         d["target_source"] = ("data/config/siti_e_pesi.csv (Rocco); unità convertite in targets.py"
                               if not targets[0].get("mock") else "SEGNAPOSTO: valori provvisori, in attesa dei valori di Rocco")
         path = out / "sites" / f"{site}__{test}.json"
-        path.write_text(json.dumps(d, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+        path.write_text(json.dumps(d, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
         files.append(f"sites/{site}__{test}.json")
     manifest = json.loads((config.EXPORT / "manifest.json").read_text())
     manifest.update({"version": "0.2-earth", "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

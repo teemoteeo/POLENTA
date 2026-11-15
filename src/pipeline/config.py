@@ -24,7 +24,7 @@ H3_RES = 5            # risoluzione delle celle esagonali (~250 km² l'una)
 BASELINE_M = 30       # distanza di misura comune Terra/Luna per pendenze, rugosità, crateri
 SLOPE_BASELINES_M = (30, 60, 120, 240)    # scale per l'esponente di Hurst
 YEARS = ("2021-01-01", "2024-01-01")      # periodo dei compositi MODIS
-MAX_CELLS_EXPORT = 20_000                 # celle per file nell'export dell'app
+MAX_CELLS_EXPORT = 10_000   # esagoni nella heat map di ogni sito × test (~2,5 milioni di km²)
 # Maschera "suolo nudo o vegetazione rada", applicata al pixel da 1 km.
 # NDVI mediano (non il massimo) < 0,2: con "massimo < 0,1" si perdevano metà dei siti di validazione
 # (Black Point, SFVF, Meteor Crater, Mojave: 0% di area sotto 0,1 entro 5 km; ~100% sotto 0,2). Verificato il 14/11.

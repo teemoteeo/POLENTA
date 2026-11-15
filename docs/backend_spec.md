@@ -146,6 +146,10 @@ Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue quest
 | 17 | Test della demo | 5 test (rover, lidar, camera, EVA, touchdown) | **3 test**: `flight_hda_lidar`, `rover_mobility`, **`isru_resources`** | decisione del team sul testo della challenge (dom 00:20). ISRU = ghiaccio nel suolo (proxy: temperatura media annua MODIS < −1 °C, `permafrost_share`) + materiali (tessitura SoilGrids `sand_pct`, `clay_pct`; densità; grana). Il carbonio organico SoilGrids è inaffidabile nell'alto Artico: solo card. Il touchdown della riga 16 esce |
 | 18 | Velocità della fase a 30 m | — | maschera calcolata a 1 km e poi ingrandita; crateri con 1 cm di rumore al posto di `connectedPixelCount` | dopo i fix delle 23:00 un gruppo da 20 esagoni durava ~100 s (Earth Engine rifaceva la mediana NDVI a 30 m per ogni pixel, e contava i gruppi connessi). Ora 25 s, con crateri nello stesso ordine (Cinder Lake 0,46, SFVF 0,28, Meteor Crater 0,12) |
 | 19 | Quota di Earth Engine | Community, restricted mode | **Contributor** (1.000 EECU-ore al mese), attivato dom 00:00 | fatturazione collegata al progetto; Earth Engine non commerciale non si paga |
+| 20 | Valori e pesi dei siti | segnaposto | **matrice di Rocco** `data/config/siti_e_pesi.csv` (valori, pesi per test con gli zeri, reference, dimensione della challenge), letta da `targets.py` con conversioni di unità dichiarate | un test nuovo è una colonna, un parametro nuovo una riga; peso 0 = non conta |
+| 21 | Terreno lunare | valori di letteratura | **calcolato da noi** su LOLA LDEM_80S_20M → 30 m con le definizioni della Terra (`lola_fetch.py`, `lunar.py`): crateri 0,07-0,14/km² invece di 1,8-2,4 da catalogo | i valori di catalogo stavano 4-5 volte sopra qualunque posto terrestre: il parametro più pesante del lidar non distingueva più |
+| 22 | Voto | percentile "≤ x", κ ≥ 0,7, rover con pendenza ≥ 15° | percentile **medio sulle parità**, **κ ≥ 0,8**, filtro di pendenza tolto | con molti valori uguali (permafrost 0 sull'85% degli esagoni) i suoli secchi prendevano 0,94 contro un target ghiacciato; con κ 0,7 gli esagoni con meno dati salivano in testa; il filtro escludeva Gale |
+| 23 | Richieste appese a Earth Engine | si aspettava | tempo massimo 2 min; se per 3 min nessun gruppo finisce, i rimasti si abbandonano e si annotano (`fine_failed.txt`) | un gruppo appeso bloccava l'export per 15-20 minuti |
 
 **Limiti noti da dichiarare:**
 - **L'Antartide manca:** l'NDVI MODIS non la copre.
@@ -157,6 +161,7 @@ Scoperte fatte facendo girare il codice (sab 20:50-23:15). Il codice segue quest
 - `--step fine --scope sample|all` (30 m);
 - `--step calibrate`: relazione 500 m → 30 m con l'errore dichiarato;
 - `--step earth`: tutta la Terra in fila (terreno 500 m, superficie, campione a 30 m, calibrazione, carta d'identità); i passi già fatti si saltano;
+- `--step lola` / `--step lunar`: DEM LOLA delle 3 regioni dal PDS, poi pendenza, rugosità e crateri lunari;
 - `--step export [--publish] [--no-refine] [--no-dossier]`: tutti i siti × test fino ai file per l'app; senza `--publish` scrive in `data/raw/export_preview/`. Il voto gira in locale in ~30 s; Earth Engine serve solo per i candidati nuovi e il dossier;
 - `--sample` per la modalità test.
 

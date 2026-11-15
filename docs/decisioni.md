@@ -27,21 +27,22 @@
 
 Per ogni sito serve il valore (o un intervallo min-max) e la fonte, **calcolati con la stessa definizione** usata sulla Terra. Dettagli: `docs/allineamento-edo.md`; motivi tecnici: `docs/backend_spec.md` sez. E.
 
-**Nel voto** (pesi: lidar / rover / ISRU):
+**Nel voto:**
 
-| Parametro | Definizione | Luna | Marte | Pesi |
+| Parametro | Definizione | Luna | Marte | Pesi lidar / rover / ISRU |
 |---|---|---|---|---|
-| `slope_p90` | pendenza al 90° percentile, DEM a 30 m | LOLA | DTM CTX o HiRISE | 0,20 / 0,35 / 0,10 |
-| `roughness` | scarto della quota dalla media su 150 m | LOLA | CTX / HiRISE | 0,15 / 0,15 / — |
-| `crater_density` | conche entro 300 m, ≥ 20 m sotto il bordo, per km² | LOLA | CTX / HiRISE | 0,30 / 0,05 / — |
-| `rock_cover` | quota di sassi e massi | Diviner | TES / THEMIS | 0,25 / 0,15 / — |
-| `grain_proxy` | inerzia termica: suolo fine e sciolto contro compatto (confronto per percentile) | Diviner | THEMIS | — / 0,15 / 0,15 |
-| `albedo` | quanto riflette la superficie | LROC / LOLA | TES | 0,05 / — / — |
-| `low_sun_frac` | quota di luce con il Sole a 0-7° | ~1,0 | da latitudine | — / 0,10 / — |
-| `permafrost_share` | quota di area con temperatura media annua < −1 °C (proxy MODIS del ghiaccio nel suolo) | ghiaccio nelle zone in ombra (LEND, Diviner) | Phoenix sì, Gale no | — / — / 0,30 |
-| `sand_pct`, `clay_pct` | tessitura dei primi 5 cm (SoilGrids) | regolite: ~metà sabbia fine, poca argilla | Phoenix, Curiosity | — / — / 0,20 e 0,15 |
-| `bulk_density_0_5` | densità dei primi cm (g/cm³) | Apollo ~1,5 | Phoenix, Curiosity | — / — / 0,10 |
-| `rock_class` | tipo di roccia (fonte terrestre da decidere) | anortosite | basalto, sedimentario | 0,05 / 0,05 / — |
+| `slope_p90` | pendenza al 90° percentile, DEM a 30 m | **calcolata da noi su LOLA** (stessa definizione della Terra) | DTM CTX / HiRISE (letteratura) | 0,20 / 0,35 / 0,10 |
+| `roughness` | scarto della quota dalla media su 150 m | **calcolata da noi su LOLA** | CTX / HiRISE | 0,15 / 0,15 / — |
+| `crater_density` | conche entro 300 m, ≥ 20 m sotto il bordo, per km² | **calcolata da noi su LOLA** (0,07-0,14/km²) | CTX / HiRISE | 0,30 / 0,05 / — |
+| `rock_cover` | quota di sassi e massi | Diviner | TES / HiRISE | 0,25 / 0,15 / 0,05 |
+| `grain_proxy` | inerzia termica (confronto per finezza/percentile) | Diviner | THEMIS / TES | — / 0,15 / 0,15 |
+| `albedo` | riflettanza a banda larga | LOLA / Diviner | TES | 0,05 / — / — |
+| `low_sun_frac` | quota di luce con il Sole a 0-7° | 1,0 | da latitudine | — / 0,10 / — |
+| `bulk_density_0_5` | densità dei primi 5 cm (g/cm³) | Apollo 1,5 | Phoenix, Curiosity | — / — / 0,20 |
+| `rock_class` | tipo di roccia (fonte terrestre da decidere: fuori dal voto finché manca) | anortosite | basalto, sedimentario | 0,05 / 0,05 / 0,15 |
+| `subsurface_ice` → `permafrost_share` | ghiaccio nel sottosuolo (% in peso) → sulla Terra permafrost probabile (MODIS) | **scenario B**: 5,6% nelle zone in ombra vicine (LCROSS) | Phoenix 55%, Gale 2,25% | — / — / 0,35 |
+
+Valori, pesi e reference: `data/config/siti_e_pesi.csv` (Rocco). Un test nuovo è una colonna, un parametro nuovo una riga; peso 0 = non conta per quel test.
 
 **Fuori dal voto** (card e "dove si rompe"): temperature (anche la media annua), carbonio organico (SoilGrids, inaffidabile nell'alto Artico), profilo di densità 0-2 m, quota, atmosfera (vento per i siti finali), comunicazioni (luci notturne come proxy dell'isolamento), mesi senza neve, Hurst, aree protette. Sulla Luna e su Marte questi valori sono uguali per tutti i siti terrestri o non confrontabili, quindi non cambiano la classifica.
 
@@ -59,7 +60,7 @@ Per ogni sito serve il valore (o un intervallo min-max) e la fonte, **calcolati 
 
 ## Prossimi passi, in ordine (sab 23:30)
 
-1. **Edo + Rocco:** valori dei 5 siti per i parametri del voto, con la fonte (formato `targets.json`).
+1. ~~Valori dei 5 siti~~: fatti (`data/config/siti_e_pesi.csv`, con reference).
 2. **Rocco:** conferma i pesi di `isru_resources` e sceglie la fonte di `rock_class`. Proposta: vulcani (GVP) e crateri da impatto (Earth Impact Database) a regole.
 3. **Edo:** export vero in `data/export/`: 15 file (5 siti × 3 test), stesso formato del mock.
 4. **Timo:** l'app legge l'export vero; immagini, deploy.

@@ -71,7 +71,9 @@ def score(feats: pd.DataFrame, test: dict, target: dict, rules: dict) -> dict:
     avail = np.isfinite(M)
     kappa = (avail * w).sum(1) / max(w.sum(), 1e-9)
     logS = np.where(avail, np.log(np.where(avail, M, 1.0)) * w, 0).sum(1) / np.maximum((avail * w).sum(1), 1e-9)
-    total = np.where(kappa >= 0.7, np.exp(logS), np.nan)
+    # κ minimo 0,8 (tests.yaml: kappa_min): con 0,7 gli esagoni con meno dati (alto Artico senza SoilGrids)
+    # salivano in testa, perché il voto si calcola sui soli parametri presenti (15/11, 01:20)
+    total = np.where(kappa >= rules.get("kappa_min", 0.8), np.exp(logS), np.nan)
     ok = feats["valid_share"].to_numpy() >= 0.05
     if "snow_free_months" in feats.columns:           # ghiacci permanenti: niente vegetazione, ma non sono suolo
         ok &= feats["snow_free_months"].fillna(0).to_numpy() >= 1

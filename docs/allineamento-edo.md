@@ -18,29 +18,25 @@ Autore: Edo · 2026-11-15 00:20 (prima versione sab 23:30) · per Rocco e Timo. 
 
 - **Fuori:** camera, EVA, contatto col suolo, trivella, Jezero, gli altri 6 siti Artemis.
 
-## 2. Parametri nel voto
+## 2. Parametri nel voto (matrice di Rocco, dom 00:45)
 
-Per ogni sito servono il valore (o un intervallo min-max) e la fonte, **calcolati con la stessa definizione** usata sulla Terra. Il formato è quello di `targets.json`.
-
-| Parametro | Definizione | Luna | Marte | Lidar / Rover / ISRU |
+| Parametro | Definizione | Luna | Marte | Pesi lidar / rover / ISRU |
 |---|---|---|---|---|
-| `slope_p90` | pendenza al 90° percentile, DEM a 30 m | LOLA | DTM CTX o HiRISE (non MOLA) | 0,20 / 0,35 / 0,10 |
-| `roughness` | scarto quadratico della quota dalla media su 150 m | LOLA | CTX / HiRISE | 0,15 / 0,15 / — |
-| `crater_density` | conche entro 300 m, ≥ 20 m sotto il bordo, per km² | LOLA | CTX / HiRISE | 0,30 / 0,05 / — |
-| `rock_cover` | quota di sassi e massi | Diviner | TES / THEMIS | 0,25 / 0,15 / — |
-| `grain_proxy` | inerzia termica: suolo fine e sciolto contro compatto | Diviner | THEMIS | — / 0,15 / 0,15 |
-| `albedo` | quanto riflette la superficie (segnale di ritorno del lidar) | LROC / LOLA | TES | 0,05 / — / — |
-| `low_sun_frac` | quota di luce con il Sole a 0-7° | ~1,0 | da latitudine | — / 0,10 / — |
-| `permafrost_share` | quota di area con temperatura media annua MODIS < −1 °C (proxy del ghiaccio nel suolo) | ghiaccio nelle zone in ombra vicine (LEND, Diviner) | Phoenix sì (~5 cm), Gale no | — / — / 0,30 |
-| `sand_pct` | sabbia nei primi 5 cm (SoilGrids) | ~50% (regolite: sabbia fine e limo) | Phoenix, Curiosity | — / — / 0,20 |
-| `clay_pct` | argilla nei primi 5 cm (SoilGrids) | pochi % | argille a Gale | — / — / 0,15 |
-| `bulk_density_0_5` | densità dei primi cm (g/cm³) | Apollo ~1,5 | Phoenix, Curiosity | — / — / 0,10 |
-| `rock_class` | tipo di roccia | anortosite | basalto, sedimentario | 0,05 / 0,05 / — |
+| `slope_p90` | pendenza al 90° percentile, DEM a 30 m | **calcolata da noi su LOLA** (stessa definizione della Terra) | DTM CTX / HiRISE (letteratura) | 0,20 / 0,35 / 0,10 |
+| `roughness` | scarto della quota dalla media su 150 m | **calcolata da noi su LOLA** | CTX / HiRISE | 0,15 / 0,15 / — |
+| `crater_density` | conche entro 300 m, ≥ 20 m sotto il bordo, per km² | **calcolata da noi su LOLA** (0,07-0,14/km²) | CTX / HiRISE | 0,30 / 0,05 / — |
+| `rock_cover` | quota di sassi e massi | Diviner | TES / HiRISE | 0,25 / 0,15 / 0,05 |
+| `grain_proxy` | inerzia termica (confronto per finezza/percentile) | Diviner | THEMIS / TES | — / 0,15 / 0,15 |
+| `albedo` | riflettanza a banda larga | LOLA / Diviner | TES | 0,05 / — / — |
+| `low_sun_frac` | quota di luce con il Sole a 0-7° | 1,0 | da latitudine | — / 0,10 / — |
+| `bulk_density_0_5` | densità dei primi 5 cm (g/cm³) | Apollo 1,5 | Phoenix, Curiosity | — / — / 0,20 |
+| `rock_class` | tipo di roccia (fonte terrestre da decidere: fuori dal voto finché manca) | anortosite | basalto, sedimentario | 0,05 / 0,05 / 0,15 |
+| `subsurface_ice` → `permafrost_share` | ghiaccio nel sottosuolo (% in peso) → sulla Terra permafrost probabile (MODIS) | **scenario B**: 5,6% nelle zone in ombra vicine (LCROSS) | Phoenix 55%, Gale 2,25% | — / — / 0,35 |
 
-- **Grana:** l'inerzia termica di Luna e Marte è in unità diverse dalla nostra terrestre. Si confronta per percentile, cioè dove sta il sito tra i valori del suo pianeta.
-- **Ghiaccio a Gale:** non c'è, quindi il parametro non entra nel voto per Gale. κ lo dichiara.
-- **`rock_class`:** la fonte terrestre non c'è ancora. SoilGrids dà le proprietà del suolo, non il tipo di roccia. Opzione: indice mafico ASTER GED (NASA, su Earth Engine).
-- **Pesi di `isru_resources`:** proposti da Edo, **da confermare con Rocco**.
+Valori, pesi e reference: `data/config/siti_e_pesi.csv` (Rocco). Un test nuovo è una colonna, un parametro nuovo una riga; peso 0 = non conta per quel test.
+
+- **Luna, terreno:** pendenza, rugosità e crateri li calcoliamo noi su LOLA a 30 m con le definizioni della Terra (`lunar.py`). I valori di Wueller et al. 2025 (DOI 10.1029/2025JE009127) restano nella card come letteratura: sono medie sulle sole aree percorribili (< 15°), con la rugosità di Smith 2017.
+- **Unità convertite** (`targets.py`): massi da % a frazione; inerzia termica SI → stessa "finezza" sulla Terra; ghiaccio % in peso → permafrost (sotto 1% secco, da 5% suolo cementato).
 
 ## 3. Fuori dal voto (card e "dove si rompe")
 

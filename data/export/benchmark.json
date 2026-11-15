@@ -1,8 +1,19 @@
 {
- "peak_near_cabeus_b": {
+ "malapert_massif": {
+  "flight_hda_lidar": {
+   "best": "r01",
+   "best_new": "r01",
+   "facility": [
+    "ARGOS, NASA JSC",
+    "Chamber B, NASA JSC",
+    "LUNA, Colonia (offload)",
+    "camere a vuoto ESTEC",
+    "sfera da 60 ft, NASA Langley"
+   ]
+  },
   "rover_mobility": {
    "best": "r01",
-   "best_new": "r05",
+   "best_new": "r01",
    "facility": [
     "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
@@ -13,45 +24,32 @@
     "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
    ]
   },
-  "flight_hda_lidar": {
+  "isru_subsurface": {
    "best": "r01",
-   "best_new": "r04",
+   "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
-   ]
-  },
-  "flight_trn_camera": {
-   "best": "r01",
-   "best_new": "r03",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC"
-   ]
-  },
-  "eva_traverse": {
-   "best": "r01",
-   "best_new": "r02",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
     "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC"
+    "camere a vuoto ESTEC",
+    "vasche di simulante LHS-1 / LMS-1"
    ]
   }
  },
  "haworth": {
+  "flight_hda_lidar": {
+   "best": "r01",
+   "best_new": "r01",
+   "facility": [
+    "ARGOS, NASA JSC",
+    "Chamber B, NASA JSC",
+    "LUNA, Colonia (offload)",
+    "camere a vuoto ESTEC",
+    "sfera da 60 ft, NASA Langley"
+   ]
+  },
   "rover_mobility": {
    "best": "r01",
-   "best_new": "r05",
+   "best_new": "r01",
    "facility": [
     "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
@@ -62,192 +60,32 @@
     "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
    ]
   },
-  "flight_hda_lidar": {
+  "isru_subsurface": {
    "best": "r01",
-   "best_new": "r04",
+   "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
-   ]
-  },
-  "flight_trn_camera": {
-   "best": "r01",
-   "best_new": "r03",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC"
-   ]
-  },
-  "eva_traverse": {
-   "best": "r01",
-   "best_new": "r02",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
     "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC"
-   ]
-  }
- },
- "malapert_massif": {
-  "rover_mobility": {
-   "best": "r01",
-   "best_new": "r05",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
     "camere a vuoto ESTEC",
-    "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
-   ]
-  },
-  "flight_hda_lidar": {
-   "best": "r01",
-   "best_new": "r04",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
-   ]
-  },
-  "flight_trn_camera": {
-   "best": "r01",
-   "best_new": "r03",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC"
-   ]
-  },
-  "eva_traverse": {
-   "best": "r01",
-   "best_new": "r02",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC"
-   ]
-  }
- },
- "mons_mouton_plateau": {
-  "rover_mobility": {
-   "best": "r01",
-   "best_new": "r05",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "camere a vuoto ESTEC",
-    "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
-   ]
-  },
-  "flight_hda_lidar": {
-   "best": "r01",
-   "best_new": "r04",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
-   ]
-  },
-  "flight_trn_camera": {
-   "best": "r01",
-   "best_new": "r03",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC"
-   ]
-  },
-  "eva_traverse": {
-   "best": "r01",
-   "best_new": "r02",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC"
-   ]
-  }
- },
- "mons_mouton": {
-  "rover_mobility": {
-   "best": "r01",
-   "best_new": "r05",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "camere a vuoto ESTEC",
-    "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
-   ]
-  },
-  "flight_hda_lidar": {
-   "best": "r01",
-   "best_new": "r04",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
-   ]
-  },
-  "flight_trn_camera": {
-   "best": "r01",
-   "best_new": "r03",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC"
-   ]
-  },
-  "eva_traverse": {
-   "best": "r01",
-   "best_new": "r02",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC"
+    "vasche di simulante LHS-1 / LMS-1"
    ]
   }
  },
  "nobile_rim_1": {
+  "flight_hda_lidar": {
+   "best": "r01",
+   "best_new": "r01",
+   "facility": [
+    "ARGOS, NASA JSC",
+    "Chamber B, NASA JSC",
+    "LUNA, Colonia (offload)",
+    "camere a vuoto ESTEC",
+    "sfera da 60 ft, NASA Langley"
+   ]
+  },
   "rover_mobility": {
    "best": "r01",
-   "best_new": "r05",
+   "best_new": "r01",
    "facility": [
     "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
@@ -258,45 +96,32 @@
     "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
    ]
   },
-  "flight_hda_lidar": {
+  "isru_subsurface": {
    "best": "r01",
-   "best_new": "r04",
+   "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
-   ]
-  },
-  "flight_trn_camera": {
-   "best": "r01",
-   "best_new": "r03",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC"
-   ]
-  },
-  "eva_traverse": {
-   "best": "r01",
-   "best_new": "r02",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
     "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC"
+    "camere a vuoto ESTEC",
+    "vasche di simulante LHS-1 / LMS-1"
    ]
   }
  },
- "nobile_rim_2": {
+ "phoenix": {
+  "flight_hda_lidar": {
+   "best": "r01",
+   "best_new": "r01",
+   "facility": [
+    "ARGOS, NASA JSC",
+    "Chamber B, NASA JSC",
+    "LUNA, Colonia (offload)",
+    "camere a vuoto ESTEC",
+    "sfera da 60 ft, NASA Langley"
+   ]
+  },
   "rover_mobility": {
    "best": "r01",
-   "best_new": "r05",
+   "best_new": "r01",
    "facility": [
     "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
@@ -307,45 +132,32 @@
     "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
    ]
   },
-  "flight_hda_lidar": {
+  "isru_subsurface": {
    "best": "r01",
-   "best_new": "r04",
+   "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
-   ]
-  },
-  "flight_trn_camera": {
-   "best": "r01",
-   "best_new": "r03",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC"
-   ]
-  },
-  "eva_traverse": {
-   "best": "r01",
-   "best_new": "r02",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
     "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC"
+    "camere a vuoto ESTEC",
+    "vasche di simulante LHS-1 / LMS-1"
    ]
   }
  },
- "de_gerlache_rim_2": {
+ "gale": {
+  "flight_hda_lidar": {
+   "best": "r01",
+   "best_new": "r01",
+   "facility": [
+    "ARGOS, NASA JSC",
+    "Chamber B, NASA JSC",
+    "LUNA, Colonia (offload)",
+    "camere a vuoto ESTEC",
+    "sfera da 60 ft, NASA Langley"
+   ]
+  },
   "rover_mobility": {
    "best": "r01",
-   "best_new": "r05",
+   "best_new": "r01",
    "facility": [
     "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
@@ -356,87 +168,14 @@
     "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
    ]
   },
-  "flight_hda_lidar": {
+  "isru_subsurface": {
    "best": "r01",
-   "best_new": "r04",
+   "best_new": "r01",
    "facility": [
-    "ARGOS, NASA JSC",
     "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
-   ]
-  },
-  "flight_trn_camera": {
-   "best": "r01",
-   "best_new": "r03",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC"
-   ]
-  },
-  "eva_traverse": {
-   "best": "r01",
-   "best_new": "r02",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
     "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC"
-   ]
-  }
- },
- "slater_plain": {
-  "rover_mobility": {
-   "best": "r01",
-   "best_new": "r05",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
     "camere a vuoto ESTEC",
-    "vasche di simulante: LUNA, ALTEC, NASA Glenn SLOPE"
-   ]
-  },
-  "flight_hda_lidar": {
-   "best": "r01",
-   "best_new": "r04",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC",
-    "sfera da 60 ft, NASA Langley"
-   ]
-  },
-  "flight_trn_camera": {
-   "best": "r01",
-   "best_new": "r03",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA, Colonia (offload)",
-    "camere a vuoto ESTEC"
-   ]
-  },
-  "eva_traverse": {
-   "best": "r01",
-   "best_new": "r02",
-   "facility": [
-    "ARGOS, NASA JSC",
-    "Chamber B, NASA JSC",
-    "LUNA Dust Lab, Colonia",
-    "LUNA, Colonia (offload)",
-    "Swamp Works, NASA KSC",
-    "TVAC \"sporca\" ALTEC, Torino (in arrivo)",
-    "camere a vuoto ESTEC"
+    "vasche di simulante LHS-1 / LMS-1"
    ]
   }
  }

@@ -26,6 +26,9 @@ from . import config, gee_common as g
 BASELINES = config.SLOPE_BASELINES_M          # 30, 60, 120, 240 m
 CRATER_RADIUS_M, CRATER_RIM_DEPTH_M = 300, 20  # stesso detector da usare su LOLA a 30 m
 OUT = config.INTERIM / "fine.parquet"
+FAILED = config.INTERIM / "fine_failed.txt"   # esagoni i cui gruppi falliscono: si saltano nei giri successivi
+DEADLINE_MS = 120_000                          # una richiesta appesa costa al massimo 2 minuti a tentativo
+STALL_S = 180       # se per 3 minuti nessun gruppo finisce, i rimasti si abbandonano (il timeout non li copre sempre)
 
 
 def image(full: bool = True) -> ee.Image:
@@ -137,9 +140,12 @@ def main(batch: int = 20, workers: int | None = None, limit: int | None = None, 
     workers = workers or 12
     from concurrent.futures import ThreadPoolExecutor, as_completed
     g.init()
+    import ee
+    ee.data.setDeadline(DEADLINE_MS)
     todo = select_cells(n_sample=n_sample, scope=scope)
     done = pd.read_parquet(OUT) if OUT.exists() else pd.DataFrame(columns=["h3"])
-    todo = todo[~todo["h3"].isin(done["h3"])]
+    skip = set(FAILED.read_text().split()) if FAILED.exists() else set()
+    todo = todo[~todo["h3"].isin(done["h3"]) & ~todo["h3"].isin(skip)]
     if limit:
         todo = todo.head(limit)
     print(f"esagoni da calcolare a 30 m: {len(todo)} (già fatti: {len(done)}); ruoli: {todo['role'].value_counts().to_dict()}")
@@ -155,16 +161,33 @@ def main(batch: int = 20, workers: int | None = None, limit: int | None = None, 
             new = pd.DataFrame(rows).merge(todo, on="h3", how="left")
             pd.concat([done, new], ignore_index=True).drop_duplicates("h3", keep="last").to_parquet(OUT, index=False)
 
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(reduce_batch, imgs[full], b): b for full, b in batches}
-        for k, fut in enumerate(as_completed(futures), 1):
+    from concurrent.futures import FIRST_COMPLETED, wait
+    pool = ThreadPoolExecutor(max_workers=workers)
+    futures = {pool.submit(reduce_batch, imgs[full], b): b for full, b in batches}
+    pending, k = set(futures), 0
+
+    def failed(cells):
+        with FAILED.open("a") as fh:
+            fh.write("\n".join(cells) + "\n")
+
+    while pending:
+        finished, pending = wait(pending, timeout=STALL_S, return_when=FIRST_COMPLETED)
+        if not finished:      # nessun gruppo finito da STALL_S secondi: richieste appese, si lasciano perdere
+            print(f"\n   {len(pending)} gruppi fermi da {STALL_S} s: saltati (restano con la stima)")
+            for fut in pending:
+                failed(futures[fut])
+            break
+        for fut in finished:
+            k += 1
             try:
                 rows.extend(fut.result())
             except Exception as e:
                 print(f"\n   gruppo saltato ({len(futures[fut])} esagoni): {str(e)[:100]}")
-            if k % 10 == 0:
-                save()                                    # salvataggio periodico: si può riprendere
+                failed(futures[fut])
+            if len(batches) <= 50 or k % 10 == 0:
+                save()                                    # salvataggio frequente: si può riprendere
             print(f"   {k}/{len(batches)} gruppi ({time.time() - t0:.0f} s)", end="\r", flush=True)
+    pool.shutdown(wait=False, cancel_futures=True)
     save()
     df = pd.read_parquet(OUT)
     df["hurst"] = hurst(df)

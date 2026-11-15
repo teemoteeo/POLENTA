@@ -9,6 +9,7 @@ Ogni passo di docs/backend_spec.md diventa uno --step: `check` (passo 0), `mock`
 """
 import argparse
 import importlib
+import os
 import sys
 
 from . import config
@@ -196,4 +197,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    code = main()
+    sys.stdout.flush()
+    os._exit(code or 0)   # esce anche se una richiesta a Earth Engine è rimasta appesa in un thread
