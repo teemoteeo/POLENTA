@@ -278,8 +278,13 @@ def main(publish: bool = False, do_refine: bool = True, do_dossier: bool = True)
         path.write_text(json.dumps(d, ensure_ascii=False, separators=(",", ":"), default=str), encoding="utf-8")
         files.append(f"sites/{site}__{test}.json")
     manifest = json.loads((config.EXPORT / "manifest.json").read_text())
-    manifest.update({"version": "0.2-earth", "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                     "mock": False, "targets_mock": True, "files": files + ["benchmark.json", "facilities.json", "simulants.json", "rock_sources.json", "labels.json", "known_sites.json"]})
+    manifest.update({"version": "1.0", "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                     "mock": False, "targets_mock": bool(targets[0].get("mock")), "sites": list(SITES), "tests": list(TESTS),
+                     "datasets": ("Terra (Google Earth Engine): NASADEM, MODIS MOD44W/MOD13A3/MOD11A2/MCD43A3/MOD10A2, VIIRS DNB, "
+                                  "MERRA-2, JAXA AW3D30, JRC Global Surface Water, SoilGrids (ISRIC), WDPA, GLiM (Hartmann & "
+                                  "Moosdorf 2012). Luna: LRO LOLA LDEM_80S_20M (PDS) + valori di letteratura (siti_e_pesi.csv). "
+                                  "Marte: valori di letteratura (siti_e_pesi.csv). Dettagli: docs/backend_spec.md sez. E"),
+                     "contract": "docs/3am_changes_spec.md", "files": files + ["benchmark.json", "facilities.json", "simulants.json", "rock_sources.json", "labels.json", "known_sites.json"]})
     (out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"5) {len(data)} file in {out.relative_to(config.ROOT)}")
     for (site, test), d in list(data.items())[:3]:

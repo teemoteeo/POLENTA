@@ -1,8 +1,8 @@
 {
- "version": "0.2-earth",
- "generated_at": "2026-11-15T01:35:03+00:00",
+ "version": "1.0",
+ "generated_at": "2026-11-15T01:41:27+00:00",
  "mock": false,
- "contract": "docs/backend_spec.md §2",
+ "contract": "docs/3am_changes_spec.md",
  "files": [
   "targets.json",
   "sites/malapert_massif__flight_hda_lidar.json",
@@ -31,22 +31,18 @@
   "known_sites.json"
  ],
  "sites": [
-  "peak_near_cabeus_b",
-  "haworth",
   "malapert_massif",
-  "mons_mouton_plateau",
-  "mons_mouton",
+  "haworth",
   "nobile_rim_1",
-  "nobile_rim_2",
-  "de_gerlache_rim_2",
-  "slater_plain"
+  "aristarchus_plateau",
+  "phoenix",
+  "gale"
  ],
  "tests": [
-  "rover_mobility",
   "flight_hda_lidar",
-  "flight_trn_camera",
-  "eva_traverse"
+  "rover_mobility",
+  "isru_subsurface"
  ],
- "datasets": "MOCK: nessun dato reale. I dataset veri sono in docs/proposta-finale.md §7-8",
- "targets_mock": true
+ "datasets": "Terra (Google Earth Engine): NASADEM, MODIS MOD44W/MOD13A3/MOD11A2/MCD43A3/MOD10A2, VIIRS DNB, MERRA-2, JAXA AW3D30, JRC Global Surface Water, SoilGrids (ISRIC), WDPA, GLiM (Hartmann & Moosdorf 2012). Luna: LRO LOLA LDEM_80S_20M (PDS) + valori di letteratura (siti_e_pesi.csv). Marte: valori di letteratura (siti_e_pesi.csv). Dettagli: docs/backend_spec.md sez. E",
+ "targets_mock": false
 }
