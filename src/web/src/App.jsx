@@ -93,7 +93,9 @@ export default function App() {
   const nearKey = `${base.id}|${site?.id}|${testId}|${radius}`
   const flyNear = useRef(false)
   const globalData = useMemo(() => (site && testId ? getResults(site.id, testId, hideKnown, homeArg) : null), [site, testId, hideKnown, base]) // eslint-disable-line react-hooks/exhaustive-deps
-  const data = mode === 'near' ? (nearData?.key === nearKey ? nearData : null) : globalData
+  // Unexplored: gli stessi risultati globali, senza i posti già usati per i test (regioni studiate e 150 km dai siti noti)
+  const newData = useMemo(() => (site && testId ? getResults(site.id, testId, true, homeArg) : null), [site, testId, base]) // eslint-disable-line react-hooks/exhaustive-deps
+  const data = mode === 'near' ? (nearData?.key === nearKey ? nearData : null) : mode === 'new' ? newData : globalData
   const test = testId && TESTS[testId]
   const result = data?.results[picked]
   const model = step === 'test' ? MODELS[hoverTest] || MODELS.rover_mobility : null
@@ -332,7 +334,8 @@ export default function App() {
     setMode(m); setBase(h); setPicked(0)
     const pose = center => map.current.flyTo({ center, zoom: m === 'near' ? 2.2 : 1.8, pitch: 0, bearing: 0, duration: 2000, essential: true, padding: basePad() })
     spinning.current = false
-    if (m === 'earth') { const f = globalData?.results[0]; if (f) pose([f.lon, f.lat]) } else flyNear.current = true
+    if (m === 'near') flyNear.current = true
+    else { const f = (m === 'new' ? newData : globalData)?.results[0]; if (f) pose([f.lon, f.lat]) }
   }
   useEffect(() => { setMode('earth'); setNearData(null); setBase(HOMES[0]) }, [site, testId])
   useEffect(() => {
