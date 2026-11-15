@@ -63,6 +63,7 @@ try {
     if (!(await page.evaluate(() => typeof window.__advance === 'function'))) throw new Error('il deck non è in modalità ?record')
     const dt = 1000 / FPS
     for (const [b, i] of decks) {
+      if (COMPOSE_ONLY && existsSync(seg(i))) continue // --compose-only: si rifanno solo i blocchi che mancano
       const ff = spawn(FFMPEG, ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-', ...X264, seg(i)], { stdio: ['pipe', 'inherit', 'inherit'] })
       let dead = null // se ffmpeg muore ci si ferma subito
       const done = new Promise((ok, ko) => ff.on('close', c => { dead = new Error(`ffmpeg è uscito con ${c}`); c ? ko(dead) : ok() }))
