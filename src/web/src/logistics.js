@@ -88,7 +88,9 @@ export function logisticsMarkers(result) {
     ...out.map(s => ({
       lngLat: [s.g.lon, s.g.lat], className: 'logi logi-fac', html: s.letter,
       title: `${s.names}, ${s.city} · ${s.km.toLocaleString('en')} km from ${baseOf(result).name} · closes: ${covers(s.g.facs)}`,
-    }))]
+    })),
+    // la distanza sede → posto, scritta accanto al pin del posto (sempre visibile, anche da vicino)
+    ...(result.plan?.kmSite != null ? [{ lngLat: [result.lon, result.lat], className: 'dist', html: `<span>${result.plan.kmSite.toLocaleString('en')} km</span>`, title: `${result.plan.kmSite.toLocaleString('en')} km from ${baseOf(result).name}` }] : [])]
 }
 
 // camera pose showing the base, the site and all facilities: spherical centroid + zoom from the widest angle

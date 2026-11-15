@@ -30,3 +30,7 @@
 .agency { display: flex; align-items: center; gap: 4px; background: none; border: 0; padding: 0; cursor: default; }
 .agency i { width: 8px; height: 8px; transform: rotate(45deg); background: #2a78d6; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
 .agency span { font: 600 10px/1 system-ui, sans-serif; color: #2a78d6; text-shadow: 0 0 3px #fff, 0 0 3px #fff; letter-spacing: .02em; }
+
+/* distanza dalla sede accanto al pin del posto */
+.dist{position:relative;width:0;height:0;border:0;padding:0;pointer-events:none}
+.dist span{position:absolute;left:24px;top:-13px;white-space:nowrap;padding:3px 10px;border-radius:13px;background:var(--bg);border:1px solid var(--accent);color:var(--ink);font:400 13px var(--mono)}
