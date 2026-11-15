@@ -19,6 +19,6 @@ export const km = v => Math.round(v).toLocaleString('en-US') // distanze con sep
 export const blockNotes = r => {
   const d = r.dossier
   return r.plan.warnings.filter(w => w === 'bare' || w === 'season').map(w => w === 'bare'
-    ? { short: `${pct(d.valid_share)}% bare`, long: `only ${pct(d.valid_share)}% bare ground` }
-    : { short: `${d.snow_free_months} mo/yr`, long: `${d.snow_free_months} snow-free ${d.snow_free_months === 1 ? 'month' : 'months'}` })
+    ? { short: `${pct(d.valid_share)}% bare`, long: `only ${pct(d.valid_share)}% bare ground (MODIS NDVI)` }
+    : { short: `${d.snow_free_months} mo/yr`, long: `${d.snow_free_months} snow-free ${d.snow_free_months === 1 ? 'month' : 'months'} (MODIS snow)` })
 }

@@ -130,3 +130,4 @@
 .seg button.on { background: var(--ink); color: var(--bg); }
 .near-ctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .near-ctl .seg { margin: 0; }
+.src { font-size: 10px; opacity: .65; padding: 0 4px; border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: 3px; white-space: nowrap; cursor: help; }

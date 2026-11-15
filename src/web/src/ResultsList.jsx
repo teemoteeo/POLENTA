@@ -36,7 +36,7 @@ export default function ResultsList({ data, mode, onMode, home, onHome, onPick, 
             </span>}
             <span className="res-top">
               <b className="fig">{i + 1}</b><span className="res-name">{placeName(r.name)}</span>
-              <span className="res-share fig">{pct(r.score)}<small>/100 similar</small></span>
+              <span className="res-share fig" title="Weighted similarity over the test parameters; each parameter's sensor is listed in the place card">{pct(r.score)}<small>/100 similar</small></span>
             </span>
             {near && <small className="lbl res-sub">{km(r.km_home)} km from {base} · sim {pct(r.score)} · best on Earth {pct(data.bestOnEarth)} (−{pct(data.bestOnEarth) - pct(r.score)})</small>}
             {r.plan && <small className="lbl res-sub">{r.country} · campaign: {pct(r.plan.fieldShare)}% in the field + {r.plan.nFacilities} {r.plan.nFacilities === 1 ? 'facility' : 'facilities'} · {km(r.plan.kmSite)} km from {r.plan.home.name}</small>}

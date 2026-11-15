@@ -3,8 +3,15 @@ import { coord, num, pct, km, H3_KM2, blockNotes } from './format.js'
 import { label, dimension, placeName, facilityName } from './i18n.js'
 import { val, join, names, verdict, brief, warnText } from './brief.js'
 import { useState } from 'react'
+import { sensor } from './data.js'
 
 export { brief, verdict }
+
+// la fonte di un dato: sensore breve, nome completo al passaggio del mouse
+function Src({ p, world }) {
+  const s = sensor(p, world)
+  return s ? <span className="src" title={s.full}>{s.short}</span> : null
+}
 
 const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -110,26 +117,27 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
                 <span title={label(p)}>{label(p)} <small className="wt">×{pct(w)}%</small></span>
                 <i><b style={{ width: (s == null ? 0 : pct(s)) + '%' }} /></i>
                 <span className="fig">{state === 'nodata' ? 'no data' : timing ? 'by timing' : state === 'breaks' ? 'breaks' : state === 'partial' ? 'partial' : pct(s)}</span>
-                <small className="vline">Earth here <em>{val(p, result.values?.[p])}</em> · {site.name} <em>{val(p, result.target?.[p])}</em></small>
+                <small className="vline">Earth here <em>{val(p, result.values?.[p])}</em> <Src p={p} world="earth" /> · {site.name} <em>{val(p, result.target?.[p])}</em> <Src p={p} world={site.world} /></small>
               </li>
             )
           })}
         </ul>
       </div>
     ))}
-    <p className="lbl">Bar = similarity of each parameter (0–100); ×% = its weight in this test. Values compare the place on Earth with the target site in the same units (lunar and Martian values converted).</p>
+    <p className="lbl">Bar = similarity of each parameter (0–100); ×% = its weight in this test. Values compare the place on Earth with the target site in the same units (lunar and Martian values converted). Next to each value: the sensor or dataset it comes from.</p>
     {plan.sunHint != null && <p className="note">Low-angle sunlight: this site has {num(plan.sunHint)} h a day of Sun at 0–7°. Schedule the runs then and this is covered in the field.</p>}
     {d.snow_free_mask && <div className="window">
-      <p className="lbl">Test window: snow-free months{d.best_month ? <>, best month <b>{MONTHS_LONG[d.best_month - 1]}</b> (lowest Sun without snow)</> : ''}</p>
+      <p className="lbl">Test window: snow-free months{d.best_month ? <>, best month <b>{MONTHS_LONG[d.best_month - 1]}</b> (lowest Sun without snow)</> : ''} <Src p="snow_free_months" world="earth" /> <Src p="low_sun_hours" world="earth" /></p>
       <ol className="months">{MONTHS.map((m, i) => <li key={i} className={(d.snow_free_mask[i] === '1' ? 'ok' : '') + (d.best_month === i + 1 ? ' best' : '')} title={MONTHS_LONG[i]}>{m}</li>)}</ol>
     </div>}
     <dl className="facts">
-      <dt>Snow-free months</dt><dd className="fig">{d.snow_free_months} of 12</dd>
-      <dt>Low-angle sun (0–7°)</dt><dd className="fig">{num(d.low_sun_hours)} h per day</dd>
-      {d.wind_10m != null && <><dt>Wind at 10 m</dt><dd className="fig">{num(d.wind_10m)} m/s</dd></>}
-      {d.night_lights != null && <><dt>Night lights</dt><dd className="fig">{num(d.night_lights, 2)} <small className="lbl">(city: above 5)</small></dd></>}
-      <dt>Protected area</dt><dd>{d.protected_area ? d.protected_area_name || 'yes' : 'no'}</dd>
-      <dt>Terrain</dt><dd>{d.terrain_src === '30m' ? 'measured at 30 m' : 'estimated from 500 m'}</dd>
+      <dt>Snow-free months</dt><dd className="fig">{d.snow_free_months} of 12 <Src p="snow_free_months" world="earth" /></dd>
+      <dt>Low-angle sun (0–7°)</dt><dd className="fig">{num(d.low_sun_hours)} h per day <Src p="low_sun_hours" world="earth" /></dd>
+      {d.wind_10m != null && <><dt>Wind at 10 m</dt><dd className="fig">{num(d.wind_10m)} m/s <Src p="wind_10m" world="earth" /></dd></>}
+      {d.night_lights != null && <><dt>Night lights</dt><dd className="fig">{num(d.night_lights, 2)} <small className="lbl">(city: above 3.5)</small> <Src p="night_lights" world="earth" /></dd></>}
+      <dt>Protected area</dt><dd>{d.protected_area ? d.protected_area_name || 'yes' : 'no'} <Src p="protected_area" world="earth" /></dd>
+      {d.valid_share != null && <><dt>Bare ground</dt><dd className="fig">{pct(d.valid_share)}% of the hexagon <Src p="valid_share" world="earth" /></dd></>}
+      <dt>Terrain</dt><dd>{d.terrain_src === '30m' ? 'measured at 30 m' : 'estimated from 500 m'} <Src p="terrain_src" world="earth" /></dd>
     </dl>
     <p className="lbl">similarity {pct(result.score)}/100 · {result.known ? `not new: ${result.known.text}` : 'new site (outside well-studied analogue regions)'} · {result.h3_cells.length} {result.h3_cells.length === 1 ? 'hexagon' : 'hexagons'} ~{num(result.h3_cells.length * H3_KM2, 0)} km² · data on {pct(result.kappa)}% of the weight</p>
 

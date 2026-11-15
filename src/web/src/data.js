@@ -9,6 +9,7 @@ import targets from '../../../data/export/targets.json'
 import validation from '../../../data/export/validation.json'
 import knownAnalogues from '../../../data/config/excluded_known_analogues.json'
 import knownRegions from '../../../data/config/known_analogue_regions.json'
+import sensors from '../../../data/config/sensors.json'
 import knownSites from '../../../data/export/known_sites.json'
 import agencies from '../../../data/config/space_agencies_top10.json'
 import { toView } from './trek.js'
@@ -21,6 +22,12 @@ export const FACILITIES = facilities
 export const BENCHMARK = benchmark
 export const MANIFEST = manifest
 export const TARGETS = targets
+export const SENSORS = sensors // sensore di ogni parametro: Terra (pipeline), Luna e Marte (Rocco, sensori_per_parametro_e_pianeta.csv)
+// nome breve del sensore (senza le parentesi) e nome completo per il tooltip; world: 'earth' | 'moon' | 'mars'
+export const sensor = (p, world) => {
+  const full = sensors[p]?.[world]
+  return full ? { short: full.replace(/\s*\([^)]*\)/g, '').replace(/ above 60°N/, '').replace(/, mean annual.*$/, '').trim(), full } : null
+}
 export const VALIDATION = validation // percentile dei siti di test noti per sito × test (pipeline)
 export const KNOWN_ANALOGUES = knownAnalogues // siti di test già usati (Rocco, data/config)
 export const AGENCIES = agencies // sedi delle 10 principali agenzie spaziali (Rocco, data/config)

@@ -1,0 +1,15 @@
+﻿Parametro,Tipo di dato,Luna: Sensore,Marte: Sensore
+slope_p90,Pendenza 90° percentile su DEM 30 m (°),LRO LOLA (Lunar Orbiter Laser Altimeter),MRO CTX & HiRISE (Stereo DTM)
+roughness,Scarto quota dalla media su baseline 150 m (m),LRO LOLA (Lunar Orbiter Laser Altimeter),MRO HiRISE & CTX (Stereo DTM)
+crater_density,"Conche <=300 m, profondità >=20 m (km⁻²)",LRO LOLA & LROC NAC (Narrow Angle Camera),MRO CTX & HiRISE
+rock_cover,Copertura areale sassi e massi (%),LRO Diviner Lunar Radiometer,MGS TES & MRO HiRISE
+grain_proxy,Inerzia termica superficiale (J m⁻² K⁻¹ s⁻¹/²),LRO Diviner Lunar Radiometer,Mars Odyssey THEMIS & MGS TES
+albedo,Riflettenza superficiale broadband (fraz. 0-1),LRO LOLA (1064 nm) & Diviner Radiometer,MGS TES & Curiosity Mastcam
+low_sun_frac,Quota di luce con Sole a 0-7° sull'orizzonte (fraz. 0-1),LRO LOLA (Illumination Model),Astronomical Solar Geometry / Mars Climate Database (MCD)
+bulk_density_0_5,Densità apparente primi 0-5 cm (g/cm³),Apollo Core Tubes (In-situ Regolith Samples),Phoenix Robotic Arm & Curiosity SAM/MGS-1 Calibration
+rock_class,Classe litologica (FeO wt% di riferimento),Kaguya Multiband Imager (MI) & LRO Diviner,Phoenix WCL & Curiosity APXS / CheMin
+temperature,Temperatura superficiale media ± escursione (K),LRO Diviner Lunar Radiometer,Phoenix MET & Curiosity REMS
+density_profile_0_2m,Densità media profilo 0-2 m (g/cm³),Apollo Deep Drill Cores (In-situ Regolith Samples),MRO SHARAD & Phoenix/Curiosity Geotechnical Models
+elevation,Quota rispetto al datum planetario (m),LRO LOLA (Lunar Orbiter Laser Altimeter),MGS MOLA (Mars Orbiter Laser Altimeter)
+atmosphere_wind,Densità atmosferica e vento medio (kg/m³ | m/s),Apollo LACE (Lunar Atmospheric Composition Experiment),Phoenix MET/Telltale & Curiosity REMS
+subsurface_ice,Contenuto di ghiaccio / WEH nel sottosuolo (wt%),LRO LEND (Lunar Exploration Neutron Detector),"Mars Odyssey GRS, Phoenix TEGA-SSI & Curiosity DAN/SAM"
