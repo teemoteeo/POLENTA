@@ -1,7 +1,7 @@
 import { CASES } from './cases.js'
 import { Fragment } from 'react'
 import './sheets.css'
-import { SITES, TESTS, getResults, MANIFEST, VALIDATION } from './data.js'
+import { SITES, TESTS, getResults, MANIFEST, VALIDATION, knownReason } from './data.js'
 import { TEST_EN, placeName, facilityName } from './i18n.js'
 import { pct, H3_KM2 } from './format.js'
 import { HOLDS, BREAKS } from './campaign.js'
@@ -23,7 +23,7 @@ export function Benchmark({ onOpen }) {
   const pairs = SITES.flatMap(s => TEST_IDS.map(t => ({ s, t, r: top(s.id, t) })))
   const ok = pairs.filter(p => p.r)
   const share = p => pct(p.r.plan.fieldShare)
-  const nNew = ok.filter(p => p.r.new).length
+  const nNew = ok.filter(p => !knownReason(p.r)).length
   const count = {}
   ok.forEach(p => new Set(p.r.plan.facilities.map(f => f.name)).forEach(n => (count[n] = (count[n] || 0) + 1)))
   const maxN = Math.max(0, ...Object.values(count))
@@ -42,7 +42,7 @@ export function Benchmark({ onOpen }) {
   const tn = t => SHORT[t] || TEST_EN[t].name
   return <>
     <h2>Benchmark: {SITES.length} sites × {TEST_IDS.length} tests</h2>
-    <p className="sh-intro">For every pair, the most similar new place on Earth (known test sites excluded) and its campaign. Click a cell to open it.</p>
+    <p className="sh-intro">For every pair, the most similar new place on Earth (well-studied analogue regions and known test sites excluded) and its campaign. Click a cell to open it.</p>
     <table className="bm">
       <thead><tr><th />{TEST_IDS.map(t => <th key={t} title={TEST_EN[t].name}>{tn(t)}</th>)}</tr></thead>
       <tbody>{['moon', 'mars'].map(w => <Fragment key={w}>
@@ -67,7 +67,7 @@ export function Benchmark({ onOpen }) {
       <li>Hardest ({lo}%): {tied(lo)}.</li>
       <li>Median field share over the {ok.length} pairs: {Math.round(med)}%.</li>
       <li>{nTurin} of {ok.length} campaigns use a facility in Turin.</li>
-      <li>{nNew} of {ok.length} top places are new, {ok.length - nNew} are known test sites.</li>
+      <li>{nNew} of {ok.length} top places are new, {ok.length - nNew} are in well-studied analogue regions or near known test sites.</li>
       {maxN > 0 && <li>Most used facility: {list(facs)}, in {maxN} of {ok.length} campaigns.</li>}
     </ul> : <p className="mute">No results yet.</p>}
   </>
@@ -136,7 +136,7 @@ export function Method() {
       <li>Share covered in the field = weight of the parameters that hold.</li>
       <li>The indoor facilities are the smallest set that closes every gap, chosen by the pipeline: most gaps covered first, then nearest to Turin.</li>
       <li>Places are ranked by similarity to the target site. The campaign (share in the field, facilities, km from Turin) is shown for each place; the simplest one is tagged, but it does not change the order.</li>
-      <li>Known test sites (Etna, Lanzarote, Mojave, Devon Island…) can be hidden: their hexagon and its neighbours are excluded and the next places move up.</li>
+      <li>“New” means outside well-studied analogue regions (US Southwest, Iceland, Atacama, Hawaii, Canary Islands, Svalbard, Canadian High Arctic, Antarctica) and more than 150 km from any known test site. These can be hidden and the next places move up.</li>
       <li>Low-angle sunlight that the site only offers for a few hours a day is flagged as covered by timing, not by a facility.</li>
       <li>No cost figures: we have no solid source for them.</li>
     </ul>

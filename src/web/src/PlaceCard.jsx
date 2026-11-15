@@ -123,7 +123,7 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
       <dt>Protected area</dt><dd>{d.protected_area ? d.protected_area_name || 'yes' : 'no'}</dd>
       <dt>Terrain</dt><dd>{d.terrain_src === '30m' ? 'measured at 30 m' : 'estimated from 500 m'}</dd>
     </dl>
-    <p className="lbl">similarity {pct(result.score)}/100 · {result.new ? 'new site' : 'known test site'} · {result.h3_cells.length} {result.h3_cells.length === 1 ? 'hexagon' : 'hexagons'} ~{num(result.h3_cells.length * H3_KM2, 0)} km² · data on {pct(result.kappa)}% of the weight</p>
+    <p className="lbl">similarity {pct(result.score)}/100 · {result.known ? `not new: ${result.known.text}` : 'new site (outside well-studied analogue regions)'} · {result.h3_cells.length} {result.h3_cells.length === 1 ? 'hexagon' : 'hexagons'} ~{num(result.h3_cells.length * H3_KM2, 0)} km² · data on {pct(result.kappa)}% of the weight</p>
 
     <Step n="2" title="Indoors, partner facilities" />
     <p className="lbl">{plan.inTurin.length} in Turin · {plan.nFacilities} {plan.nFacilities === 1 ? 'facility' : 'facilities'} in {plan.nStops} {plan.nStops === 1 ? 'location' : 'locations'}</p>

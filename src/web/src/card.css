@@ -124,3 +124,4 @@
 .months li { text-align: center; font-size: 10px; padding: 3px 0; border-radius: 4px; background: color-mix(in srgb, currentColor 8%, transparent); opacity: .55; }
 .months li.ok { background: color-mix(in srgb, var(--accent, #ff5a1f) 35%, transparent); opacity: 1; }
 .months li.best { outline: 2px solid var(--accent, #ff5a1f); outline-offset: -1px; font-weight: 700; }
+.res-sub.new { color: var(--accent, #ff5a1f); opacity: .9; }
