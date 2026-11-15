@@ -1,10 +1,9 @@
 import { PathLayer } from '@deck.gl/layers'
 import { TURIN } from './campaign.js'
-import { facilityName, label } from './i18n.js'
+import { facilityName, label, placeName } from './i18n.js'
 import './logistics.css'
 
 const R = Math.PI / 180
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
 const kmBetween = (a, b) => { // haversine
   const h = Math.sin((b.lat - a.lat) * R / 2) ** 2 + Math.cos(a.lat * R) * Math.cos(b.lat * R) * Math.sin((b.lon - a.lon) * R / 2) ** 2
   return 12742 * Math.asin(Math.sqrt(h))
@@ -65,25 +64,29 @@ export function logisticsLayers({ result, accent, theme }) {
 export function homeMarker(n = 0, title = 'Customer') {
   return {
     lngLat: [TURIN.lon, TURIN.lat], className: 'logi logi-home',
-    html: `<i></i><span>Turin · you</span>`, title: n ? `${n} ${n > 1 ? 'facilities' : 'facility'} here · ${title}` : title,
+    html: 'T', title: n ? `${n} ${n > 1 ? 'facilities' : 'facility'} here · ${title}` : title,
+  }
+}
+
+// stops sorted by distance from Turin: letter A, B, C... ; home = short names of facilities in Turin
+export function stops(result) {
+  const { out, home } = groups(result)
+  return {
+    home: home.map(short),
+    out: out.map(g => ({ g, km: Math.round(kmBetween(TURIN, g)) })).sort((a, b) => a.km - b.km).map(({ g, km }, i) => ({
+      g, km, letter: String.fromCharCode(65 + i), names: g.facs.map(short).join(' + '), city: placeName(g.facs[0].place).split(',')[0],
+    })),
   }
 }
 
 export function logisticsMarkers(result) {
-  const { out, home } = groups(result)
-  const hm = homeMarker(home.length, home.length ? home.map(short).join(', ') + ' · closes: ' + covers(home) : 'Customer')
-  const rev = TURIN.lon > campaignPose(result).center[0] // Turin east of the view centre: label on the left
-  if (rev) hm.className += ' rev'
-  const ms = [hm]
-  out.forEach((g, i) => {
-    ms.push({
-      // near Turin: label on the side opposite to the Turin label
-      lngLat: [g.lon, g.lat], className: 'logi logi-fac ' + (i % 2 ? 'dn' : 'up') + (kmBetween(TURIN, g) < 1500 && !rev ? ' rev' : ''),
-      html: `<i></i><span>${esc(g.facs.map(short).join(' + '))}</span>`,
-      title: `${Math.round(kmBetween(TURIN, g)).toLocaleString('en')} km from Turin · closes: ${covers(g.facs)}`,
-    })
-  })
-  return ms
+  const { out, home } = stops(result)
+  const all = groups(result).home
+  return [homeMarker(all.length, all.length ? home.join(', ') + ' · closes: ' + covers(all) : 'Customer'),
+    ...out.map(s => ({
+      lngLat: [s.g.lon, s.g.lat], className: 'logi logi-fac', html: s.letter,
+      title: `${s.names}, ${s.city} · ${s.km.toLocaleString('en')} km from Turin · closes: ${covers(s.g.facs)}`,
+    }))]
 }
 
 // camera pose showing Turin, the site and all facilities: spherical centroid + zoom from the widest angle

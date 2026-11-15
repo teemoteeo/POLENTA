@@ -6,12 +6,13 @@ import { ScatterplotLayer } from '@deck.gl/layers'
 import DotModel, { preload } from './DotModel.jsx'
 import DotPlanet from './DotPlanet.jsx'
 import './trek.js' // registra il protocollo trek:// prima della mappa
-import { SITES, TESTS, MODELS, EXPORTED_AT, loadDots, getResults } from './data.js'
+import { SITES, TESTS, MODELS, EXPORTED_AT, loadDots, getResults, loadCells } from './data.js'
 import { coord } from './format.js'
 import { TEST_EN } from './i18n.js'
 import PlaceCard from './PlaceCard.jsx'
 import ResultsList from './ResultsList.jsx'
-import { logisticsLayers, logisticsMarkers, homeMarker, campaignPose } from './logistics.js'
+import { logisticsLayers, logisticsMarkers, homeMarker, campaignPose, stops } from './logistics.js'
+import { heatLayer } from './heat.js'
 import { Benchmark, Method, CaseList } from './Sheets.jsx'
 
 // Colori per tema e mondo: pagina, sfera, puntini
@@ -79,6 +80,7 @@ export default function App() {
   const [sheet, setSheet] = useState(null) // null | 'benchmark' | 'method'
   const [zoom, setZoom] = useState(HOME.moon.zoom)
   const [dots, setDots] = useState({ moon: [], mars: [], earth: [] })
+  const [heat, setHeat] = useState(null) // { key, cells }: esagoni più simili del test scelto
   const addDots = w => d => setDots(o => ({ ...o, [w]: d }))
 
   const data = useMemo(() => (site && testId ? getResults(site.id, testId) : null), [site, testId])
@@ -141,12 +143,13 @@ export default function App() {
       opacity: dotsFade, visible: dotsFade > 0, updateTriggers: { getFillColor: theme },
     })]
     // le zone del modello, un gruppo di esagoni per posto (il numero in classifica è il pin al centro); nella scheda spicca quella aperta
+    if (world === 'earth' && step === 'results' && heat?.key === site?.id + testId) layers.push(heatLayer({ cells: heat.cells, accent: pal.accent, theme }))
     if (world === 'earth' && data) layers.push(new H3HexagonLayer({ id: 'zones', data: data.zones, getHexagon: d => d.h3,
       getFillColor: d => [...pal.accent, step === 'card' && d.rank !== picked + 1 ? 45 : 150], updateTriggers: { getFillColor: [step, picked] },
       getLineColor: [255, 255, 255, 230], stroked: true, lineWidthMinPixels: 1, extruded: false, highPrecision: true }))
     if (world === 'earth' && step === 'card' && result) layers.push(...logisticsLayers({ result, accent: pal.accent, theme }))
     overlay.current?.setProps({ layers })
-  }, [world, dots, data, zoom, theme, step, picked, result]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world, dots, data, zoom, theme, step, picked, result, heat]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // pin: siti con il nome su Luna e Marte, risultati numerati sulla Terra
   useEffect(() => {
@@ -309,6 +312,14 @@ export default function App() {
   })
   const back = () => ({ card: leaveCard, results: () => chooseSite(site), test: leaveSite, site: toPlanets })[step]?.()
 
+  // heat map: cells load when a test is chosen (one lazy chunk per site x test)
+  useEffect(() => {
+    if (!site || !testId) return
+    let live = true
+    loadCells(site.id, testId).then(cells => live && setHeat({ key: site.id + testId, cells }))
+    return () => { live = false }
+  }, [site, testId])
+
   // case presets: chain the normal navigation steps. nav always holds this render's closures; run is a cancel token
   const nav = useRef(null), run = useRef(0)
   nav.current = { step, world, choosePlanet, chooseSite, chooseTest, choosePlace, toPlanets }
@@ -415,12 +426,15 @@ export default function App() {
           ))}
       </div>
 
+      {world === 'earth' && step === 'results' && heat?.key === site?.id + testId && <p className="heat-note glass"><i />The 10,000 hexagons on Earth most similar to {site.name} for this test</p>}
       {world === 'earth' && step === 'card' && result && <div className="logi-ctl">
         <button className="logi-toggle glass pill" onClick={toggleCampaign}>{campaignView ? 'Back to site' : 'Campaign view'}</button>
         {campaignView && <div className="logi-legend glass">
-          <span><b className="l" />Turin → field site</span>
-          <span><b className="l n" />Turin → partner facility</span>
-          <span><b className="d" />Facility</span>
+          <ul>
+            <li><b className="badge home">T</b><span>Turin · you{stops(result).home.length ? ' · ' + stops(result).home.join(', ') : ''}</span></li>
+            {stops(result).out.map(s => <li key={s.letter}><b className="badge">{s.letter}</b><span>{s.names}</span><em>{s.city}</em><u>{s.km.toLocaleString('en')} km</u></li>)}
+          </ul>
+          <p><b className="l" />Turin → field site<b className="l n" />Turin → partner facility</p>
         </div>}
       </div>}
       <div className="tools">

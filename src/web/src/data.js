@@ -56,3 +56,8 @@ export function getResults(siteId, testId) {
   // zones: gli esagoni H3 di ogni posto (zona = esagoni che si toccano); rank = posto in classifica
   return results ? { results, zones: results.flatMap((r, i) => r.h3_cells.map(h3 => ({ h3, rank: i + 1 }))) } : null
 }
+
+// Mappa di calore: i 10.000 esagoni H3 più simili sulla Terra per sito × test. Un chunk per file, scaricato solo alla scelta del test.
+// ?raw: modulo distinto da quello eager di sopra, altrimenti Rolldown rimette tutto nel bundle principale
+const CELLS = import.meta.glob('../../../data/export/sites/*.json', { query: '?raw', import: 'default' })
+export const loadCells = (siteId, testId) => CELLS[`../../../data/export/sites/${siteId}__${testId}.json`]?.().then(t => JSON.parse(t).cells) ?? Promise.resolve([])
