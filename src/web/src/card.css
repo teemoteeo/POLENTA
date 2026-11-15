@@ -125,3 +125,8 @@
 .months li.ok { background: color-mix(in srgb, var(--accent, #ff5a1f) 35%, transparent); opacity: 1; }
 .months li.best { outline: 2px solid var(--accent, #ff5a1f); outline-offset: -1px; font-weight: 700; }
 .res-sub.new { color: var(--accent, #ff5a1f); opacity: .9; }
+.seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: 999px; background: var(--soft); margin: 4px 0 8px; }
+.seg button { padding: 4px 12px; border-radius: 999px; font-size: 12px; color: var(--mute); }
+.seg button.on { background: var(--ink); color: var(--bg); }
+.near-ctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.near-ctl .seg { margin: 0; }

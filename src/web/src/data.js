@@ -71,12 +71,12 @@ export function knownReason(r) {
 
 // null se la pipeline non ha ancora girato per questa coppia. Ordine: somiglianza col sito (quello della pipeline);
 // la campagna (plan) si calcola per ogni posto e si mostra, ma non decide la classifica.
-export function getResults(siteId, testId, hideKnown = false) {
+export function getResults(siteId, testId, hideKnown = false, home) {
   const all = EXPORT[`../../../data/export/sites/${siteId}__${testId}.json`]
   if (!all) return null
   const w = TESTS[testId].requisiti
   const kept = hideKnown ? all.filter(r => !knownReason(r)) : all
-  const results = kept.slice(0, TOP).map(r => ({ ...r, plan: plan(r, w), known: knownReason(r) }))
+  const results = kept.slice(0, TOP).map(r => ({ ...r, plan: plan(r, w, home), known: knownReason(r) }))
   // la campagna più semplice tra i 5: meno ostacoli, poi più test coperto sul campo, poi meno strutture
   const easiest = results.reduce((b, r, i) => {
     const A = r.plan, B = results[b].plan

@@ -33,8 +33,25 @@ function Step({ n, title, children }) {
   return <h3 className="step"><b className="fig">{n}</b>{title}</h3>
 }
 
+function Places({ data, picked, onJump }) {
+  return (
+    <ol className="places">
+      {data.results.map((r, i) => (
+        <li key={r.id}>
+          <button className={i === picked ? 'on' : ''} onClick={() => onJump(i)} aria-current={i === picked}>
+            <b className="fig">{i + 1}</b>
+            <span>{placeName(r.name)}{r.plan?.blockers > 0 && <small> · {blockNotes(r).map(n => n.short).join(', ')}</small>}</span>
+            <span className="fig score">{pct(r.score)}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
 export default function PlaceCard({ data, picked, site, test, onJump }) {
   const result = data.results[picked]
+  if (result.partial) return <PartialCard data={data} picked={picked} site={site} test={test} onJump={onJump} />
   const { plan } = result
   const { rows } = plan
   const d = result.dossier
@@ -56,17 +73,7 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
   const bar = [['holds', plan.fieldShare], ['partial', plan.partialShare], ['breaks', plan.brokenShare], ['no data', plan.nodataShare]].filter(([, v]) => v > 0)
   const facs = [...plan.facilities].sort((x, y) => x.km_client - y.km_client)
   return (<div className="campaign">
-    <ol className="places">
-      {data.results.map((r, i) => (
-        <li key={r.id}>
-          <button className={i === picked ? 'on' : ''} onClick={() => onJump(i)} aria-current={i === picked}>
-            <b className="fig">{i + 1}</b>
-            <span>{placeName(r.name)}{r.plan.blockers > 0 && <small> · {blockNotes(r).map(n => n.short).join(', ')}</small>}</span>
-            <span className="fig score">{pct(r.score)}</span>
-          </button>
-        </li>
-      ))}
-    </ol>
+    <Places data={data} picked={picked} onJump={onJump} />
 
     <p className="lbl eyebrow">{test.name} campaign for {site.name}</p>
     <h2>{placeName(result.name)}</h2>
@@ -80,8 +87,9 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
       <p><b className="fig key">{pct(result.score)}</b><span>similarity /100</span></p>
       <p><b className="fig">{pct(plan.fieldShare)}%</b><span>of the test, in field</span></p>
       <p><b className="fig">{plan.nFacilities}</b><span>partner {plan.nFacilities === 1 ? 'facility' : 'facilities'}</span></p>
-      <p><b className="fig">{km(plan.kmSite)}</b><span>km from Turin</span></p>
+      <p><b className="fig">{km(plan.kmSite)}</b><span>km from {plan.home.name}</span></p>
     </div>
+    {data.bestOnEarth != null && result.km_home != null && <p className="lbl">Near {plan.home.name}: {km(result.km_home)} km away, similarity {pct(result.score)} against {pct(data.bestOnEarth)} for the best place on Earth.</p>}
     <div className="stack" role="img" aria-label={bar.map(([k, v]) => `${k} ${pct(v)}%`).join(', ')}>
       {bar.map(([k, v]) => <i key={k} className={k.replace(' ', '')} style={{ width: v * 100 + '%' }} />)}
     </div>
@@ -126,11 +134,11 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
     <p className="lbl">similarity {pct(result.score)}/100 · {result.known ? `not new: ${result.known.text}` : 'new site (outside well-studied analogue regions)'} · {result.h3_cells.length} {result.h3_cells.length === 1 ? 'hexagon' : 'hexagons'} ~{num(result.h3_cells.length * H3_KM2, 0)} km² · data on {pct(result.kappa)}% of the weight</p>
 
     <Step n="2" title="Indoors, partner facilities" />
-    <p className="lbl">{plan.inTurin.length} in Turin · {plan.nFacilities} {plan.nFacilities === 1 ? 'facility' : 'facilities'} in {plan.nStops} {plan.nStops === 1 ? 'location' : 'locations'}</p>
+    <p className="lbl">{plan.inTurin.length} in {plan.home.name} · {plan.nFacilities} {plan.nFacilities === 1 ? 'facility' : 'facilities'} in {plan.nStops} {plan.nStops === 1 ? 'location' : 'locations'}</p>
     {facs.map(f => (
       <div className="fac" key={f.id}>
         <p><b>{facilityName(f.name)}</b>
-          <span className="tag">{f.km_client <= 50 ? 'in Turin' : `${km(f.km_client)} km`}</span></p>
+          <span className="tag">{f.km_client <= 50 ? `in ${plan.home.name}` : `${km(f.km_client)} km`}</span></p>
         <p className="lbl">{placeName(f.place)}
           {typeof f.source === 'string' && f.source.startsWith('http') && <> · <a href={f.source} target="_blank" rel="noreferrer">source</a></>}</p>
         <p className="lbl">closes: {join(f.covers.map(c => label(c).toLowerCase()))}</p>
@@ -146,5 +154,25 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
     {sims.length > 0 && <p className="lbl">Regolith simulants for this terrain: {join(sims)}</p>}
     <p className="lbl">No cost figures: the plan counts what can be measured — share covered, facilities, km.</p>
     <p className="lbl disclaimer">Limits: values are averages over a ~250 km² hexagon from 30 m terrain and ~1 km satellite data; Earth ground ice is a MODIS temperature proxy; rock type is coarse (GLiM, ~55 km); Mars and Aristarchus terrain come from literature; Antarctica is not covered. Verify on site before planning.</p>
+  </div>)
+}
+
+// nearby place computed from the heat-map cells only: no params, breaks, dossier or campaign yet
+function PartialCard({ data, picked, site, test, onJump }) {
+  const result = data.results[picked], home = data.home.name
+  return (<div className="campaign">
+    <Places data={data} picked={picked} onJump={onJump} />
+    <p className="lbl eyebrow">{test.name} for {site.name}, near {home}</p>
+    <h2>{placeName(result.name)}</h2>
+    <p className="lbl"><span className="fig">{coord(result.lat, 'N', 'S')} {coord(result.lon, 'E', 'W')}</span> ·{' '}
+      <a href={`https://www.google.com/maps/@${result.lat},${result.lon},40000m/data=!3m1!1e3`} target="_blank" rel="noreferrer">satellite view</a></p>
+    <div className="heads">
+      <p><b className="fig key">{pct(result.score)}</b><span>similarity /100</span></p>
+      <p><b className="fig">{pct(data.bestOnEarth)}</b><span>best on Earth</span></p>
+      <p><b className="fig">{km(result.km_home)}</b><span>km from {home}</span></p>
+    </div>
+    <p className="verdict-line">{pct(result.score)} against {pct(data.bestOnEarth)} for the best place on Earth: {pct(data.bestOnEarth) - pct(result.score)} {pct(data.bestOnEarth) - pct(result.score) === 1 ? "point" : "points"} of similarity given up for a place {km(result.km_home)} km from {home}.</p>
+    <p className="lbl">{result.known ? `Not new: ${result.known.text}` : 'New site: outside well-studied analogue regions'} · hexagon of ~{num(H3_KM2, 0)} km², outlined on the map.</p>
+    <p className="note">Parameters, breaks and the indoor campaign for nearby places come with the next pipeline export.</p>
   </div>)
 }

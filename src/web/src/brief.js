@@ -45,7 +45,7 @@ export function brief(result, site, test) {
   const win = [d.snow_free_months != null && `${d.snow_free_months} snow-free ${d.snow_free_months === 1 ? 'month' : 'months'} a year`, d.wind_10m != null && `wind ${num(d.wind_10m)} m/s at 10 m`].filter(Boolean).join('; ')
   const access = `${d.protected_area ? `${d.protected_area_name || 'protected area'}: permit needed` : 'no protected area'}; terrain ${d.terrain_src === '30m' ? 'measured at 30 m' : 'estimated from 500 m'}`
   const facs = [...plan.facilities].sort((x, y) => x.km_client - y.km_client).map(f =>
-    `- ${facilityName(f.name)}, ${placeName(f.place)} (${f.km_client <= 50 ? 'in Turin' : `${km(f.km_client)} km from Turin`}): ${join(f.covers.map(c => label(c).toLowerCase()))}`)
+    `- ${facilityName(f.name)}, ${placeName(f.place)} (${f.km_client <= 50 ? `in ${plan.home.name}` : `${km(f.km_client)} km from ${plan.home.name}`}): ${join(f.covers.map(c => label(c).toLowerCase()))}`)
   const [lat, lon] = [result.lat, result.lon]
   return [
     'FVG Station — campaign brief',

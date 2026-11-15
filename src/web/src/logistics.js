@@ -32,12 +32,17 @@ function route(a, b, n = 64) {
   return segs
 }
 
-// distinct facility locations (rounded to 2 decimals), facilities within 15 km of Turin merge into home
+// the customer base of a result: Turin unless the plan was built for another base
+const baseOf = r => r.plan?.home || TURIN
+export const badge = h => (h.name === 'Turin' ? 'T' : 'H') // facilities use A, B, C...
+
+// distinct facility locations (rounded to 2 decimals), facilities within 15 km of the base merge into home
 function groups(result) {
+  const base = baseOf(result)
   const out = []
   const home = []
   for (const f of result.campaign?.facilities || []) {
-    if (kmBetween(TURIN, f) < 15) { home.push(f); continue }
+    if (kmBetween(base, f) < 15) { home.push(f); continue }
     const key = f.lat.toFixed(2) + ',' + f.lon.toFixed(2)
     let g = out.find(x => x.key === key)
     if (!g) out.push(g = { key, lat: f.lat, lon: f.lon, facs: [] })
@@ -49,31 +54,31 @@ const covers = facs => [...new Set(facs.flatMap(f => f.covers || []))].map(label
 const short = f => facilityName(f.name).replace(/\s*\(.*?\)/g, '').split(/ (?:and|e) /)[0]
 
 export function logisticsLayers({ result, accent, theme }) {
-  const { out } = groups(result)
+  const { out } = groups(result), base = baseOf(result)
   const neutral = theme === 'light' ? [20, 20, 20, 130] : [255, 255, 255, 150]
   const mk = (id, a, b, color, w) => new PathLayer({
     id, data: route(a, b).map(path => ({ path })), getPath: d => d.path, getColor: color,
     widthUnits: 'pixels', getWidth: w, capRounded: true, pickable: false,
   })
   // ponytail: no dash (PathStyleExtension not installed): facility routes thin and faint, the site route is the main one
-  const layers = out.map(g => mk('logi-fac-' + g.key, TURIN, g, neutral, 1.5))
-  if (result.lat != null) layers.push(mk('logi-site', TURIN, result, [...accent, 235], 3))
+  const layers = out.map(g => mk('logi-fac-' + g.key, base, g, neutral, 1.5))
+  if (result.lat != null) layers.push(mk('logi-site', base, result, [...accent, 235], 3))
   return layers
 }
 
-export function homeMarker(n = 0, title = 'Customer') {
+export function homeMarker(n = 0, title = 'Customer', home = TURIN) {
   return {
-    lngLat: [TURIN.lon, TURIN.lat], className: 'logi logi-home',
-    html: 'T', title: n ? `${n} ${n > 1 ? 'facilities' : 'facility'} here · ${title}` : title,
+    lngLat: [home.lon, home.lat], className: 'logi logi-home',
+    html: badge(home), title: n ? `${n} ${n > 1 ? 'facilities' : 'facility'} here · ${title}` : title,
   }
 }
 
-// stops sorted by distance from Turin: letter A, B, C... ; home = short names of facilities in Turin
+// stops sorted by distance from the base: letter A, B, C... ; home = short names of facilities in Turin
 export function stops(result) {
-  const { out, home } = groups(result)
+  const { out, home } = groups(result), base = baseOf(result)
   return {
     home: home.map(short),
-    out: out.map(g => ({ g, km: Math.round(kmBetween(TURIN, g)) })).sort((a, b) => a.km - b.km).map(({ g, km }, i) => ({
+    out: out.map(g => ({ g, km: Math.round(kmBetween(base, g)) })).sort((a, b) => a.km - b.km).map(({ g, km }, i) => ({
       g, km, letter: String.fromCharCode(65 + i), names: g.facs.map(short).join(' + '), city: placeName(g.facs[0].place).split(',')[0],
     })),
   }
@@ -82,16 +87,16 @@ export function stops(result) {
 export function logisticsMarkers(result) {
   const { out, home } = stops(result)
   const all = groups(result).home
-  return [homeMarker(all.length, all.length ? home.join(', ') + ' · closes: ' + covers(all) : 'Customer'),
+  return [homeMarker(all.length, all.length ? home.join(', ') + ' · closes: ' + covers(all) : 'Customer', baseOf(result)),
     ...out.map(s => ({
       lngLat: [s.g.lon, s.g.lat], className: 'logi logi-fac', html: s.letter,
-      title: `${s.names}, ${s.city} · ${s.km.toLocaleString('en')} km from Turin · closes: ${covers(s.g.facs)}`,
+      title: `${s.names}, ${s.city} · ${s.km.toLocaleString('en')} km from ${baseOf(result).name} · closes: ${covers(s.g.facs)}`,
     }))]
 }
 
-// camera pose showing Turin, the site and all facilities: spherical centroid + zoom from the widest angle
+// camera pose showing the base, the site and all facilities: spherical centroid + zoom from the widest angle
 export function campaignPose(result) {
-  const pts = [TURIN, ...(result.lat != null ? [result] : []), ...groups(result).out]
+  const pts = [baseOf(result), ...(result.lat != null ? [result] : []), ...groups(result).out]
   const v = p => [Math.cos(p.lat * R) * Math.cos(p.lon * R), Math.cos(p.lat * R) * Math.sin(p.lon * R), Math.sin(p.lat * R)]
   const c = [0, 0, 0]
   for (const p of pts) v(p).forEach((x, i) => { c[i] += x })
