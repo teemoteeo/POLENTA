@@ -94,7 +94,7 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
       <p><b className="fig key">{pct(result.score)}</b><span>similarity /100</span></p>
       <p><b className="fig">{pct(plan.fieldShare)}%</b><span>of the test, in field</span></p>
       <p><b className="fig">{plan.nFacilities}</b><span>partner {plan.nFacilities === 1 ? 'facility' : 'facilities'}</span></p>
-      <p><b className="fig">{km(plan.kmSite)}</b><span>km from {plan.home.name}</span></p>
+      <p><b className="fig">{km(plan.kmSite)}<small> km</small></b><span>from {plan.home.name}</span></p>
     </div>
     {data.bestOnEarth != null && result.km_home != null && <p className="lbl">Near {plan.home.name}: {km(result.km_home)} km away, similarity {pct(result.score)} against {pct(data.bestOnEarth)} for the best place on Earth.</p>}
     <div className="stack" role="img" aria-label={bar.map(([k, v]) => `${k} ${pct(v)}%`).join(', ')}>
