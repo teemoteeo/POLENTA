@@ -1,4 +1,6 @@
 node_modules/
-out/
+# video: si tiene solo il finale da proiettare (1080p); segmenti, master 4K e file di lavoro restano in locale
+out/*
+!out/polenta-pitch-1080p30.mp4
 demo/*.mp4
 demo/*.mov

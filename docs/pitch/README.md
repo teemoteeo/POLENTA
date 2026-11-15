@@ -97,12 +97,14 @@ In alternativa al video, per la submission vale anche il deck stesso (7 slide) c
 **Una volta sola:** `cd docs/pitch/video && npm install` (Chrome di sistema; ffmpeg arriva da `@ffmpeg-installer`, perché quello di Homebrew su questo Mac è rotto: manca `libx265`).
 
 **Comandi** (da `docs/pitch/video/`):
-- `npm run preview`: profilo full a 1920×1080, veloce, per controllare i tempi;
-- `npm run full`: 3840×2160, 30 fps (~7 min di calcolo);
-- `npm run submission`: 3840×2160, 30 fps, ≤ 30 s (~2-3 min);
-- opzioni: `--fps 60`, `--crf 12` (qualità più alta), `--limit 5` (solo i primi 5 s, prova).
+- `npm run pitch`: il video del pitch in 3840×2160, 30 fps: **slide 1 (POLENTA) → demo della piattaforma → slide 2-7**, uniti da dissolvenze (~3:34, sotto i 4:00). Circa 15 min di calcolo;
+- `npm run compose`: rifà solo clip e montaggio, riusando i blocchi del deck già registrati (dopo aver cambiato la demo);
+- `npm run preview`: lo stesso a 1920×1080, più veloce;
+- `npm run submission`: taglio di massimo 30 s (bloccante).
 
-Il risultato è in `video/out/polenta-<profilo>-2160p30.mp4` (H.264 High, yuv420p, faststart: va bene per YouTube e Drive).
+**Demo della piattaforma:** `video/demo-drive.sh <surface>` percorre l'app nel browser di cmux con i tempi giusti (Moon → Aristarchus → Rover → Best on Earth → Unexplored → Near you Torino 1.500 → 3.000 km → primo risultato → scheda). Un cursore a freccia (iniettato nella pagina) scivola su ogni elemento prima del click. Registrata con lo schermo di cmux (Computer Use, workspace con l'app a tutto schermo e barra laterale nascosta), ritagliata sull'area dell'app e salvata in `video/demo/demo-platform.mp4` (1710×982, 59 s).
+
+Il risultato è in `video/out/polenta-<profilo>-2160p30.mp4` (H.264 High, yuv420p, faststart: va bene per YouTube e Drive). I tempi dei blocchi si cambiano in `video/timeline.json`.
 
 **Scaletta del video:** `video/timeline.json`, una riga per passo `[slide, passo, secondi]`. Si cambia lì, senza toccare il deck.
 
