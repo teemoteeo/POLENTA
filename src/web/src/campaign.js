@@ -35,12 +35,15 @@ export function plan(result, weights) {
       d.terrain_src !== '30m' && 'terrain_est',
       d.snow_free_months <= 3 && 'season',
     ].filter(Boolean),
+    // ostacoli che fermano una campagna vera: poco suolo nudo nell'esagono, finestra senza neve di 3 mesi o meno
+    blockers: (d.valid_share != null && d.valid_share < 0.15 ? 1 : 0) + (d.snow_free_months <= 3 ? 1 : 0),
   }
 }
 
 export function rankByCampaign(results, weights) {
   return results.map(r => (r.plan ? r : { ...r, plan: plan(r, weights) })).sort((a, b) => {
     const A = a.plan, B = b.plan
+    if (A.blockers !== B.blockers) return A.blockers - B.blockers // prima i posti dove la campagna si può fare davvero
     if (Math.abs(A.fieldShare - B.fieldShare) >= 0.005) return B.fieldShare - A.fieldShare
     return A.kmTotal - B.kmTotal || b.score - a.score
   })

@@ -14,3 +14,4 @@ export function phys(p, v) {
 export const coord = (v, pos, neg) => num(Math.abs(v), 2) + '°' + (v < 0 ? neg : pos)
 export const pct = s => Math.round(s * 100)
 export const H3_KM2 = 253 // area media di un esagono H3 a risoluzione 5
+export const km = v => Math.round(v).toLocaleString('en-US') // distanze con separatore

@@ -1,59 +1,86 @@
 import './card.css'
-import { coord, num, pct, phys, H3_KM2 } from './format.js'
-import { label, placeName, facilityName, whyEN } from './i18n.js'
-import { BREAKS } from './campaign.js'
+import { coord, num, pct, phys, km, H3_KM2 } from './format.js'
+import { label, dimension, placeName, facilityName } from './i18n.js'
 
-export default function PlaceCard({ data, picked, site, test, testId, onJump }) {
+const join = l => l.length ? l.join(', ') : ''
+const names = rows => join(rows.map(r => label(r.p).toLowerCase()))
+
+function Step({ n, title, children }) {
+  return <h3 className="step"><b className="fig">{n}</b>{title}</h3>
+}
+
+export default function PlaceCard({ data, picked, site, test, onJump }) {
   const result = data.results[picked]
-  const rows = result.plan.rows
-  const names = l => l.map(r => label(r.p).toLowerCase()).join(', ')
-  const good = rows.filter(r => r.s >= 0.7), bad = rows.filter(r => r.s < BREAKS)
+  const { plan } = result
+  const { rows } = plan
   const d = result.dossier
+  const holds = rows.filter(r => r.state === 'holds'), partial = rows.filter(r => r.state === 'partial'), broken = rows.filter(r => r.state === 'breaks')
+  const sentence = [
+    holds.length ? `Holds: ${names(holds)}.` : 'Nothing holds fully here.',
+    partial.length ? `Partial: ${names(partial)}.` : '',
+    broken.length ? `Breaks: ${names(broken)}.` : '',
+  ].filter(Boolean).join(' ')
+  const groups = []
+  for (const r of rows) {
+    const g = dimension(r.p) || 'Other'
+    let grp = groups.find(x => x.g === g)
+    if (!grp) groups.push(grp = { g, rows: [] })
+    grp.rows.push(r)
+  }
+  const warn = {
+    bare: () => `only ${pct(d.valid_share)}% of the hexagon is bare ground`,
+    permit: () => `protected area: permit needed${d.protected_area_name ? ` (${d.protected_area_name})` : ''}`,
+    terrain_est: () => 'terrain estimated from 500 m data',
+    season: () => `${d.snow_free_months} snow-free months a year`,
+  }
+  const sims = result.campaign?.simulants || []
+  const bar = [['holds', plan.fieldShare], ['partial', plan.partialShare], ['breaks', plan.brokenShare]]
   return (<>
     <ol className="places">
       {data.results.map((r, i) => (
         <li key={r.id}>
           <button className={i === picked ? 'on' : ''} onClick={() => onJump(i)} aria-current={i === picked}>
-            <b className="fig">{i + 1}</b><span>{placeName(r.name)}</span><span className="fig score">{pct(r.score)}</span>
+            <b className="fig">{i + 1}</b><span>{placeName(r.name)}</span><span className="fig score">{pct(r.plan.fieldShare)}%</span>
           </button>
         </li>
       ))}
     </ol>
+
+    <p className="lbl eyebrow">{test.name} campaign for {site.name}</p>
     <h2>{placeName(result.name)}</h2>
     <p className="lbl">{result.country} · <span className="fig">{coord(result.lat, 'N', 'S')} {coord(result.lon, 'E', 'W')}</span> ·{' '}
       <a href={`https://www.google.com/maps/@${result.lat},${result.lon},40000m/data=!3m1!1e3`} target="_blank" rel="noreferrer">satellite view</a></p>
-    <p className="verdict"><b className="fig">{pct(result.score)}</b><span>out of 100: how closely it matches {site.name} for {test.name.toLowerCase()}</span></p>
-    <p className="chips">
-      <span className="tag">{result.new ? 'new site' : 'known test site'}</span>
-      <span className="tag">{result.h3_cells.length === 1 ? '1 hexagon' : result.h3_cells.length + ' hexagons'} · ~{num(result.h3_cells.length * H3_KM2, 0)} km²</span>
-      <span className="tag">data on {pct(result.kappa)}% of the weight</span>
-    </p>
 
-    <h3>Why here</h3>
-    <p className="lbl">
-      {good.length ? `Matches ${site.name} on ${names(good)}.` : `No parameter matches ${site.name} fully: this is the least distant place.`}
-      {bad.length ? ` Breaks on ${names(bad)}.` : ''}
-    </p>
-    <ul className="bars">
-      {rows.map(({ p, s, w }) => (
-        <li key={p} className={s < BREAKS ? 'brk' : ''}>
-          <span>{label(p)}</span>
-          <i><b style={{ width: pct(s) + '%' }} /></i>
-          <span className="fig">{s < BREAKS ? 'breaks' : pct(s)}</span>
-          <small className="lbl">weight {pct(w)}% · here {phys(p, result.values[p])} · {site.name} {phys(p, result.target[p])}</small>
-        </li>
-      ))}
-    </ul>
+    <div className="heads">
+      <p><b className="fig key">{pct(plan.fieldShare)}%</b><span className="lbl">of the test covered in the field</span></p>
+      <p><b className="fig">{plan.nFacilities}</b><span className="lbl">partner facilities close the rest{plan.nStops < plan.nFacilities ? ` in ${plan.nStops} locations` : ''}</span></p>
+      <p><b className="fig">{km(plan.kmSite)} km</b><span className="lbl">from Turin to the site</span></p>
+    </div>
+    <div className="stack" role="img" aria-label={bar.map(([k, v]) => `${k} ${pct(v)}%`).join(', ')}>
+      {bar.map(([k, v]) => <i key={k} className={k} style={{ width: v * 100 + '%' }} />)}
+    </div>
+    <p className="lbl legend"><span><i className="holds" />holds</span><span><i className="partial" />partial</span><span><i className="breaks" />breaks</span></p>
 
-    <h3>Where the analogy breaks</h3>
-    <ul className="cover">
-      {result.breaks.map(b => (
-        <li key={b.param}><span>{label(b.param)} <small className="lbl">· {whyEN(b.why)}</small></span>
-          <span className="lbl">→ {b.covered_by.map(facilityName).join(' · ') || 'no facility listed'}</span></li>
-      ))}
-    </ul>
+    {plan.warnings.length > 0 && <p className="chips">{plan.warnings.map(w => <span className="tag warn" key={w}>{warn[w]()}</span>)}</p>}
 
-    <h3>On site</h3>
+    <Step n="1" title="In the field" />
+    <p className="lbl">{sentence}</p>
+    {groups.map(({ g, rows }) => (
+      <div key={g}>
+        <p className="lbl grp">{g}</p>
+        <ul className="bars">
+          {rows.map(({ p, s, w, state }) => (
+            <li key={p} className={state === 'breaks' ? 'brk' : ''}>
+              <span>{label(p)}</span>
+              <i><b style={{ width: pct(s) + '%' }} /></i>
+              <span className="fig">{state === 'breaks' ? 'breaks' : state === 'partial' ? 'partial' : pct(s)}</span>
+              <small className="lbl">weight {pct(w)}% · here {phys(p, result.values?.[p])} · {site.name} {phys(p, result.target?.[p])}</small>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+    {plan.sunHint != null && <p className="note">Low-angle sunlight: this site has {num(plan.sunHint)} h a day of Sun at 0–7°. Schedule the runs then and this is covered in the field.</p>}
     <dl className="facts">
       <dt>Snow-free months</dt><dd className="fig">{d.snow_free_months} of 12</dd>
       <dt>Low-angle sun (0–7°)</dt><dd className="fig">{num(d.low_sun_hours)} h per day</dd>
@@ -62,5 +89,25 @@ export default function PlaceCard({ data, picked, site, test, testId, onJump }) 
       <dt>Protected area</dt><dd>{d.protected_area ? d.protected_area_name || 'yes' : 'no'}</dd>
       <dt>Terrain</dt><dd>{d.terrain_src === '30m' ? 'measured at 30 m' : 'estimated from 500 m'}</dd>
     </dl>
+    <p className="lbl">similarity {pct(result.score)}/100 · {result.new ? 'new site' : 'known test site'} · {result.h3_cells.length} {result.h3_cells.length === 1 ? 'hexagon' : 'hexagons'} ~{num(result.h3_cells.length * H3_KM2, 0)} km² · data on {pct(result.kappa)}% of the weight</p>
+
+    <Step n="2" title="Indoors, partner facilities" />
+    {plan.facilities.map(f => (
+      <div className="fac" key={f.id}>
+        <p><b>{facilityName(f.name)}</b>
+          <span className="tag">{f.km_client <= 50 ? 'in Turin' : `${km(f.km_client)} km from Turin`}</span></p>
+        <p className="lbl">{placeName(f.place)} · closes: {join(f.covers.map(label))}
+          {typeof f.source === 'string' && f.source.startsWith('http') && <> · <a href={f.source} target="_blank" rel="noreferrer">source</a></>}</p>
+      </div>
+    ))}
+    {plan.fixedGaps.length > 0 && <p className="lbl">Earth never reproduces: {join(plan.fixedGaps.map(g => label(g.param).toLowerCase()))}. These are always indoor.</p>}
+
+    <Step n="3" title="Still open" />
+    {plan.uncovered.length
+      ? <ul className="open">{plan.uncovered.map(u => <li key={u.param}>{label(u.param)}</li>)}</ul>
+      : <p className="lbl">Nothing: every gap has a facility.</p>}
+
+    {sims.length > 0 && <p className="lbl">Regolith simulants for this terrain: {join(sims.map(s => s.name))}</p>}
+    <p className="lbl">No cost figures: the plan counts what can be measured — share covered, facilities, km.</p>
   </>)
 }

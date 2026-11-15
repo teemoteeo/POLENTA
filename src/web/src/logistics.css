@@ -1,1 +1,9 @@
-/* logistica della campagna: marker e legenda */
+/* logistica della campagna: marker (quadratino + etichetta), diversi dal .pin tondo numerato */
+.logi{display:flex;align-items:center;gap:6px;padding:0;border:0;background:none;color:var(--ink);cursor:default;pointer-events:auto}
+.logi i{flex:none;width:10px;height:10px;transform:rotate(45deg);background:var(--ink);border:2px solid var(--bg);box-shadow:0 0 0 1px var(--rim)}
+.logi span{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 8px;border-radius:10px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);border:1px solid var(--rim);font:400 11px var(--sans);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.logi-home i{background:var(--accent)}
+.logi-home span{font-weight:600}
+.logi[style*="opacity: 0"]{pointer-events:none}

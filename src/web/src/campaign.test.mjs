@@ -18,6 +18,8 @@ const ranked = rankByCampaign(results, w)
 assert.deepStrictEqual(ranked.map(r => r.id).sort(), results.map(r => r.id).sort())
 for (let i = 1; i < ranked.length; i++) {
   const a = ranked[i - 1].plan, b = ranked[i].plan
+  assert.ok(a.blockers <= b.blockers)
+  if (a.blockers !== b.blockers) continue
   assert(a.fieldShare - b.fieldShare >= -0.005, 'order')
   if (Math.abs(a.fieldShare - b.fieldShare) < 0.005) assert(a.kmTotal <= b.kmTotal)
 }
