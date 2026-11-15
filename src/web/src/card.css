@@ -155,3 +155,7 @@
 
 /* unità accanto al numero dei km in testa alla scheda */
 .heads b small { font-size: .55em; margin-left: 2px; }
+
+/* match alto (da 85% in su): verde, salta all'occhio */
+:root { --good: #3ddc84; }
+.vals .vm.hi { color: var(--good); font-weight: 700; }

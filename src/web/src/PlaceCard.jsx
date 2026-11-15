@@ -117,7 +117,7 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
               <li key={p} className={state === 'breaks' && !timing ? 'brk' : ''} title={`${site.name}: ${tgt}`}>
                 <span className="vl">{label(p)} <Src p={p} world="earth" /></span>
                 <span className="fig vv">{val(p, result.values?.[p])}</span>
-                <span className="fig vm">{state === 'nodata' || s == null ? 'no data' : pct(s) + '% match'}</span>
+                <span className={'fig vm' + (s != null && state !== 'nodata' && pct(s) >= 85 ? ' hi' : '')}>{state === 'nodata' || s == null ? 'no data' : pct(s) + '% match'}</span>
                 <small className="vt">{site.name}: <span className="fig">{tgt}</span> <Src p={p} world={site.world} /></small>
               </li>
             )
