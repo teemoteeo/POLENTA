@@ -1,7 +1,8 @@
 import './card.css'
-import { coord, num, pct, phys, km, H3_KM2 } from './format.js'
-import { label, dimension, placeName, facilityName } from './i18n.js'
+import { coord, num, pct, phys, km, H3_KM2, blockNotes } from './format.js'
+import { label, dimension, placeName, facilityName, rock } from './i18n.js'
 
+const val = (p, v) => p === 'rock_class' && v != null ? [].concat(v).map(rock).join(', ') : phys(p, v)
 const join = l => l.length ? l.join(', ') : ''
 const names = rows => join(rows.map(r => label(r.p).toLowerCase()))
 
@@ -33,14 +34,17 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
     terrain_est: () => 'terrain estimated from 500 m data',
     season: () => `${d.snow_free_months} snow-free months a year`,
   }
-  const sims = result.campaign?.simulants || []
+  const sims = (result.campaign?.simulants || []).map(s => s.name.replace(/\s*\(.*?\)/g, ''))
   const bar = [['holds', plan.fieldShare], ['partial', plan.partialShare], ['breaks', plan.brokenShare]]
-  return (<>
+  const facs = [...plan.facilities].sort((x, y) => x.km_client - y.km_client)
+  return (<div className="campaign">
     <ol className="places">
       {data.results.map((r, i) => (
         <li key={r.id}>
           <button className={i === picked ? 'on' : ''} onClick={() => onJump(i)} aria-current={i === picked}>
-            <b className="fig">{i + 1}</b><span>{placeName(r.name)}</span><span className="fig score">{pct(r.plan.fieldShare)}%</span>
+            <b className="fig">{i + 1}</b>
+            <span>{placeName(r.name)}{r.plan.blockers > 0 && <small> · {blockNotes(r).map(n => n.short).join(', ')}</small>}</span>
+            <span className="fig score">{pct(r.plan.fieldShare)}%</span>
           </button>
         </li>
       ))}
@@ -52,14 +56,14 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
       <a href={`https://www.google.com/maps/@${result.lat},${result.lon},40000m/data=!3m1!1e3`} target="_blank" rel="noreferrer">satellite view</a></p>
 
     <div className="heads">
-      <p><b className="fig key">{pct(plan.fieldShare)}%</b><span className="lbl">of the test covered in the field</span></p>
-      <p><b className="fig">{plan.nFacilities}</b><span className="lbl">partner facilities close the rest{plan.nStops < plan.nFacilities ? ` in ${plan.nStops} locations` : ''}</span></p>
-      <p><b className="fig">{km(plan.kmSite)} km</b><span className="lbl">from Turin to the site</span></p>
+      <p><b className="fig key">{pct(plan.fieldShare)}%</b><span>of the test covered in the field</span></p>
+      <p><b className="fig">{plan.nFacilities}</b><span>partner facilities close the rest</span></p>
+      <p><b className="fig">{km(plan.kmSite)}</b><span>km from Turin to the site</span></p>
     </div>
     <div className="stack" role="img" aria-label={bar.map(([k, v]) => `${k} ${pct(v)}%`).join(', ')}>
       {bar.map(([k, v]) => <i key={k} className={k} style={{ width: v * 100 + '%' }} />)}
     </div>
-    <p className="lbl legend"><span><i className="holds" />holds</span><span><i className="partial" />partial</span><span><i className="breaks" />breaks</span></p>
+    <p className="lbl legend">{bar.map(([k, v]) => <span key={k}><i className={k} />{k} {pct(v)}%</span>)}</p>
 
     {plan.warnings.length > 0 && <p className="chips">{plan.warnings.map(w => <span className="tag warn" key={w}>{warn[w]()}</span>)}</p>}
 
@@ -69,15 +73,23 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
       <div key={g}>
         <p className="lbl grp">{g}</p>
         <ul className="bars">
-          {rows.map(({ p, s, w, state }) => (
-            <li key={p} className={state === 'breaks' ? 'brk' : ''}>
-              <span>{label(p)}</span>
-              <i><b style={{ width: pct(s) + '%' }} /></i>
-              <span className="fig">{state === 'breaks' ? 'breaks' : state === 'partial' ? 'partial' : pct(s)}</span>
-              <small className="lbl">weight {pct(w)}% · here {phys(p, result.values?.[p])} · {site.name} {phys(p, result.target?.[p])}</small>
-            </li>
-          ))}
+          {rows.map(({ p, s, state }) => {
+            const timing = p === 'low_sun_frac' && plan.sunHint != null && state === 'breaks'
+            return (
+              <li key={p} className={state === 'breaks' && !timing ? 'brk' : ''}>
+                <span title={label(p)}>{label(p)}</span>
+                <i><b style={{ width: pct(s) + '%' }} /></i>
+                <span className="fig">{timing ? 'by timing' : state === 'breaks' ? 'breaks' : state === 'partial' ? 'partial' : pct(s)}</span>
+              </li>
+            )
+          })}
         </ul>
+        <details className="vals">
+          <summary>Show values</summary>
+          <ul>{rows.map(({ p, w }) => (
+            <li key={p}><b>{label(p)}</b> weight {pct(w)}% · here {val(p, result.values?.[p])} · {site.name} {val(p, result.target?.[p])}</li>
+          ))}</ul>
+        </details>
       </div>
     ))}
     {plan.sunHint != null && <p className="note">Low-angle sunlight: this site has {num(plan.sunHint)} h a day of Sun at 0–7°. Schedule the runs then and this is covered in the field.</p>}
@@ -92,12 +104,14 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
     <p className="lbl">similarity {pct(result.score)}/100 · {result.new ? 'new site' : 'known test site'} · {result.h3_cells.length} {result.h3_cells.length === 1 ? 'hexagon' : 'hexagons'} ~{num(result.h3_cells.length * H3_KM2, 0)} km² · data on {pct(result.kappa)}% of the weight</p>
 
     <Step n="2" title="Indoors, partner facilities" />
-    {plan.facilities.map(f => (
+    <p className="lbl">{plan.inTurin.length} in Turin · {plan.nFacilities} facilities in {plan.nStops} locations</p>
+    {facs.map(f => (
       <div className="fac" key={f.id}>
         <p><b>{facilityName(f.name)}</b>
-          <span className="tag">{f.km_client <= 50 ? 'in Turin' : `${km(f.km_client)} km from Turin`}</span></p>
-        <p className="lbl">{placeName(f.place)} · closes: {join(f.covers.map(label))}
+          <span className="tag">{f.km_client <= 50 ? 'in Turin' : `${km(f.km_client)} km`}</span></p>
+        <p className="lbl">{placeName(f.place)}
           {typeof f.source === 'string' && f.source.startsWith('http') && <> · <a href={f.source} target="_blank" rel="noreferrer">source</a></>}</p>
+        <p className="lbl">closes: {join(f.covers.map(label))}</p>
       </div>
     ))}
     {plan.fixedGaps.length > 0 && <p className="lbl">Earth never reproduces: {join(plan.fixedGaps.map(g => label(g.param).toLowerCase()))}. These are always indoor.</p>}
@@ -107,7 +121,7 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
       ? <ul className="open">{plan.uncovered.map(u => <li key={u.param}>{label(u.param)}</li>)}</ul>
       : <p className="lbl">Nothing: every gap has a facility.</p>}
 
-    {sims.length > 0 && <p className="lbl">Regolith simulants for this terrain: {join(sims.map(s => s.name))}</p>}
+    {sims.length > 0 && <p className="lbl">Regolith simulants for this terrain: {join(sims)}</p>}
     <p className="lbl">No cost figures: the plan counts what can be measured — share covered, facilities, km.</p>
-  </>)
+  </div>)
 }

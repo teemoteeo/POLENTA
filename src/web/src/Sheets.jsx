@@ -13,47 +13,61 @@ function Bar({ plan }) {
   return <span className="sbar" aria-hidden>{seg.map(([k, v]) => <i key={k} className={k} style={{ width: `${v * 100}%` }} />)}</span>
 }
 
+const list = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]
+const TOPN = 4
+const SHORT = { rover_mobility: 'Rover', flight_hda_lidar: 'Lidar landing', isru_subsurface: 'ISRU' }
+
 // onOpen(siteId, testId): apre la scheda di quella coppia
 export function Benchmark({ onOpen }) {
   const pairs = SITES.flatMap(s => TEST_IDS.map(t => ({ s, t, r: top(s.id, t) })))
   const ok = pairs.filter(p => p.r)
-  const byField = [...ok].sort((a, b) => b.r.plan.fieldShare - a.r.plan.fieldShare)
-  const name = p => `${p.s.name} × ${TEST_EN[p.t].name}`
+  const share = p => pct(p.r.plan.fieldShare)
   const nNew = ok.filter(p => p.r.new).length
   const count = {}
   ok.forEach(p => new Set(p.r.plan.facilities.map(f => f.name)).forEach(n => (count[n] = (count[n] || 0) + 1)))
-  const [fac, n] = Object.entries(count).sort((a, b) => b[1] - a[1])[0] || []
-  const line = p => `${name(p)} (${pct(p.r.plan.fieldShare)}% in the field)`
+  const maxN = Math.max(0, ...Object.values(count))
+  const facs = Object.keys(count).filter(n => count[n] === maxN).map(facilityName)
+  // coppie a pari merito (stessa % arrotondata), raggruppate per sito, al massimo TOPN gruppi
+  const tied = v => {
+    const by = new Map()
+    ok.filter(p => share(p) === v).forEach(p => by.set(p.s, [...(by.get(p.s) || []), p]))
+    const g = [...by].map(([s, ps]) => ps.length === TEST_IDS.length ? `${s.name} (all ${ps.length} tests)` : `${s.name} × ${ps.map(p => TEST_EN[p.t].name).join(', ')}`)
+    return list(g.length > TOPN ? [...g.slice(0, TOPN), `${g.length - TOPN} more`] : g)
+  }
+  const vals = ok.map(share).sort((a, b) => a - b)
+  const [lo, hi] = [vals[0], vals[vals.length - 1]]
+  const med = vals.length ? (vals[(vals.length - 1) >> 1] + vals[vals.length >> 1]) / 2 : 0
+  const nTurin = ok.filter(p => p.r.plan.inTurin.length > 0).length
+  const tn = t => SHORT[t] || TEST_EN[t].name
   return <>
     <h2>Benchmark: {SITES.length} sites × {TEST_IDS.length} tests</h2>
     <p className="sh-intro">For every pair, the simplest campaign found on Earth.</p>
-    <div className="bm-scroll"><table className="bm">
-      <thead><tr><th />{TEST_IDS.map(t => <th key={t}>{TEST_EN[t].name}</th>)}</tr></thead>
+    <table className="bm">
+      <thead><tr><th />{TEST_IDS.map(t => <th key={t} title={TEST_EN[t].name}>{tn(t)}</th>)}</tr></thead>
       <tbody>{['moon', 'mars'].map(w => <Fragment key={w}>
         <tr className="grp"><th colSpan={TEST_IDS.length + 1} className="lbl">{w === 'moon' ? 'Moon' : 'Mars'}</th></tr>
         {SITES.filter(s => s.world === w).map(s => <tr key={s.id}>
-          <th scope="row">{s.name}</th>
+          <th scope="row" title={s.name}>{s.name}</th>
           {TEST_IDS.map(t => {
             const r = top(s.id, t)
             return <td key={t}>{r ? <button onClick={() => onOpen(s.id, t)}>
-              <span className="pl">{placeName(r.name)}</span>
-              <span className="mute small">{r.country}</span>
-              <span className="fig big">{pct(r.plan.fieldShare)}% field</span>
-              <span className="small">{r.plan.nFacilities} {r.plan.nFacilities === 1 ? 'facility' : 'facilities'}</span>
-              <span className="mute small">similarity <span className="fig">{pct(r.score)}/100</span></span>
-              <Bar plan={r.plan} />
+              <span className="pl" title={placeName(r.name)}>{placeName(r.name)}</span>
+              <span className="row2"><span className="fig big">{pct(r.plan.fieldShare)}%</span><Bar plan={r.plan} /></span>
+              <span className="mute small ln">{r.plan.nFacilities} {r.plan.nFacilities === 1 ? 'facility' : 'facilities'} · similarity {pct(r.score)}</span>
             </button> : <span className="mute">—</span>}</td>
           })}
         </tr>)}
       </Fragment>)}</tbody>
-    </table></div>
-    <div className="legend small mute"><span className="sbar"><i className="holds" style={{ width: '100%' }} /></span> holds <span className="sbar"><i className="partial" style={{ width: '100%' }} /></span> partial <span className="sbar"><i className="breaks" style={{ width: '100%' }} /></span> breaks</div>
+    </table>
+    <div className="legend small mute"><span className="sbar"><i className="holds" style={{ width: '100%' }} /></span>holds<span className="sbar"><i className="partial" style={{ width: '100%' }} /></span>partial<span className="sbar"><i className="breaks" style={{ width: '100%' }} /></span>breaks<span className="lg-note">% = share of the test covered in the field</span></div>
     <h3 className="lbl">What the matrix says</h3>
     {ok.length ? <ul className="sh-list">
-      <li>Best pair: {line(byField[0])}.</li>
-      <li>Hardest pair: {line(byField[byField.length - 1])}.</li>
+      <li>Covered best in the field ({hi}%): {tied(hi)}.</li>
+      <li>Hardest ({lo}%): {tied(lo)}.</li>
+      <li>Median field share over the {ok.length} pairs: {Math.round(med)}%.</li>
+      <li>{nTurin} of {ok.length} campaigns use a facility in Turin.</li>
       <li>{nNew} of {ok.length} top places are new, {ok.length - nNew} are known test sites.</li>
-      {fac && <li>Most used facility: {facilityName(fac)}, in {n} of {ok.length} campaigns.</li>}
+      {maxN > 0 && <li>Most used facility: {list(facs)}, in {maxN} of {ok.length} campaigns.</li>}
     </ul> : <p className="mute">No results yet.</p>}
   </>
 }
@@ -95,23 +109,29 @@ export function Method() {
   return <>
     <h2>Method &amp; data</h2>
     <h3 className="lbl">What the score is</h3>
-    <p>Every Earth hexagon of bare ground (H3 resolution 5, ~{H3_KM2} km²) gets a similarity per parameter, <span className="fig">s = exp(−(D/τ)²)</span>, with D the distance in Earth percentiles. The total is a weighted geometric mean, using the weights of the chosen test. A parameter with s &lt; {BREAKS} breaks.</p>
+    <ul className="sh-list">
+      <li>Unit: one Earth hexagon of bare ground (H3 resolution 5, ~{H3_KM2} km²).</li>
+      <li>Per parameter: <span className="fig">s = exp(−(D/τ)²)</span>, with D the distance in Earth percentiles.</li>
+      <li>Total: weighted geometric mean, using the weights of the chosen test. A parameter with s &lt; {BREAKS} breaks.</li>
+    </ul>
     <h3 className="lbl">How a campaign is built</h3>
     <ul className="sh-list">
       <li>A parameter holds in the field from {HOLDS}, is partial between {BREAKS} and {HOLDS}, and breaks below {BREAKS}.</li>
       <li>Share covered in the field = weight of the parameters that hold.</li>
       <li>The indoor facilities are the smallest set that closes every gap, chosen by the pipeline: most gaps covered first, then nearest to Turin.</li>
       <li>Places are ranked by workability first (at least 15% bare ground in the hexagon and more than 3 snow-free months a year), then share covered in the field, then total km from Turin, then similarity.</li>
+      <li>Low-angle sunlight that the site only offers for a few hours a day is flagged as covered by timing, not by a facility.</li>
       <li>No cost figures: we have no solid source for them.</li>
     </ul>
     <h3 className="lbl">Data</h3>
     <p className="small mute">Earth data are processed in Google Earth Engine. Moon and Mars targets: LOLA plus literature values.</p>
-    <p className="lbl nasa">NASA datasets</p>
+    <p className="lbl nasa">NASA</p>
     <ul className="sh-list">{nasa.map(row)}</ul>
-    <p className="lbl">Other datasets</p>
+    <p className="lbl">Other sources</p>
     <ul className="sh-list">{other.map(row)}</ul>
     <h3 className="lbl">Where the analogy never holds</h3>
-    <p>1/6 gravity, vacuum, electrostatic dust, engine plume in vacuum and lunar agglutinates are always indoor or not reproducible on Earth.</p>
+    <p>Always indoor or not reproducible on Earth:</p>
+    <ul className="sh-list"><li>1/6 gravity</li><li>vacuum</li><li>electrostatic dust</li><li>engine plume in vacuum</li><li>lunar agglutinates</li></ul>
     <h3 className="lbl">Known limits</h3>
     <ul className="sh-list">{LIMITS.map(l => <li key={l}>{l}</li>)}</ul>
     <h3 className="lbl">AI use</h3>

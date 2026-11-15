@@ -39,8 +39,8 @@ export function placeName(name = '') {
 export const placeEN = placeName
 
 const FACILITY = [
-  ['Sfera a vuoto da 60 ft', '60 ft vacuum sphere'], ['Campo ALHAT', 'ALHAT field'], ['Campo di prova di Huailai', 'Huailai test field'],
-  ['Crateri di Challakere', 'Challakere craters'], ['Voli parabolici Novespace', 'Novespace parabolic flights'],
+  ['Sfera a vuoto da 60 ft', '60 ft vacuum sphere'], ['Campo ALHAT', 'ALHAT hazard field'], ['Campo di prova di Huailai', 'Huailai proving ground'],
+  ['Crateri di Challakere', 'Challakere craters'], ['TVAC "sporca" ALTEC (in arrivo)', 'ALTEC dusty thermal-vacuum chamber (coming soon)'], ['Voli parabolici Novespace', 'Novespace parabolic flights'],
   ["Basalti dell'Eifel", 'Eifel basalts'], ['Provincia anortositica del Rogaland', 'Rogaland anorthosite province'],
   ['Mars Terrain Simulator e centro lunare ALTEC', 'Mars Terrain Simulator and lunar centre, ALTEC'],
   ['nessuna struttura nota', 'no known facility'], ['nessuna struttura in elenco', 'no facility listed'],
@@ -57,3 +57,11 @@ export function whyEN(why = '') {
     .replace('la Terra non lo riproduce (indoor)', 'Earth cannot reproduce it (indoor only)')
     .replace(/^la Terra non arriva al valore lunare \(differenza (.+)\)$/, 'Earth does not reach the lunar value (gap $1)')
 }
+
+const ROCK = {
+  su: 'unconsolidated sediments', ss: 'siliciclastic sedimentary', sm: 'mixed sedimentary', sc: 'carbonate sedimentary', py: 'pyroclastics',
+  ev: 'evaporites', mt: 'metamorphics', pa: 'acid plutonic', pi: 'intermediate plutonic', pb: 'basic plutonic', va: 'acid volcanic',
+  vi: 'intermediate volcanic', vb: 'basic volcanic', ig: 'ice and glaciers', wb: 'water bodies', nd: 'no data',
+  basalt_sedimentary: 'basalt (sedimentary)', basalt_volcanic: 'basalt (volcanic)',
+}
+export const rock = c => ROCK[c] || c

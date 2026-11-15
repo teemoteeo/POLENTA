@@ -15,3 +15,10 @@ export const coord = (v, pos, neg) => num(Math.abs(v), 2) + '°' + (v < 0 ? neg 
 export const pct = s => Math.round(s * 100)
 export const H3_KM2 = 253 // area media di un esagono H3 a risoluzione 5
 export const km = v => Math.round(v).toLocaleString('en-US') // distanze con separatore
+// ostacoli di una campagna (poco suolo nudo, poca finestra senza neve): testo breve e lungo
+export const blockNotes = r => {
+  const d = r.dossier
+  return r.plan.warnings.filter(w => w === 'bare' || w === 'season').map(w => w === 'bare'
+    ? { short: `${pct(d.valid_share)}% bare`, long: `only ${pct(d.valid_share)}% bare ground` }
+    : { short: `${d.snow_free_months} mo/yr`, long: `${d.snow_free_months} snow-free months` })
+}

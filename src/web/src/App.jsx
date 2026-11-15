@@ -11,7 +11,7 @@ import { coord } from './format.js'
 import { TEST_EN } from './i18n.js'
 import PlaceCard from './PlaceCard.jsx'
 import ResultsList from './ResultsList.jsx'
-import { logisticsLayers, logisticsMarkers } from './logistics.js'
+import { logisticsLayers, logisticsMarkers, homeMarker, campaignPose } from './logistics.js'
 import { Benchmark, Method } from './Sheets.jsx'
 
 // Colori per tema e mondo: pagina, sfera, puntini
@@ -166,6 +166,10 @@ export default function App() {
       const mk = pin(m.className, m.html, m.lngLat, () => {})
       mk.getElement().title = m.title || ''
       return mk
+    }) : world === 'earth' && step === 'results' ? [homeMarker()].map(m => {
+      const mk = pin(m.className, m.html, m.lngLat, () => {})
+      mk.getElement().title = m.title
+      return mk
     }) : []
     markers.current = [...base, ...extra]
   }, [world, step, site, data, picked, result]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -305,6 +309,16 @@ export default function App() {
   })
   const back = () => ({ card: leaveCard, results: () => chooseSite(site), test: leaveSite, site: toPlanets })[step]?.()
 
+  // campaign view: plain flights, outside act(); the effect below resets the label on any place/step change
+  const [campaignView, setCampaignView] = useState(false)
+  useEffect(() => setCampaignView(false), [picked, step, site, testId])
+  const toggleCampaign = () => {
+    if (busy.current || !result) return
+    const next = !campaignView
+    setCampaignView(next)
+    map.current.flyTo({ ...(next ? campaignPose(result) : { ...over([result.lon, result.lat]), zoom: 7 }), duration: 1600, essential: true, padding: basePad() })
+  }
+
   const STEPS = [['site', 'Site'], ['test', 'Test'], ['results', 'Where']]
   const stepIdx = { site: 0, test: 1, results: 2, card: 2 }[step]
 
@@ -375,6 +389,14 @@ export default function App() {
           ))}
       </div>
 
+      {world === 'earth' && step === 'card' && result && <div className="logi-ctl">
+        <button className="logi-toggle glass pill" onClick={toggleCampaign}>{campaignView ? 'Back to site' : 'Campaign view'}</button>
+        {campaignView && <div className="logi-legend glass">
+          <span><b className="l" />Turin → field site</span>
+          <span><b className="l n" />Turin → partner facility</span>
+          <span><b className="d" />Facility</span>
+        </div>}
+      </div>}
       <div className="tools">
         <button className="glass pill" onClick={() => setSheet(sheet === 'benchmark' ? null : 'benchmark')}>Benchmark</button>
         <button className="glass pill" onClick={() => setSheet(sheet === 'method' ? null : 'method')}>Method &amp; data</button>

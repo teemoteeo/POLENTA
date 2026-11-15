@@ -56,25 +56,42 @@ export function logisticsLayers({ result, accent, theme }) {
     id, data: route(a, b).map(path => ({ path })), getPath: d => d.path, getColor: color,
     widthUnits: 'pixels', getWidth: w, capRounded: true, pickable: false,
   })
+  // ponytail: no dash (PathStyleExtension not installed): facility routes thin and faint, the site route is the main one
   const layers = out.map(g => mk('logi-fac-' + g.key, TURIN, g, neutral, 1.5))
   if (result.lat != null) layers.push(mk('logi-site', TURIN, result, [...accent, 235], 3))
   return layers
 }
 
+export function homeMarker(n = 0, title = 'Customer') {
+  return {
+    lngLat: [TURIN.lon, TURIN.lat], className: 'logi logi-home',
+    html: `<i></i><span>Turin · you${n ? ` · ${n} ${n > 1 ? 'facilities' : 'facility'} here` : ''}</span>`, title,
+  }
+}
+
 export function logisticsMarkers(result) {
   const { out, home } = groups(result)
-  const n = home.length
-  const ms = [{
-    lngLat: [TURIN.lon, TURIN.lat], className: 'logi logi-home',
-    html: `<i></i><span>Turin · you${n ? ` · ${n} ${n > 1 ? 'facilities' : 'facility'} here` : ''}</span>`,
-    title: n ? home.map(short).join(', ') + ' · closes: ' + covers(home) : 'Customer',
-  }]
+  const ms = [homeMarker(home.length, home.length ? home.map(short).join(', ') + ' · closes: ' + covers(home) : 'Customer')]
   for (const g of out) {
     ms.push({
       lngLat: [g.lon, g.lat], className: 'logi logi-fac',
-      html: `<i></i><span>${esc(g.facs.map(short).join(' + '))}</span>`,
+      html: `<i></i><span>${esc(g.facs.map(short).join(' + '))}<small>${Math.round(kmBetween(TURIN, g)).toLocaleString('en')} km</small></span>`,
       title: 'Closes: ' + covers(g.facs),
     })
   }
   return ms
+}
+
+// camera pose showing Turin, the site and all facilities: spherical centroid + zoom from the widest angle
+export function campaignPose(result) {
+  const pts = [TURIN, ...(result.lat != null ? [result] : []), ...groups(result).out]
+  const v = p => [Math.cos(p.lat * R) * Math.cos(p.lon * R), Math.cos(p.lat * R) * Math.sin(p.lon * R), Math.sin(p.lat * R)]
+  const c = [0, 0, 0]
+  for (const p of pts) v(p).forEach((x, i) => { c[i] += x })
+  const n = Math.hypot(...c) || 1
+  const center = [Math.atan2(c[1], c[0]) / R, Math.asin(c[2] / n) / R]
+  const cv = v({ lon: center[0], lat: center[1] })
+  const deg = Math.max(...pts.map(p => Math.acos(Math.min(1, Math.max(-1, v(p).reduce((s, x, i) => s + x * cv[i], 0)))) / R))
+  const zoom = deg <= 20 ? 3.2 : deg <= 45 ? 2.2 : deg <= 75 ? 1.6 : 1.1
+  return { center, zoom, pitch: 0, bearing: 0 }
 }
