@@ -34,8 +34,8 @@
 .res-share small{font-size:10px;color:var(--mute)}
 .res-sub{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
 @media(min-width:821px){.left:has(.campaign),.left:has(.reslist){width:min(460px,calc(100vw - 40px))}}
-.campaign,.reslist{display:flex;flex-direction:column;gap:12px}
-.campaign>*{flex-shrink:0}
+.campaign:not(.map),.reslist{display:flex;flex-direction:column;gap:12px}
+.campaign:not(.map)>*{flex-shrink:0}
 
 /* campaign card */
 .eyebrow{margin-bottom:-6px}

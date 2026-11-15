@@ -316,7 +316,7 @@ export default function App() {
   useEffect(() => {
     if (!site || !testId) return
     let live = true
-    loadCells(site.id, testId).then(cells => live && setHeat({ key: site.id + testId, cells }))
+    loadCells(site.id, testId).then(cells => live && setHeat({ key: site.id + testId, cells }), () => {})
     return () => { live = false }
   }, [site, testId])
 
@@ -337,6 +337,8 @@ export default function App() {
     } finally { if (run.current === me) run.current = 0 }
   }
   const caseId = useRef(0)
+  // a case clicked during a flight or another case is ignored: keep the sheet open instead of closing it for nothing
+  const startCase = (s, t) => { if (busy.current || run.current) return; setSheet(null); openCase(s, t) }
 
   useEffect(() => {
     const k = e => e.key === 'Escape' && setSheet(null)
@@ -426,7 +428,7 @@ export default function App() {
           ))}
       </div>
 
-      {world === 'earth' && step === 'results' && heat?.key === site?.id + testId && <p className="heat-note glass"><i />The 10,000 hexagons on Earth most similar to {site.name} for this test</p>}
+      {world === 'earth' && step === 'results' && heat?.key === site?.id + testId && <p className="heat-note glass"><i />The {heat.cells.length.toLocaleString('en')} hexagons on Earth most similar to {site.name} for this test</p>}
       {world === 'earth' && step === 'card' && result && <div className="logi-ctl">
         <button className="logi-toggle glass pill" onClick={toggleCampaign}>{campaignView ? 'Back to site' : 'Campaign view'}</button>
         {campaignView && <div className="logi-legend glass">
@@ -446,7 +448,7 @@ export default function App() {
       </div>
       {sheet && <div className={'sheet glass' + (sheet === 'cases' ? ' narrow' : '')}>
         <button className="close" aria-label="Close" onClick={() => setSheet(null)}>×</button>
-        {sheet === 'benchmark' ? <Benchmark onOpen={(s, t) => { setSheet(null); openCase(s, t) }} /> : sheet === 'cases' ? <CaseList onOpen={(s, t) => { setSheet(null); openCase(s, t) }} /> : <Method />}
+        {sheet === 'benchmark' ? <Benchmark onOpen={startCase} /> : sheet === 'cases' ? <CaseList onOpen={startCase} /> : <Method />}
       </div>}
     </>
   )

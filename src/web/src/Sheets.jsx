@@ -96,7 +96,7 @@ const LIMITS = [
   'Lunar ISRU scores are low (~0.25): lunar regolith density and boulders exist on no Earth soil. They break everywhere, and the campaign closes them with simulant pits.',
   'The 3 polar sites give similar rankings: their values are very close, so one campaign on Earth serves all three.',
   'Some hexagons have only 6-10% bare ground (farmland, or volcanoes like Etna where the real site is small). See the bare-ground warning.',
-  'The lidar heat map is sparse (~3,300 hexagons): craters only exist where we computed exact 30 m terrain. The top places still come from all over the Earth.',
+  'The lidar heat map is sparse (~3,800 hexagons): craters only exist where we computed exact 30 m terrain. The top places still come from all over the Earth.',
   'Mars and Aristarchus terrain values come from the literature.',
   'Ground ice on Earth is estimated from a MODIS proxy (mean annual temperature below −1 °C).',
   'Rock type (GLiM) is coarse: ~55 km cells, so Etna or the Eifel do not show.',
