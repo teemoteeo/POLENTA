@@ -1,0 +1,29 @@
+{
+  "_doc": "Ogni passo: [slide 1-7, passo, secondi]. Il registratore porta il deck a quello stato e lo tiene per i secondi indicati. demo = slot della piattaforma in fondo: video/demo/<file> se esiste, altrimenti un segnaposto. max_seconds blocca il video se lo supera (submission: 30 s, regola della Project Submission Guide). La slide 3 (demo nel deck) non c'è: la demo vera è in fondo.",
+  "profiles": {
+    "full": {
+      "max_seconds": null,
+      "steps": [
+        [1, 0, 3.2], [1, 1, 3.6], [1, 2, 4.5],
+        [2, 0, 4.0], [2, 1, 6.0],
+        [4, 0, 5.0], [4, 1, 5.0], [4, 2, 6.0],
+        [5, 0, 5.0], [5, 1, 5.0], [5, 2, 6.0],
+        [6, 0, 5.0], [6, 1, 6.0], [6, 2, 6.0],
+        [7, 0, 4.0], [7, 1, 5.0]
+      ],
+      "demo": { "seconds": 60, "file": "demo-platform.mp4", "title": "Live demo of the platform" }
+    },
+    "submission": {
+      "max_seconds": 30,
+      "steps": [
+        [1, 0, 1.8], [1, 1, 2.6], [1, 2, 2.0],
+        [2, 1, 3.8],
+        [4, 2, 3.6],
+        [5, 1, 3.2],
+        [6, 1, 3.4],
+        [7, 1, 2.6]
+      ],
+      "demo": { "seconds": 6.5, "file": "demo-platform-30s.mp4", "title": "Live demo of the platform" }
+    }
+  }
+}

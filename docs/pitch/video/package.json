@@ -1,0 +1,19 @@
+{
+  "name": "polenta-pitch-video",
+  "private": true,
+  "type": "module",
+  "description": "Registra il deck di docs/pitch in un MP4 ad alta risoluzione (vedi ../README.md, sezione Video)",
+  "scripts": {
+    "fonts": "node fonts.mjs",
+    "preview": "node record.mjs --profile full --scale 1 --fps 30",
+    "full": "node record.mjs --profile full --scale 2 --fps 30",
+    "submission": "node record.mjs --profile submission --scale 2 --fps 30"
+  },
+  "devDependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@fontsource/libre-franklin": "^5.2.5",
+    "@fontsource/michroma": "^5.2.5",
+    "@fontsource/space-mono": "^5.2.5",
+    "playwright-core": "^1.52.0"
+  }
+}

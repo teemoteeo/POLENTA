@@ -97,10 +97,18 @@ def dots(world):
     return flat
 
 
+def weights():
+    """Pesi dei test (data/config/tests.yaml), per la quota del test che regge sul campo come in campaign.js."""
+    import yaml
+    tests = yaml.safe_load((CONFIG / "tests.yaml").read_text())
+    tests = tests.get("tests", tests)
+    return {t: {k: v for k, v in (tests[t].get("requisiti") or {}).items() if v} for t in TESTS if t in tests}
+
+
 def main():
     manifest = load("manifest.json")
     targets = load("targets.json")
-    results, near, n_new, n_new_top = {}, {}, 0, 0
+    results, unexplored, near, n_new, n_new_top = {}, {}, {}, 0, 0
     for t in targets:
         for test in TESTS:
             f = EXPORT / "sites" / f"{t['id']}__{test}.json"
@@ -109,6 +117,8 @@ def main():
             d = json.loads(f.read_text())
             top = [place(r) for r in d["results"][:TOP]]
             results[f"{t['id']}__{test}"] = top
+            # "Unexplored" dell'app: gli stessi risultati globali senza i posti già usati per test
+            unexplored[f"{t['id']}__{test}"] = [p for p in (place(r) for r in d["results"]) if not p["known"]][:TOP]
             n_new += bool(top and not top[0]["known"])
             n_new_top += sum(not p["known"] for p in top)
             for h in HOMES:  # "Near you": il primo posto per raggio, e il migliore sulla Terra
@@ -122,6 +132,8 @@ def main():
         "targets": [{k: t[k] for k in ("id", "name", "world", "lat", "lon")} for t in targets],
         "tests": TESTS,
         "results": results,
+        "unexplored": unexplored,
+        "weights": weights(),
         "first_is_new": [n_new, len(results)],
         "top_new": [n_new_top, TOP * len(results)],
         "near": near,

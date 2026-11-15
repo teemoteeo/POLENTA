@@ -50,6 +50,69 @@ Le note per chi parla (punti chiave, non copione) sono in ogni slide, tasto `N` 
   - [ ] **Start over** nell'app prima di salire;
   - [ ] chi parla e chi clicca: decidere se è la stessa persona.
 
+## Caso guida: Luna → Aristarchus Plateau → Rover mobility (deciso il 15/11, 13:40)
+
+Slide e demo mostrano sempre questo caso (`DEMO_CASE` nello script). Numeri dall'export delle 11:34 UTC (`python3 docs/pitch/snapshot.py` per aggiornarli):
+
+| | Best on Earth | Unexplored | Near you · Torino · 1.500 km | Near you · Torino · 3.000 km |
+|---|---|---|---|---|
+| Primo posto | Sterling, Colorado | Conrad, Montana | Bin Qirdan, Tunisia | 52 km da Ath Thawrah, Ar-Raqqah, **Siria** |
+| Somiglianza | 0,88 | 0,69 | 0,46 | 0,49 |
+| Già usato per test | sì (US Southwest: tutti e 5 i primi) | no | no | no |
+| Test sul campo / finestra | 95% / 6 mesi | | | 65% / 12 mesi |
+| Da Torino | 8.276 km | | 1.383 km | 2.781 km (−66%) |
+
+Scelta del team (15/11, 13:50): in slide e demo resta il **primo risultato entro 3.000 km** (Ar-Raqqah, Siria). `NEAR_PICK` nello script lo decide.
+
+Dove compare il caso: slide 2 (arco Aristarchus → posto vicino a Torino), slide 3 (scheda del posto se la demo dal vivo non va), slide 4 (mappa: posti non usati, migliori già usati, anelli di 1.500 e 3.000 km da Torino), slide 5 (confronto Best on Earth / Near you + preparazione della campagna 57 → 20 giornate-persona, €31k → €12k [A]), slide 6 (preventivo del caso).
+
+### Demo della piattaforma (60 s in fondo al video, e dal vivo nella slide 3)
+
+| Tempo | Azione nell'app | Cosa si vede / cosa dire |
+|---|---|---|
+| 0:00 | apertura, click **Moon** | volo sulla Luna |
+| 0:05 | click **Aristarchus Plateau** | il sito: basalti e depositi piroclastici |
+| 0:12 | click **Rover mobility** | modello 3D del rover, poi la Terra |
+| 0:18 | **Best on Earth**, scroll veloce della lista | tutti e 5 "Already used for tests" (Colorado, Utah, Nevada) |
+| 0:26 | **Unexplored**, scroll | i posti più simili dove nessuno testa: Montana, Cina, Bolivia, Brasile |
+| 0:35 | **Near you** · Turin · **1.500 km** | Bin Qirdan (Tunisia), 1.383 km |
+| 0:42 | **3.000 km**, click sul **primo risultato** | volo sul posto (Ar-Raqqah, Siria) |
+| 0:46 | **scheda del posto** (scroll lento) | 65% del test sul campo, 12 mesi l'anno, sensore per ogni valore, ALTEC a Torino e LUNA per il resto |
+| 1:00 | fine | |
+
+Per registrarla serve l'app vera con le mappe (internet). Si decide insieme come: a mano (⌘⇧5 con l'app a tutto schermo) oppure con uno script che fa i click; la clip va in `video/demo/demo-platform.mp4` e la pipeline la mette in coda al video.
+
+## Video (MP4 ad alta risoluzione)
+
+⚠️ **Regola della submission** (Project Submission Guide, verificata il 15/11): *"Video (30 seconds or less) or slide deck (up to seven slides)"*; chi supera i limiti **non entra nel giudizio globale**. Per questo la pipeline ha due profili:
+
+| Profilo | Cosa contiene | Durata | Uso |
+|---|---|---|---|
+| `submission` | slide principali + slot demo | **≤ 30 s, bloccante** (se `timeline.json` supera i 30 s, si ferma) | submission NASA |
+| `full` | tutto il deck (senza la slide 3) + **slot di 60 s per la demo vera** in fondo | ~2:20 | pitch, YouTube, LinkedIn: **non** per la submission |
+
+In alternativa al video, per la submission vale anche il deck stesso (7 slide) come link pubblico.
+
+**Una volta sola:** `cd docs/pitch/video && npm install` (Chrome di sistema; ffmpeg arriva da `@ffmpeg-installer`, perché quello di Homebrew su questo Mac è rotto: manca `libx265`).
+
+**Comandi** (da `docs/pitch/video/`):
+- `npm run preview`: profilo full a 1920×1080, veloce, per controllare i tempi;
+- `npm run full`: 3840×2160, 30 fps (~7 min di calcolo);
+- `npm run submission`: 3840×2160, 30 fps, ≤ 30 s (~2-3 min);
+- opzioni: `--fps 60`, `--crf 12` (qualità più alta), `--limit 5` (solo i primi 5 s, prova).
+
+Il risultato è in `video/out/polenta-<profilo>-2160p30.mp4` (H.264 High, yuv420p, faststart: va bene per YouTube e Drive).
+
+**Scaletta del video:** `video/timeline.json`, una riga per passo `[slide, passo, secondi]`. Si cambia lì, senza toccare il deck.
+
+**Demo della piattaforma (slot in fondo):** metti la clip in `video/demo/demo-platform.mp4` (profilo full, 60 s) o `video/demo/demo-platform-30s.mp4` (submission). La pipeline la scala a 4K, la taglia alla durata dello slot e la unisce. Finché manca, al suo posto c'è un segnaposto nello stile del deck. Per registrarla:
+- a mano: app a tutto schermo, macOS ⌘⇧5 (registra schermo), salvare la clip nella cartella;
+- in automatico: uno script Playwright con i click della demo, da scrivere quando decidiamo cosa mostrare (serve internet per le tessere delle mappe).
+
+**Come funziona:** con `index.html?record` il deck usa un orologio virtuale (`__advance`): timer, contatori, transizioni CSS, SVG animati e pianeti avanzano di 1/30 s per fotogramma. Chrome headless cattura un PNG per volta e ffmpeg li codifica: ogni fotogramma è esatto anche se in 4K la cattura è ~5 volte più lenta del tempo reale. Nessun accesso a internet durante la registrazione: i font sono in `fonts/` (copiati da `video/fonts.mjs`), e servono anche per il pitch offline.
+
+**Testi:** il video non ha voce. Se aggiungiamo un parlato in italiano, la regola chiede sottotitoli in inglese.
+
 ## Criteri di giudizio → dove li copriamo
 
 Ogni slide ha i suoi criteri in `data-criteria`: compaiono in testa alle note (`N`, `P`).

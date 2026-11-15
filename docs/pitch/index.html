@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>POLENTA · Pitch</title>
 <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;500;600&family=Michroma&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts/fonts.css"><!-- font locali (video/fonts.mjs): il deck funziona offline -->
 <!-- Deck del pitch (Edo). Stessi token dell'app: src/web/src/app.css. Tasti: ? per l'aiuto. -->
 <style>
 :root{--bg:#04060a;--ink:#f2f3f5;--mute:#8f96a0;--line:rgba(255,255,255,.12);--soft:rgba(255,255,255,.07);--accent:#ff5a1f;
@@ -175,6 +174,11 @@ body.timer #clock{display:inline}
 .hexmap.in polygon.hot{opacity:var(--o);transition:opacity .5s ease var(--d)}
 .hexmap polygon.known{fill:none;stroke:var(--ink);stroke-width:1.6}
 .hexmap.in polygon.known{opacity:.9}
+.hexmap .ring{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:5 5;opacity:0;transition:opacity .25s}
+.hexmap.in .ring{opacity:.85;transition:opacity .6s ease var(--d)}
+.hexmap .ringl{font:400 12px var(--mono);fill:var(--ink);opacity:0;transition:opacity .25s}
+.hexmap.in .ringl{opacity:.9;transition:opacity .6s ease var(--d)}
+.hexmap .turin{fill:var(--accent)}
 .hexcap{display:flex;gap:28px;margin-top:14px;font:400 17px var(--mono);color:var(--mute)}
 .hexcap i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:8px;vertical-align:-2px}
 .valid{position:absolute;left:120px;top:340px;width:470px}
@@ -189,6 +193,13 @@ body.timer #clock{display:inline}
 .band .pills span{border-style:dashed}
 
 /* S5: vantaggio */
+.cmp{display:flex;flex-direction:column;gap:2px}
+.cmp>div{display:grid;grid-template-columns:200px 1fr 1fr;gap:18px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font:400 21px/1.3 var(--sans)}
+.cmp>div>span{font:400 16px var(--mono);color:var(--mute)}
+.cmp>div>b{font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp .ch b{font:400 17px var(--mono);color:var(--mute)}
+.cmp .ch b.acc{color:var(--accent)}
+.cmp small{font:400 15px var(--mono);color:var(--accent)}
 .adv ul{list-style:none;display:flex;flex-direction:column;gap:8px}
 .adv li{font:400 22px/1.35 var(--sans);color:var(--mute)}
 .adv li b{color:var(--ink);font-weight:500}
@@ -206,10 +217,11 @@ body.timer #clock{display:inline}
 .ms p{font:400 19px/1.4 var(--sans);color:var(--mute)}
 .ms.goal i{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 8px rgba(255,90,31,.22)}
 .ms.goal b{color:var(--accent)}
-.quote{position:absolute;left:120px;top:600px;width:780px;padding:24px 30px;display:flex;flex-direction:column;gap:10px}
-.qrow{display:grid;grid-template-columns:200px 1fr auto;align-items:center;gap:14px;font:400 20px var(--sans)}
+.quote{position:absolute;left:120px;top:580px;width:800px;padding:22px 28px;display:flex;flex-direction:column;gap:8px}
+.qrow{display:grid;grid-template-columns:150px 1fr auto;align-items:center;gap:14px;font:400 20px var(--sans)}
 .qrow span{color:var(--mute)}
 .qrow b{font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qrow.next .skel{width:120px}
 .qrow em{font:400 16px var(--mono);font-style:normal;color:var(--mute)}
 .skel{height:14px;border-radius:7px;background:linear-gradient(90deg,var(--soft) 0%,color-mix(in srgb,var(--accent) 35%,transparent) 50%,var(--soft) 100%);background-size:200% 100%;animation:shim 1.8s linear infinite}
 @keyframes shim{to{background-position:-200% 0}}
@@ -285,6 +297,10 @@ body.livemode #liveback{display:flex}
 body.livemode #draftbadge{display:none}
 #liveback span{white-space:nowrap}
 #black{position:fixed;inset:0;background:#000;z-index:30;display:none}
+body.recording{cursor:none}
+/* in registrazione il vetro sfocato è un fondo pieno: backdrop-filter in 4K su Chrome headless è lentissimo, e sul nero non si vede la differenza */
+body.recording .glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(160deg,rgba(30,34,44,.94),rgba(14,16,22,.9))}
+body.recording #clock,body.recording #liveback,body.recording #draftbadge{display:none!important}
 body.blackout #black{display:block}
 #help{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:40;padding:28px 34px;display:none;font:400 16px/1.9 var(--mono)}
 body.showhelp #help{display:block}
@@ -352,7 +368,7 @@ body.showhelp #help{display:block}
       <div class="card glass rv x-scale" style="--d:.54s"><div class="lbl"><b>04</b> Campaign</div><div class="big">field + indoor</div><p>what holds outdoors, where the analogy breaks, which facility closes each gap</p></div>
     </div>
   </div>
-  <div class="s3-cap rv" data-step="1" style="--d:1.2s">Haworth (Moon) → <b data-bind="demoName">—</b></div>
+  <div class="s3-cap rv" data-step="1" style="--d:1.2s">Aristarchus Plateau (Moon) → <b data-bind="demoName">—</b> · <span data-bind="demoKmTxt">—</span></div>
   <aside class="notes">
     <h5>0:20 – 0:45 · what we do (25 s), then straight into the live demo</h5>
     <ul><li>The pain in one breath: 10 months to choose a rover test site, by hand; crater fields built by hand; nobody measures how faithful a test site is.</li>
@@ -365,13 +381,13 @@ body.showhelp #help{display:block}
 <!-- 3 · COSA FACCIAMO, DAL VIVO: demo ------------------------------------------------------>
 <section class="slide" data-title="Demo" data-end="115" data-criteria="Validity,Relevance,Presentation">
   <div class="kick rv">02 — <b>What we do, live</b></div>
-  <h2 class="rv" style="--d:.1s">Haworth, rover mobility.</h2>
+  <h2 class="rv" style="--d:.1s">Aristarchus Plateau, rover mobility.</h2>
   <div class="frame glass rv x-scale" id="frame" style="--d:.2s">
     <video id="demo" src="demo.mp4" muted playsinline loop preload="metadata"></video>
     <div class="story">
       <div class="lbl">Placeholder · 30 s screen recording goes here (demo.mp4)</div>
-      <ol id="storyline"><li>Moon → Haworth</li><li>Rover mobility</li><li>Best places on Earth</li><li>Place card: what holds, what breaks</li><li>Campaign view from Turin</li></ol>
-      <p>Path from docs/night-timo.md · same video can be the 30 s submission</p>
+      <ol id="storyline"><li>Moon → Aristarchus Plateau → Rover mobility</li><li>Best on Earth: all already used</li><li>Unexplored: nobody tests there yet</li><li>Near you · Turin · 1,500 → 3,000 km</li><li>Place card near Turin</li></ol>
+      <p>Same path as the 60 s platform demo at the end of the video</p>
     </div>
   </div>
   <div class="result glass rv" style="--d:.35s">
@@ -387,15 +403,14 @@ body.showhelp #help{display:block}
   <div class="live rv" style="--d:.5s">Live app · <b data-bind="appUrl">URL to add</b> · press L</div>
   <aside class="notes">
     <h5>0:45 – 1:55 · LIVE DEMO (70 s) · the app opens full screen by itself</h5>
-    <ul><li><b>0:45</b> Click <b>Moon</b>. “Six target sites: three Artemis III candidates at the South Pole, Aristarchus, and Phoenix and Gale on Mars.”</li>
-      <li><b>0:55</b> Click <b>Haworth</b>. “Its terrain comes from LRO LOLA, computed by us.”</li>
-      <li><b>1:05</b> Click <b>Rover mobility</b>. “The test decides what matters: slopes, boulders, regolith, low sun.”</li>
-      <li><b>1:15</b> Earth appears with the list. “Every hexagon of Earth, scored. The top three are where everyone already tests: Nevada, Svalbard. The tool tags them <i>Already used for tests</i>.”</li>
-      <li><b>1:25</b> Click the first <b>Not used for tests yet</b> (now #4, <span data-bind="demoShort">Mabton, Washington</span>). “Match per parameter, and every value names its sensor: NASADEM on Earth, LRO LOLA on the Moon.”</li>
-      <li><b>1:40</b> Click <b>Campaign view</b>. “From Turin: the field site plus the facilities that close each gap.”</li>
-      <li><i>Only if ahead of time:</i> back to the list, <b>Near you</b> · Turin · 1,500 km. For the lunar South Pole nothing close is good (honest: go indoors). It shines on Mars: Gale × rover is 0.99 in Montana, 0.84 within 3,000 km of Turin, 0.78 within 1,500 km of the ISRO Bengaluru base.</li>
+    <ul><li><b>0:45</b> Click <b>Moon</b>, then <b>Aristarchus Plateau</b>. “Basalts and pyroclastic deposits: a candidate site for a lunar base.”</li>
+      <li><b>0:55</b> Click <b>Rover mobility</b>. “The test decides what matters: slopes, boulders, regolith, low sun.”</li>
+      <li><b>1:02</b> <b>Best on Earth</b>, quick scroll. “The best matches are where everyone already tests: Colorado, Utah, Nevada. The tool says so.”</li>
+      <li><b>1:10</b> <b>Unexplored</b>, scroll. “The most similar places nobody tests yet: <span data-bind="unexName">Montana</span>, China, Bolivia…”</li>
+      <li><b>1:20</b> <b>Near you</b> · Turin · <b>1,500 km</b>. “From Turin: <span data-bind="n1500">Tunisia</span>.”</li>
+      <li><b>1:28</b> <b>3,000 km</b>, click the <b>first result</b>. “<span data-bind="nearField">65%</span> of the test holds in the field, <span data-bind="nearWindow">12 months a year</span>. ALTEC in Turin closes low-angle light and regolith density, LUNA the 1/6 g.”</li>
       <li><b>1:55</b> <b>PageDown</b> (clicker) or the “Next slide” pill → back to slides.</li></ul>
-    <p class="say">“No place on Earth is Haworth. This one gives you most of it, and these facilities give you the rest.”</p>
+    <p class="say">“The best place on Earth is already crowded and 8,000 km away. This one is near you, nobody uses it, and these facilities give you the rest.”</p>
     <h5>If something breaks</h5>
     <ul><li><b>V</b> switches to the recorded video and the card on this slide. Don’t debug on stage.</li><li>Before the pitch: press <b>Start over</b> in the app, or <b>A</b> to reload it.</li></ul>
   </aside>
@@ -419,7 +434,7 @@ body.showhelp #help{display:block}
   </div>
   <div class="hexmap rv" id="hexmap" style="--d:.3s">
     <div id="hexsvg"></div>
-    <div class="hexcap"><span><i style="background:var(--soft)"></i>land hexagon, scored</span><span><i style="background:var(--accent)"></i>our best places (18 site × test)</span><span><i style="border:1.6px solid var(--ink)"></i>known test sites</span></div>
+    <div class="hexcap"><span><i style="background:var(--soft)"></i>land hexagon, scored</span><span><i style="background:var(--accent)"></i>not used for tests yet</span><span><i style="border:1.6px solid var(--ink)"></i>best, but already used</span><span><i style="border:1.6px dashed var(--accent)"></i>1,500 / 3,000 km from Turin</span></div>
   </div>
   <div class="band" data-step="2">
     <div class="rv"><h4>Surprise</h4><p><b class="fig" data-bind="topNew">—</b> top places are <b>new</b> (outside famous analogue regions, &gt;150 km from test sites). <span class="tbd" title="Phoenix × ISRU first place: 195 km from Qimantag (Qinghai). Check after final export">Martian ground ice: not Antarctica, the <span class="acc">Tibetan Plateau</span>.</span></p></div>
@@ -430,26 +445,31 @@ body.showhelp #help{display:block}
     <ul><li>NASA data is the core: NASADEM, 5 MODIS products, VIIRS, MERRA-2 on Earth; LRO LOLA (computed by us) plus Diviner, LEND, LROC, LCROSS values on the Moon. In the app every value names its sensor.</li>
       <li>Key point: slopes, roughness and craters computed by us on LOLA with the <b>same definition</b> as on Earth (30 m). Filled chips = computed by us; outlined = published mission values.</li>
       <li>If asked: per parameter, similarity = exp(−(D/τ)²) with D the distance in Earth percentiles; weighted per test.</li>
+      <li>Map: the demo case. Orange = places nobody tests yet for Aristarchus × rover; white = the best ones, already used; rings = 1,500 and 3,000 km from Turin.</li>
       <li>Click: validation. Sites where agencies and companies really test come out on top without telling the model: SP Crater (NASA training) is the #1 hexagon for Haworth × rover; Mojave, Etna, Mauna Kea in the top 4–11%.</li>
       <li>Click: surprise + honesty. Strict rule for “new”: outside every famous analogue region (US Southwest, Iceland, Atacama, Hawaii, Canaries, Svalbard, Devon, Antarctica) and >150 km from any known test site. Still most of our top places pass (challenge: “surprise us”). And what Earth can never give (“remember Earth’s limits”).</li></ul>
     <p class="say">“We did not tell the model where companies test. It found those places by itself, and then found better ones.”</p>
   </aside>
 </section>
 
-<!-- 5 · CHE VANTAGGIO PORTIAMO ---------------------------------------------------------->
+<!-- 5 · CHE VANTAGGIO PORTIAMO (sul caso guida: Aristarchus × rover da Torino) ------------>
 <section class="slide" data-title="Our advantage" data-end="185" data-criteria="Impact,Creativity">
-  <div class="kick rv">04 — <b>Our advantage</b></div>
-  <h2 class="wide rv" style="--d:.1s">Faster, cheaper and <span class="acc">measured</span> test campaigns.</h2>
+  <div class="kick rv">04 — <b>Our advantage</b> · Aristarchus Plateau × rover, from Turin</div>
+  <h2 class="wide rv" style="--d:.1s">The same test, <span class="acc">near you</span>, and cheaper to prepare.</h2>
   <div class="mk">
-    <div class="save rv" style="--d:.2s"><h4>Time · choosing a test site, per campaign <span class="tbd" title="Estimate [A], docs/test-aziende.md">(est.)</span></h4>
+    <div class="cmp rv" style="--d:.2s">
+      <div class="ch"><span></span><b>Best on Earth</b><b class="acc">Near you · <span data-bind="nearRadius">3,000 km</span></b></div>
+      <div><span>Place</span><b data-bind="bestName">—</b><b><span data-bind="demoName">—</span></b></div>
+      <div><span>Status</span><b class="mute" data-bind="bestKnown">—</b><b>not used for tests yet</b></div>
+      <div><span>Similarity</span><b class="fig" data-bind="bestScore">—</b><b class="fig"><span data-bind="demoScore">—</span> <small data-bind="giveUp">—</small></b></div>
+      <div><span>Test in the field</span><b class="fig" data-bind="bestField">—</b><b class="fig" data-bind="nearField">—</b></div>
+      <div><span>Test window</span><b data-bind="bestWindow">—</b><b data-bind="nearWindow">—</b></div>
+      <div><span>From Turin</span><b class="fig" data-bind="bestKm">—</b><b class="fig"><span data-bind="nearKm">—</span> <small data-bind="kmSaved">—</small></b></div>
+    </div>
+    <div class="save rv" data-step="1"><h4>Preparing this campaign · site selection <span class="tbd" title="Estimate [A], docs/test-aziende.md">(est.)</span></h4>
       <div class="bars"><div class="b old"><span>today</span><div class="meter" style="--v:100%"><i></i></div><b>57 p-days</b></div>
         <div class="b"><span>with us</span><div class="meter" style="--v:35%"><i></i></div><b>20 p-days</b></div></div>
-    </div>
-    <div class="rv" style="--d:.35s"><h4>Money</h4><div class="kpis"><div><b class="tbd" title="Estimate [A]">≈ €28k</b>saved per campaign</div><div><b class="tbd" title="Estimate [A]: ULS-size campaign ≈ €90–100k, docs/test-aziende.md">€100k</b>a campaign redone on the wrong ground</div></div></div>
-    <div class="adv rv" data-step="1"><h4>Quality</h4><ul>
-      <li><b>Measured fidelity</b> · every parameter scored against the target, with its sensor</li>
-      <li><b>Honest</b> · where the analogy breaks, and the facility that closes it</li>
-      <li><b>Uncrowded</b> · <span data-bind="topNew">—</span> top places not used for tests yet, or near your base</li></ul></div>
+      <div class="kpis"><div><b class="tbd" title="Estimate [A]">€31k → €12k</b>to prepare the campaign</div><div><b class="tbd" title="Estimate [A]: ULS-size campaign ≈ €90–100k">€100k</b>if it must be redone on the wrong ground</div></div></div>
   </div>
   <div class="quad rv" data-step="2">
     <div class="ax"></div>
@@ -461,11 +481,11 @@ body.showhelp #help{display:block}
     <div class="qp us" style="--x:76%;--y:20%;--d:.7s"><i></i><span class="wm">POLENTA</span></div>
   </div>
   <aside class="notes">
-    <h5>2:30 – 3:05 · our advantage (35 s)</h5>
-    <ul><li>Time: choosing a test site from 57 to 20 person-days (our estimate on a real campaign).</li>
-      <li>Money: about €28k saved per campaign; a campaign redone on the wrong ground costs about €100k.</li>
-      <li>Click: quality. Fidelity is measured, not claimed; the breaks are declared; most top places are not crowded.</li>
-      <li>Click: nobody else is top-right. Facilities sell fidelity without measuring it; other tools only answer “where”.</li></ul>
+    <h5>2:30 – 3:05 · our advantage (35 s), on the demo case</h5>
+    <ul><li>Best on Earth for Aristarchus × rover: <span data-bind="bestName">Sterling</span>, similarity <span data-bind="bestScore">0.88</span>, but already used and <span data-bind="bestKm">8,400 km</span> from Turin.</li>
+      <li>Near you: <span data-bind="nearKm">2,781 km</span>, nobody uses it, <span data-bind="nearField">65%</span> of the test still holds in the field, all year round. You give up <span data-bind="giveUp">0.39</span> of similarity and you know exactly what to close indoors.</li>
+      <li>Click: preparing the campaign: site selection 57 → 20 person-days, about €31k → €12k (our estimate on a real campaign).</li>
+      <li>Click: nobody else is top-right.</li></ul>
   </aside>
 </section>
 
@@ -481,14 +501,15 @@ body.showhelp #help{display:block}
     <div class="ms goal" style="--x:1320px;--t:1.9s"><i></i><small>goal</small><b>Campaign quote</b><p>money, time and people for the whole campaign, field vs indoor, before you commit</p></div>
   </div>
   <div class="quote glass rv" data-step="1">
-    <div class="lbl">Campaign quote · preview · Haworth × rover</div>
-    <div class="qrow"><span>Field site</span><b data-bind="demoName">—</b></div>
+    <div class="lbl">Campaign quote · preview · Aristarchus Plateau × rover, near Turin</div>
+    <div class="qrow"><span>Field site</span><b><span data-bind="demoName">—</span> · <span data-bind="demoKmTxt">—</span></b></div>
+    <div class="qrow"><span>In the field</span><b><span data-bind="nearField">—</span> of the test · <span data-bind="nearWindow">—</span></b></div>
     <div class="qrow"><span>Indoor</span><b data-bind="quoteFac">—</b></div>
-    <div class="qrow"><span>Breaks in the field</span><b data-bind="quoteBreaks">—</b></div>
-    <div class="qrow next"><span>Money</span><i class="skel"></i><em>€</em></div>
-    <div class="qrow next"><span>Time</span><i class="skel"></i><em>weeks</em></div>
-    <div class="qrow next"><span>People</span><i class="skel"></i><em>person-days</em></div>
-    <div class="qleg"><span>today, from our data</span><span class="nx">next</span></div>
+    <div class="qrow"><span>Breaks</span><b data-bind="quoteBreaks">—</b></div>
+    <div class="qrow next"><span>Money</span><b class="tbd" title="Estimate [A]: site selection, docs/test-aziende.md">≈ €12k to prepare, not €31k</b><i class="skel"></i></div>
+    <div class="qrow next"><span>Time</span><b class="tbd" title="Estimate [A]">20 person-days, not 57</b><i class="skel"></i></div>
+    <div class="qrow next"><span>People</span><b class="tbd" title="Estimate [A]: 1 engineer × 3 days desk study, 2 people × 3 days survey">1 engineer, then 2 on a 3-day survey</b><i class="skel"></i></div>
+    <div class="qleg"><span>today, from our data and estimates</span><span class="nx">next: the full campaign</span></div>
   </div>
   <div class="biz rv" data-step="2">
     <div><h4>Who pays</h4><p>Turin first: Thales Alenia Space, ALTEC, Argotec, AIKO, Evolunar. Then ESA, ASI, ISRO, ispace: the base can be anywhere (today Turin or ISRO Bengaluru).</p></div>
@@ -544,7 +565,8 @@ body.showhelp #help{display:block}
 // ---------------------------------------------------------------- impostazioni da riempire
 const APP_URL = ''                         // link pubblico dell'app (Timo, Vercel); per le prove: index.html?app=http://localhost:5173
 const DEMO_SLIDE = 2                        // slide della demo dal vivo (0 = prima)
-const DEMO_CASE = 'haworth__rover_mobility' // casella del caso della demo
+const DEMO_CASE = 'aristarchus_plateau__rover_mobility' // il caso guida: Luna → Aristarchus Plateau → Rover mobility
+const NEAR_PICK = { home: 'turin', radius: '3000', index: 0 } // il posto "Near you" di slide e demo: primo risultato entro 3.000 km da Torino (scelta del team)
 const DRAFT = true                          // false prima del pitch: toglie i tratteggi
 const VALIDATION_ROWS = [                   // [sito noto, target, test]: righe dove il sito è usato davvero per quel test
   ['sp_crater', 'haworth', 'rover_mobility'], ['mojave_lspg', 'malapert_massif', 'flight_hda_lidar'],
@@ -559,11 +581,27 @@ const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => 
 const RAD = Math.PI / 180, TAU = Math.PI * 2
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 const ease = t => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2)
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+// registrazione video (index.html?record, video/record.mjs): il tempo lo decide il registratore con __advance(ms),
+// così ogni fotogramma è esatto anche se catturarlo in 4K richiede più del tempo reale
+const REC = location.search.includes('record')
+let VT = 0, vid = 0
+const vtimers = [], vraf = []
+const tnow = () => (REC ? VT : performance.now())
+function later(fn, ms) { if (!REC) return setTimeout(fn, ms); const id = ++vid; vtimers.push({ id, at: VT + ms, fn }); return id }
+function cancel(id) { if (!REC) return clearTimeout(id); const i = vtimers.findIndex(t => t.id === id); if (i >= 0) vtimers.splice(i, 1) }
+const raf = cb => (REC ? vraf.push(cb) : requestAnimationFrame(cb))
+const reduced = !REC && matchMedia('(prefers-reduced-motion: reduce)').matches
 const target = id => D.targets.find(t => t.id === id) || { lat: 0, lon: 0, name: id }
-// come nell'app: lista per somiglianza; i posti già usati per test hanno l'etichetta, la demo apre il primo non ancora usato
-const demoList = D.results[DEMO_CASE] || [], demoIdx = Math.max(0, demoList.findIndex(p => !p.known))
-const demo = demoList[demoIdx] || { name: '—', lat: 0, lon: 0, score: 0, params: {}, facilities: [] }
+// il caso guida come nell'app: Best on Earth (il primo della lista globale), Unexplored (il primo non ancora usato), Near you (da Torino)
+const TURIN = { lat: 45.07, lon: 7.69 }, NONE = { name: '—', lat: 0, lon: 0, score: 0, params: {}, facilities: [], breaks: [] }
+const best = (D.results[DEMO_CASE] || [])[0] || NONE, unexplored = (D.unexplored?.[DEMO_CASE] || [])[0] || NONE
+const nearSet = D.near?.[`${NEAR_PICK.home}__${DEMO_CASE}`] || {}
+const demo = nearSet.by_radius?.[NEAR_PICK.radius]?.[NEAR_PICK.index] || best
+const near1500 = nearSet.by_radius?.['1500']?.[0] || NONE
+const DEMO_TEST = DEMO_CASE.split('__')[1]
+// quota del test che regge sul campo (voto ≥ 0,5), pesata come in src/web/src/campaign.js
+function fieldShare(p) { const w = D.weights?.[DEMO_TEST] || {}; let tot = 0, ok = 0; for (const [k, v] of Object.entries(w)) { tot += v; if ((p.params?.[k] ?? -1) >= 0.5) ok += v } return tot ? ok / tot : 0 }
+const pct = v => `${Math.round(v * 100)}%`, km = v => `${Math.round(v).toLocaleString('en')} km`
 
 // ---------------------------------------------------------------- dati nelle slide
 function bind() {
@@ -572,11 +610,20 @@ function bind() {
   set('demoScore', demo.score.toFixed(2))
   set('demoNew', demo.known ? `Already used for tests · ${demo.known}` : 'Not used for tests yet')
   set('demoShort', demo.name)
+  const kmBest = kmFrom(TURIN, best), kmNear = demo.km_home ?? kmFrom(TURIN, demo)
+  set('demoKmTxt', `${km(kmNear)} from Turin`)
+  set('bestName', `${best.name}${best.country ? ', ' + best.country.replace('United States', 'USA') : ''}`)
+  set('bestScore', best.score.toFixed(2)); set('bestKm', km(kmBest)); set('bestKnown', best.known ? `already used for tests (${best.known})` : 'not used for tests yet')
+  set('bestField', pct(fieldShare(best))); set('bestWindow', `${best.snow_free_months ?? '—'} months a year`)
+  set('nearField', pct(fieldShare(demo))); set('nearWindow', `${demo.snow_free_months ?? '—'} months a year`)
+  set('nearKm', km(kmNear)); set('kmSaved', `−${Math.round((1 - kmNear / kmBest) * 100)}%`)
+  set('giveUp', `−${(best.score - demo.score).toFixed(2)}`)
+  set('nearRadius', `${Number(NEAR_PICK.radius).toLocaleString('en')} km`)
+  set('unexName', unexplored.name); set('n1500', `${near1500.name}, ${near1500.country} · ${km(near1500.km_home ?? 0)}`)
   set('quoteFac', demo.facilities.slice(0, 3).map(f => f.name.split(/[,(]/)[0].trim()).join(' · ') || '—')
   set('quoteBreaks', Object.entries(demo.params || {}).filter(([, v]) => v < 0.3).map(([k]) => PARAM_LABEL[k] || k).join(', ') || 'none')
-  set('demoRank', demoIdx ? `#${demoIdx + 1} on Earth · first not used for tests` : 'First place on Earth')
-  const skipped = [...new Set(demoList.slice(0, demoIdx).map(p => p.known))]
-  set('demoSkip', demoIdx ? `#1–${demoIdx} already used: ${skipped.join(', ')}` : '')
+  set('demoRank', `Near you · Turin · within ${Number(NEAR_PICK.radius).toLocaleString('en')} km · #${NEAR_PICK.index + 1}`)
+  set('demoSkip', `${km(kmNear)} from Turin · best on Earth ${best.score.toFixed(2)} is already used (${best.known || 'new'}), ${km(kmBest)} away`)
   set('appUrl', (APP || 'URL to add').replace(/^https?:\/\//, ''))
   set('topNew', D.top_new ? `${D.top_new[0]} of ${D.top_new[1]}` : '—')
   $('#demoMeter').style.setProperty('--v', `${Math.round(demo.score * 100)}%`)
@@ -608,9 +655,10 @@ function hexMap() {
   const cell = (lat, lon) => { const r = Math.round(((LAT0 - lat) / (LAT0 - LAT1)) * (rows - 1)); return [r, Math.round(((lon + 180) / 360) * (cols - 1) - (r % 2) / 2)] }
   const land = new Map(), key = (r, c) => r * 1000 + c
   for (let i = 0; i < e.length; i += 3) { const [r, c] = cell(e[i + 1], e[i]); if (r >= 0 && r < rows) land.set(key(r, c), (land.get(key(r, c)) || 0) + 1) }
-  const hot = new Map()
-  for (const list of Object.values(D.results)) list.forEach(p => { const [r, c] = cell(p.lat, p.lon); hot.set(key(r, c), Math.max(hot.get(key(r, c)) || 0, p.score)) })
-  const known = new Set(D.known_sites.filter(k => k.lat != null).map(k => key(...cell(k.lat, k.lon))))
+  // caso guida: arancio = posti non ancora usati (Unexplored e Near you), contorno = i migliori ma già usati
+  const hot = new Map(), seen = [...(D.unexplored?.[DEMO_CASE] || []), ...Object.values(nearSet.by_radius || {}).flat()]
+  seen.filter(p => !p.known).forEach(p => { const [r, c] = cell(p.lat, p.lon); hot.set(key(r, c), Math.max(hot.get(key(r, c)) || 0, p.score)) })
+  const known = new Set((D.results[DEMO_CASE] || []).filter(p => p.known).map(p => key(...cell(p.lat, p.lon))))
   const poly = (r, c) => { const cx = c * w + (r % 2) * w / 2 + w / 2, cy = r * h + R; return Array.from({ length: 6 }, (_, i) => { const a = (60 * i - 30) * RAD; return `${(cx + R * 0.92 * Math.cos(a)).toFixed(1)},${(cy + R * 0.92 * Math.sin(a)).toFixed(1)}` }).join(' ') }
   let s = '', top = ''
   for (const [k, n] of land) {
@@ -619,7 +667,15 @@ function hexMap() {
     else s += `<polygon points="${poly(r, c)}" style="--d:${d.toFixed(2)}s"/>`
     if (known.has(k)) top += `<polygon class="known" points="${poly(r, c)}" style="--d:2s"/>`
   }
-  $('#hexsvg').innerHTML = `<svg viewBox="0 0 1140 ${(rows * h + R).toFixed(0)}">${s}${top}</svg>`
+  // anelli di 1.500 e 3.000 km intorno a Torino, sulla stessa proiezione delle celle
+  const xy = (lat, lon) => [((lon + 180) / 360) * (cols - 1) * w + w / 2, ((LAT0 - lat) / (LAT0 - LAT1)) * (rows - 1) * h + R]
+  const ring = dist => { const d = dist / 6371, a = TURIN.lat * RAD, o = TURIN.lon * RAD; return Array.from({ length: 73 }, (_, i) => {
+    const b = i * 5 * RAD, la = Math.asin(Math.sin(a) * Math.cos(d) + Math.cos(a) * Math.sin(d) * Math.cos(b))
+    const lo = o + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(a), Math.cos(d) - Math.sin(a) * Math.sin(la))
+    return xy(la / RAD, lo / RAD).map(v => v.toFixed(1)).join(',') }).join(' ') }
+  const [tx, ty] = xy(TURIN.lat, TURIN.lon)
+  const rings = [1500, 3000].map((d, i) => `<polyline class="ring" points="${ring(d)}" style="--d:${2 + i * 0.3}s"/><text class="ringl" x="${tx + 4}" y="${xy(TURIN.lat - d / 111, TURIN.lon)[1] + 13}" style="--d:${2 + i * 0.3}s">${d.toLocaleString('en')} km</text>`).join('')
+  $('#hexsvg').innerHTML = `<svg viewBox="0 0 1140 ${(rows * h + R).toFixed(0)}">${s}${top}${rings}<circle class="turin" cx="${tx}" cy="${ty}" r="5"/><text class="ringl" x="${tx + 8}" y="${ty - 7}" style="--d:2s">Turin</text></svg>`
 }
 
 // ---------------------------------------------------------------- pianeti a puntini (canvas)
@@ -644,11 +700,11 @@ function prep(flat) {
 const W = {}
 for (const k of ['moon', 'mars', 'earth']) W[k] = { pts: prep(D.dots[k]), x: 960, y: 540, r: 1, a: 0, lat: 0, lonEff: 0, spinOff: 0, from: null, to: null, t0: 0, delta: 0 }
 
-let markers = [], arcs = [], sceneT0 = 0, sceneKey = '', introT0 = performance.now()
+let markers = [], arcs = [], sceneT0 = 0, sceneKey = '', introT0 = tnow()
 function setScene(sc) {
   const key = JSON.stringify(sc)
   if (key === sceneKey) return
-  sceneKey = key; sceneT0 = performance.now()
+  sceneKey = key; sceneT0 = tnow()
   for (const k in W) {
     const p = W[k], to = { ...{ x: p.x, y: p.y, r: p.r, lat: p.lat, lon: p.lonEff, spin: 0 }, ...(sc[k] || {}), a: sc[k]?.a ?? 0 }
     p.from = { x: p.x, y: p.y, r: p.r, a: p.a, lat: p.lat, lon: p.lonEff }
@@ -706,7 +762,7 @@ function drawArc(arc, t) {
   ctx.stroke(); ctx.setLineDash([])
   if (prog >= 1) { const [x, y] = pt((t * 0.45 + (arc.phase || 0)) % 1); ctx.globalAlpha = a; ctx.fillStyle = '#ff5a1f'; ctx.beginPath(); ctx.arc(x, y, 5, 0, TAU); ctx.fill() }
 }
-let last = performance.now(), K = 0.5
+let last = tnow(), K = 0.5
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now
   const th = THEME[document.documentElement.dataset.theme] || THEME.dark, t = (now - sceneT0) / 1000
@@ -723,7 +779,7 @@ function frame(now) {
   for (const k of ['earth', 'mars', 'moon']) drawPlanet(k, th, intro)
   arcs.forEach(a => drawArc(a, t)); markers.forEach(m => drawMarker(m, th, t))
   ctx.globalAlpha = 1
-  requestAnimationFrame(frame)
+  if (!REC) requestAnimationFrame(frame)
 }
 
 // distanza in linea d'aria (km), come haversineKm dell'app
@@ -734,22 +790,23 @@ function kmFrom(a, b) {
 
 // scena dei pianeti per slide e passo
 function scene(i, st) {
-  const h = target('haworth'), moonSites = D.targets.filter(t => t.world === 'moon')
+  const h = target(DEMO_CASE.split('__')[0])
   const hidden = { moon: { x: 1450, y: 470, r: 290, a: 0, lat: -30, lon: -20 }, mars: { x: 1720, y: 870, r: 130, a: 0, lat: 18, lon: -150 }, earth: { x: 1500, y: 560, r: 360, a: 0, lat: 32, lon: 12 } }
   switch (i) { // 0 chi siamo · 1 cosa facciamo · 2 demo · 3 come · 4 vantaggio · 5 roadmap · 6 obiettivo
     case 0: return { ...hidden, moon: { x: 1540, y: 450, r: 270, a: st ? 1 : 0.3, lat: -30, lon: -20, spin: 3 }, mars: { x: 1745, y: 860, r: 125, a: st ? 1 : 0.3, lat: 18, lon: -150, spin: 4 },
       earth: { x: 1340, y: 900, r: 52, a: st >= 2 ? 1 : 0, lat: 30, lon: 10, spin: 6 } }
-    case 1: return { ...hidden, moon: { x: 290, y: 885, r: 108, a: 1, lat: -58, lon: -10 }, earth: { x: 1630, y: 885, r: 132, a: 1, lat: 28, lon: demo.lon + 20 },
-      markers: [...moonSites.filter(t => t.lat < -80).map(t => ({ w: 'moon', lat: t.lat, lon: t.lon, small: true, phase: Math.random() })),
+    case 1: return { ...hidden, moon: { x: 290, y: 885, r: 108, a: 1, lat: h.lat * 0.5, lon: h.lon + 12 }, earth: { x: 1630, y: 885, r: 132, a: 1, lat: 34, lon: demo.lon - 20 },
+      markers: [{ w: 'moon', lat: h.lat, lon: h.lon, small: true },
         ...(st >= 1 ? [{ w: 'earth', lat: demo.lat, lon: demo.lon, delay: 1.9 }] : [])],
       arcs: st >= 1 ? [{ from: { w: 'moon', lat: h.lat, lon: h.lon }, to: { w: 'earth', lat: demo.lat, lon: demo.lon }, lift: 0.18, delay: 0.9 }] : [] }
     case 4: {
-      const T = { lat: 45.07, lon: 7.69 }, fac = demo.facilities.filter((f, j, a) => a.findIndex(g => g.lat === f.lat && g.lon === f.lon) === j && Math.hypot(f.lat - T.lat, f.lon - T.lon) > 1)
       const show = st < 2
-      return { ...hidden, earth: { x: 1490, y: 640, r: 360, a: show ? 1 : 0.14, lat: 38, lon: -48 },
-        markers: show ? [{ w: 'earth', ...T, label: 'Turin · test team', dx: -18, dy: 26 }, { w: 'earth', lat: demo.lat, lon: demo.lon, label: `field site · ${kmFrom(T, demo).toLocaleString('en')} km`, dx: -18, delay: 1.4 },
-          ...fac.map((f, j) => ({ w: 'earth', lat: f.lat, lon: f.lon, label: f.name.split(/[,(]/)[0].trim(), small: true, dx: f.lon < -30 ? -18 : 18, dy: j % 2 ? 20 : -18, delay: 1.6 + j * 0.2 }))] : [],
-        arcs: show ? [{ from: { w: 'earth', ...T }, to: { w: 'earth', lat: demo.lat, lon: demo.lon }, delay: 1 }] : [] } // come l'app: solo la rotta sede → posto
+      return { ...hidden, earth: { x: 1490, y: 640, r: 360, a: show ? 1 : 0.14, lat: 40, lon: -34 },
+        markers: show ? [{ w: 'earth', ...TURIN, label: 'Turin', dx: -18, dy: 26 },
+          { w: 'earth', lat: best.lat, lon: best.lon, label: `best on Earth · ${km(kmFrom(TURIN, best))}`, dx: 18, dy: -20, delay: 1.2, small: true },
+          { w: 'earth', lat: demo.lat, lon: demo.lon, label: `near you · ${km(demo.km_home ?? kmFrom(TURIN, demo))}`, dx: -18, dy: 26, delay: 1.6 }] : [],
+        arcs: show ? [{ from: { w: 'earth', ...TURIN }, to: { w: 'earth', lat: best.lat, lon: best.lon }, delay: 0.8, lift: 0.22 },
+          { from: { w: 'earth', ...TURIN }, to: { w: 'earth', lat: demo.lat, lon: demo.lon }, delay: 1.2, phase: 0.5 }] : [] }
     }
     case 2: case 3: case 5: return hidden
     case 6: return { moon: { x: 1250, y: 655, r: 112, a: 1, lat: -30, lon: -20, spin: 4 }, earth: { x: 1510, y: 655, r: 140, a: 1, lat: 25, lon: 10, spin: 6 }, mars: { x: 1745, y: 655, r: 82, a: 1, lat: 18, lon: -150, spin: 5 } }
@@ -762,7 +819,7 @@ const slides = $$('.slide'), dotsEl = $('#dots'), bc = 'BroadcastChannel' in win
 
 // app dal vivo: iframe caricato subito (nascosto) così alla slide della demo è già calda; nella finestra presentatore non c'è
 const APP = new URLSearchParams(location.search).get('app') || APP_URL
-const live = APP && !location.search.includes('presenter') ? Object.assign(document.createElement('iframe'), { id: 'live', src: APP, allow: 'fullscreen; clipboard-write' }) : null
+const live = APP && !REC && !location.search.includes('presenter') ? Object.assign(document.createElement('iframe'), { id: 'live', src: APP, allow: 'fullscreen; clipboard-write' }) : null
 let liveOn = !!live, liveShown = false
 if (live) {
   document.body.append(live)
@@ -795,15 +852,15 @@ const maxStep = s => (liveOn && s === slides[DEMO_SLIDE] ? 0 : Math.max(0, ...$$
 slides.forEach(() => dotsEl.append(document.createElement('i')))
 
 function countUp(el) {
-  const to = +el.dataset.count, t1 = performance.now()
+  const to = +el.dataset.count, t1 = tnow()
   el.textContent = to // valore finale subito: se rAF è fermo il numero resta giusto
-  const tick = now => { const e = ease(clamp((now - t1) / 1200)); el.textContent = Math.round(to * e); if (e < 1 && el._on) requestAnimationFrame(tick) }
-  requestAnimationFrame(tick)
+  const tick = now => { const e = ease(clamp((now - t1) / 1200)); el.textContent = Math.round(to * e); if (e < 1 && el._on) raf(tick) }
+  raf(tick)
 }
 function render() {
   slides.forEach((s, i) => { s.classList.toggle('on', i === cur); if (i !== cur) $$('.rv.in', s).forEach(e => e.classList.remove('in')) })
   const s = slides[cur]
-  setTimeout(() => { // un attimo dopo: la slide è visibile prima che partano le transizioni (setTimeout e non rAF: il testo compare anche se rAF è fermo)
+  later(() => { // un attimo dopo: la slide è visibile prima che partano le transizioni (timer e non rAF: il testo compare anche se rAF è fermo)
     if (s !== slides[cur]) return // nel frattempo si è cambiata slide: non riaccendere quella vecchia
     $$('.rv', s).forEach(e => e.classList.toggle('in', stepOf(e) <= step && step <= untilOf(e)))
     $$('[data-count]', s).forEach(e => { const on = stepOf(e) <= step; if (on && !e._on) { e._on = true; countUp(e) } else if (!on) { e._on = false; e.textContent = '0' } })
@@ -837,12 +894,12 @@ let acroOn = false, acroTimer = null, lastCur = -1, lastStep = -1
 function acro(st, animate) {
   const want = st >= 1, A = $('#acro'), letters = $$('#logo span'), inits = $$('#acro .i')
   if (want === acroOn) return
-  acroOn = want; clearTimeout(acroTimer)
+  acroOn = want; cancel(acroTimer)
   const settle = () => letters.forEach(l => { l.style.transition = 'none'; l.style.transform = ''; l.style.color = '' })
   if (!want) { A.classList.remove('hl', 'done'); settle(); return }
   A.classList.add('hl')
   if (!animate || reduced) { A.classList.add('done'); settle(); return }
-  acroTimer = setTimeout(() => {
+  acroTimer = later(() => {
     const k = $('#stage').getBoundingClientRect().width / 1920
     letters.forEach(l => { l.style.transition = 'none'; l.style.transform = '' })
     letters.forEach((l, j) => { // stessa posizione, misura e colore dell'iniziale: il cambio non si vede
@@ -861,9 +918,9 @@ function acro(st, animate) {
 // scaletta del video segnaposto: un passo ogni 1,6 s
 let storyTimer = null
 function storyline() {
-  clearInterval(storyTimer); const li = $$('#storyline li'); li.forEach(l => l.classList.remove('on'))
+  cancel(storyTimer); const li = $$('#storyline li'); li.forEach(l => l.classList.remove('on'))
   if (cur !== DEMO_SLIDE) return
-  let j = 0; storyTimer = setInterval(() => { li.forEach((l, k) => l.classList.toggle('on', k === j % li.length)); j++ }, 1600)
+  let j = 0; const tick = () => { li.forEach((l, k) => l.classList.toggle('on', k === j % li.length)); j++; storyTimer = later(tick, 1600) }; storyTimer = later(tick, 1600)
 }
 
 const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
@@ -913,14 +970,29 @@ function fit() {
 addEventListener('resize', fit)
 
 // ---------------------------------------------------------------- avvio
-if (!DRAFT) document.body.classList.remove('draft')
+if (!DRAFT || REC) document.body.classList.remove('draft')
+if (REC) { // un passo di tempo virtuale: timer scaduti, contatori, transizioni CSS, SVG animati e canvas dei pianeti
+  document.body.classList.add('recording')
+  window.__advance = ms => {
+    VT += ms
+    for (let t; (t = vtimers.filter(x => x.at <= VT).sort((a, b) => a.at - b.at)[0]);) { vtimers.splice(vtimers.indexOf(t), 1); t.fn() }
+    vraf.splice(0).forEach(cb => cb(VT))
+    for (const a of document.getAnimations()) { // transizioni e animazioni CSS: ferme, portate al tempo virtuale; quelle finite si chiudono
+      if (a.__t0 == null) { a.__t0 = VT; a.pause() }
+      const t = VT - a.__t0, end = a.effect?.getComputedTiming().endTime ?? Infinity
+      if (t >= end) a.finish(); else a.currentTime = t
+    }
+    $$('svg').forEach(g => { if (g.querySelector('animate, animateMotion')) { g.pauseAnimations(); g.setCurrentTime(VT / 1000) } })
+    frame(VT)
+  }
+}
 if (location.search.includes('presenter')) document.body.classList.add('presenter')
 $('#demo').addEventListener('loadeddata', () => { $('#frame').classList.add('has-video'); render() })
 if (D.generated_at) $('#draftbadge').textContent += ` · export ${D.generated_at.slice(5, 16).replace('T', ' ')} UTC`
 bind(); fit()
 const [hs, hst] = location.hash.slice(1).split('.').map(Number)
 go((hs || 1) - 1, hst || 0)
-requestAnimationFrame(frame)
+if (!REC) requestAnimationFrame(frame)
 </script>
 </body>
 </html>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>POLENTA · demo slot</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<!-- Segnaposto dello slot demo nel video (record.mjs). Sparisce quando c'è video/demo/<file>. -->
+<style>
+:root{--bg:#04060a;--ink:#f2f3f5;--mute:#8f96a0;--line:rgba(255,255,255,.12);--accent:#ff5a1f;--star:rgba(255,255,255,.45)}
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg);color:var(--ink);font:400 14px/1.5 "Libre Franklin",sans-serif}
+body{background-image:radial-gradient(1px 1px at 20px 30px,var(--star),transparent),radial-gradient(1px 1px at 120px 80px,var(--star),transparent),
+  radial-gradient(1.5px 1.5px at 60px 150px,var(--star),transparent),radial-gradient(1px 1px at 170px 190px,var(--star),transparent);background-size:240px 260px;
+  padding:92px 120px;display:flex;flex-direction:column;justify-content:center;gap:28px}
+.kick{font:400 22px "Space Mono",monospace;color:var(--mute)}
+.kick b{color:var(--accent);font-weight:400}
+h1{font:400 92px/1.05 "Michroma",sans-serif;letter-spacing:.02em}
+p{font:400 30px/1.4 "Libre Franklin",sans-serif;color:var(--mute);max-width:1300px}
+.frame{margin-top:24px;width:1120px;height:300px;border:2px dashed var(--line);border-radius:28px;display:grid;place-items:center;font:400 22px "Space Mono",monospace;color:var(--mute)}
+</style>
+</head>
+<body>
+  <div class="kick"><b>POLENTA</b> · FVG Station · NASA Space Apps 2026 · Turin</div>
+  <h1 id="t">Live demo of the platform</h1>
+  <p>Slot of <b id="s">60</b> seconds for the real app. To be recorded once we decide what to show.</p>
+  <div class="frame">video/demo/demo-platform.mp4</div>
+<script>
+const q = new URLSearchParams(location.search)
+if (q.get('t')) document.getElementById('t').textContent = q.get('t')
+if (q.get('s')) document.getElementById('s').textContent = q.get('s')
+if (q.get('f')) document.querySelector('.frame').textContent = 'video/demo/' + q.get('f')
+</script>
+</body>
+</html>
