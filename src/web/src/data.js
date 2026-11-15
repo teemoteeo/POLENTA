@@ -2,10 +2,20 @@ import { load as loadYaml } from 'js-yaml'
 // catalogo dei test: quello della pipeline (Edo e Rocco), stessi id dei file di export
 import testsRaw from '../../../data/config/tests.yaml?raw'
 import manifest from '../../../data/export/manifest.json'
+import labels from '../../../data/export/labels.json'
+import facilities from '../../../data/export/facilities.json'
+import benchmark from '../../../data/export/benchmark.json'
+import targets from '../../../data/export/targets.json'
 import { toView } from './trek.js'
+import { plan, rankByCampaign } from './campaign.js'
 
 export const TESTS = loadYaml(testsRaw).tests
 export const EXPORTED_AT = manifest.generated_at
+export const LABELS = labels
+export const FACILITIES = facilities
+export const BENCHMARK = benchmark
+export const MANIFEST = manifest
+export const TARGETS = targets
 
 // Siti scelti dal team: human_docs/coordinate_6_siti_frontend.csv (stessi id di data/export/targets.json).
 // Coordinate planetocentriche, longitudine est positiva in -180/+180 (Phoenix: 234,2508°E = -125,7492).
@@ -39,7 +49,10 @@ const TOP = 5 // i posti mostrati per ogni sito × test: i primi della classific
 
 // null se la pipeline non ha ancora girato per questa coppia (oggi: Aristarchus Plateau)
 export function getResults(siteId, testId) {
-  const results = EXPORT[`../../../data/export/sites/${siteId}__${testId}.json`]?.slice(0, TOP)
+  const top = EXPORT[`../../../data/export/sites/${siteId}__${testId}.json`]?.slice(0, TOP)
+  // i primi 5 per somiglianza, poi riordinati per campagna più semplice (campaign.js)
+  const w = TESTS[testId].requisiti
+  const results = top && rankByCampaign(top.map(r => ({ ...r, plan: plan(r, w) })), w)
   // zones: gli esagoni H3 di ogni posto (zona = esagoni che si toccano); rank = posto in classifica
   return results ? { results, zones: results.flatMap((r, i) => r.h3_cells.map(h3 => ({ h3, rank: i + 1 }))) } : null
 }

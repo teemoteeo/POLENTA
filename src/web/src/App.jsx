@@ -7,30 +7,12 @@ import DotModel, { preload } from './DotModel.jsx'
 import DotPlanet from './DotPlanet.jsx'
 import './trek.js' // registra il protocollo trek:// prima della mappa
 import { SITES, TESTS, MODELS, EXPORTED_AT, loadDots, getResults } from './data.js'
-
-const PARAM_LABEL = {
-  slope_p90: 'Pendenza', roughness: 'Rugosità', crater_density: 'Crateri', rock_cover: 'Rocce',
-  low_sun_frac: 'Sole radente', albedo: 'Albedo', grain_proxy: 'Granulometria', bulk_density: 'Densità del suolo',
-  bulk_density_0_5: 'Densità del suolo', permafrost_share: 'Ghiaccio nel suolo',
-  rock_class: 'Tipo di roccia', gravity_1_6: 'Gravità 1/6', vacuum: 'Vuoto', electrostatic_dust: 'Polvere elettrostatica',
-  plume_vacuum: 'Getto del motore nel vuoto', soil_density: 'Densità della regolite', cryo_psr: 'Gelo delle zone in ombra', agglutinates: 'Agglutinati',
-}
-const BREAK = 0.3
-// valori fisici dell'export: [unità, moltiplicatore, decimali] (params.csv). grain_proxy: inerzia termica, si confronta per percentile
-const UNIT = {
-  slope_p90: ['°', 1, 1], roughness: [' m', 1, 1], crater_density: ['/km²', 1, 2], rock_cover: ['%', 100, 1], low_sun_frac: ['%', 100, 0],
-  albedo: ['', 1, 2], grain_proxy: ['', 1, 3], bulk_density_0_5: [' g/cm³', 1, 2], permafrost_share: ['%', 100, 0],
-}
-const num = (v, d = 1) => (v == null ? '—' : v.toLocaleString('it-IT', { maximumFractionDigits: d })) // la pipeline lascia null dove non ha il dato
-// un valore o un intervallo [min, max] con la sua unità; '—' se la pipeline non ha il dato
-function phys(p, v) {
-  if (v == null) return '—'
-  if (typeof v === 'string') return v
-  const [u, k, d] = UNIT[p] || ['', 1, 2]
-  return (Array.isArray(v) ? [...new Set(v.map(x => num(x * k, d)))].join('–') : num(v * k, d)) + u
-}
-const coord = (v, pos, neg) => num(Math.abs(v), 2) + '°' + (v < 0 ? neg : pos)
-const H3_KM2 = 253 // area media di un esagono H3 a risoluzione 5
+import { coord } from './format.js'
+import { TEST_EN } from './i18n.js'
+import PlaceCard from './PlaceCard.jsx'
+import ResultsList from './ResultsList.jsx'
+import { logisticsLayers, logisticsMarkers } from './logistics.js'
+import { Benchmark, Method } from './Sheets.jsx'
 
 // Colori per tema e mondo: pagina, sfera, puntini
 const PALETTE = {
@@ -45,7 +27,7 @@ const FADE = [3.5, 5]
 const IMG_FADE = ['interpolate', ['linear'], ['zoom'], FADE[0], 0, FADE[1], 1]
 const RASTERS = { moon: ['moon'], mars: ['mars'], earth: ['gibs', 'esri'] }
 // size: raggio rispetto a Marte (Luna 1.737 km, Marte 3.390 km)
-const PLANETS = { mars: { name: 'Marte', what: '2 siti di atterraggio', size: 1 }, moon: { name: 'Luna', what: '3 regioni Artemis III al Polo Sud · Aristarchus Plateau', size: 0.51 } }
+const PLANETS = { mars: { name: 'Mars', what: '2 landing sites', size: 1 }, moon: { name: 'Moon', what: '3 Artemis III regions at the South Pole · Aristarchus Plateau', size: 0.51 } }
 // durate (ms) dei passaggi, uguali in andata e ritorno; curve: OUT rallenta alla fine, IN è la stessa rovesciata
 const T = { planet: 2600, site: 4500, siteBack: 2600, warp: 3000, card: 2600, next: 1200 } // siteBack: il ritorno dal sito è più corto dell'andata
 const OUT = t => 1 - (1 - t) ** 3, IN = t => t ** 3
@@ -77,7 +59,6 @@ const STYLE = {
 
 // vista d'arrivo di ogni pianeta, con i siti in vista
 const HOME = { moon: { center: [-4, -6], zoom: 2.45, pitch: 35, bearing: -18 }, mars: { center: [-174, 30], zoom: 2.3, pitch: 15, bearing: 0 } }
-const pct = s => Math.round(s * 100)
 
 // il pianeta sta a destra del pannello (desktop) o sopra (mobile)
 const basePad = () => (innerWidth > 820 ? { left: innerWidth * 0.5, top: 0, right: 0, bottom: 0 } : { left: 0, top: 0, right: 0, bottom: innerHeight * 0.42 })
@@ -95,6 +76,7 @@ export default function App() {
   const [testId, setTestId] = useState(null)
   const [hoverTest, setHoverTest] = useState(null)
   const [picked, setPicked] = useState(0)
+  const [sheet, setSheet] = useState(null) // null | 'benchmark' | 'method'
   const [zoom, setZoom] = useState(HOME.moon.zoom)
   const [dots, setDots] = useState({ moon: [], mars: [], earth: [] })
   const addDots = w => d => setDots(o => ({ ...o, [w]: d }))
@@ -162,8 +144,9 @@ export default function App() {
     if (world === 'earth' && data) layers.push(new H3HexagonLayer({ id: 'zones', data: data.zones, getHexagon: d => d.h3,
       getFillColor: d => [...pal.accent, step === 'card' && d.rank !== picked + 1 ? 45 : 150], updateTriggers: { getFillColor: [step, picked] },
       getLineColor: [255, 255, 255, 230], stroked: true, lineWidthMinPixels: 1, extruded: false, highPrecision: true }))
+    if (world === 'earth' && step === 'card' && result) layers.push(...logisticsLayers({ result, accent: pal.accent, theme }))
     overlay.current?.setProps({ layers })
-  }, [world, dots, data, zoom, theme, step, picked]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [world, dots, data, zoom, theme, step, picked, result]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // pin: siti con il nome su Luna e Marte, risultati numerati sulla Terra
   useEffect(() => {
@@ -174,12 +157,18 @@ export default function App() {
       // Terra: i pin dietro il globo spariscono del tutto (MapLibre di suo li lascia al 20%); Luna e Marte restano come prima
       return new maplibregl.Marker({ element: el, anchor, ...(world === 'earth' && { opacityWhenCovered: '0' }) }).setLngLat(at).addTo(map.current)
     }
-    markers.current = step === 'planet' ? []
+    const base = step === 'planet' ? []
       : world !== 'earth' ? SITES.filter(s => s.world === world).map(s =>
         pin('site' + (s === site ? ' on' : ''), `<svg><line x2="${s.tag[0]}" y2="${s.tag[1]}"/></svg><i></i>`
           + `<span style="left:${s.tag[0]}px;top:${s.tag[1]}px;--tx:${s.tag[0] < 0 ? -100 : s.tag[0] > 0 ? 0 : -50}%">${s.name}</span>`, s.pos, () => chooseSite(s)))
       : !data ? [] : data.results.map((r, i) => pin('pin' + (i === picked ? ' on' : ''), i + 1, [r.lon, r.lat], () => jump(i)))
-  }, [world, step, site, data, picked]) // eslint-disable-line react-hooks/exhaustive-deps
+    const extra = world === 'earth' && step === 'card' && result ? logisticsMarkers(result).map(m => {
+      const mk = pin(m.className, m.html, m.lngLat, () => {})
+      mk.getElement().title = m.title || ''
+      return mk
+    }) : []
+    markers.current = [...base, ...extra]
+  }, [world, step, site, data, picked, result]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Animazioni. Ogni passo ha una posa di camera; ogni passaggio tra due passi vicini ha una durata sola.
   // Avanti la curva rallenta alla fine (OUT), indietro è la stessa rovesciata (IN): il ritorno è l'andata al contrario.
@@ -316,11 +305,7 @@ export default function App() {
   })
   const back = () => ({ card: leaveCard, results: () => chooseSite(site), test: leaveSite, site: toPlanets })[step]?.()
 
-  // scheda: i parametri del test dal più pesante, con voto, valore sulla Terra e valore del sito
-  const rows = result ? Object.entries(result.params).map(([p, s]) => ({ p, s, w: test.requisiti[p] || 0 })).sort((a, b) => b.w - a.w) : []
-  const names = l => l.map(r => (PARAM_LABEL[r.p] || r.p).toLowerCase()).join(', ')
-  const good = rows.filter(r => r.s >= 0.7), bad = rows.filter(r => r.s < BREAK)
-  const STEPS = [['site', 'Sito'], ['test', 'Test'], ['results', 'Dove']]
+  const STEPS = [['site', 'Site'], ['test', 'Test'], ['results', 'Where']]
   const stepIdx = { site: 0, test: 1, results: 2, card: 2 }[step]
 
   return (
@@ -331,29 +316,29 @@ export default function App() {
       <div className="left">
         <header className={'hero' + (step === 'planet' || step === 'site' ? '' : ' small')}>
           <p className="brand">FVG Station</p>
-          <h1>Dove testare sulla Terra<br />l'Hardware per la Luna e per Marte.</h1>
-          {step === 'planet' && <p className="lbl pick-hint">Scegli dove vai.</p>}
+          <h1>Where on Earth to test hardware<br />for the Moon and Mars.</h1>
+          {step === 'planet' && <p className="lbl pick-hint">Pick where you go.</p>}
         </header>
 
         {step !== 'planet' && <section className="panel glass">
           <nav className="steps">
-            <button className="backbtn" onClick={back} aria-label="Indietro">←</button>
+            <button className="backbtn" onClick={back} aria-label="Back">←</button>
             {STEPS.map(([k, l], i) => (
               <span key={k} className={i === stepIdx ? 'on' : i < stepIdx ? 'done' : ''}><b className="fig">{i + 1}</b>{l}</span>
             ))}
           </nav>
-          {(site || test) && <p className="crumb">{[site && `${site.name} · ${coord(site.lat, 'N', 'S')} ${coord(site.lon, 'E', 'O')}`, test?.nome].filter(Boolean).join(' · ')}</p>}
+          {(site || test) && <p className="crumb">{[site && `${site.name} · ${coord(site.lat, 'N', 'S')} ${coord(site.lon, 'E', 'W')}`, test && TEST_EN[testId].name].filter(Boolean).join(' · ')}</p>}
 
           {step === 'site' && (<>
-            <h2>Dove atterri?</h2>
-            <p className="lbl">{PLANETS[world]?.what}. Scegline uno qui o sul pianeta.</p>
+            <h2>Where do you land?</h2>
+            <p className="lbl">{PLANETS[world]?.what}. Pick one here or on the planet.</p>
             <ul className="grid2">
               {SITES.filter(s => s.world === world).map(s => <li key={s.name}><button onClick={() => chooseSite(s)}>{s.name}</button></li>)}
             </ul>
           </>)}
 
           {step === 'test' && (<>
-            <h2>Cosa vuoi testare?</h2>
+            <h2>What do you want to test?</h2>
             {model && (
               <figure className="panel-model" key={model.src}>
                 <DotModel src={model.src} color={theme === 'dark' ? '#e6edf7' : '#1a1d24'} />
@@ -365,83 +350,19 @@ export default function App() {
                 <li key={id}>
                   <button disabled={!getResults(site.id, id)} onClick={() => chooseTest(id)}
                     onMouseEnter={() => setHoverTest(id)} onMouseLeave={() => setHoverTest(null)} onFocus={() => setHoverTest(id)}>
-                    <span>{t.nome}{!getResults(site.id, id) && <em className="tag">in arrivo</em>}</span>
-                    <small>{t.cosa_si_testa}</small>
+                    <span>{TEST_EN[id].name}{!getResults(site.id, id) && <em className="tag">coming soon</em>}</span>
+                    <small>{TEST_EN[id].what}</small>
                   </button>
                 </li>
               ))}
             </ul>
           </>)}
 
-          {step === 'results' && data && (<>
-            <h2>Dove farlo sulla Terra</h2>
-            <p className="lbl">I {data.results.length} posti più simili a {site.name} per questo test. Il voto va da 0 a 100.</p>
-            <ol className="list">
-              {data.results.map((r, i) => (
-                <li key={r.id}>
-                  <button className="row" onClick={() => choosePlace(i)}>
-                    <span><b className="fig">{i + 1}</b> {r.name}<small> · {r.country}</small></span><span className="fig score">{pct(r.score)}</span>
-                  </button>
-                </li>
-              ))}
-            </ol>
-          </>)}
+          {step === 'results' && data && <ResultsList data={data} onPick={choosePlace} />}
 
-          {step === 'card' && result && (<>
-            <ol className="places">
-              {data.results.map((r, i) => (
-                <li key={r.id}>
-                  <button className={i === picked ? 'on' : ''} onClick={() => jump(i)} aria-current={i === picked}>
-                    <b className="fig">{i + 1}</b><span>{r.name}</span><span className="fig score">{pct(r.score)}</span>
-                  </button>
-                </li>
-              ))}
-            </ol>
-            <h2>{result.name}</h2>
-            <p className="lbl">{result.country} · <span className="fig">{coord(result.lat, 'N', 'S')} {coord(result.lon, 'E', 'O')}</span> ·{' '}
-              <a href={`https://www.google.com/maps/@${result.lat},${result.lon},40000m/data=!3m1!1e3`} target="_blank" rel="noreferrer">vista satellite</a></p>
-            <p className="verdict"><b className="fig">{pct(result.score)}</b><span>su 100: quanto somiglia a {site.name} per {test.nome.toLowerCase()}</span></p>
-            <p className="chips">
-              <span className="tag">{result.new ? 'sito nuovo' : 'sito di test già usato'}</span>
-              <span className="tag">{result.h3_cells.length === 1 ? '1 esagono' : result.h3_cells.length + ' esagoni'} · ~{num(result.h3_cells.length * H3_KM2, 0)} km²</span>
-              <span className="tag">dati sul {pct(result.kappa)}% del peso</span>
-            </p>
+          {step === 'card' && result && <PlaceCard data={data} picked={picked} site={site} test={{ name: TEST_EN[testId].name }} testId={testId} onJump={jump} />}
 
-            <h3>Perché qui</h3>
-            <p className="lbl">
-              {good.length ? `Coincide con ${site.name} su ${names(good)}.` : `Nessun parametro coincide del tutto con ${site.name}: è il posto meno lontano.`}
-              {bad.length ? ` Non regge su ${names(bad)}.` : ''}
-            </p>
-            <ul className="bars">
-              {rows.map(({ p, s, w }) => (
-                <li key={p} className={s < BREAK ? 'brk' : ''}>
-                  <span>{PARAM_LABEL[p] || p}</span>
-                  <i><b style={{ width: pct(s) + '%' }} /></i>
-                  <span className="fig">{s < BREAK ? 'si rompe' : pct(s)}</span>
-                  <small className="lbl">peso {pct(w)}% · qui {phys(p, result.values[p])} · {site.name} {phys(p, result.target[p])}</small>
-                </li>
-              ))}
-            </ul>
-
-            <h3>Dove l'analogia non regge</h3>
-            <ul className="cover">
-              {result.breaks.map(b => (
-                <li key={b.param}><span>{PARAM_LABEL[b.param] || b.param} <small className="lbl">· {b.why}</small></span><span className="lbl">→ {b.covered_by.join(' · ') || 'nessuna struttura in elenco'}</span></li>
-              ))}
-            </ul>
-
-            <h3>Sul posto</h3>
-            <dl className="facts">
-              <dt>Mesi senza neve</dt><dd className="fig">{result.dossier.snow_free_months} su 12</dd>
-              <dt>Sole radente (0–7°)</dt><dd className="fig">{num(result.dossier.low_sun_hours)} h al giorno</dd>
-              {result.dossier.wind_10m != null && <><dt>Vento a 10 m</dt><dd className="fig">{num(result.dossier.wind_10m)} m/s</dd></>}
-              <dt>Luci notturne</dt><dd className="fig">{num(result.dossier.night_lights, 2)} <small className="lbl">(città: oltre 5)</small></dd>
-              <dt>Area protetta</dt><dd>{result.dossier.protected_area ? result.dossier.protected_area_name || 'sì' : 'no'}</dd>
-              <dt>Terreno</dt><dd>{result.dossier.terrain_src === '30m' ? 'misurato a 30 m' : 'stimato da 500 m'}</dd>
-            </dl>
-          </>)}
-
-          <p className="lbl foot">Modello FVG Station su dati NASA, ESA e JAXA · export del {new Date(EXPORTED_AT).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+          <p className="lbl foot">Model by FVG Station on NASA, ESA and JAXA data · export of {new Date(EXPORTED_AT).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
         </section>}
       </div>
 
@@ -455,9 +376,15 @@ export default function App() {
       </div>
 
       <div className="tools">
-        <button className="glass pill" onClick={restart}>Ricomincia</button>
-        <button className="glass pill" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Chiaro' : 'Scuro'}</button>
+        <button className="glass pill" onClick={() => setSheet(sheet === 'benchmark' ? null : 'benchmark')}>Benchmark</button>
+        <button className="glass pill" onClick={() => setSheet(sheet === 'method' ? null : 'method')}>Method &amp; data</button>
+        <button className="glass pill" onClick={restart}>Start over</button>
+        <button className="glass pill" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
       </div>
+      {sheet && <div className="sheet glass">
+        <button className="close" aria-label="Close" onClick={() => setSheet(null)}>×</button>
+        {sheet === 'benchmark' ? <Benchmark onOpen={() => {}} /> : <Method />}
+      </div>}
     </>
   )
 }
