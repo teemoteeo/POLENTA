@@ -83,3 +83,5 @@
 .places button{align-items:start}
 .places .score{white-space:nowrap}
 .left .panel.glass{background:color-mix(in srgb,var(--bg) 80%,transparent)}
+
+.verdict-line{font-size:15px;line-height:1.5;color:var(--ink);margin:12px 0 16px}

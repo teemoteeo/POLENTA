@@ -41,7 +41,7 @@ export function Benchmark({ onOpen }) {
   const tn = t => SHORT[t] || TEST_EN[t].name
   return <>
     <h2>Benchmark: {SITES.length} sites × {TEST_IDS.length} tests</h2>
-    <p className="sh-intro">For every pair, the simplest campaign found on Earth.</p>
+    <p className="sh-intro">For every pair, the simplest campaign found on Earth. Click a cell to open that campaign.</p>
     <table className="bm">
       <thead><tr><th />{TEST_IDS.map(t => <th key={t} title={TEST_EN[t].name}>{tn(t)}</th>)}</tr></thead>
       <tbody>{['moon', 'mars'].map(w => <Fragment key={w}>
@@ -50,11 +50,11 @@ export function Benchmark({ onOpen }) {
           <th scope="row" title={s.name}>{s.name}</th>
           {TEST_IDS.map(t => {
             const r = top(s.id, t)
-            return <td key={t}>{r ? <div className="cell">
+            return <td key={t}>{r ? <button className="cell" onClick={() => onOpen(s.id, t)}>
               <span className="pl" title={placeName(r.name)}>{placeName(r.name)}</span>
               <span className="row2"><span className="fig big">{pct(r.plan.fieldShare)}%</span><Bar plan={r.plan} /></span>
               <span className="mute small ln">{r.plan.nFacilities} {r.plan.nFacilities === 1 ? 'facility' : 'facilities'} · sim {pct(r.score)}</span>
-            </div> : <span className="mute">—</span>}</td>
+            </button> : <span className="mute">—</span>}</td>
           })}
         </tr>)}
       </Fragment>)}</tbody>

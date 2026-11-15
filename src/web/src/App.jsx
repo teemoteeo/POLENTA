@@ -13,6 +13,7 @@ import PlaceCard from './PlaceCard.jsx'
 import ResultsList from './ResultsList.jsx'
 import { logisticsLayers, logisticsMarkers, homeMarker, campaignPose } from './logistics.js'
 import { Benchmark, Method } from './Sheets.jsx'
+import { CASES } from './cases.js'
 
 // Colori per tema e mondo: pagina, sfera, puntini
 const PALETTE = {
@@ -309,6 +310,24 @@ export default function App() {
   })
   const back = () => ({ card: leaveCard, results: () => chooseSite(site), test: leaveSite, site: toPlanets })[step]?.()
 
+  // case presets: chain the normal navigation steps. nav always holds this render's closures; run is a cancel token
+  const nav = useRef(null), run = useRef(0)
+  nav.current = { step, world, choosePlanet, chooseSite, chooseTest, choosePlace, toPlanets }
+  async function openCase(siteId, testId) {
+    const s = SITES.find(x => x.id === siteId)
+    if (!s || !getResults(siteId, testId) || busy.current || run.current) return
+    const me = run.current = ++caseId.current
+    const tick = () => wait(60)
+    try {
+      if (nav.current.step !== 'planet') { await nav.current.toPlanets(); await tick() }
+      for (const go of [n => n.choosePlanet(s.world), n => n.chooseSite(s), n => n.chooseTest(testId), n => n.choosePlace(0)]) {
+        if (caseId.current !== me) return
+        await go(nav.current); await tick()
+      }
+    } finally { if (run.current === me) run.current = 0 }
+  }
+  const caseId = useRef(0)
+
   useEffect(() => {
     const k = e => e.key === 'Escape' && setSheet(null)
     window.addEventListener('keydown', k)
@@ -318,6 +337,7 @@ export default function App() {
   // campaign view: plain flights, outside act(); the effect below resets the label on any place/step change
   const [campaignView, setCampaignView] = useState(false)
   useEffect(() => setCampaignView(false), [picked, step, site, testId])
+  useEffect(() => { box.current.classList.toggle('campaign', campaignView || step !== 'card') }, [campaignView, step]) // markers only hidden in the card view
   const toggleCampaign = () => {
     if (busy.current || !result) return
     const next = !campaignView
@@ -339,6 +359,11 @@ export default function App() {
           <h1>Where on Earth to test hardware<br />for the Moon and Mars.</h1>
           {step === 'planet' && <p className="lbl pick-hint">Pick where you go.</p>}
         </header>
+
+        {step === 'planet' && <section className="cases">
+          <p className="lbl">Case studies</p>
+          {CASES.map(c => <button key={c.id} onClick={() => openCase(c.site, c.test)}><span>{c.title}</span><small>{c.sub}</small></button>)}
+        </section>}
 
         {step !== 'planet' && <section className="panel glass">
           <nav className="steps">
@@ -406,12 +431,12 @@ export default function App() {
       <div className="tools">
         <button className="glass pill" onClick={() => setSheet(sheet === 'benchmark' ? null : 'benchmark')}>Benchmark</button>
         <button className="glass pill" onClick={() => setSheet(sheet === 'method' ? null : 'method')}>Method &amp; data</button>
-        <button className="glass pill" onClick={restart}>Start over</button>
+        <button className="glass pill" onClick={() => { caseId.current++; restart() }}>Start over</button>
         <button className="glass pill" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
       </div>
       {sheet && <div className="sheet glass">
         <button className="close" aria-label="Close" onClick={() => setSheet(null)}>×</button>
-        {sheet === 'benchmark' ? <Benchmark onOpen={() => {}} /> : <Method />}
+        {sheet === 'benchmark' ? <Benchmark onOpen={(s, t) => { setSheet(null); openCase(s, t) }} /> : <Method />}
       </div>}
     </>
   )
