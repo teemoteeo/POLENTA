@@ -437,7 +437,7 @@ export default function App() {
             {model && (
               <figure className="panel-model" key={model.src}>
                 <DotModel src={model.src} color="#e6edf7" />
-                <figcaption className="lbl">{model.name} · NASA 3D Resources</figcaption>
+                <figcaption className="lbl">{model.name}{model.own ? ' · FVG Station model' : ' · NASA 3D Resources'}</figcaption>
               </figure>
             )}
             <ul className="list">

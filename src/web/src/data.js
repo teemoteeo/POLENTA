@@ -48,7 +48,8 @@ export const SITES = [
 export const MODELS = {
   rover_mobility: { src: '/models/rover.glb', name: 'Rover Perseverance' },
   flight_hda_lidar: { src: '/models/lander.glb', name: 'Lander lunare Apollo' },
-  isru_subsurface: { src: '/models/rover.glb', name: 'Rover Perseverance (scavo e prelievo)' },
+  // trivella a coclea su treppiede, con gli strati del sottosuolo: modello nostro, generato a mano (non NASA)
+  isru_subsurface: { src: '/models/drill.glb', name: 'Subsurface drill rig', own: true },
 }
 
 // Pianeti a puntini [lon, lat, peso], precalcolati una volta su 50–59.000 punti di Fibonacci (il generatore è nella storia git, commit 67e90bc).
