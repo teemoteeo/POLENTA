@@ -7,7 +7,7 @@
     "fonts": "node fonts.mjs",
     "preview": "node record.mjs --profile pitch --scale 1 --fps 30",
     "pitch": "node record.mjs --profile pitch --scale 2 --fps 30",
-    "submission": "node record.mjs --profile submission --scale 2 --fps 30",
+    "submission": "node record.mjs --profile submission --scale 1 --fps 30 --crf 18",
     "compose": "node record.mjs --profile pitch --scale 2 --fps 30 --compose-only"
   },
   "devDependencies": {

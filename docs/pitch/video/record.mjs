@@ -24,7 +24,8 @@ const W = 1920, H = 1080, OW = W * SCALE, OH = H * SCALE
 const prof = JSON.parse(readFileSync(join(here, 'timeline.json'), 'utf8')).profiles[PROFILE]
 if (!prof) throw new Error(`profilo sconosciuto: ${PROFILE} (vedi timeline.json)`)
 const T = prof.transition?.seconds || 0, seq = prof.sequence
-const secOf = b => (b.deck ? b.deck.reduce((n, s) => n + s[2], 0) : b.seconds)
+const cutSec = c => (c.to - c.from) / (c.speed || 1)
+const secOf = b => (b.deck ? b.deck.reduce((n, s) => n + s[2], 0) : b.cuts ? b.cuts.reduce((n, c) => n + cutSec(c), 0) : b.seconds)
 const total = seq.reduce((n, b) => n + secOf(b), 0) - T * (seq.length - 1)
 if (prof.max_seconds && total > prof.max_seconds) {
   console.error(`✗ ${PROFILE}: ${total.toFixed(1)} s > ${prof.max_seconds} s. Accorcia timeline.json.`)
@@ -32,7 +33,7 @@ if (prof.max_seconds && total > prof.max_seconds) {
 }
 
 const outDir = join(here, 'out'); mkdirSync(outDir, { recursive: true })
-const tag = `${PROFILE}-${OH}p${FPS}`, seg = i => join(outDir, `seg${i}-${tag}.mp4`), finalMp4 = join(outDir, `polenta-${tag}.mp4`)
+const tag = `${PROFILE}-${OH}p${FPS}`, seg = i => join(outDir, `seg${i}-${tag}.mp4`), finalMp4 = join(outDir, prof.output || `polenta-${tag}.mp4`)
 const X264 = ['-c:v', 'libx264', '-preset', 'medium', '-crf', CRF, '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart']
 const run = args => { const r = spawnSync(FFMPEG, args, { stdio: 'inherit' }); if (r.status !== 0) throw new Error(`ffmpeg è uscito con ${r.status ?? r.error}`) }
 const duration = f => { const m = spawnSync(FFMPEG, ['-hide_banner', '-i', f]).stderr.toString().match(/Duration: (\d+):(\d+):([\d.]+)/); return m ? m[1] * 3600 + m[2] * 60 + +m[3] : NaN }
@@ -87,10 +88,32 @@ try {
   // 2) le clip: il video della demo se c'è, altrimenti un segnaposto nello stile del deck
   for (const [b, i] of seq.map((b, i) => [b, i]).filter(([b]) => b.clip)) {
     const src = join(here, 'demo', b.clip)
-    if (existsSync(src)) {
+    const fit = `scale=${OW}:${OH}:force_original_aspect_ratio=decrease:flags=lanczos,pad=${OW}:${OH}:(ow-iw)/2:(oh-ih)/2:color=0x04060a,fps=${FPS},setsar=1`
+    if (existsSync(src) && b.cuts) {
+      // cuts: pezzi della clip, ognuno con la sua velocità e una didascalia (caption.html → PNG trasparente) che entra ed esce in dissolvenza
+      const ins = ['-i', src], parts = []
+      let fc = ''
+      for (const [k, c] of b.cuts.entries()) {
+        const d = cutSec(c), q = new URLSearchParams({ t: c.caption || '', s: c.sub || '', n: `${k + 1}/${b.cuts.length}` })
+        fc += `[0:v]trim=${c.from}:${c.to},setpts=(PTS-STARTPTS)/${c.speed || 1},${fit}[v${k}];`
+        if (!c.caption) { parts.push(`[v${k}]`); continue }
+        await page.goto(`${base}/video/caption.html?${q}`)
+        await page.evaluate(() => document.fonts.ready)
+        const png = join(outDir, `caption${k}-${OH}p.png`)
+        await page.screenshot({ path: png, type: 'png', omitBackground: true })
+        ins.push('-loop', '1', '-framerate', String(FPS), '-t', d.toFixed(3), '-i', png)
+        const n = ins.filter(a => a === '-i').length - 1, cf = 0.3
+        fc += `[${n}:v]format=rgba,fade=t=in:st=0:d=${cf}:alpha=1,fade=t=out:st=${(d - cf).toFixed(3)}:d=${cf}:alpha=1[c${k}];[v${k}][c${k}]overlay=0:0:shortest=1[o${k}];`
+        parts.push(`[o${k}]`)
+      }
+      fc += `${parts.join('')}concat=n=${parts.length}:v=1:a=0[v]`
+      run(['-y', '-loglevel', 'error', ...ins, '-filter_complex', fc, '-map', '[v]', '-an', ...X264, seg(i)])
+      console.log(`✓ blocco ${i + 1} (clip ${b.clip}, ${b.cuts.length} pezzi, ${secOf(b).toFixed(1)} s)`)
+    } else if (existsSync(src)) {
+      const sp = b.speed || 1, f = b.fade ? `,fade=t=in:st=0:d=${b.fade},fade=t=out:st=${b.seconds - b.fade}:d=${b.fade}` : '' // speed: accelera la clip
       run(['-y', '-loglevel', 'error', '-i', src, '-t', String(b.seconds), '-an',
-        '-vf', `scale=${OW}:${OH}:force_original_aspect_ratio=decrease:flags=lanczos,pad=${OW}:${OH}:(ow-iw)/2:(oh-ih)/2:color=0x04060a,fps=${FPS},setsar=1`, ...X264, seg(i)])
-      console.log(`✓ blocco ${i + 1} (clip ${b.clip}, ${Math.min(b.seconds, duration(src)).toFixed(1)} s)`)
+        '-vf', `setpts=PTS/${sp},scale=${OW}:${OH}:force_original_aspect_ratio=decrease:flags=lanczos,pad=${OW}:${OH}:(ow-iw)/2:(oh-ih)/2:color=0x04060a,fps=${FPS},setsar=1${f}`, ...X264, seg(i)])
+      console.log(`✓ blocco ${i + 1} (clip ${b.clip}${sp > 1 ? ` a ${sp}×` : ''}, ${Math.min(b.seconds, duration(src) / sp).toFixed(1)} s)`)
     } else {
       await page.goto(`${base}/video/placeholder.html?s=${b.seconds}&f=${encodeURIComponent(b.clip)}&t=${encodeURIComponent(b.title || '')}`)
       await page.evaluate(() => document.fonts.ready)

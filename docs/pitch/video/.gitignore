@@ -1,5 +1,9 @@
 node_modules/
 # video: tutti i file video restano in locale
 out/
-demo/*.mp4
-demo/*.mov
+demo/
+*.mp4
+*.mov
+*.m4v
+*.webm
+*.mkv

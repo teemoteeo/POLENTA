@@ -89,8 +89,10 @@ Per registrarla serve l'app vera con le mappe (internet). Si decide insieme come
 
 | Profilo | Cosa contiene | Durata | Uso |
 |---|---|---|---|
-| `submission` | slide principali + slot demo | **≤ 30 s, bloccante** (se `timeline.json` supera i 30 s, si ferma) | submission NASA |
-| `full` | tutto il deck (senza la slide 3) + **slot di 60 s per la demo vera** in fondo | ~2:20 | pitch, YouTube, LinkedIn: **non** per la submission |
+| `submission` | slide 1 (team, challenge, nome e tagline) → demo vera con 5 didascalie in inglese (come funziona, dati NASA) → slide 7 (obiettivo), sulla scaletta della guida NASA | **29,9 s**, bloccante sopra i 30 s | submission NASA: `out/POLENTA-SUBMISSION-30s.mp4` |
+| `pitch` | slide 1 → demo della piattaforma (59 s) → slide 2-7, uniti da dissolvenze | **4:00** esatti | pitch dal vivo: `out/POLENTA-FINAL.mp4` (rinominato a mano), **non** per la submission |
+
+I video restano in locale (`out/` e `demo/` sono ignorati da git): si caricano su YouTube o Drive con link pubblico.
 
 In alternativa al video, per la submission vale anche il deck stesso (7 slide) come link pubblico.
 
@@ -100,7 +102,7 @@ In alternativa al video, per la submission vale anche il deck stesso (7 slide) c
 - `npm run pitch`: il video del pitch in 3840×2160, 30 fps: **slide 1 (POLENTA) → demo della piattaforma → slide 2-7**, uniti da dissolvenze (~3:34, sotto i 4:00). Circa 15 min di calcolo;
 - `npm run compose`: rifà solo clip e montaggio, riusando i blocchi del deck già registrati (dopo aver cambiato la demo);
 - `npm run preview`: lo stesso a 1920×1080, più veloce;
-- `npm run submission`: taglio di massimo 30 s (bloccante).
+- `npm run submission`: il video da 30 s in 1920×1080, in meno di un minuto (la demo viene da `demo/demo-platform.mp4`).
 
 **Demo della piattaforma:** `video/demo-drive.sh <surface>` percorre l'app nel browser di cmux con i tempi giusti (Moon → Aristarchus → Rover → Best on Earth → Unexplored → Near you Torino 1.500 → 3.000 km → primo risultato → scheda). Un cursore a freccia (iniettato nella pagina) scivola su ogni elemento prima del click. Registrata con lo schermo di cmux (Computer Use, workspace con l'app a tutto schermo e barra laterale nascosta), ritagliata sull'area dell'app e salvata in `video/demo/demo-platform.mp4` (1710×982, 59 s).
 
@@ -108,9 +110,7 @@ Il risultato è in `video/out/polenta-<profilo>-2160p30.mp4` (H.264 High, yuv420
 
 **Scaletta del video:** `video/timeline.json`, una riga per passo `[slide, passo, secondi]`. Si cambia lì, senza toccare il deck.
 
-**Demo della piattaforma (slot in fondo):** metti la clip in `video/demo/demo-platform.mp4` (profilo full, 60 s) o `video/demo/demo-platform-30s.mp4` (submission). La pipeline la scala a 4K, la taglia alla durata dello slot e la unisce. Finché manca, al suo posto c'è un segnaposto nello stile del deck. Per registrarla:
-- a mano: app a tutto schermo, macOS ⌘⇧5 (registra schermo), salvare la clip nella cartella;
-- in automatico: uno script Playwright con i click della demo, da scrivere quando decidiamo cosa mostrare (serve internet per le tessere delle mappe).
+**Clip della demo:** un blocco `clip` prende `video/demo/<file>`, lo scala e lo taglia alla durata dello slot (finché manca, al suo posto c'è un segnaposto nello stile del deck). Opzioni: `speed` accelera, `fade` dissolve dal nero e al nero, `cuts` divide la clip in pezzi con velocità e didascalia propria (`caption.html` → PNG trasparente sopra la demo; `*parola*` in arancione).
 
 **Come funziona:** con `index.html?record` il deck usa un orologio virtuale (`__advance`): timer, contatori, transizioni CSS, SVG animati e pianeti avanzano di 1/30 s per fotogramma. Chrome headless cattura un PNG per volta e ffmpeg li codifica: ogni fotogramma è esatto anche se in 4K la cattura è ~5 volte più lenta del tempo reale. Nessun accesso a internet durante la registrazione: i font sono in `fonts/` (copiati da `video/fonts.mjs`), e servono anche per il pitch offline.
 
