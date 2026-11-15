@@ -50,11 +50,11 @@ export function Benchmark({ onOpen }) {
           <th scope="row" title={s.name}>{s.name}</th>
           {TEST_IDS.map(t => {
             const r = top(s.id, t)
-            return <td key={t}>{r ? <button onClick={() => onOpen(s.id, t)}>
+            return <td key={t}>{r ? <div className="cell">
               <span className="pl" title={placeName(r.name)}>{placeName(r.name)}</span>
               <span className="row2"><span className="fig big">{pct(r.plan.fieldShare)}%</span><Bar plan={r.plan} /></span>
-              <span className="mute small ln">{r.plan.nFacilities} {r.plan.nFacilities === 1 ? 'facility' : 'facilities'} · similarity {pct(r.score)}</span>
-            </button> : <span className="mute">—</span>}</td>
+              <span className="mute small ln">{r.plan.nFacilities} {r.plan.nFacilities === 1 ? 'facility' : 'facilities'} · sim {pct(r.score)}</span>
+            </div> : <span className="mute">—</span>}</td>
           })}
         </tr>)}
       </Fragment>)}</tbody>

@@ -309,6 +309,12 @@ export default function App() {
   })
   const back = () => ({ card: leaveCard, results: () => chooseSite(site), test: leaveSite, site: toPlanets })[step]?.()
 
+  useEffect(() => {
+    const k = e => e.key === 'Escape' && setSheet(null)
+    window.addEventListener('keydown', k)
+    return () => window.removeEventListener('keydown', k)
+  }, [])
+
   // campaign view: plain flights, outside act(); the effect below resets the label on any place/step change
   const [campaignView, setCampaignView] = useState(false)
   useEffect(() => setCampaignView(false), [picked, step, site, testId])

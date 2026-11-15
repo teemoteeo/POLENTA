@@ -17,6 +17,7 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
   const d = result.dossier
   const holds = rows.filter(r => r.state === 'holds'), partial = rows.filter(r => r.state === 'partial'), broken = rows.filter(r => r.state === 'breaks')
   const sentence = [
+    !broken.length && !partial.length ? 'Nothing breaks in the field.' : '',
     holds.length ? `Holds: ${names(holds)}.` : 'Nothing holds fully here.',
     partial.length ? `Partial: ${names(partial)}.` : '',
     broken.length ? `Breaks: ${names(broken)}.` : '',
@@ -56,9 +57,9 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
       <a href={`https://www.google.com/maps/@${result.lat},${result.lon},40000m/data=!3m1!1e3`} target="_blank" rel="noreferrer">satellite view</a></p>
 
     <div className="heads">
-      <p><b className="fig key">{pct(plan.fieldShare)}%</b><span>of the test covered in the field</span></p>
-      <p><b className="fig">{plan.nFacilities}</b><span>partner facilities close the rest</span></p>
-      <p><b className="fig">{km(plan.kmSite)}</b><span>km from Turin to the site</span></p>
+      <p><b className="fig key">{pct(plan.fieldShare)}%</b><span>of the test, in field</span></p>
+      <p><b className="fig">{plan.nFacilities}</b><span>partner {plan.nFacilities === 1 ? 'facility' : 'facilities'}</span></p>
+      <p><b className="fig">{km(plan.kmSite)}</b><span>km from Turin</span></p>
     </div>
     <div className="stack" role="img" aria-label={bar.map(([k, v]) => `${k} ${pct(v)}%`).join(', ')}>
       {bar.map(([k, v]) => <i key={k} className={k} style={{ width: v * 100 + '%' }} />)}
@@ -97,21 +98,21 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
       <dt>Snow-free months</dt><dd className="fig">{d.snow_free_months} of 12</dd>
       <dt>Low-angle sun (0–7°)</dt><dd className="fig">{num(d.low_sun_hours)} h per day</dd>
       {d.wind_10m != null && <><dt>Wind at 10 m</dt><dd className="fig">{num(d.wind_10m)} m/s</dd></>}
-      <dt>Night lights</dt><dd className="fig">{num(d.night_lights, 2)} <small className="lbl">(city: above 5)</small></dd>
+      {d.night_lights != null && <><dt>Night lights</dt><dd className="fig">{num(d.night_lights, 2)} <small className="lbl">(city: above 5)</small></dd></>}
       <dt>Protected area</dt><dd>{d.protected_area ? d.protected_area_name || 'yes' : 'no'}</dd>
       <dt>Terrain</dt><dd>{d.terrain_src === '30m' ? 'measured at 30 m' : 'estimated from 500 m'}</dd>
     </dl>
     <p className="lbl">similarity {pct(result.score)}/100 · {result.new ? 'new site' : 'known test site'} · {result.h3_cells.length} {result.h3_cells.length === 1 ? 'hexagon' : 'hexagons'} ~{num(result.h3_cells.length * H3_KM2, 0)} km² · data on {pct(result.kappa)}% of the weight</p>
 
     <Step n="2" title="Indoors, partner facilities" />
-    <p className="lbl">{plan.inTurin.length} in Turin · {plan.nFacilities} facilities in {plan.nStops} locations</p>
+    <p className="lbl">{plan.inTurin.length} in Turin · {plan.nFacilities} {plan.nFacilities === 1 ? 'facility' : 'facilities'} in {plan.nStops} {plan.nStops === 1 ? 'location' : 'locations'}</p>
     {facs.map(f => (
       <div className="fac" key={f.id}>
         <p><b>{facilityName(f.name)}</b>
           <span className="tag">{f.km_client <= 50 ? 'in Turin' : `${km(f.km_client)} km`}</span></p>
         <p className="lbl">{placeName(f.place)}
           {typeof f.source === 'string' && f.source.startsWith('http') && <> · <a href={f.source} target="_blank" rel="noreferrer">source</a></>}</p>
-        <p className="lbl">closes: {join(f.covers.map(label))}</p>
+        <p className="lbl">closes: {join(f.covers.map(c => label(c).toLowerCase()))}</p>
       </div>
     ))}
     {plan.fixedGaps.length > 0 && <p className="lbl">Earth never reproduces: {join(plan.fixedGaps.map(g => label(g.param).toLowerCase()))}. These are always indoor.</p>}

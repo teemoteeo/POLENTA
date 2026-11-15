@@ -20,5 +20,5 @@ export const blockNotes = r => {
   const d = r.dossier
   return r.plan.warnings.filter(w => w === 'bare' || w === 'season').map(w => w === 'bare'
     ? { short: `${pct(d.valid_share)}% bare`, long: `only ${pct(d.valid_share)}% bare ground` }
-    : { short: `${d.snow_free_months} mo/yr`, long: `${d.snow_free_months} snow-free months` })
+    : { short: `${d.snow_free_months} mo/yr`, long: `${d.snow_free_months} snow-free ${d.snow_free_months === 1 ? 'month' : 'months'}` })
 }

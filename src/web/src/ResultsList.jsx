@@ -10,12 +10,12 @@ export default function ResultsList({ data, onPick }) {
       {data.results.map((r, i) => (
         <li key={r.id}>
           <button className="res" onClick={() => onPick(i)}>
+            {i === 0 && <em className="tag rec res-rec">simplest campaign</em>}
             <span className="res-top">
               <b className="fig">{i + 1}</b><span className="res-name">{placeName(r.name)}</span>
-              {i === 0 && <em className="tag rec">simplest campaign</em>}
               <span className="res-share fig">{pct(r.plan.fieldShare)}%<small>field</small></span>
             </span>
-            <small className="lbl res-sub">{r.country} · {r.plan.nFacilities} facilities · {km(r.plan.kmSite)} km from Turin · similarity {pct(r.score)}</small>
+            <small className="lbl res-sub">{r.country} · {r.plan.nFacilities} {r.plan.nFacilities === 1 ? 'facility' : 'facilities'} · {km(r.plan.kmSite)} km · sim {pct(r.score)}</small>
             {r.plan.blockers > 0 && <small className="lbl res-sub">Ranks lower: {blockNotes(r).map(n => n.long).join(', ')}</small>}
           </button>
         </li>

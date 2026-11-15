@@ -71,14 +71,16 @@ export function homeMarker(n = 0, title = 'Customer') {
 
 export function logisticsMarkers(result) {
   const { out, home } = groups(result)
-  const ms = [homeMarker(home.length, home.length ? home.map(short).join(', ') + ' · closes: ' + covers(home) : 'Customer')]
-  for (const g of out) {
+  const hm = homeMarker(home.length, home.length ? home.map(short).join(', ') + ' · closes: ' + covers(home) : 'Customer')
+  if (TURIN.lon > campaignPose(result).center[0]) hm.className += ' rev' // Turin east of the view centre: label on the left
+  const ms = [hm]
+  out.forEach((g, i) => {
     ms.push({
-      lngLat: [g.lon, g.lat], className: 'logi logi-fac',
+      lngLat: [g.lon, g.lat], className: 'logi logi-fac ' + (i % 2 ? 'dn' : 'up'),
       html: `<i></i><span>${esc(g.facs.map(short).join(' + '))}<small>${Math.round(kmBetween(TURIN, g)).toLocaleString('en')} km</small></span>`,
       title: 'Closes: ' + covers(g.facs),
     })
-  }
+  })
   return ms
 }
 
@@ -92,6 +94,6 @@ export function campaignPose(result) {
   const center = [Math.atan2(c[1], c[0]) / R, Math.asin(c[2] / n) / R]
   const cv = v({ lon: center[0], lat: center[1] })
   const deg = Math.max(...pts.map(p => Math.acos(Math.min(1, Math.max(-1, v(p).reduce((s, x, i) => s + x * cv[i], 0)))) / R))
-  const zoom = deg <= 20 ? 3.2 : deg <= 45 ? 2.2 : deg <= 75 ? 1.6 : 1.1
+  const zoom = deg <= 20 ? 2.5 : deg <= 45 ? 1.5 : deg <= 75 ? 0.7 : 0.3
   return { center, zoom, pitch: 0, bearing: 0 }
 }
