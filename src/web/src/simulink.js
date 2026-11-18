@@ -11,7 +11,7 @@
 //   values.<param>  valore unico (per il target: centro dell'intervallo di letteratura/LOLA)
 //   range.<param>   [min max] (per il posto sulla Terra: [v v])
 //   units.<param>   unità di params.csv
-//   rock_class      classe di roccia (target: litologia; Terra: codice GLiM)
+//   rock_class      classe di roccia (target: litologia; Terra: codice GLiM), rock_class_name il nome leggibile
 //   soil            Bekker-Wong da data/config/soil_mechanics.csv: c, phi, kc, kphi, n + source.<k> e status (Terra: NaN, non misurato)
 // Solo `polenta_analogue` ha in più `match` (punteggi della card) e `site` (dossier di campo).
 // I parametri sono quelli del test (pesi > 0 in tests.yaml): gli stessi righi della card, nello stesso ordine.
@@ -57,7 +57,7 @@ function soilFor(world, soil) {
   return { ...Object.fromEntries(SOIL_KEYS.map(k => [k, num(s[k])])), source: Object.fromEntries(SOIL_KEYS.map(k => [k, s.source[k] || ''])), status: s.status }
 }
 
-function core({ role, site, testId, name, world, lat, lon, params, raw, units, soil, exportedAt }) {
+function core({ role, site, testId, name, world, lat, lon, params, raw, units, soil, exportedAt, rockName = c => c }) {
   const numeric = params.filter(p => !CATEGORICAL.has(p))
   const ranges = Object.fromEntries(numeric.map(p => [field(p), asRange(raw[p])]))
   return {
@@ -67,6 +67,7 @@ function core({ role, site, testId, name, world, lat, lon, params, raw, units, s
     range: ranges,
     units: Object.fromEntries(numeric.map(p => [field(p), units[p] || ''])),
     rock_class: typeof raw.rock_class === 'string' ? raw.rock_class : '',
+    rock_class_name: typeof raw.rock_class === 'string' ? rockName(raw.rock_class) : '',
     soil: soilFor(world, soil),
   }
 }
@@ -139,7 +140,10 @@ for i = 1:numel(p)
     fprintf('%-18s %-12s [%9.4g %9.4g] %12.4g %6.2f  %s\\n', k, polenta_target.units.(k), r(1), r(2), ...
         polenta_analogue.values.(k), polenta_analogue.match.s.(k), polenta_analogue.match.state.(k));
 end
-fprintf('%-18s %-12s %21s %12s\\n', 'rock_class', '-', polenta_target.rock_class, polenta_analogue.rock_class);
+if isfield(polenta_analogue.match.s, 'rock_class')
+    fprintf('%-18s %-12s %21s   %s (s = %.2f, %s)\\n', 'rock_class', '-', polenta_target.rock_class_name, polenta_analogue.rock_class_name, ...
+        polenta_analogue.match.s.rock_class, polenta_analogue.match.state.rock_class);
+end
 fprintf('\\nBekker-Wong (target): c = %g kPa, phi = %g deg, kc = %g, kphi = %g, n = %g  [%s]\\n', ...
     polenta_target.soil.cohesion_kPa, polenta_target.soil.friction_angle_deg, polenta_target.soil.kc, ...
     polenta_target.soil.kphi, polenta_target.soil.n, polenta_target.soil.status);
