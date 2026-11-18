@@ -10,7 +10,7 @@ import { parseUnits, parseSoil, buildTarget, buildAnalogue, fileNames, targetMat
 const root = '../../data'
 const tests = load(fs.readFileSync(`${root}/config/tests.yaml`, 'utf8')).tests
 const targets = JSON.parse(fs.readFileSync(`${root}/export/targets.json`))
-const ctx = { units: parseUnits(fs.readFileSync(`${root}/config/params.csv`, 'utf8')), soil: parseSoil(fs.readFileSync(`${root}/config/soil_mechanics.csv`, 'utf8')), exportedAt: 'test' }
+const ctx = { units: parseUnits(fs.readFileSync(`${root}/config/params.csv`, 'utf8')), soil: parseSoil(fs.readFileSync(`${root}/config/soil_mechanics.csv`, 'utf8')), exportedAt: 'test', targets: Object.fromEntries(targets.map(t => [t.id, t])) }
 const out = process.env.OUT
 const keys = o => Object.keys(o).sort().join(',')
 
@@ -38,6 +38,9 @@ for (const site of targets) {
     }
     assert.equal(t.gravity_m_s2, { moon: 1.62, mars: 3.71 }[site.world])
     assert(Number.isNaN(a.soil.kc), 'la Terra non ha Bekker-Wong misurato')
+    for (const k of ['physical', 'physical_units', 'physical_source', 'notes']) assert.equal(keys(t[k]), keys(a[k]), `${k}: ${site.id} ${testId}`)
+    assert(t.physical.thermal_inertia_si > 0 && Number.isFinite(t.physical.t_mean_c), `physical mancante: ${site.id}`)
+    assert(Number.isNaN(a.physical.thermal_inertia_si) && a.physical.wind_m_s >= 0)
 
     const names = fileNames(site, testId, r.name)
     const mt = targetMat(t), ma = analogueMat(a), m = initScript(names, t, a)

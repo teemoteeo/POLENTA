@@ -13,6 +13,9 @@
 //   units.<param>   unità di params.csv
 //   rock_class      classe di roccia (target: litologia; Terra: codice GLiM), rock_class_name il nome leggibile
 //   soil            Bekker-Wong da data/config/soil_mechanics.csv: c, phi, kc, kphi, n + source.<k> e status (Terra: NaN, non misurato)
+//   physical        grandezze fisiche in unità SI o note (PHYSICAL), da usare nei modelli; target: card di targets.json,
+//                   Terra: solo il vento (dossier), il resto NaN. physical_units e physical_source accanto.
+//   notes.<param>   avviso per i parametri che sono solo indici di confronto (COMPARISON_ONLY): non usarli come grandezze fisiche
 // Solo `polenta_analogue` ha in più `match` (punteggi della card) e `site` (dossier di campo).
 // I parametri sono quelli del test (pesi > 0 in tests.yaml): gli stessi righi della card, nello stesso ordine.
 
@@ -22,6 +25,24 @@ export const SCHEMA = 'polenta-simulink-1'
 const GRAVITY = { moon: 1.62, mars: 3.71, earth: 9.81 } // m/s²
 const SOIL_KEYS = ['cohesion_kPa', 'friction_angle_deg', 'kc', 'kphi', 'n']
 const CATEGORICAL = new Set(['rock_class'])
+
+// campo → [chiave nella card di targets.json, unità, chiave in targets.json sources]
+const PHYSICAL = {
+  thermal_inertia_si: ['thermal_inertia_si', 'J m^-2 K^-1 s^-1/2', 'grain_proxy'],
+  rock_cover_pct: ['rock_cover_pct', '%', 'rock_cover'],
+  subsurface_ice_wt_pct: ['subsurface_ice_wt_pct', 'wt%', 'permafrost_share'],
+  t_mean_c: ['t_mean_c', 'degC', 'temperature'],
+  t_range_c: ['t_range_c', 'degC', 'temperature'],
+  bulk_density_0_2m: ['density_profile_0_2m', 'g/cm3', 'density_profile_0_2m'],
+  feo_wt_pct: ['feo_wt_pct', 'wt%', 'rock_class'],
+  elevation_m: ['elevation', 'm', 'elevation'],
+  air_density_kg_m3: ['air_density_kgm3', 'kg/m3', 'atmosphere_wind'],
+  wind_m_s: ['wind_ms', 'm/s', 'atmosphere_wind'],
+}
+const COMPARISON_ONLY = {
+  grain_proxy: 'index for percentile matching only (target and Earth use different instruments and units); use physical.thermal_inertia_si',
+  rock_cover: 'target: boulder abundance (Diviner / HiRISE); Earth: coarse fragments in the top 5 cm of soil (SoilGrids cfvo). Not the same quantity',
+}
 
 // params.csv → { param: unità }. Solo le prime tre colonne: le successive sono testo libero.
 export function parseUnits(csv) {
@@ -57,7 +78,7 @@ function soilFor(world, soil) {
   return { ...Object.fromEntries(SOIL_KEYS.map(k => [k, num(s[k])])), source: Object.fromEntries(SOIL_KEYS.map(k => [k, s.source[k] || ''])), status: s.status }
 }
 
-function core({ role, site, testId, name, world, lat, lon, params, raw, units, soil, exportedAt, rockName = c => c }) {
+function core({ role, site, testId, name, world, lat, lon, params, raw, units, soil, exportedAt, rockName = c => c, physical = {}, physicalSource = {} }) {
   const numeric = params.filter(p => !CATEGORICAL.has(p))
   const ranges = Object.fromEntries(numeric.map(p => [field(p), asRange(raw[p])]))
   return {
@@ -69,20 +90,26 @@ function core({ role, site, testId, name, world, lat, lon, params, raw, units, s
     rock_class: typeof raw.rock_class === 'string' ? raw.rock_class : '',
     rock_class_name: typeof raw.rock_class === 'string' ? rockName(raw.rock_class) : '',
     soil: soilFor(world, soil),
+    physical: Object.fromEntries(Object.entries(PHYSICAL).map(([k, [c]]) => [k, num(physical[c])])),
+    physical_units: Object.fromEntries(Object.entries(PHYSICAL).map(([k, [, u]]) => [k, u])),
+    physical_source: Object.fromEntries(Object.entries(PHYSICAL).map(([k, [, , src]]) => [k, physicalSource[src] || ''])),
+    notes: Object.fromEntries(params.filter(p => COMPARISON_ONLY[p]).map(p => [field(p), COMPARISON_ONLY[p]])),
   }
 }
 
 // result: un posto della card (data.results[i], con plan); site: SITES[i]; ctx: { units, soil, exportedAt }
 export function buildTarget(site, testId, result, ctx) {
   const params = result.plan.rows.map(r => r.p)
-  return core({ role: 'target', site, testId, name: site.name, world: site.world, lat: site.lat, lon: site.lon, params, raw: result.target || {}, ...ctx })
+  const t = ctx.targets?.[site.id] || {}
+  return core({ role: 'target', site, testId, name: site.name, world: site.world, lat: site.lat, lon: site.lon, params, raw: result.target || {}, ...ctx, physical: t.card || {}, physicalSource: t.sources || {} })
 }
 
 export function buildAnalogue(site, testId, result, displayName, ctx) {
   const params = result.plan.rows.map(r => r.p)
   const d = result.dossier || {}
   return {
-    ...core({ role: 'analogue', site, testId, name: displayName, world: 'earth', lat: result.lat, lon: result.lon, params, raw: result.values || {}, ...ctx }),
+    ...core({ role: 'analogue', site, testId, name: displayName, world: 'earth', lat: result.lat, lon: result.lon, params, raw: result.values || {}, ...ctx,
+      physical: { wind_ms: d.wind_10m }, physicalSource: { atmosphere_wind: 'MERRA-2 wind at 10 m (pipeline dossier)' } }),
     match: {
       score: num(result.score), kappa: num(result.kappa),
       s: Object.fromEntries(result.plan.rows.map(r => [field(r.p), num(r.s)])),
@@ -148,6 +175,13 @@ fprintf('\\nBekker-Wong (target): c = %g kPa, phi = %g deg, kc = %g, kphi = %g, 
     polenta_target.soil.cohesion_kPa, polenta_target.soil.friction_angle_deg, polenta_target.soil.kc, ...
     polenta_target.soil.kphi, polenta_target.soil.n, polenta_target.soil.status);
 fprintf('Bekker-Wong (analogue): %s\\n\\n', polenta_analogue.soil.source.kc);
+
+fprintf('Target physical: thermal inertia %g SI, rocks %g %%, ice %g wt%%, T mean %g degC (range %g), density 0-2 m %g g/cm3\\n', ...
+    polenta_target.physical.thermal_inertia_si, polenta_target.physical.rock_cover_pct, polenta_target.physical.subsurface_ice_wt_pct, ...
+    polenta_target.physical.t_mean_c, polenta_target.physical.t_range_c, polenta_target.physical.bulk_density_0_2m);
+n = fieldnames(polenta_target.notes);
+for i = 1:numel(n), fprintf('Note on %s: %s\\n', n{i}, polenta_target.notes.(n{i})); end
+fprintf('\\n');
 
 % In Simulink: Constant block = polenta_target.values.<param>, polenta_target.gravity_m_s2, polenta_target.soil.kphi ...
 % NaN means no data: check it before using a value.
