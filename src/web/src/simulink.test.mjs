@@ -38,6 +38,13 @@ for (const site of targets) {
     }
     assert.equal(t.gravity_m_s2, { moon: 1.62, mars: 3.71 }[site.world])
     assert(Number.isNaN(a.soil.kc), 'la Terra non ha Bekker-Wong misurato')
+    for (const k of ['range', 'source', 'status']) assert.equal(keys(t.soil[k]), keys(a.soil[k]), `soil.${k}`)
+    for (const [k, [lo, hi]] of Object.entries(t.soil.range)) {
+      if (Number.isNaN(t.soil[k])) { assert.equal(t.soil.status[k], 'not measured', `${site.id} ${k}: NaN senza stato`); continue }
+      assert(lo <= t.soil[k] && t.soil[k] <= hi, `${site.id} soil ${k}: valore fuori intervallo`)
+      assert(t.soil.source[k].length > 20, `${site.id} soil ${k}: fonte mancante`)
+    }
+    if (site.world === 'mars') assert(Number.isFinite(t.soil.cohesion_kPa) && Number.isFinite(t.soil.friction_angle_deg), `${site.id}: c e phi mancanti`)
     for (const k of ['physical', 'physical_units', 'physical_source', 'notes']) assert.equal(keys(t[k]), keys(a[k]), `${k}: ${site.id} ${testId}`)
     assert(t.physical.thermal_inertia_si > 0 && Number.isFinite(t.physical.t_mean_c), `physical mancante: ${site.id}`)
     assert(Number.isNaN(a.physical.thermal_inertia_si) && a.physical.wind_m_s >= 0)

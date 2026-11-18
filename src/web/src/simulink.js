@@ -12,7 +12,8 @@
 //   range.<param>   [min max] (per il posto sulla Terra: [v v])
 //   units.<param>   unità di params.csv
 //   rock_class      classe di roccia (target: litologia; Terra: codice GLiM), rock_class_name il nome leggibile
-//   soil            Bekker-Wong da data/config/soil_mechanics.csv: c, phi, kc, kphi, n + source.<k> e status (Terra: NaN, non misurato)
+//   soil            Bekker-Wong da data/config/soil_mechanics.csv, per sito (riga site = id del sito, altrimenti '*' = tutto il
+//                   pianeta): c, phi, kc, kphi, n (centro) + range.<k> [min max], source.<k>, status.<k> (Terra: NaN, non misurato)
 //   physical        grandezze fisiche in unità SI o note (PHYSICAL), da usare nei modelli; target: card di targets.json,
 //                   Terra: solo il vento (dossier), il resto NaN. physical_units e physical_source accanto.
 //   notes.<param>   avviso per i parametri che sono solo indici di confronto (COMPARISON_ONLY): non usarli come grandezze fisiche
@@ -49,17 +50,36 @@ export function parseUnits(csv) {
   return Object.fromEntries(csv.trim().split('\n').slice(1).map(l => l.split(',')).map(c => [c[0], c[2]]))
 }
 
-// soil_mechanics.csv → { world: { cohesion_kPa, ..., source: { param: fonte }, status } }
-export function parseSoil(csv) {
-  const out = {}
-  for (const l of csv.trim().split('\n').slice(1)) {
-    const [world, param, value, , source, status] = l.split(',')
-    const w = (out[world] ??= { source: {}, status: [] })
-    w[param] = value === '' ? NaN : Number(value)
-    w.source[param] = source
-    if (!w.status.includes(status)) w.status.push(status)
+// CSV con campi tra virgolette (le fonti contengono virgole)
+export function parseCsv(text) {
+  const rows = [[]]
+  let f = '', q = false
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]
+    if (q) {
+      if (c === '"' && text[i + 1] === '"') { f += '"'; i++ } else if (c === '"') q = false; else f += c
+    } else if (c === '"') q = true
+    else if (c === ',') { rows.at(-1).push(f); f = '' }
+    else if (c === '\n') { rows.at(-1).push(f); f = ''; rows.push([]) }
+    else if (c !== '\r') f += c
   }
-  for (const w of Object.values(out)) w.status = w.status.join(' ')
+  rows.at(-1).push(f)
+  return rows.filter(r => r.some(x => x !== ''))
+}
+
+// soil_mechanics.csv → { world: { site: { value: {k}, range: {k: [lo, hi]}, source: {k}, status: {k} } } }; site '*' = tutto il pianeta
+export function parseSoil(csv) {
+  const [head, ...rows] = parseCsv(csv)
+  const out = {}
+  const n = x => (x === '' || x == null ? NaN : Number(x))
+  for (const r of rows) {
+    const { world, site, param, value, lo, hi, source, status } = Object.fromEntries(head.map((h, i) => [h, r[i]]))
+    const s = ((out[world] ??= {})[site] ??= { value: {}, range: {}, source: {}, status: {} })
+    s.value[param] = n(value)
+    s.range[param] = [n(lo), n(hi)]
+    s.source[param] = source
+    s.status[param] = status
+  }
   return out
 }
 
@@ -71,11 +91,19 @@ const field = p => p.replace(/[^A-Za-z0-9_]/g, '_')
 export const slug = s => s.normalize('NFKD').replace(/[^\x00-\x7f]/g, '').toLowerCase()
   .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'place'
 
-function soilFor(world, soil) {
-  const s = soil[world]
-  const none = 'not measured: no Bekker-Wong data for Earth hexagons, measure on site (bevameter, shear vane)'
-  if (!s) return { ...Object.fromEntries(SOIL_KEYS.map(k => [k, NaN])), source: Object.fromEntries(SOIL_KEYS.map(k => [k, none])), status: 'missing' }
-  return { ...Object.fromEntries(SOIL_KEYS.map(k => [k, num(s[k])])), source: Object.fromEntries(SOIL_KEYS.map(k => [k, s.source[k] || ''])), status: s.status }
+// per ogni parametro: la riga del sito se c'è, altrimenti quella del pianeta ('*'), altrimenti NaN
+function soilFor(world, siteId, soil) {
+  const none = world === 'earth' ? 'not measured: no Bekker-Wong data for Earth hexagons, measure on site (bevameter, shear vane)'
+    : 'missing in soil_mechanics.csv'
+  const rows = soil[world] || {}
+  const pick = k => [rows[siteId], rows['*']].find(s => s && k in s.value)
+  const by = f => Object.fromEntries(SOIL_KEYS.map(k => [k, f(k, pick(k))]))
+  return {
+    ...by((k, s) => (s ? num(s.value[k]) : NaN)),
+    range: by((k, s) => (s ? s.range[k].map(num) : [NaN, NaN])),
+    source: by((k, s) => (s ? s.source[k] : none)),
+    status: by((k, s) => (s ? s.status[k] : 'not measured')),
+  }
 }
 
 function core({ role, site, testId, name, world, lat, lon, params, raw, units, soil, exportedAt, rockName = c => c, physical = {}, physicalSource = {} }) {
@@ -89,7 +117,7 @@ function core({ role, site, testId, name, world, lat, lon, params, raw, units, s
     units: Object.fromEntries(numeric.map(p => [field(p), units[p] || ''])),
     rock_class: typeof raw.rock_class === 'string' ? raw.rock_class : '',
     rock_class_name: typeof raw.rock_class === 'string' ? rockName(raw.rock_class) : '',
-    soil: soilFor(world, soil),
+    soil: soilFor(world, site.id, soil),
     physical: Object.fromEntries(Object.entries(PHYSICAL).map(([k, [c]]) => [k, num(physical[c])])),
     physical_units: Object.fromEntries(Object.entries(PHYSICAL).map(([k, [, u]]) => [k, u])),
     physical_source: Object.fromEntries(Object.entries(PHYSICAL).map(([k, [, , src]]) => [k, physicalSource[src] || ''])),
@@ -171,9 +199,13 @@ if isfield(polenta_analogue.match.s, 'rock_class')
     fprintf('%-18s %-12s %21s   %s (s = %.2f, %s)\\n', 'rock_class', '-', polenta_target.rock_class_name, polenta_analogue.rock_class_name, ...
         polenta_analogue.match.s.rock_class, polenta_analogue.match.state.rock_class);
 end
-fprintf('\\nBekker-Wong (target): c = %g kPa, phi = %g deg, kc = %g, kphi = %g, n = %g  [%s]\\n', ...
-    polenta_target.soil.cohesion_kPa, polenta_target.soil.friction_angle_deg, polenta_target.soil.kc, ...
-    polenta_target.soil.kphi, polenta_target.soil.n, polenta_target.soil.status);
+fprintf('\\nBekker-Wong (target)\\n');
+b = fieldnames(polenta_target.soil.range);
+for i = 1:numel(b)
+    k = b{i};
+    r = polenta_target.soil.range.(k);
+    fprintf('  %-18s %9.4g  [%9.4g %9.4g]  %s\\n', k, polenta_target.soil.(k), r(1), r(2), polenta_target.soil.status.(k));
+end
 fprintf('Bekker-Wong (analogue): %s\\n\\n', polenta_analogue.soil.source.kc);
 
 fprintf('Target physical: thermal inertia %g SI, rocks %g %%, ice %g wt%%, T mean %g degC (range %g), density 0-2 m %g g/cm3\\n', ...
