@@ -1,0 +1,190 @@
+ISTRUZIONI PER EDOARDO (e per il suo agente)
+Rigenerare l'export di POLENTA su branch dev: ghiaccio ISRU + grandezze fisiche della Terra
+Scritto da Rocco, 18/11/2026. Leggi tutto prima di iniziare, poi esegui i passi in ordine.
+
+======================================================================
+0. REGOLE (da rispettare sempre)
+======================================================================
+
+0.1  Si lavora SOLO sul branch `dev` di teemoteeo/POLENTA.
+
+0.2  NON fare merge, rebase o cherry-pick dagli altri branch. In particolare NON portare su dev
+     i commit recenti di Timo che stanno su `main`, `timo/ux-design` e `night`
+     (es. e64a5d5 "Facilities: 10 European test sites...", 4b8ce36, 569b050 "Add Simulink &
+     Bekker-Wong soil mechanics documentation..."). Quei branch li integriamo più avanti, a mano.
+     Comandi vietati: `git merge main`, `git merge origin/main`, `git merge timo/ux-design`,
+     `git pull origin main`, `git rebase main`, qualsiasi `git checkout main`/`switch main` seguito da commit.
+
+0.3  Push solo con: `git push origin dev`. Mai `--force`. Mai push su main.
+
+0.4  Non committare: `data/raw/` (è già in .gitignore), `.env`, credenziali, file del venv.
+
+0.5  Se un passo fallisce o un controllo non torna, FERMATI e scrivi a Rocco cosa è successo
+     (comando, errore, numeri). Non inventare valori e non "aggiustare" i dati per far passare i controlli.
+
+======================================================================
+1. COSA È CAMBIATO SU DEV (contesto)
+======================================================================
+
+- Ghiaccio ISRU: nuova riga `ice_area_share` in data/config/siti_e_pesi.csv (peso ISRU 0,35).
+  Definizione unica per tutti i siti: quota di area con ghiaccio stabile entro 1 m di profondità,
+  entro 10 km dal punto di atterraggio (raggio LTV Artemis, NASA EVA-EXP-0075 p.22).
+  Luna polare: calcolata da src/pipeline/ice_access.py (Diviner) sulle regioni USGS ufficiali.
+  `subsurface_ice` (wt%) ora è solo informativo (pesi 0). targets.py non usa più ice_to_share.
+- Nuovo step `--step regions` (src/pipeline/artemis_regions.py): rigenera
+  data/raw/lola/artemis_regions.json dalle griglie USGS LGRS 1 km (McClernan 2024, doi:10.5066/P1MEQ6UK).
+- Punto 2, grandezze fisiche della Terra nel dossier (solo per i posti nelle card, niente ricalcolo globale):
+  * export.physical(): elevation_m, lst_mean_c, lst_half_range_c dalle feature già calcolate;
+  * surface.site_dossier(): air_density_kgm3 (MERRA-2, PS / (287.05 · T2M)) accanto a wind_10m,
+    e bulk_density_0_2m (SoilGrids bdod, 6 strati pesati sullo spessore).
+  ATTENZIONE: questo codice Earth Engine non è mai stato eseguito. Se dà errore, correggilo in modo
+  minimo (stessa definizione fisica, stesse fonti) e scrivilo nel messaggio di commit.
+- Nuova dipendenza: pyshp (in src/pipeline/requirements.txt).
+- Suolo Bekker-Wong (data/config/soil_mechanics.csv) ora è per sito: non riguarda la pipeline.
+
+======================================================================
+2. PREPARAZIONE
+======================================================================
+
+2.1  Vai nella repo e aggiorna dev:
+       cd <cartella della repo POLENTA>
+       git fetch origin
+       git checkout dev
+       git status            # deve essere pulito; se ci sono modifiche locali tue, FERMATI e chiedi
+       git pull --ff-only origin dev
+     Controllo: `git log --oneline -6` deve contenere 6eacfc6 (Punto 2), a83a6cf, ff23cdf, 02d9cb2,
+     ea05e38. Se il pull non è fast-forward, FERMATI (non fare merge).
+
+2.2  Attiva il venv della pipeline e installa i requisiti:
+       source src/pipeline/.venv/bin/activate
+       pip install -r src/pipeline/requirements.txt
+
+2.3  Controllo generale (deve dire ok anche per Earth Engine):
+       python -m src.pipeline.run --step check
+
+======================================================================
+3. DATI DA METTERE IN data/raw/ (fuori da git)
+======================================================================
+
+3.1  Diviner Polar Resource Product (LRO, PDS), ~605 MB. Scaricalo così:
+       mkdir -p data/raw/diviner
+       B=https://pds-geosciences.wustl.edu/lro/urn-nasa-pds-lro_diviner_derived1/data_derived_prp
+       curl -L -o data/raw/diviner/dlre_prp_south.tab $B/dlre_prp_south.tab
+       curl -L -o data/raw/diviner/dlre_prp_south.lbl $B/dlre_prp_south.lbl
+       curl -L -o data/raw/diviner/dlre_prp_south.xml $B/dlre_prp_south.xml
+     Controllo: dlre_prp_south.tab pesa 604800210 byte.
+
+3.2  Griglie USGS delle regioni Artemis III (solo quelle da 1 km). Rocco ti passa `usgs_lgrs_1km.zip`
+     (78 KB; ScienceBase blocca il download automatico). Scompattalo in data/raw/lola/:
+       mkdir -p data/raw/lola
+       unzip usgs_lgrs_1km.zip -d data/raw/lola/
+     Controllo: devono esistere
+       data/raw/lola/usgs_lgrs/Malapert_Massif/Malapert_Massif_PolarLGRS_ACC_1km_S_Grid.shp
+       data/raw/lola/usgs_lgrs/Haworth/Haworth_PolarLGRS_ACC_1km_S_Grid.shp
+       data/raw/lola/usgs_lgrs/Nobile_Rim_1/Nobile_Rim_1_PolarLGRS_ACC_1km_S_Grid.shp
+     Se non hai lo zip, FERMATI e chiedilo a Rocco (non usare il vecchio artemis_regions.json fatto a mano).
+
+3.3  Nessun altro dato nuovo: gli intermedi che hai già in data/raw/interim/ (features.parquet,
+     fine.parquet, lunar_terrain.json, site_dossier.json, ...) restano quelli. Non rifare grid,
+     terrain, surface, fine, features: non servono.
+
+======================================================================
+4. ESECUZIONE
+======================================================================
+
+4.1  Regioni USGS:
+       python -m src.pipeline.run --step regions
+     Atteso (km² veri):  Haworth 930 celle 941.3 | Malapert_Massif 462 celle 467.6 | Nobile_Rim_1 441 celle 446.3
+
+4.2  Ghiaccio (~30 s):
+       python -m src.pipeline.run --step ice
+     Atteso (p10, mediana, p90):
+       haworth          7259 punti  0.230  0.624  0.967
+       malapert_massif  3654 punti  0.007  0.150  0.666
+       nobile_rim_1     3444 punti  0.142  0.359  0.665
+     Deve stampare "regioni: USGS McClernan 2024 ...", NON "PROVVISORIO".
+     Questi valori sono già scritti in siti_e_pesi.csv: se i tuoi differiscono, FERMATI e avvisa Rocco.
+
+4.3  Export di prova (non tocca l'app; usa Earth Engine per il dossier dei posti):
+       python -m src.pipeline.run --step export
+     Scrive in data/raw/export_preview/. Le voci vecchie della cache del dossier vengono ricalcolate
+     (mancano i campi nuovi): è normale che faccia richieste a Earth Engine.
+
+4.4  Controlli sull'anteprima (tutti devono passare):
+     a) In data/raw/export_preview/targets.json, `values.permafrost_share` deve essere:
+          malapert_massif [0.007, 0.666]   haworth [0.23, 0.967]   nobile_rim_1 [0.142, 0.665]
+          aristarchus_plateau [0.0, 0.0]   phoenix [1.0, 1.0]      gale [0.0, 0.0]
+     b) In ogni data/raw/export_preview/sites/*.json, ogni risultato ha nel `dossier` i campi
+        elevation_m, lst_mean_c, lst_half_range_c, air_density_kgm3, bulk_density_0_2m, wind_10m.
+        Possono essere null solo dove manca il dato (es. SoilGrids sul ghiaccio o sulla roccia nuda).
+     c) Valori plausibili (se un valore è fuori, FERMATI e controlla unità e formula):
+          air_density_kgm3    0.7 – 1.4   (kg/m³)
+          bulk_density_0_2m   0.8 – 2.0   (g/cm³)
+          lst_half_range_c    3 – 60      (°C)
+          lst_mean_c          -40 – 45    (°C)
+          elevation_m         -450 – 6000 (m)
+        Script rapido:
+          python - <<'EOF'
+          import json, glob
+          lim = {"air_density_kgm3": (0.7, 1.4), "bulk_density_0_2m": (0.8, 2.0), "lst_half_range_c": (3, 60),
+                 "lst_mean_c": (-40, 45), "elevation_m": (-450, 6000)}
+          bad = n = 0
+          for f in glob.glob("data/raw/export_preview/sites/*.json"):
+              for r in json.load(open(f))["results"]:
+                  n += 1
+                  for k, (lo, hi) in lim.items():
+                      v = r["dossier"].get(k)
+                      if v is None or not (lo <= v <= hi):
+                          bad += 1; print(f.split("/")[-1], r.get("name"), k, v)
+          print("risultati:", n, "| valori mancanti o fuori intervallo:", bad)
+          EOF
+        Qualche null isolato va bene (scrivilo nel commit); molti null o valori fuori intervallo no.
+     d) Classifiche ISRU dei tre siti polari: possono cambiare un po' (gli intervalli del ghiaccio sono
+        più larghi di prima). Annota nel commit il primo posto prima/dopo per malapert_massif,
+        haworth e nobile_rim_1 × isru_subsurface.
+
+4.5  Se tutto torna, export vero:
+       python -m src.pipeline.run --step export --publish
+     (scrive in data/export/, che è versionato)
+
+4.6  Test dell'app e dell'export Simulink:
+       cd src/web
+       npm install            # solo se node_modules manca
+       node src/simulink.test.mjs     # deve stampare: ok
+       npx vite build                 # deve finire con "built in ..."
+       cd ../..
+     Se simulink.test fallisce su un campo `physical` dell'analogo, il dossier non contiene quel campo
+     o ha un nome diverso: controlla 4.4 b), non modificare il test.
+
+======================================================================
+5. COMMIT E PUSH
+======================================================================
+
+5.1  Controlla cosa committi:
+       git status
+     Devono comparire solo file in data/export/ (e, se hai dovuto correggere il codice Earth Engine,
+     src/pipeline/surface.py o src/pipeline/export.py). Niente data/raw/, niente .env.
+
+5.2  Commit:
+       git add data/export
+       git add src/pipeline/surface.py src/pipeline/export.py   # solo se li hai modificati
+       git commit -m "export: ghiaccio ISRU (ice_area_share) e grandezze fisiche della Terra nel dossier
+
+       - step regions + ice su griglie USGS e Diviner PRP: valori uguali a siti_e_pesi.csv
+       - dossier: elevation_m, lst_mean_c, lst_half_range_c, air_density_kgm3, bulk_density_0_2m
+       - controlli: simulink.test ok, build ok, valori nei range attesi (<eventuali eccezioni>)
+       - ISRU primo posto prima/dopo: <malapert ...> <haworth ...> <nobile ...>
+       - <eventuali correzioni al codice Earth Engine>"
+
+5.3  Push solo su dev:
+       git push origin dev
+     Se il push viene rifiutato perché dev su GitHub è andato avanti:
+       git pull --rebase origin dev      # SOLO dev, mai main o altri branch
+       (risolvi eventuali conflitti, rilancia 4.6, poi)
+       git push origin dev
+
+5.4  Scrivi a Rocco: hash del commit, output di 4.2, risultato dello script di 4.4 c) e le classifiche di 4.4 d).
+
+======================================================================
+FINE
+======================================================================
