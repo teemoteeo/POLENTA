@@ -122,6 +122,12 @@ def lola(args) -> int:
     return lola_fetch.main()
 
 
+def regions(args) -> int:
+    """Passo 6a: contorni USGS delle regioni Artemis III (griglie LGRS 1 km) → artemis_regions.json."""
+    from . import artemis_regions
+    return artemis_regions.main()
+
+
 def ice(args) -> int:
     """Passo 6b: quota di area con ghiaccio accessibile per ISRU (Diviner PRP, raggio LTV 10 km) nelle regioni polari."""
     from . import ice_access
@@ -142,7 +148,7 @@ def export(args) -> int:
 
 STEPS = {"check": lambda a: check(), "grid": grid, "sun": sun,
          "terrain": terrain, "surface": surface, "fine": fine, "calibrate": calibrate, "earth": earth,
-         "features": features, "lola": lola, "lunar": lunar, "ice": ice, "export": export}
+         "features": features, "regions": regions, "lola": lola, "lunar": lunar, "ice": ice, "export": export}
 
 
 def main() -> int:

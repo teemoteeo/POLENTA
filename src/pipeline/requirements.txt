@@ -9,6 +9,7 @@ pvlib             # posizione del Sole
 pyyaml            # tests.yaml
 scipy
 shapely
+pyshp             # shapefile USGS delle regioni Artemis (artemis_regions.py)
 scikit-learn
 reverse_geocoder
 pycountry

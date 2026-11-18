@@ -15,7 +15,7 @@ Ingressi:
       PDS Geosciences Node, urn:nasa:pds:lro_diviner_derived1:data_derived_prp). Colonna ice_depth: profondità (m) a
       cui il ghiaccio sublima meno di 1 kg m⁻² per miliardo di anni; 0 = stabile in superficie; -999 = oltre 2,87 m.
   data/raw/lola/artemis_regions.json    contorni USGS delle regioni (McClernan 2024, doi:10.5066/P1MEQ6UK),
-      stesso formato di lunar.py. Se manca, la regione è un quadrato di 15 × 15 km centrato sulle coordinate di
+      generato da artemis_regions.py (--step regions), stesso formato di lunar.py. Se manca, la regione è un quadrato di 15 × 15 km centrato sulle coordinate di
       siti_coordinate.csv (dimensione delle regioni candidate Artemis III, NASA 2022) e il risultato è PROVVISORIO.
 Output: data/raw/interim/ice_access.json (valori del sito + sensibilità a R e D_MAX).
 """
