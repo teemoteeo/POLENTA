@@ -9,6 +9,9 @@ import sensors from '../../../data/config/sensors.json'
 import knownSites from '../../../data/export/known_sites.json'
 import { toView } from './trek.js'
 import { plan, haversineKm } from './campaign.js'
+import paramsCsv from '../../../data/config/params.csv?raw'
+import soilCsv from '../../../data/config/soil_mechanics.csv?raw'
+import { parseUnits, parseSoil } from './simulink.js'
 
 export const TESTS = loadYaml(testsRaw).tests
 export const EXPORTED_AT = manifest.generated_at
@@ -19,6 +22,8 @@ export const sensor = (p, world) => {
   const full = sensors[p]?.[world]
   return full ? { short: full.replace(/\s*\([^)]*\)/g, '').replace(/ above 60°N/, '').replace(/, mean annual.*$/, '').trim(), full } : null
 }
+// export MATLAB / Simulink (simulink.js): unità dei parametri e Bekker-Wong per Luna e Marte
+export const SIMULINK_CTX = { units: parseUnits(paramsCsv), soil: parseSoil(soilCsv), exportedAt: manifest.generated_at }
 export const VALIDATION = validation // percentile dei siti di test noti per sito × test (pipeline)
 
 // Siti scelti dal team: human_docs/coordinate_6_siti_frontend.csv (stessi id di data/export/targets.json).

@@ -3,7 +3,8 @@ import { coord, num, pct, km, H3_KM2, blockNotes } from './format.js'
 import { label, dimension, placeName, facilityName } from './i18n.js'
 import { val, join, names, verdict, brief, warnText } from './brief.js'
 import { useState } from 'react'
-import { sensor } from './data.js'
+import { sensor, SIMULINK_CTX } from './data.js'
+import { buildTarget, buildAnalogue, fileNames, targetMat, analogueMat, initScript, download } from './simulink.js'
 
 export { brief, verdict }
 
@@ -36,6 +37,22 @@ function CopyBrief({ text }) {
   </p>)
 }
 
+// MATLAB / Simulink: tre file dal posto mostrato (simulink.js). I nomi dei .mat sono quelli che init_polenta.m carica.
+function SimulinkExport({ site, testId, result }) {
+  const name = placeName(result.name)
+  const names = fileNames(site, testId, name)
+  const t = buildTarget(site, testId, result, SIMULINK_CTX)
+  const a = buildAnalogue(site, testId, result, name, SIMULINK_CTX)
+  return (<>
+    <p className="lbl">MATLAB / Simulink: target and Earth analogue with the same fields, plus a script that loads both.</p>
+    <p className="copy-row">
+      <button type="button" className="tag copy" onClick={() => download(names.target, targetMat(t))}>Target .mat</button>
+      <button type="button" className="tag copy" onClick={() => download(names.analogue, analogueMat(a))}>Analogue .mat</button>
+      <button type="button" className="tag copy" onClick={() => download(names.init, initScript(names, t, a), 'text/plain')}>init_polenta.m</button>
+    </p>
+  </>)
+}
+
 function Step({ n, title, children }) {
   return <h3 className="step"><b className="fig">{n}</b>{title}</h3>
 }
@@ -56,7 +73,7 @@ function Places({ data, picked, onJump }) {
   )
 }
 
-export default function PlaceCard({ data, picked, site, test, onJump }) {
+export default function PlaceCard({ data, picked, site, test, testId, onJump }) {
   const result = data.results[picked]
   const { plan } = result
   const { rows } = plan
@@ -161,6 +178,7 @@ export default function PlaceCard({ data, picked, site, test, onJump }) {
 
     {sims.length > 0 && <p className="lbl">Regolith simulants for this terrain: {join(sims)}</p>}
     <p className="lbl">No cost figures: the plan counts what can be measured — share covered, facilities, km.</p>
+    <SimulinkExport site={site} testId={testId} result={result} />
     <p className="lbl disclaimer">Limits: values are averages over a ~250 km² hexagon from 30 m terrain and ~1 km satellite data; Earth ground ice is a MODIS temperature proxy; rock type is coarse (GLiM, ~55 km); Mars and Aristarchus terrain come from literature; Antarctica is not covered. Verify on site before planning.</p>
   </div>)
 }

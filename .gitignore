@@ -2,6 +2,10 @@
 .env
 .DS_Store
 node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
 
 # downloaded datasets (rebuilt by the pipeline)
 data/raw/

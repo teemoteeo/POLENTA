@@ -1,0 +1,11 @@
+world,param,value,unit,source,status
+moon,cohesion_kPa,0.17,kPa,Bekker lunar soil set as tabulated in Wong J.Y. Theory of Ground Vehicles (Wiley); range 0.1-1 kPa in Carrier et al. Lunar Sourcebook ch. 9 (1991),[NV]
+moon,friction_angle_deg,35,deg,Bekker lunar soil set as tabulated in Wong J.Y. Theory of Ground Vehicles (Wiley); range 30-50 deg in Carrier et al. Lunar Sourcebook ch. 9 (1991),[NV]
+moon,kc,1.4,kN/m^(n+1),Bekker lunar soil set as tabulated in Wong J.Y. Theory of Ground Vehicles (Wiley),[NV]
+moon,kphi,820,kN/m^(n+2),Bekker lunar soil set as tabulated in Wong J.Y. Theory of Ground Vehicles (Wiley),[NV]
+moon,n,1.0,-,Bekker lunar soil set as tabulated in Wong J.Y. Theory of Ground Vehicles (Wiley),[NV]
+mars,cohesion_kPa,,kPa,da compilare: valore per Phoenix e Gale con fonte,missing
+mars,friction_angle_deg,,deg,da compilare: valore per Phoenix e Gale con fonte,missing
+mars,kc,,kN/m^(n+1),da compilare: valore per Phoenix e Gale con fonte,missing
+mars,kphi,,kN/m^(n+2),da compilare: valore per Phoenix e Gale con fonte,missing
+mars,n,,-,da compilare: valore per Phoenix e Gale con fonte,missing

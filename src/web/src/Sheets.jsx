@@ -139,11 +139,11 @@ export function Method() {
       <li>Low-angle sunlight that the site only offers for a few hours a day is flagged as covered by timing, not by a facility.</li>
       <li>No cost figures: we have no solid source for them.</li>
     </ul>
-    <h3 className="lbl">Simulink &amp; geotechnical soil mechanics (Bekker-Wong)</h3>
+    <h3 className="lbl">MATLAB / Simulink export</h3>
     <ul className="sh-list">
-      <li>Automated pipeline export packs site parameters into structured MATLAB <code>.mat</code> files (<code>gnc_*</code>, <code>therm_*</code>, <code>mob_*</code>, <code>isru_*</code>, <code>env_*</code>).</li>
-      <li>Includes standard Bekker-Wong soil mechanics parameters (<code className="fig">geo_cohesion_kPa</code>, <code className="fig">geo_friction_angle_deg</code>, <code className="fig">geo_sinkage_kc_kn_m2n</code>, <code className="fig">geo_sinkage_kphi_kn_m2n</code>, <code className="fig">geo_sinkage_exponent_n</code>) derived from lunar (<i>Lunar Sourcebook</i>) and Martian (<i>Golombek et al.</i>) literature for digital twin mobility and GNC simulations.</li>
-      <li>Each place card provides direct MATLAB / Simulink export buttons (Dual Environment) to download <code>.mat</code> files for both the space target and the Earth analogue test site, alongside the <code>init_polenta.m</code> initialization script.</li>
+      <li>Each place card exports the target (<code>polenta_target</code>) and the place on Earth (<code>polenta_analogue</code>) as <code>.mat</code> files with the same fields, plus <code>init_polenta.m</code>, which loads both and prints the comparison.</li>
+      <li>Values, ranges and units are those of the card: the parameters of the chosen test, from the same pipeline export.</li>
+      <li>Bekker-Wong soil parameters (<code className="fig">cohesion_kPa</code>, <code className="fig">friction_angle_deg</code>, <code className="fig">kc</code>, <code className="fig">kphi</code>, <code className="fig">n</code>): Moon from the Bekker lunar soil set (to be verified), Mars not filled in yet, Earth not measured (<code>NaN</code>).</li>
     </ul>
     <h3 className="lbl">Data</h3>
     <p className="small mute">Earth data are processed in Google Earth Engine. Moon and Mars targets: LOLA plus literature values.</p>

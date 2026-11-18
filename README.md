@@ -21,7 +21,7 @@ You pick a landing site and a hardware test. POLENTA tells you where on Earth to
    - *Best on Earth*: the most similar places anywhere.
    - *Unexplored*: the same ranking without the places already used for tests. A place counts as known if it lies in a well-studied analogue region (US Southwest, Iceland, Atacama, Hawaii, Canary Islands, Svalbard, Canadian High Arctic, Antarctica) or within 150 km of a known test site.
    - *Near you*: the best places within 1,500, 3,000 or 5,000 km of the customer base (Turin or ISRO Bengaluru), with the similarity given up against the best place on Earth.
-4. **Place card.** For each place: the score per parameter with its sensor on Earth and on the target body, what holds in the field, what is partial, what breaks, and the campaign: field site plus the indoor facilities that covered the rest. Each place card also provides **direct MATLAB / Simulink export buttons (Dual Environment)** to download `.mat` files for both the space target and the Earth analogue test site, alongside the `init_polenta.m` initialization script.
+4. **Place card.** For each place: the score per parameter with its sensor on Earth and on the target body, what holds in the field, what is partial, what breaks, and the campaign: field site plus the indoor facilities that cover the rest. The campaign can be copied as a plain-text brief, and the place can be exported to MATLAB / Simulink (see below).
 
 The **Benchmark** sheet shows the whole matrix, 6 sites × 3 tests, with the top unexplored place and its campaign in every cell.
 
@@ -34,9 +34,22 @@ The **Benchmark** sheet shows the whole matrix, 6 sites × 3 tests, with the top
 - **Where it breaks:** a parameter with `s < 0.3` breaks, between 0.3 and 0.5 is partial, from 0.5 holds. Broken parameters and the things Earth never reproduces (1/6 gravity, vacuum, electrostatic dust, engine plume in vacuum, cold of shadowed regions) are assigned to indoor facilities: the smallest set that covers every gap, most gaps covered first, then nearest to the customer.
 - **Terrain resolution:** global screening at 500 m, exact 30 m values on known sites, a random sample and the candidates; a gradient-boosting model calibrates 500 m to 30 m on the rest, with the error declared.
 - **Validation:** known test sites (Etna, Black Point, Cinder Lake, Death Valley and others in `data/config/known_sites.csv`) must come out near the top. Their percentiles are exported in `data/export/validation.json`.
-- **Simulink & Geotechnical Soil Mechanics (Bekker-Wong):** Automated pipeline export packs site parameters into structured MATLAB `.mat` files (`gnc_*`, `therm_*`, `mob_*`, `isru_*`, `env_*`), complete with standard Bekker-Wong soil mechanics parameters (`geo_cohesion_kPa`, `geo_friction_angle_deg`, `geo_sinkage_kc_kn_m2n`, `geo_sinkage_kphi_kn_m2n`, `geo_sinkage_exponent_n`) derived from lunar (*Lunar Sourcebook*) and Martian (*Golombek et al.*) literature for digital twin mobility and GNC simulations.
 
 Parameters in the score: 90th percentile slope, roughness, crater density, boulder cover, regolith grain size (thermal inertia proxy), albedo, low-angle sunlight, surface density, rock type, ground ice.
+
+## MATLAB / Simulink export
+
+Every place card has three buttons. The files are built in the browser from the same data the card shows, so they always match the place on screen (Best on Earth, Unexplored or Near you).
+
+| File | MATLAB variable | Content |
+|---|---|---|
+| `polenta_<site>__<test>__target.mat` | `polenta_target` | The Moon or Mars site |
+| `polenta_<site>__<test>__<place>.mat` | `polenta_analogue` | The place on Earth |
+| `init_polenta.m` | | Loads the two files above by name, checks they belong together, prints the comparison |
+
+Both structs share one schema (`polenta-simulink-1`): `name`, `world`, `lat_deg`, `lon_deg`, `gravity_m_s2`, `values.<param>`, `range.<param>` (`[min max]`), `units.<param>`, `rock_class`, and `soil` (Bekker-Wong: `cohesion_kPa`, `friction_angle_deg`, `kc`, `kphi`, `n`, with `source` and `status`). The parameters are those of the chosen test. `polenta_analogue` adds `match` (similarity, score and state per parameter, weights) and `site` (country, H3 cells, field dossier). The target value is the middle of its range. `NaN` means no data.
+
+Bekker-Wong values come from `data/config/soil_mechanics.csv`. The Moon values are the Bekker lunar soil set, marked `[NV]` until checked against the source. Mars values are not filled in yet. Earth places have no measured soil mechanics, so their `soil` is `NaN`. The code is in `src/web/src/simulink.js` (schema) and `src/web/src/matfile.js` (MAT Level 5 writer). `node src/simulink.test.mjs` checks every site × test pair, and with `OUT=<dir>` it also writes the files.
 
 ## Data
 
@@ -100,6 +113,7 @@ npm install
 npm run dev        # http://localhost:5173
 npm run build      # production build in dist/
 node src/campaign.test.mjs   # self-check of the campaign logic, prints "ok"
+node src/simulink.test.mjs   # self-check of the MATLAB / Simulink export, prints "ok"
 ```
 
 The app imports `data/export/` and `data/config/` at build time, so it must be built from inside the repository. Map tiles come from NASA GIBS, NASA Moon Trek, OpenPlanetaryMap and Esri at runtime. Mars tiles go through the `/mars-tiles` proxy (`vite.config.js` in development, `vercel.json` in production) because the source sends no CORS headers.

@@ -21,7 +21,7 @@
 
 ** Interoperabilità & Export Ingegneristico**
 
-* [10] **Export Mesh, Dati Geospaziali & Simulink:** Esportare le griglie del terreno ad alta risoluzione in formati standard CAD/GIS (es. `.stl`, `.obj`, `.geotiff`) e dataset ambientali/traiettorie in formati compatibili con **Simulink** (es. `.mat` / script di inizializzazione) per simulazioni di dinamica di volo e controllo.
+* [10] **Export Mesh, Dati Geospaziali & Simulink:** (Simulink .mat + init_polenta.m: fatto, vedi README; restano .stl/.obj/.geotiff) Esportare le griglie del terreno ad alta risoluzione in formati standard CAD/GIS (es. `.stl`, `.obj`, `.geotiff`) e dataset ambientali/traiettorie in formati compatibili con **Simulink** (es. `.mat` / script di inizializzazione) per simulazioni di dinamica di volo e controllo.
 * [11] **Report di Trade-Off Automatico:** Generare una scheda tecnica esportabile (PDF/CSV) con pesi, fonti dati e punteggi per revisioni di progetto.
 
 ** Personalizzazione Demo per la Visita**
