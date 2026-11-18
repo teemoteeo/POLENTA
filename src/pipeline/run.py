@@ -122,6 +122,12 @@ def lola(args) -> int:
     return lola_fetch.main()
 
 
+def ice(args) -> int:
+    """Passo 6b: quota di area con ghiaccio accessibile per ISRU (Diviner PRP, raggio LTV 10 km) nelle regioni polari."""
+    from . import ice_access
+    return ice_access.main()
+
+
 def lunar(args) -> int:
     """Passo 6: pendenza, rugosità e crateri delle regioni lunari, con le definizioni della Terra."""
     from . import lunar as lunar_step
@@ -136,7 +142,7 @@ def export(args) -> int:
 
 STEPS = {"check": lambda a: check(), "grid": grid, "sun": sun,
          "terrain": terrain, "surface": surface, "fine": fine, "calibrate": calibrate, "earth": earth,
-         "features": features, "lola": lola, "lunar": lunar, "export": export}
+         "features": features, "lola": lola, "lunar": lunar, "ice": ice, "export": export}
 
 
 def main() -> int:

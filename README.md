@@ -135,6 +135,7 @@ python -m src.pipeline.run --step grid     # H3 land hexagons with the bare-grou
 python -m src.pipeline.run --step sun      # low-angle sunlight by latitude and month
 python -m src.pipeline.run --step lola     # LOLA 20 m DEM windows from the PDS
 python -m src.pipeline.run --step lunar    # lunar slope, roughness, craters at 30 m
+python -m src.pipeline.run --step ice      # ISRU ice: Diviner PRP ice depth within 10 km of each landing point (needs data/raw/diviner/dlre_prp_south.tab)
 python -m src.pipeline.run --step earth    # terrain 500 m, surface, 30 m sample, calibration, features
 python -m src.pipeline.run --step export   # preview in data/raw/export_preview/
 python -m src.pipeline.run --step export --publish   # writes data/export/
