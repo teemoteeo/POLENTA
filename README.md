@@ -76,7 +76,7 @@ Earth data are processed in Google Earth Engine. The app reads only the pipeline
 - Model output, not a site survey: 30 m terrain and ~1 km satellite data averaged over ~250 km² hexagons. Check the place before planning a campaign.
 - Earth never reproduces 1/6 gravity, vacuum, electrostatic dust, the engine plume in vacuum, or lunar agglutinates. These always go indoors.
 - Mars and Aristarchus terrain values come from the literature, not from our own DEM processing.
-- Ground ice on Earth is a MODIS proxy (mean annual temperature below −1 °C).
+- Ground ice is one quantity on every world: the share of area with thermally stable ice within 1 m of the surface. On the polar Moon it is the share within 10 km of the landing point (the Artemis unpressurized rover range, NASA EVA-EXP-0075), from the LRO Diviner ice-stability map, given as the 10th-90th percentile over every landing point in the USGS Artemis III region. Aristarchus and Gale are 0 and Phoenix is 1, from the literature. On Earth it is a MODIS proxy (mean annual temperature below −1 °C). Subsurface ice in wt% stays in the card for information only.
 - Rock type is coarse (GLiM, ~55 km cells): small volcanic fields such as Etna or the Eifel do not show.
 - No Antarctica: MODIS NDVI does not cover it.
 - Crater density exists only where 30 m terrain was computed exactly, so the lidar heat map is sparse.
@@ -133,6 +133,7 @@ echo "GEE_PROJECT=your-google-cloud-project" > .env
 python -m src.pipeline.run --step check    # libraries, config files, Earth Engine access
 python -m src.pipeline.run --step grid     # H3 land hexagons with the bare-ground share
 python -m src.pipeline.run --step sun      # low-angle sunlight by latitude and month
+python -m src.pipeline.run --step regions  # USGS Artemis III region outlines (needs the LGRS 1 km grids, doi:10.5066/P1MEQ6UK, in data/raw/lola/usgs_lgrs/)
 python -m src.pipeline.run --step lola     # LOLA 20 m DEM windows from the PDS
 python -m src.pipeline.run --step lunar    # lunar slope, roughness, craters at 30 m
 python -m src.pipeline.run --step ice      # ISRU ice: Diviner PRP ice depth within 10 km of each landing point (needs data/raw/diviner/dlre_prp_south.tab)

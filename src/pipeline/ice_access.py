@@ -8,7 +8,9 @@ Definizione (decisione del team, 18/11/2026: architettura Artemis):
 
   R_KM = 10   raggio d'azione dell'LTV con equipaggio, vincolato dal ritorno a piedi (~5 h):
               NASA EVA-EXP-0075 "Exploration EVA System Concept of Operations" (NTRS 20200001071), valore TBR.
-  D_MAX = 1 m profondità di ghiaccio considerata accessibile [da confermare con fonte].
+  D_MAX = 1 m profondità di ghiaccio considerata accessibile (scelta del team, 18/11/2026); il risultato non cambia
+              tra 0,5 e 2 m (vedi sensitivity_p10_p90).
+  Il raggio è verificato anche in EVA-EXP-0042 Rev B (19/10/2020) §4.2.1.3.1 p.40 [TBR-EVA-EXP-0042-001].
 
 Ingressi:
   data/raw/diviner/dlre_prp_south.tab   LRO Diviner Polar Resource Product, LRO-L-DLRE-5-PRP-V2.0 (Paige, UCLA;

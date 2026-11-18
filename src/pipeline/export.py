@@ -168,7 +168,7 @@ GAP_LABELS = {
 # unità dei valori nelle card (values e target sono nelle unità terrestri: targets.py converte quelle lunari)
 EARTH_UNITS = {"slope_p90": "°", "roughness": "m", "crater_density": "crateri/km²", "rock_cover": "frazione 0-1",
                "grain_proxy": "inerzia termica apparente (1/K)", "albedo": "frazione 0-1", "low_sun_frac": "frazione 0-1",
-               "bulk_density_0_5": "g/cm³", "permafrost_share": "quota di area con permafrost (0-1)", "rock_class": "classe GLiM"}
+               "bulk_density_0_5": "g/cm³", "permafrost_share": "quota di area con ghiaccio nel suolo (0-1)", "rock_class": "classe GLiM"}
 REGOLITH = {"soil_density", "grain_proxy", "bulk_density_0_5", "agglutinates", "rock_class", "permafrost_share"}
 SIMULANTS_FOR = {"moon_highland": ["lsp2", "lhs1"], "moon_mare": ["lms1", "eac1a"], "phoenix": ["mgs1"], "gale": ["mgs1", "jez1"]}
 

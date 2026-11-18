@@ -30,7 +30,7 @@ const CATEGORICAL = new Set(['rock_class'])
 const PHYSICAL = {
   thermal_inertia_si: ['thermal_inertia_si', 'J m^-2 K^-1 s^-1/2', 'grain_proxy'],
   rock_cover_pct: ['rock_cover_pct', '%', 'rock_cover'],
-  subsurface_ice_wt_pct: ['subsurface_ice_wt_pct', 'wt%', 'permafrost_share'],
+  subsurface_ice_wt_pct: ['subsurface_ice_wt_pct', 'wt%', 'subsurface_ice'], // solo informativo: il voto usa permafrost_share
   t_mean_c: ['t_mean_c', 'degC', 'temperature'],
   t_range_c: ['t_range_c', 'degC', 'temperature'],
   bulk_density_0_2m: ['density_profile_0_2m', 'g/cm3', 'density_profile_0_2m'],

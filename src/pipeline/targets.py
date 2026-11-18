@@ -11,9 +11,9 @@ di Rocco sono diverse dalle nostre si converte, e la conversione va dichiarata:
 - grain_proxy: inerzia termica SI del pianeta → stessa "finezza" sulla Terra. Finezza = posizione tra regolite
   fine e roccia sul suo pianeta (scala logaritmica); il valore terrestre è il percentile corrispondente
   dell'inerzia termica apparente;
-- subsurface_ice (acqua in peso, %) → permafrost_share: sotto 1% secco (0), da 5% in su suolo cementato dal
-  ghiaccio (1), in mezzo lineare. Con la soglia a 10% il ghiaccio lunare delle zone in ombra (5,6%, scenario B)
-  diventava "permafrost a metà" e il permafrost continuo dell'Artico veniva penalizzato.
+- ice_area_share → permafrost_share: stessa grandezza (quota di area con ghiaccio stabile vicino alla superficie),
+  nessuna conversione. Luna polare: ice_access.py (Diviner); Marte e Aristarchus: letteratura (vedi Reference).
+  Le celle "a – b" sono già un intervallo [a, b]. subsurface_ice (wt%) resta solo nella card, come informazione.
 """
 import json
 import re
@@ -24,7 +24,7 @@ import pandas as pd
 from . import config
 
 MATRIX = config.CONFIG / "siti_e_pesi.csv"
-ALIAS = {"subsurface_ice": "permafrost_share"}      # nome nella matrice → nome nella carta d'identità
+ALIAS = {"ice_area_share": "permafrost_share"}      # nome nella matrice → nome nella carta d'identità
 ROCK = {"anortosite": "anorthosite", "basalto": "basalt_volcanic", "sedimentario": "sedimentary"}
 def _coords() -> dict:
     """slug → (lat, lon, pianeta) da data/config/siti_coordinate.csv (Rocco); longitudini in -180/+180."""
@@ -37,10 +37,15 @@ TI_RANGE = {"moon": (40, 2000), "mars": (50, 1500)}   # inerzia termica: regolit
 LUNAR = (json.loads((config.INTERIM / "lunar_terrain.json").read_text())["regions"]
          if (config.INTERIM / "lunar_terrain.json").exists() else {})
 NUM = re.compile(r"(-?\d+(?:\.\d+)?)(?:\s*±\s*(\d+(?:\.\d+)?))?")
+RANGE = re.compile(r"(-?\d+(?:\.\d+)?)\s*–\s*(-?\d+(?:\.\d+)?)")   # "0.23 – 0.97" (trattino lungo)
 
 
 def parse(cell: str) -> tuple[float, float]:
-    """'13.5 ± 1.5 °' → (13.5, 1.5); senza ± l'incertezza è 0."""
+    """'13.5 ± 1.5 °' → (13.5, 1.5); '0.2 – 0.9' → (0.55, 0.35); senza ± l'incertezza è 0."""
+    r = RANGE.search(str(cell))
+    if r:
+        a, b = sorted(float(x) for x in r.groups())
+        return (a + b) / 2, (b - a) / 2
     m = NUM.search(str(cell))
     return (float(m.group(1)), float(m.group(2) or 0)) if m else (np.nan, np.nan)
 
@@ -73,10 +78,6 @@ def ti_to_earth(ti: float, world: str, earth_ati: np.ndarray) -> float:
     return float(np.quantile(earth_ati[np.isfinite(earth_ati)], f))
 
 
-def ice_to_share(wt: float) -> float:
-    return float(np.clip((wt - 1) / 4, 0, 1))
-
-
 def site_targets(feats: pd.DataFrame) -> list[dict]:
     """I 5 siti nel formato di targets.json: values (intervalli per il voto), card (il resto), fonte."""
     df = load()
@@ -100,9 +101,10 @@ def site_targets(feats: pd.DataFrame) -> list[dict]:
             elif p == "grain_proxy":
                 values[p] = sorted([ti_to_earth(max(lo, 1), world, ati), ti_to_earth(hi, world, ati)])
                 card["thermal_inertia_si"] = v
-            elif p == "subsurface_ice":
-                values["permafrost_share"] = [ice_to_share(lo), ice_to_share(hi)]
+            elif p == "subsurface_ice":                               # solo informativo (wt%)
                 card["subsurface_ice_wt_pct"] = v
+            elif p == "ice_area_share":
+                values["permafrost_share"] = [lo, hi]
             elif p == "temperature":
                 card["t_mean_c"], card["t_range_c"] = round(v - 273.15, 1), s
             elif p == "atmosphere_wind":

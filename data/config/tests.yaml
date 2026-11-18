@@ -92,7 +92,9 @@ tests:
     stato: mvp
     cosa_si_testa: estrarre acqua dal ghiaccio nel suolo e lavorare la regolite (scavo, sinterizzazione, ossigeno); dove provare impianti, trivelle e simulanti
     aziende: [ALTEC (centro lunare), TAS-I (habitat MPH)]
-    # 15/11 00:30: pesi di Rocco. Ghiaccio = subsurface_ice della matrice, sulla Terra permafrost_share (proxy
+    # 18/11: ghiaccio = ice_area_share della matrice (quota di area con ghiaccio stabile entro 1 m, entro 10 km
+    # dal punto di atterraggio; Luna polare da Diviner, ice_access.py); subsurface_ice (wt%) è solo informativo.
+    # 15/11 00:30: pesi di Rocco. Sulla Terra il ghiaccio è permafrost_share (proxy
     # MODIS: temperatura media annua < −1 °C). Tessitura e carbonio organico SoilGrids restano nella card
     # (il carbonio è inaffidabile nell'alto Artico: Devon Island 110 g/kg, che è un deserto polare).
     requisiti:   # dalla matrice di Rocco (data/config/siti_e_pesi.csv); 0 = non conta per questo test
