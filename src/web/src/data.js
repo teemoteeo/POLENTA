@@ -7,6 +7,7 @@ import knownAnalogues from '../../../data/config/excluded_known_analogues.json'
 import knownRegions from '../../../data/config/known_analogue_regions.json'
 import sensors from '../../../data/config/sensors.json'
 import knownSites from '../../../data/export/known_sites.json'
+import targets from '../../../data/export/targets.json'
 import { toView } from './trek.js'
 import { plan, haversineKm } from './campaign.js'
 
@@ -19,6 +20,8 @@ export const sensor = (p, world) => {
   const full = sensors[p]?.[world]
   return full ? { short: full.replace(/\s*\([^)]*\)/g, '').replace(/ above 60°N/, '').replace(/, mean annual.*$/, '').trim(), full } : null
 }
+// valori dei 6 siti target (Luna e Marte): schedina al passaggio del mouse
+export const TARGETS = Object.fromEntries(targets.map(t => [t.id, t]))
 export const VALIDATION = validation // percentile dei siti di test noti per sito × test (pipeline)
 
 // Siti scelti dal team: human_docs/coordinate_6_siti_frontend.csv (stessi id di data/export/targets.json).
@@ -32,6 +35,40 @@ export const SITES = [
   { id: 'phoenix', world: 'mars', name: 'Phoenix', lat: 68.2188, lon: -125.7492, tag: [16, 0] },
   { id: 'gale', world: 'mars', name: 'Gale', lat: -4.5895, lon: 137.4417, tag: [16, 0] },
 ].map(s => ({ ...s, pos: s.world === 'moon' ? toView(s.lon, s.lat) : [s.lon, s.lat] }))
+
+// Siti famosi senza dati della pipeline: solo overview (niente ricerca di analoghi). Coordinate da NASA NSSDCA / missioni,
+// longitudine est positiva in -180/+180, arrotondate al centesimo [da ricontrollare prima di usarle per calcoli].
+export const FAMOUS = [
+  ['apollo11', 'moon', 'Apollo 11 · Tranquility Base', 0.67, 23.47, 'First crewed landing, July 1969. Mare basalt plain in Mare Tranquillitatis.'],
+  ['apollo12', 'moon', 'Apollo 12', -3.01, -23.42, 'Oceanus Procellarum, 180 m from the Surveyor 3 probe (1969).'],
+  ['apollo14', 'moon', 'Apollo 14 · Fra Mauro', -3.65, -17.47, 'Hilly ejecta of the Imbrium basin (1971).'],
+  ['apollo15', 'moon', 'Apollo 15 · Hadley-Apennine', 26.13, 3.63, 'First lunar rover. Edge of Mare Imbrium, Hadley Rille and the Apennine mountains (1971).'],
+  ['apollo16', 'moon', 'Apollo 16 · Descartes', -8.97, 15.5, 'Only Apollo landing in the highlands: anorthosite, like the South Pole (1972).'],
+  ['apollo17', 'moon', 'Apollo 17 · Taurus-Littrow', 20.19, 30.77, 'Last crewed landing (1972). Valley with orange volcanic glass.'],
+  ['luna9', 'moon', 'Luna 9', 7.08, -64.37, 'First soft landing on the Moon (USSR, 1966). Oceanus Procellarum.'],
+  ['change3', 'moon', "Chang'e 3", 44.12, -19.51, 'Chinese lander and Yutu rover in Mare Imbrium (2013).'],
+  ['change4', 'moon', "Chang'e 4 · Von Kármán", -45.44, 177.6, 'First landing on the far side (2019), inside the South Pole–Aitken basin.'],
+  ['change5', 'moon', "Chang'e 5", 43.06, -51.92, 'Sample return from young mare basalts, Mons Rümker (2020).'],
+  ['change6', 'moon', "Chang'e 6", -41.64, -153.99, 'First samples from the far side, Apollo basin (2024).'],
+  ['chandrayaan3', 'moon', 'Chandrayaan-3', -69.37, 32.32, 'Indian lander and Pragyan rover, the southernmost landing before 2024 (2023).'],
+  ['slim', 'moon', 'SLIM', -13.32, 25.25, 'Japanese pinpoint landing near Shioli crater (2024).'],
+  ['im1', 'moon', 'IM-1 Odysseus', -80.13, 1.44, 'First commercial landing (Intuitive Machines, 2024), Malapert A crater near the South Pole.'],
+  ['shackleton', 'moon', 'Shackleton crater', -89.9, 0, 'Crater on the South Pole with a permanently shadowed floor and possible ice.'],
+  ['tycho', 'moon', 'Tycho', -43.31, -11.36, 'Young crater with bright rays, 85 km across.'],
+  ['copernicus', 'moon', 'Copernicus', 9.62, -20.08, 'Classic complex crater with terraced walls and central peaks, 93 km.'],
+  ['viking1', 'mars', 'Viking 1 · Chryse Planitia', 22.27, -47.95, 'First successful landing on Mars (1976).'],
+  ['viking2', 'mars', 'Viking 2 · Utopia Planitia', 47.67, 134.28, 'Northern plains, frost seen in winter (1976).'],
+  ['pathfinder', 'mars', 'Pathfinder · Ares Vallis', 19.13, -33.22, 'First Mars rover, Sojourner, on an outflow channel full of rocks (1997).'],
+  ['spirit', 'mars', 'Spirit · Gusev crater', -14.57, 175.47, 'Rover stuck in soft soil in 2009 after 7 km: the classic case of unexpected terrain.'],
+  ['opportunity', 'mars', 'Opportunity · Meridiani Planum', -1.95, -5.53, 'Rover that drove 45 km in 14 years on hematite plains (2004–2018).'],
+  ['insight', 'mars', 'InSight · Elysium Planitia', 4.5, 135.62, 'Seismometer and heat probe; the probe stopped at ~40 cm in unexpected soil (2018).'],
+  ['jezero', 'mars', 'Jezero · Perseverance', 18.44, 77.45, 'Ancient lake delta, samples for Mars Sample Return (2021).'],
+  ['zhurong', 'mars', 'Zhurong · Utopia Planitia', 25.07, 109.93, 'Chinese rover in the southern Utopia plains (2021).'],
+  ['oxia', 'mars', 'Oxia Planum', 18.27, -24.63, 'Clay-rich plain chosen for ESA\'s Rosalind Franklin rover (ExoMars).'],
+  ['olympus', 'mars', 'Olympus Mons', 18.65, -133.8, 'The largest volcano in the Solar System, ~22 km high.'],
+  ['valles', 'mars', 'Valles Marineris', -13.9, -59.2, 'Canyon system 4,000 km long and up to 7 km deep.'],
+  ['hellas', 'mars', 'Hellas Planitia', -42.4, 70.5, 'Deepest impact basin on Mars, 2,300 km across.'],
+].map(([id, world, name, lat, lon, what]) => ({ id, world, name, lat, lon, what, famous: true, pos: world === 'moon' ? toView(lon, lat) : [lon, lat] }))
 
 // Modelli NASA 3D Resources (github.com/nasa/NASA-3D-Resources) in public/models
 export const MODELS = {
