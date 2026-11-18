@@ -1,0 +1,386 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <origin>Mark McClernan</origin>
+        <pubdate>20240917</pubdate>
+        <title>Lunar Grid Reference System (LGRS) Down Selected Artemis III Candidate Landing Site Navigational Grids in Artemis Condensed Coordinate (ACC) Format</title>
+        <geoform>vector digital data</geoform>
+        <pubinfo>
+          <pubplace>UNITED STATES GOVERNMENT PRINTING OFFICE, WASHINGTON</pubplace>
+          <publish>USGS</publish>
+        </pubinfo>
+        <onlink>https://doi.org/10.5066/P1MEQ6UK</onlink>
+        <lworkcit>
+          <citeinfo>
+            <origin>Mark T. McClernan</origin>
+            <pubdate>20241101</pubdate>
+            <title>Lunar Grid Systems, transverse Mercator and Polar Stereographic Systems, and Map Projections for the Artemis Missions and Lunar Surface Navigation</title>
+            <edition>1</edition>
+            <geoform>vector digital data</geoform>
+            <pubinfo>
+              <pubplace>Techniques and Methods</pubplace>
+              <publish>U.S. Geological Survey</publish>
+            </pubinfo>
+            <othercit>https://doi.org/10.5066/P1SZQZDB</othercit>
+            <onlink>https://doi.org/10.5066/P1MEQ6UK</onlink>
+          </citeinfo>
+        </lworkcit>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract>USGS is assessing the feasibility of map projections and grid systems for lunar surface operations. We propose developing a new Lunar Transverse Mercator (LTM), the Lunar Polar Stereographic (LPS), and the Lunar Grid Reference Systems (LGRS). We have also designed additional grids designed to NASA requirements for astronaut navigation, referred to as LGRS in Artemis Condensed Coordinates (ACC). This data release includes LGRS grids finer than 25km (1km, 100m, and 10m) in ACC format for the nine down selected Artemis III Candidate Landing Regions. LTM, LPS, and LGRS grids are not released here but may be accessed from https://doi.org/10.5066/P13YPWQD. LTM, LPS, and LGRS are similar in design and use to the Universal Transverse Mercator (UTM), Universal Polar Stereographic (LPS), and Military Grid Reference System (MGRS), but adhere to NASA requirements. LGRS ACC format is similar in design and structure to historic Army Mapping Service Apollo orthotopophoto charts for navigation.
+
+The Lunar Transverse Mercator (LTM) projection system is a globalized set of lunar map projections that divides the Moon into zones to provide a uniform coordinate system for accurate spatial representation. It uses a Transverse Mercator projection, which maps the Moon into 45 transverse Mercator strips, each 8°, longitude, wide. These Transverse Mercator strips are subdivided at the lunar equator for a total of 90 zones. Forty-five in the northern hemisphere and forty-five in the south. LTM specifies a topocentric, rectangular, coordinate system (easting and northing coordinates) for spatial referencing. This projection is commonly used in GIS and surveying for its ability to represent large areas with high positional accuracy while maintaining consistent scale.
+
+The Lunar Polar Stereographic (LPS) projection system contains projection specifications for the Moon’s polar regions. It uses a polar stereographic projection, which maps the polar regions onto an azimuthal plane. The LPS system contains 2 zones, each zone is located at the northern and southern poles and is referred to as the LPS northern or LPS southern zone. LPS, like its equatorial counterpart LTM, specifies a topocentric, rectangular, coordinate system (easting and northing coordinates) for spatial referencing. This projection is commonly used in GIS and surveying for its ability to represent large polar areas with high positional accuracy while maintaining consistent scale across the map region.
+
+LGRS is a globalized grid system for lunar navigation supported by the LTM and LPS projections. LGRS provides an alphanumeric grid coordinate structure for both the LTM and LPS systems. This labeling structure is utilized similarly to MGRS. LGRS defines a global area grid based on latitude and longitude and a 25×25 km grid based on LTM and LPS coordinate values. Two implementations of LGRS are used as polar areas require an LPS projection and equatorial areas a Transverse Mercator. We describe the differences in the techniques and methods reported in this data release. Request McClernan et. al. (in-press) for more information. ACC is a method of simplifying LGRS coordinates and is similar in use to the Army Mapping Service Apollo orthotopophoto charts for navigation. These grids are designed to condense a full LGRS coordinate to a relative coordinate of 6 characters in length.
+
+LGRS in ACC format is completed by imposing a 1km grid within the LGRS 25km grid, then truncating the grid precision to 10m. To me the character limit, a coordinate is reported as a relative value to the lower-left corner of the 25km LGRS zone without the zone information; However, zone information can be reported. As implemented, and 25km^2 area on the lunar surface will have a set of a unique set of ACC coordinates to report locations The shape files provided in this data release are projected in the LTM or LPS PCRSs and must utilize these projections to be dimensioned correctly.
+
+LGRS ACC Grids Files and Resolution: 
+	LGRS ACC Grids in LPS portion:
+		Nobile_Rim_1
+			1km Grid Shapefile
+			100m Grid Shapefile
+			10m Grid Shapefile
+		Nobile_Rim_2
+			1km Grid Shapefile
+			100m Grid Shapefile
+			10m Grid Shapefile
+		Mons_Mouton
+			1km Grid Shapefile
+			100m Grid Shapefile
+			10m Grid Shapefile
+		Malapert_Massif
+			1km Grid Shapefile
+			100m Grid Shapefile
+			10m Grid Shapefile
+		de_Gerlache_Rim_2
+			1km Grid Shapefile
+			100m Grid Shapefile
+			10m Grid Shapefile
+		Mons_Mouton_Plateau
+			1km Grid Shapefile
+			100m Grid Shapefile
+			10m Grid Shapefile
+		Slater_Plain
+			1km Grid Shapefile
+			100m Grid Shapefile
+			10m Grid Shapefile
+		Peak_Near_Cabeus_B
+			1km Grid Shapefile
+			100m Grid Shapefile
+			10m Grid Shapefile
+		Haworth
+			1km Grid Shapefile
+			100m Grid Shapefile
+			10m Grid Shapefile
+
+LTM, LPS, and LGRS PCRS shapefiles utilize either a custom transverse Mercator or polar Stereographic projection. For PCRS grids the LTM and LPS projections are recommended for all LTM, LPS, and LGRS grid sizes. See McClernan et. al. (in-press) for such projections. For GIS utilization of grid shapefiles projected in Lunar Latitude and Longitude should utilize a registered lunar geographic coordinate system (GCS) such as IAU_2015:30100 or ESRI:104903. This only applies to grids that cross multiple LTM zones.
+
+Note: All data, shapefiles require a specific projection and datum. The projection is recommended as LTM and LPS or, when needed, IAU_2015:30100 or ESRI:104903. The datum utilized must be the Jet Propulsion Laboratory (JPL) Development Ephemeris (DE) 421 in the Mean Earth (ME) Principal Axis Orientation as recommended by the International Astronomy Union (IAU) (Archinal et. al., 2008). 
+</abstract>
+      <purpose>The Artemis Geospatial Data Team has tasked USGS Astrogeology to develop a navigational grid and associated Projected Coordinate Reference Systems (PCRS) optimized for lunar navigation. The Data Team has specified the PCRS must have a specified map scale error and the grid must be high precision utilizing a limited number of coordinate characters.</purpose>
+    </descript>
+    <timeperd>
+      <timeinfo>
+        <sngdate>
+          <caldate>20240917</caldate>
+        </sngdate>
+      </timeinfo>
+      <current>ground condition</current>
+    </timeperd>
+    <status>
+      <progress>Complete</progress>
+      <update>As needed</update>
+    </status>
+    <spdom>
+      <bounding>
+        <westbc>-5.7106</westbc>
+        <eastbc>4.3323</eastbc>
+        <northbc>-85.6102</northbc>
+        <southbc>-86.3336</southbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekt>ISO 19115 Topic Category</themekt>
+        <themekey>farming</themekey>
+      </theme>
+      <theme>
+        <themekt>None</themekt>
+        <themekey>Geodesy</themekey>
+        <themekey>Lunar</themekey>
+        <themekey>Lunar Grid Reference System</themekey>
+        <themekey>Lunar Transverse Mercator System</themekey>
+        <themekey>Lunar Polar Stereographic System</themekey>
+        <themekey>Artemis Condensed Coordinates</themekey>
+        <themekey>Artemis</themekey>
+        <themekey>NASA</themekey>
+        <themekey>USGS</themekey>
+        <themekey>LTM</themekey>
+        <themekey>LPS</themekey>
+        <themekey>LGRS</themekey>
+        <themekey>ACC</themekey>
+        <themekey>UTM</themekey>
+        <themekey>UPS</themekey>
+        <themekey>MGRS</themekey>
+        <themekey>Universal Transverse Mercator System</themekey>
+        <themekey>Universal Polar Stereographic System</themekey>
+        <themekey>Military Grid Reference System</themekey>
+        <themekey>Moon</themekey>
+      </theme>
+      <place>
+        <placekt>None</placekt>
+        <placekey>Lunar</placekey>
+        <placekey>Moon</placekey>
+      </place>
+    </keywords>
+    <accconst>None.  Please see 'Distribution Info' for details.</accconst>
+    <useconst>None.  Users are advised to read the dataset's metadata thoroughly to understand appropriate use and data limitations.</useconst>
+    <ptcontac>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>Astrogeology Science Center</cntorg>
+          <cntper>Mark McClernan</cntper>
+        </cntorgp>
+        <cntpos>Geodesist</cntpos>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>2255 N Gemini Dr</address>
+          <city>Flagstaff</city>
+          <state>AZ</state>
+          <postal>86001</postal>
+          <country>U.S.</country>
+        </cntaddr>
+        <cntvoice>928-556-7005</cntvoice>
+        <cntemail>mmcclernan@usgs.gov</cntemail>
+      </cntinfo>
+    </ptcontac>
+    <native>The shapefile were created using custom USGS code and the GDAL/PROJ libraries. All Processing was completed in a Redhat Linux environment.</native>
+    <crossref>
+      <citeinfo>
+        <origin>Mark Mcclernan</origin>
+        <pubdate>2024</pubdate>
+        <title>Lunar Grid Reference System Grid Files</title>
+        <geoform>dataset</geoform>
+        <pubinfo>
+          <pubplace>https://www.sciencebase.gov</pubplace>
+          <publish>U.S. Geological Survey</publish>
+        </pubinfo>
+        <onlink>https://doi.org/10.5066/p13ypwqd</onlink>
+      </citeinfo>
+    </crossref>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr>Accuracy based on JPL DE 421</attraccr>
+    </attracc>
+    <logic>All ACC grids where projected and tested based on their positions in LGRS.</logic>
+    <complete>N/A</complete>
+    <lineage>
+      <procstep>
+        <procdesc>Shapefile written using standard map projections to the specified grid spacing</procdesc>
+        <procdate>20241101</procdate>
+      </procstep>
+    </lineage>
+  </dataqual>
+  <spdoinfo>
+    <direct>Vector</direct>
+    <ptvctinf>
+      <sdtsterm>
+        <sdtstype>G-polygon</sdtstype>
+        <ptvctcnt>462</ptvctcnt>
+      </sdtsterm>
+    </ptvctinf>
+  </spdoinfo>
+  <spref>
+    <horizsys>
+      <planar>
+        <mapproj>
+          <mapprojn>Polar_Stereographic</mapprojn>
+          <polarst>
+            <svlong>-90.0</svlong>
+            <longpc>0.0</longpc>
+            <latprjc>0.0</latprjc>
+            <feast>500000.0</feast>
+            <fnorth>500000.0</fnorth>
+          </polarst>
+        </mapproj>
+        <planci>
+          <plance>coordinate pair</plance>
+          <coordrep>
+            <absres>0.6096</absres>
+            <ordres>0.6096</ordres>
+          </coordrep>
+          <plandu>meters</plandu>
+        </planci>
+      </planar>
+      <geodetic>
+        <horizdn>Moon (2015) - Sphere</horizdn>
+        <ellips>Moon_2015_-_Sphere</ellips>
+        <semiaxis>1737400.0</semiaxis>
+        <denflat>0.0</denflat>
+      </geodetic>
+    </horizsys>
+  </spref>
+  <eainfo>
+    <detailed>
+      <enttyp>
+        <enttypl>Peak_Near_Shackleton_PolarLGRS_ACC_1km_S_Grid.shp Attribute Table</enttypl>
+        <enttypd>Table containing attribute information associated with the data set.</enttypd>
+        <enttypds>Producer Defined</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>FID</attrlabl>
+        <attrdef>Internal feature number.</attrdef>
+        <attrdefs>ESRI</attrdefs>
+        <attrdomv>
+          <udom>Sequential unique whole numbers that are automatically generated.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Shape</attrlabl>
+        <attrdef>Feature geometry.</attrdef>
+        <attrdefs>ESRI</attrdefs>
+        <attrdomv><udom>Shape type.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>id</attrlabl>
+        <attrdef>Internal feature number.</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv><rdom>
+            <rdommin>0</rdommin>
+            <rdommax>288</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LGRS_ACC</attrlabl>
+        <attrdef>Lunar Grid Reference System (LGRS) coordinate in Artemis Condensed Coordinate Format </attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv><codesetd>
+            <codesetn>FIPS Code (2-Digit State ID)</codesetn>
+            <codesets/>
+          </codesetd>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>centX</attrlabl>
+        <attrdef>Center Easting Coordinate of the Grid Area from either the Lunar Transverse Mercator (LTM) or Lunar Polar Stereographic (LPS) Systems.</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv><rdom>
+            <rdommin/>
+            <rdommax/>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>centY</attrlabl>
+        <attrdef>Center Northing Coordinate of the Grid Area from either the Lunar Transverse Mercator (LTM) or Lunar Polar Stereographic (LPS) Systems.</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv><rdom>
+            <rdommin/>
+            <rdommax/>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>ULX</attrlabl>
+        <attrdef>Grid Area minimum easting from either the Lunar Transverse Mercator (LTM) or Lunar Polar Stereographic (LPS) Systems.</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv><rdom>
+            <rdommin/>
+            <rdommax/>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>ULY</attrlabl>
+        <attrdef>Grid Area maximum northing from either the Lunar Transverse Mercator (LTM) or Lunar Polar Stereographic (LPS) Systems.</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv><rdom>
+            <rdommin/>
+            <rdommax/>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LRX</attrlabl>
+        <attrdef>Grid Area maximum easting from either the Lunar Transverse Mercator (LTM) or Lunar Polar Stereographic (LPS) Systems.</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv><rdom>
+            <rdommin/>
+            <rdommax/>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LRY</attrlabl>
+        <attrdef>Grid Area minimum northing from either the Lunar Transverse Mercator (LTM) or Lunar Polar Stereographic (LPS) Systems.</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv><rdom>
+            <rdommin/>
+            <rdommax/>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+  </eainfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntperp>
+          <cntper>GS ScienceBase</cntper>
+          <cntorg>U.S. Geological Survey</cntorg>
+        </cntperp>
+        <cntaddr>
+          <addrtype>mailing address</addrtype>
+          <address>Denver Federal Center, Building 810, Mail Stop 302</address>
+          <city>Denver</city>
+          <state>CO</state>
+          <postal>80225</postal>
+          <country>United States</country>
+        </cntaddr>
+        <cntvoice>1-888-275-8747</cntvoice>
+        <cntemail>sciencebase@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <distliab>Unless otherwise stated, all data, metadata and related materials are considered to satisfy the quality standards relative to the purpose for which the data were collected. Although these data and associated metadata have been reviewed for accuracy and completeness and approved for release by the U.S. Geological Survey (USGS), no warranty expressed or implied is made regarding the display or utility of the data for other purposes, nor on all computer systems, nor shall the act of distribution constitute any such warranty.</distliab>
+    <stdorder>
+      <digform><digtinfo>
+          <formname>Digital Data</formname>
+        </digtinfo>
+        <digtopt><onlinopt><computer><networka><networkr>https://doi.org/10.5066/P1MEQ6UK</networkr></networka></computer></onlinopt></digtopt></digform>
+      <fees>None</fees>
+    </stdorder>
+  </distinfo>
+  <metainfo>
+    <metd>20241008</metd>
+    <metc>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>United States Geological Survey</cntorg>
+          <cntper>Mark McClernan</cntper>
+        </cntorgp>
+        <cntpos>Geodesist</cntpos>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>2255 N Gemini Dr.</address>
+          <city>Flagstaff</city>
+          <state>AZ</state>
+          <postal>86001</postal>
+          <country>U.S.</country>
+        </cntaddr>
+        <cntvoice>928-556-7005</cntvoice>
+        <cntemail>mmcclernan@usgs.gov</cntemail>
+      </cntinfo>
+    </metc>
+    <metstdn>FGDC Content Standard for Digital Geospatial Metadata</metstdn>
+    <metstdv>FGDC-STD-001-1998</metstdv>
+  </metainfo>
+</metadata>

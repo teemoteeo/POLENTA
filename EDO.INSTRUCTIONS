@@ -19,6 +19,10 @@ Scritto da Rocco, 18/11/2026. Leggi tutto prima di iniziare, poi esegui i passi 
 
 0.4  Non committare: `data/raw/` (è già in .gitignore), `.env`, credenziali, file del venv.
 
+0.6  La cartella `EDO_DATA/` e questo file `EDO.INSTRUCTIONS` sono TEMPORANEI: servono solo per
+     passarti i dati e le istruzioni. Prima del push vanno eliminati dalla repo (passo 5.1), così su
+     dev resta una versione pulita.
+
 0.5  Se un passo fallisce o un controllo non torna, FERMATI e scrivi a Rocco cosa è successo
      (comando, errore, numeri). Non inventare valori e non "aggiustare" i dati per far passare i controlli.
 
@@ -74,15 +78,15 @@ Scritto da Rocco, 18/11/2026. Leggi tutto prima di iniziare, poi esegui i passi 
        curl -L -o data/raw/diviner/dlre_prp_south.xml $B/dlre_prp_south.xml
      Controllo: dlre_prp_south.tab pesa 604800210 byte.
 
-3.2  Griglie USGS delle regioni Artemis III (solo quelle da 1 km). Rocco ti passa `usgs_lgrs_1km.zip`
-     (78 KB; ScienceBase blocca il download automatico). Scompattalo in data/raw/lola/:
+3.2  Griglie USGS delle regioni Artemis III (solo quelle da 1 km, ~600 KB). Sono già nella repo, nella
+     cartella temporanea EDO_DATA/ (ScienceBase blocca il download automatico). Copiale in data/raw/lola/:
        mkdir -p data/raw/lola
-       unzip usgs_lgrs_1km.zip -d data/raw/lola/
+       cp -R EDO_DATA/usgs_lgrs data/raw/lola/
      Controllo: devono esistere
        data/raw/lola/usgs_lgrs/Malapert_Massif/Malapert_Massif_PolarLGRS_ACC_1km_S_Grid.shp
        data/raw/lola/usgs_lgrs/Haworth/Haworth_PolarLGRS_ACC_1km_S_Grid.shp
        data/raw/lola/usgs_lgrs/Nobile_Rim_1/Nobile_Rim_1_PolarLGRS_ACC_1km_S_Grid.shp
-     Se non hai lo zip, FERMATI e chiedilo a Rocco (non usare il vecchio artemis_regions.json fatto a mano).
+     Se mancano, FERMATI e chiedile a Rocco (non usare il vecchio artemis_regions.json fatto a mano).
 
 3.3  Nessun altro dato nuovo: gli intermedi che hai già in data/raw/interim/ (features.parquet,
      fine.parquet, lunar_terrain.json, site_dossier.json, ...) restano quelli. Non rifare grid,
@@ -160,13 +164,18 @@ Scritto da Rocco, 18/11/2026. Leggi tutto prima di iniziare, poi esegui i passi 
 5. COMMIT E PUSH
 ======================================================================
 
-5.1  Controlla cosa committi:
+5.1  Elimina i file temporanei dalla repo (le griglie restano in data/raw/lola/usgs_lgrs/, fuori da git):
+       ls data/raw/lola/usgs_lgrs/*/*_1km_S_Grid.shp     # controllo: 3 file, la copia locale c'è
+       git rm -r -q EDO_DATA EDO.INSTRUCTIONS
+     Poi controlla cosa committi:
        git status
-     Devono comparire solo file in data/export/ (e, se hai dovuto correggere il codice Earth Engine,
-     src/pipeline/surface.py o src/pipeline/export.py). Niente data/raw/, niente .env.
+     Devono comparire solo: file in data/export/, la cancellazione di EDO_DATA/ e EDO.INSTRUCTIONS
+     (e, se hai dovuto correggere il codice Earth Engine, src/pipeline/surface.py o src/pipeline/export.py).
+     Niente data/raw/, niente .env. Controllo finale: `ls EDO_DATA EDO.INSTRUCTIONS` deve dare
+     "No such file or directory".
 
 5.2  Commit:
-       git add data/export
+       git add data/export     # le cancellazioni di EDO_DATA ed EDO.INSTRUCTIONS sono già pronte (git rm)
        git add src/pipeline/surface.py src/pipeline/export.py   # solo se li hai modificati
        git commit -m "export: ghiaccio ISRU (ice_area_share) e grandezze fisiche della Terra nel dossier
 
@@ -174,7 +183,8 @@ Scritto da Rocco, 18/11/2026. Leggi tutto prima di iniziare, poi esegui i passi 
        - dossier: elevation_m, lst_mean_c, lst_half_range_c, air_density_kgm3, bulk_density_0_2m
        - controlli: simulink.test ok, build ok, valori nei range attesi (<eventuali eccezioni>)
        - ISRU primo posto prima/dopo: <malapert ...> <haworth ...> <nobile ...>
-       - <eventuali correzioni al codice Earth Engine>"
+       - <eventuali correzioni al codice Earth Engine>
+       - tolti i file temporanei EDO_DATA/ e EDO.INSTRUCTIONS"
 
 5.3  Push solo su dev:
        git push origin dev
