@@ -21,7 +21,7 @@ You pick a landing site and a hardware test. POLENTA tells you where on Earth to
    - *Best on Earth*: the most similar places anywhere.
    - *Unexplored*: the same ranking without the places already used for tests. A place counts as known if it lies in a well-studied analogue region (US Southwest, Iceland, Atacama, Hawaii, Canary Islands, Svalbard, Canadian High Arctic, Antarctica) or within 150 km of a known test site.
    - *Near you*: the best places within 1,500, 3,000 or 5,000 km of the customer base (Turin or ISRO Bengaluru), with the similarity given up against the best place on Earth.
-4. **Place card.** For each place: the score per parameter with its sensor on Earth and on the target body, what holds in the field, what is partial, what breaks, and the campaign: field site plus the indoor facilities that cover the rest. The campaign can be copied as a plain-text brief.
+4. **Place card.** For each place: the score per parameter with its sensor on Earth and on the target body, what holds in the field, what is partial, what breaks, and the campaign: field site plus the indoor facilities that covered the rest. Each place card also provides **direct MATLAB / Simulink export buttons (Dual Environment)** to download `.mat` files for both the space target and the Earth analogue test site, alongside the `init_polenta.m` initialization script.
 
 The **Benchmark** sheet shows the whole matrix, 6 sites × 3 tests, with the top unexplored place and its campaign in every cell.
 
@@ -34,6 +34,7 @@ The **Benchmark** sheet shows the whole matrix, 6 sites × 3 tests, with the top
 - **Where it breaks:** a parameter with `s < 0.3` breaks, between 0.3 and 0.5 is partial, from 0.5 holds. Broken parameters and the things Earth never reproduces (1/6 gravity, vacuum, electrostatic dust, engine plume in vacuum, cold of shadowed regions) are assigned to indoor facilities: the smallest set that covers every gap, most gaps covered first, then nearest to the customer.
 - **Terrain resolution:** global screening at 500 m, exact 30 m values on known sites, a random sample and the candidates; a gradient-boosting model calibrates 500 m to 30 m on the rest, with the error declared.
 - **Validation:** known test sites (Etna, Black Point, Cinder Lake, Death Valley and others in `data/config/known_sites.csv`) must come out near the top. Their percentiles are exported in `data/export/validation.json`.
+- **Simulink & Geotechnical Soil Mechanics (Bekker-Wong):** Automated pipeline export packs site parameters into structured MATLAB `.mat` files (`gnc_*`, `therm_*`, `mob_*`, `isru_*`, `env_*`), complete with standard Bekker-Wong soil mechanics parameters (`geo_cohesion_kPa`, `geo_friction_angle_deg`, `geo_sinkage_kc_kn_m2n`, `geo_sinkage_kphi_kn_m2n`, `geo_sinkage_exponent_n`) derived from lunar (*Lunar Sourcebook*) and Martian (*Golombek et al.*) literature for digital twin mobility and GNC simulations.
 
 Parameters in the score: 90th percentile slope, roughness, crater density, boulder cover, regolith grain size (thermal inertia proxy), albedo, low-angle sunlight, surface density, rock type, ground ice.
 

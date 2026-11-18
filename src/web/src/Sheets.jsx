@@ -139,6 +139,12 @@ export function Method() {
       <li>Low-angle sunlight that the site only offers for a few hours a day is flagged as covered by timing, not by a facility.</li>
       <li>No cost figures: we have no solid source for them.</li>
     </ul>
+    <h3 className="lbl">Simulink &amp; geotechnical soil mechanics (Bekker-Wong)</h3>
+    <ul className="sh-list">
+      <li>Automated pipeline export packs site parameters into structured MATLAB <code>.mat</code> files (<code>gnc_*</code>, <code>therm_*</code>, <code>mob_*</code>, <code>isru_*</code>, <code>env_*</code>).</li>
+      <li>Includes standard Bekker-Wong soil mechanics parameters (<code className="fig">geo_cohesion_kPa</code>, <code className="fig">geo_friction_angle_deg</code>, <code className="fig">geo_sinkage_kc_kn_m2n</code>, <code className="fig">geo_sinkage_kphi_kn_m2n</code>, <code className="fig">geo_sinkage_exponent_n</code>) derived from lunar (<i>Lunar Sourcebook</i>) and Martian (<i>Golombek et al.</i>) literature for digital twin mobility and GNC simulations.</li>
+      <li>Each place card provides direct MATLAB / Simulink export buttons (Dual Environment) to download <code>.mat</code> files for both the space target and the Earth analogue test site, alongside the <code>init_polenta.m</code> initialization script.</li>
+    </ul>
     <h3 className="lbl">Data</h3>
     <p className="small mute">Earth data are processed in Google Earth Engine. Moon and Mars targets: LOLA plus literature values.</p>
     <p className="lbl nasa">NASA</p>
