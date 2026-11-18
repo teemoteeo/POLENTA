@@ -47,7 +47,15 @@ for (const site of targets) {
     if (site.world === 'mars') assert(Number.isFinite(t.soil.cohesion_kPa) && Number.isFinite(t.soil.friction_angle_deg), `${site.id}: c e phi mancanti`)
     for (const k of ['physical', 'physical_units', 'physical_source', 'notes']) assert.equal(keys(t[k]), keys(a[k]), `${k}: ${site.id} ${testId}`)
     assert(t.physical.thermal_inertia_si > 0 && Number.isFinite(t.physical.t_mean_c), `physical mancante: ${site.id}`)
-    assert(Number.isNaN(a.physical.thermal_inertia_si) && a.physical.wind_m_s >= 0)
+    assert(Number.isNaN(a.physical.thermal_inertia_si) && Number.isNaN(a.physical.feo_wt_pct) && a.physical.wind_m_s >= 0)
+    // Terra: ogni grandezza del dossier finisce nel .mat (NaN finché l'export non la contiene)
+    const d = r.dossier || {}
+    for (const [k, dk] of [['elevation_m', 'elevation_m'], ['t_mean_c', 'lst_mean_c'], ['t_range_c', 'lst_half_range_c'],
+      ['bulk_density_0_2m', 'bulk_density_0_2m'], ['air_density_kg_m3', 'air_density_kgm3']]) {
+      if (typeof d[dk] === 'number') assert.equal(a.physical[k], d[dk], `${k}: dossier non riportato`)
+      else assert(Number.isNaN(a.physical[k]))
+      assert(a.physical_source[k], `${k}: fonte mancante`)
+    }
 
     const names = fileNames(site, testId, r.name)
     const mt = targetMat(t), ma = analogueMat(a), m = initScript(names, t, a)

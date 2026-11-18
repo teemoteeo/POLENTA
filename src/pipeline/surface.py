@@ -107,14 +107,31 @@ def landcover_hex(m: ee.Image) -> dict:
     return {"crop_urban_hex": g.to_grid(lc.remap([12, 13, 14], [1, 1, 1], 0), ee.Reducer.mean(), 500)}
 
 
+# SoilGrids bdod: i 6 strati standard e il loro spessore (cm) → densità media pesata 0-200 cm
+BDOD_LAYERS = (("0-5cm", 5), ("5-15cm", 10), ("15-30cm", 15), ("30-60cm", 30), ("60-100cm", 40), ("100-200cm", 100))
+R_DRY_AIR = 287.05   # J kg⁻¹ K⁻¹
+
+
 def site_dossier(points: list[tuple[str, float, float]]) -> dict:
-    """Per pochi punti (id, lat, lon): area protetta WDPA (nome e tipo) e vento medio a 10 m (MERRA-2, 2023)."""
+    """Per pochi punti (id, lat, lon), solo per i posti mostrati nelle card:
+    - area protetta WDPA (nome e tipo);
+    - vento medio a 10 m e densità dell'aria al suolo, MERRA-2 2023 (NASA/GSFC/MERRA/slv/2, un'ora al giorno):
+      ρ = PS / (R · T2M), aria secca (R = 287,05 J kg⁻¹ K⁻¹), media dei valori orari;
+    - densità del suolo 0-2 m: SoilGrids 2.0 bdod (Poggio et al. 2021, doi:10.5194/soil-7-217-2021), media dei 6 strati
+      pesata sullo spessore, al pixel da 250 m del punto (g/cm³)."""
     wdpa = ee.FeatureCollection("WCMC/WDPA/current/polygons")
     merra = ee.ImageCollection("NASA/GSFC/MERRA/slv/2").filterDate("2023-01-01", "2024-01-01")
     hours = merra.filter(ee.Filter.calendarRange(0, 0, "hour"))       # un'ora al giorno basta per la media
-    wind = hours.map(lambda i: i.select("U10M").hypot(i.select("V10M"))).mean().rename("wind_10m")
+    met = hours.map(lambda i: i.select("U10M").hypot(i.select("V10M")).rename("wind_10m")
+                    .addBands(i.select("PS").divide(i.select("T2M").multiply(R_DRY_AIR)).rename("air_density_kgm3"))).mean()
+    bdod = ee.Image("projects/soilgrids-isric/bdod_mean")
+    bulk = ee.Image.constant(0)
+    for z, t in BDOD_LAYERS:                                           # ee.Image non ha l'operatore +: .add() esplicito
+        bulk = bulk.add(bdod.select(f"bdod_{z}_mean").multiply(t))
+    bulk = bulk.divide(100 * sum(t for _, t in BDOD_LAYERS)).rename("bulk_density_0_2m")   # cg/cm³ → g/cm³
     fc = ee.FeatureCollection([ee.Feature(ee.Geometry.Point([lon, lat]), {"id": i}) for i, lat, lon in points])
-    fc = wind.reduceRegions(fc, ee.Reducer.first().setOutputs(["wind_10m"]), scale=50_000)
+    fc = met.reduceRegions(fc, ee.Reducer.first(), scale=50_000)      # due bande → proprietà con il nome della banda
+    fc = bulk.reduceRegions(fc, ee.Reducer.first().setOutputs(["bulk_density_0_2m"]), scale=250)
 
     def add_wdpa(f):                       # tutto in un'unica richiesta: in restricted mode le chiamate costano
         hit = wdpa.filterBounds(f.geometry())
@@ -128,7 +145,9 @@ def site_dossier(points: list[tuple[str, float, float]]) -> dict:
         p = f["properties"]
         out[p["id"]] = {"protected_area": bool(p.get("pa")),
                         "protected_area_name": f"{p['pa_name']} ({p.get('pa_desig')})" if p.get("pa_name") else None,
-                        "wind_10m": round(p["wind_10m"], 1) if p.get("wind_10m") is not None else None}
+                        "wind_10m": round(p["wind_10m"], 1) if p.get("wind_10m") is not None else None,
+                        "air_density_kgm3": round(p["air_density_kgm3"], 3) if p.get("air_density_kgm3") is not None else None,
+                        "bulk_density_0_2m": round(p["bulk_density_0_2m"], 2) if p.get("bulk_density_0_2m") is not None else None}
     return out
 
 

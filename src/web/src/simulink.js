@@ -15,7 +15,7 @@
 //   soil            Bekker-Wong da data/config/soil_mechanics.csv, per sito (riga site = id del sito, altrimenti '*' = tutto il
 //                   pianeta): c, phi, kc, kphi, n (centro) + range.<k> [min max], source.<k>, status.<k> (Terra: NaN, non misurato)
 //   physical        grandezze fisiche in unità SI o note (PHYSICAL), da usare nei modelli; target: card di targets.json,
-//                   Terra: solo il vento (dossier), il resto NaN. physical_units e physical_source accanto.
+//                   Terra: dal dossier (quota, temperatura, densità suolo e aria, vento), il resto NaN. physical_units e physical_source accanto.
 //   notes.<param>   avviso per i parametri che sono solo indici di confronto (COMPARISON_ONLY): non usarli come grandezze fisiche
 // Solo `polenta_analogue` ha in più `match` (punteggi della card) e `site` (dossier di campo).
 // I parametri sono quelli del test (pesi > 0 in tests.yaml): gli stessi righi della card, nello stesso ordine.
@@ -132,12 +132,25 @@ export function buildTarget(site, testId, result, ctx) {
   return core({ role: 'target', site, testId, name: site.name, world: site.world, lat: site.lat, lon: site.lon, params, raw: result.target || {}, ...ctx, physical: t.card || {}, physicalSource: t.sources || {} })
 }
 
+// Terra: grandezze fisiche dal dossier del posto (pipeline: export.physical e surface.site_dossier). Inerzia termica SI,
+// massi in %, ghiaccio in wt% e FeO non hanno un equivalente misurato sulla Terra: restano NaN.
+const earthPhysical = d => ({
+  wind_ms: d.wind_10m, air_density_kgm3: d.air_density_kgm3, elevation: d.elevation_m,
+  t_mean_c: d.lst_mean_c, t_range_c: d.lst_half_range_c, density_profile_0_2m: d.bulk_density_0_2m,
+})
+const EARTH_SOURCE = {
+  atmosphere_wind: 'MERRA-2 2023 (Gelaro et al. 2017, doi:10.1175/JCLI-D-16-0758.1), one hour per day: mean wind at 10 m; air density = PS / (287.05 * T2M), dry air',
+  elevation: 'pipeline DEM of the hexagon (30 m where computed, else 90 m or 500 m)',
+  temperature: 'MODIS MOD11A2 2021-2023 land surface temperature: mean = (median day + median night) / 2; range = (max day - min night) / 2',
+  density_profile_0_2m: 'SoilGrids 2.0 bdod (Poggio et al. 2021, doi:10.5194/soil-7-217-2021), 6 layers 0-200 cm weighted by thickness, 250 m pixel',
+}
+
 export function buildAnalogue(site, testId, result, displayName, ctx) {
   const params = result.plan.rows.map(r => r.p)
   const d = result.dossier || {}
   return {
     ...core({ role: 'analogue', site, testId, name: displayName, world: 'earth', lat: result.lat, lon: result.lon, params, raw: result.values || {}, ...ctx,
-      physical: { wind_ms: d.wind_10m }, physicalSource: { atmosphere_wind: 'MERRA-2 wind at 10 m (pipeline dossier)' } }),
+      physical: earthPhysical(d), physicalSource: EARTH_SOURCE }),
     match: {
       score: num(result.score), kappa: num(result.kappa),
       s: Object.fromEntries(result.plan.rows.map(r => [field(r.p), num(r.s)])),

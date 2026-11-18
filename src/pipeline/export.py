@@ -98,7 +98,8 @@ def dossier(data: dict, feats: pd.DataFrame) -> None:
     from . import gee_common as g, surface
     cache = json.loads(DOSSIER_CACHE.read_text()) if DOSSIER_CACHE.exists() else {}
     key = lambda r: f"{r['lat']:.3f},{r['lon']:.3f}"
-    todo = {key(r): (key(r), r["lat"], r["lon"]) for d in data.values() for r in d["results"] if key(r) not in cache}
+    todo = {key(r): (key(r), r["lat"], r["lon"]) for d in data.values() for r in d["results"]
+            if "bulk_density_0_2m" not in cache.get(key(r), {})}   # anche le voci in cache di prima (senza i campi fisici)
     if todo:
         g.init()
         pts = list(todo.values())
@@ -118,8 +119,21 @@ def dossier(data: dict, feats: pd.DataFrame) -> None:
                 # finestra di test: mesi senza neve (gen → dic) e il mese migliore (senza neve, Sole più radente)
                 r["dossier"]["snow_free_mask"] = row.get("snow_free_mask")
                 r["dossier"]["best_month"] = int(row["low_sun_best_month"]) if pd.notna(row.get("low_sun_best_month")) else None
+                # grandezze fisiche per i modelli (export Simulink): quota e temperatura dalle feature dell'esagono
+                r["dossier"].update(physical(row))
                 if "crop_urban_share" in row and pd.notna(row["crop_urban_share"]):
                     r["dossier"]["crop_urban_share"] = round(float(row["crop_urban_share"]), 3)
+
+
+def physical(row) -> dict:
+    """Dalla riga delle feature: quota (m, DEM migliore disponibile), temperatura superficiale media (MODIS MOD11A2,
+    (giorno + notte) / 2 delle mediane) e semi-escursione (max giorno − min notte) / 2, la stessa forma
+    "media ± escursione" della riga temperature della matrice."""
+    f = lambda c: float(row[c]) if c in row and pd.notna(row[c]) else None
+    tmin, tmax = f("t_min_c"), f("t_max_c")
+    return {"elevation_m": round(f("elevation_m")) if f("elevation_m") is not None else None,
+            "lst_mean_c": round(f("lst_mean_c"), 1) if f("lst_mean_c") is not None else None,
+            "lst_half_range_c": round((tmax - tmin) / 2, 1) if tmin is not None and tmax is not None else None}
 
 
 # Isole artiche dove GeoNames (città con più di 1.000 abitanti) non ha centri: lì la "città più vicina" è a
