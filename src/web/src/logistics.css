@@ -21,7 +21,7 @@
 .logi-legend .l.n{border-top:1.5px solid var(--ink);opacity:.6}
 .logi-toggle{cursor:pointer}
 @media(max-width:820px){
-  .logi-ctl{right:auto;left:12px;bottom:calc(48vh + 24px);align-items:flex-start;gap:6px}
+  .logi-ctl{right:auto;left:12px;bottom:calc(48dvh + 24px);align-items:flex-start;gap:6px}
   .logi-legend ul{display:none}
   .logi-legend p{border:0;padding:0}
 }
