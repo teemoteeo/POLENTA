@@ -5,12 +5,13 @@ import { H3HexagonLayer } from '@deck.gl/geo-layers'
 import { ScatterplotLayer } from '@deck.gl/layers'
 import DotModel, { preload } from './DotModel.jsx'
 import DotPlanet from './DotPlanet.jsx'
-import './trek.js' // registra il protocollo trek:// prima della mappa
-import { SITES, TESTS, MODELS, EXPORTED_AT, loadDots, getResults, loadCells } from './data.js'
+import { trekTile } from './trek.js' // registra anche il protocollo trek:// prima della mappa
+import { SITES, FAMOUS, TARGETS, TESTS, MODELS, EXPORTED_AT, loadDots, getResults, loadCells } from './data.js'
 import { coord } from './format.js'
-import { TEST_EN } from './i18n.js'
+import { TEST_EN, label } from './i18n.js'
+import { val } from './brief.js'
 import PlaceCard from './PlaceCard.jsx'
-import ResultsList from './ResultsList.jsx'
+import ResultsList, { ResultPeek } from './ResultsList.jsx'
 import { logisticsLayers, logisticsMarkers, homeMarker, campaignPose, stops, badge } from './logistics.js'
 import { HOMES } from './homes.js'
 import { loadNear, middle } from './near.js'
@@ -28,7 +29,7 @@ const RASTERS = { moon: ['moon'], mars: ['mars'], earth: ['gibs', 'esri'] }
 // size: raggio rispetto a Marte (Luna 1.737 km, Marte 3.390 km)
 const PLANETS = { mars: { name: 'Mars', what: '2 landing sites', size: 1 }, moon: { name: 'Moon', what: '3 Artemis III regions at the South Pole · Aristarchus Plateau', size: 0.51 } }
 // durate (ms) dei passaggi, uguali in andata e ritorno; curve: OUT rallenta alla fine, IN è la stessa rovesciata
-const T = { planet: 2600, site: 4500, siteBack: 2600, warp: 3000, card: 2600, next: 1200 } // siteBack: il ritorno dal sito è più corto dell'andata
+const T = { planet: 1300, site: 1700, siteBack: 1100, warp: 1100, warpIn: 700, card: 1200, next: 600 } // circa metà di prima (planet 2600, site 4500, warp 3000 + 1800, card 2600)
 const OUT = t => 1 - (1 - t) ** 3, IN = t => t ** 3
 const SOFT = t => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2) // parte e arriva piano: uguale nei due versi
 
@@ -71,6 +72,9 @@ export default function App() {
   const [testId, setTestId] = useState(null)
   const [hoverTest, setHoverTest] = useState(null)
   const [picked, setPicked] = useState(0)
+  const [peekSite, setPeekSite] = useState(null) // sito sotto il mouse nella lista: il pianeta ci si gira sopra
+  const [peekPos, setPeekPos] = useState(null) // dove sta la schedina accanto al pannello
+  const [peekRes, setPeekRes] = useState(null) // posto sulla Terra sotto il mouse
   const [sheet, setSheet] = useState(null) // null | 'benchmark' | 'method'
   const [zoom, setZoom] = useState(HOME.moon.zoom)
   const [dots, setDots] = useState({ moon: [], mars: [], earth: [] })
@@ -93,12 +97,30 @@ export default function App() {
   const result = data?.results[picked]
   const model = step === 'test' ? MODELS[hoverTest] || MODELS.rover_mobility : null
   const pal = PALETTE
+  const deckPins = useRef([])
+  // posiziona i pin di Luna e Marte con la camera di deck.gl (dopo ogni frame di deck): dietro il pianeta spariscono
+  // (i siti con i dati restano al 20%, come prima)
+  function placePins() {
+    const deck = overlay.current?._deck
+    if (!deck?.isInitialized) return // prima del primo frame getViewports() lancia un'asserzione
+    const vp = deck.getViewports()[0]
+    if (!vp?.cameraPosition) return
+    const C = vp.cameraPosition
+    for (const p of deckPins.current) {
+      const P = vp.projectPosition([p.at[0], p.at[1], 0])
+      const front = (C[0] - P[0]) * P[0] + (C[1] - P[1]) * P[1] + (C[2] - P[2]) * P[2] > 0 // la superficie guarda la camera
+      const [x, y] = vp.project([p.at[0], p.at[1], 0])
+      p.el.style.transform = `translate(${x}px, ${y}px)`
+      p.el.style.opacity = front ? '' : p.behind
+      p.el.style.pointerEvents = front ? '' : 'none'
+    }
+  }
 
   useEffect(() => {
     for (const w of ['moon', 'mars', 'earth']) loadDots(w).then(addDots(w))
     const m = new maplibregl.Map({ container: box.current, style: STYLE, ...HOME.moon, maxPitch: 70, minZoom: -1.5, attributionControl: { compact: true } })
     map.current = m
-    overlay.current = new MapboxOverlay({ interleaved: false, layers: [] }) // interleaved non disegna H3 sul globo
+    overlay.current = new MapboxOverlay({ interleaved: false, layers: [], onAfterRender: () => placePins() }) // interleaved non disegna H3 sul globo
     m.addControl(overlay.current)
     const pad = () => m.setPadding(basePad())
     pad(); m.on('resize', pad)
@@ -160,14 +182,21 @@ export default function App() {
     const pin = (cls, html, at, onclick, anchor) => {
       const el = document.createElement('button')
       el.className = cls; el.innerHTML = html; el.onclick = onclick
-      // Terra: i pin dietro il globo spariscono del tutto (MapLibre di suo li lascia al 20%); Luna e Marte restano come prima
-      return new maplibregl.Marker({ element: el, anchor, ...(world === 'earth' && { opacityWhenCovered: '0' }) }).setLngLat(at).addTo(map.current)
+      // Luna e Marte: il pin lo mette la stessa camera di deck.gl che disegna i puntini (placePins), così resta sulla superficie.
+      // Con i marker di MapLibre il globo ha un raggio diverso da quello di deck: sul bordo i pin finivano nel cielo.
+      if (world !== 'earth') {
+        el.classList.add('dpin'); box.current.appendChild(el)
+        return { el, at, behind: cls.includes('famous') ? '0' : '.2', remove: () => el.remove(), getElement: () => el }
+      }
+      // Terra: i pin dietro il globo spariscono del tutto (MapLibre di suo li lascia al 20%)
+      return new maplibregl.Marker({ element: el, anchor, opacityWhenCovered: '0' }).setLngLat(at).addTo(map.current)
     }
     const base = step === 'planet' ? []
       : world !== 'earth' ? SITES.filter(s => s.world === world).map(s =>
-        pin('site' + (s === site ? ' on' : ''), `<svg><line x2="${s.tag[0]}" y2="${s.tag[1]}"/></svg><i></i>`
+        pin('site' + (s === site || s === peekSite ? ' on' : ''), `<svg><line x2="${s.tag[0]}" y2="${s.tag[1]}"/></svg><i></i>`
           + `<span style="left:${s.tag[0]}px;top:${s.tag[1]}px;--tx:${s.tag[0] < 0 ? -100 : s.tag[0] > 0 ? 0 : -50}%">${s.name}</span>`, s.pos, () => chooseSite(s)))
-      : !data ? [] : data.results.map((r, i) => pin('pin' + (i === picked ? ' on' : ''), i + 1, [r.lon, r.lat], () => jump(i)))
+        .concat(FAMOUS.filter(s => s.world === world).map(s => pin('site famous' + (s === site || s === peekSite ? ' on' : ''), `<i></i><span>${s.name}</span>`, s.pos, () => chooseSite(s))))
+      : !data ? [] : data.results.map((r, i) => pin('pin' + (i === picked || i === peekRes ? ' on' : ''), i + 1, [r.lon, r.lat], () => jump(i)))
     const extra = world === 'earth' && step === 'card' && result ? logisticsMarkers(result).map(m => {
       const mk = pin(m.className, m.html, m.lngLat, () => {})
       mk.getElement().title = m.title || ''
@@ -178,7 +207,8 @@ export default function App() {
       return mk
     }) : []
     markers.current = [...base, ...extra]
-  }, [world, step, site, data, picked, result, base]) // eslint-disable-line react-hooks/exhaustive-deps
+    deckPins.current = base.filter(p => p.el); placePins()
+  }, [world, step, site, data, picked, result, base, peekSite, peekRes]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Animazioni. Ogni passo ha una posa di camera; ogni passaggio tra due passi vicini ha una durata sola.
   // Avanti la curva rallenta alla fine (OUT), indietro è la stessa rovesciata (IN): il ritorno è l'andata al contrario.
@@ -204,20 +234,18 @@ export default function App() {
   const after = useRef(null)
   const settle = fn => { if (busy.current) after.current = fn; else fn() }
   const act = fn => async (...a) => {
-    if (busy.current) {
-      queued.current = { run: () => fn(...a), at: performance.now() }
-      if (tail.current && tail.current.end - performance.now() <= 1000) tail.current.skip()
+    if (busy.current) { // mai bloccato: l'ultimo click parte appena finisce il volo in corso, di cui si taglia la coda lenta
+      queued.current = { run: () => fn(...a) }
+      tail.current?.skip()
       return
     }
     busy.current = true
-    document.body.classList.add('busy') // i comandi di navigazione si attenuano finché il volo non finisce (app.css)
     try { await fn(...a) } finally {
       busy.current = false
-      document.body.classList.remove('busy')
       const q = queued.current, s = after.current
       queued.current = null; after.current = null
       if (again.current) { again.current = false; setTimeout(() => home.current()) } // "Ricomincia" chiesto durante il movimento: vince su tutto
-      else if (q && performance.now() - q.at <= 1000) act(q.run)()
+      else if (q) act(q.run)()
       else s?.()
     }
   }
@@ -253,8 +281,8 @@ export default function App() {
     await wait(T.warp)
     setWorld(to)
     m.jumpTo({ center, zoom: 1, pitch: 0, bearing: 0, padding: side(-dir) })
-    sky(1800, 'cubic-bezier(.15,.65,.55,1)')
-    slide(dir, 0, 1800, 'cubic-bezier(0,.5,.3,1)')
+    sky(T.warpIn, 'cubic-bezier(.15,.65,.55,1)')
+    slide(dir, 0, T.warpIn, 'cubic-bezier(0,.5,.3,1)')
     await fly({ ...pose, duration: T.site, easing: OUT })
   }
 
@@ -276,14 +304,14 @@ export default function App() {
     // da Luna o Marte la mappa si rimpicciolisce fino a ricalcare il suo pianeta della prima pagina; dalla Terra si allontana e sfuma
     await fly({ ...(world === 'earth' ? { zoom: 0.5, pitch: 0 } : likePicker(world, performance.now() + T.planet)), duration: T.planet, easing: world === 'earth' ? IN : SOFT })
     setStep('planet'); setSite(null); setTestId(null)
-    await wait(400)
+    await wait(150)
   })
   // "Ricomincia" vale sempre: da fermi parte subito, durante un movimento lo lascia finire (tagliandone la coda lenta) e poi torna all'inizio
   home.current = toPlanets // sempre l'ultima versione: legge passo e mondo correnti
   const restart = () => {
     if (!busy.current) return toPlanets()
     again.current = true
-    if (tail.current && tail.current.end - performance.now() <= 1000) tail.current.skip()
+    tail.current?.skip()
   }
   // Sito ↔ Test
   const chooseSite = act(async s => {
@@ -319,7 +347,38 @@ export default function App() {
     setStep('results')
     await fly({ ...globe([result.lon, result.lat]), duration: T.card, easing: IN })
   })
+  // passaggio sulla lista dei siti: il pianeta ruota sul sito (0,5 s), senza cambiare passo; il click poi vola lì
+  const peek = (s, e) => {
+    if (step !== 'site') return
+    const row = e.currentTarget.getBoundingClientRect(), panel = e.currentTarget.closest('.panel').getBoundingClientRect()
+    setPeekPos({ left: panel.right + 16, top: Math.max(16, Math.min(row.top - 16, innerHeight - 400)) })
+    setPeekSite(s) // la schedina compare anche durante il volo d'arrivo; la rotazione no, per non interromperlo
+    if (busy.current) return
+    spinning.current = false
+    map.current.easeTo({ center: s.pos, duration: 500, essential: true, padding: basePad() })
+  }
+  // stesso gesto sulla lista dei posti sulla Terra: il globo ruota sul posto e accanto compare la schedina
+  const peekPlace = (i, e) => {
+    if (busy.current || step !== 'results' || !data) return
+    const r = data.results[i], row = e.currentTarget.getBoundingClientRect(), panel = e.currentTarget.closest('.panel').getBoundingClientRect()
+    setPeekPos({ left: panel.right + 16, top: Math.max(16, Math.min(row.top - 16, innerHeight - 440)) })
+    spinning.current = false; setPeekRes(i)
+    map.current.easeTo({ center: [r.lon, r.lat], duration: 500, essential: true, padding: basePad() })
+  }
+  useEffect(() => { setPeekSite(null); setPeekRes(null) }, [step, world, mode, base, radius])
+  // immagini della schedina dei siti del modello pronte prima del passaggio del mouse (i famosi si caricano al passaggio)
+  useEffect(() => { if (step === 'site') SITES.filter(s => s.world === world).forEach(s => orbitImg(s).catch(() => {})) }, [step, world])
   const back = () => ({ card: leaveCard, results: () => chooseSite(site), test: leaveSite, site: toPlanets })[step]?.()
+  // Dalla Terra direttamente alla scelta del sito: un solo cambio di pianeta, senza ripassare dal test
+  const toSite = act(async () => {
+    const w = site.world
+    setStep('site'); setSite(null); setTestId(null)
+    if (world === 'earth') await warp(w, HOME[w].center, HOME[w])
+    else await fly({ ...HOME[w], duration: T.siteBack, easing: IN })
+    spinning.current = true
+  })
+  // i passi in alto sono cliccabili: si torna a qualsiasi passo già fatto (e dalla scheda alla lista dei posti)
+  const goStep = k => ({ site: step === 'test' ? leaveSite : toSite, test: () => chooseSite(site), results: leaveCard })[k]()
 
   // Near you: plain flights outside act(). The panel always answers; during a flight the camera move waits for its end (settle)
   const setNear = (m, h) => {
@@ -409,7 +468,8 @@ export default function App() {
           <nav className="steps">
             <button className="backbtn" onClick={back} aria-label="Back">←</button>
             {STEPS.map(([k, l], i) => (
-              <span key={k} className={i === stepIdx ? 'on' : i < stepIdx ? 'done' : ''}><b className="fig">{i + 1}</b>{l}</span>
+              <button key={k} className={i === stepIdx ? 'on' : i < stepIdx ? 'done' : ''} disabled={!(i < stepIdx || (k === 'results' && step === 'card'))}
+                onClick={() => goStep(k)} aria-current={i === stepIdx ? 'step' : undefined}><b className="fig">{i + 1}</b>{l}</button>
             ))}
           </nav>
           {(site || test) && <p className="crumb">{[site && `${site.name} · ${coord(site.lat, 'N', 'S')} ${coord(site.lon, 'E', 'W')}`, test && TEST_EN[testId].name].filter(Boolean).join(' · ')}</p>}
@@ -417,12 +477,27 @@ export default function App() {
           {step === 'site' && (<>
             <h2>Where do you land?</h2>
             <p className="lbl">{PLANETS[world]?.what}. Pick one here or on the planet.</p>
-            <ul className="grid2">
-              {SITES.filter(s => s.world === world).map(s => <li key={s.name}><button onClick={() => chooseSite(s)}>{s.name}</button></li>)}
+            <div className="pick-list" onMouseLeave={() => setPeekSite(null)}>
+            <p className="lbl grp">With analogue data</p>
+            <ul className="sites">
+              {SITES.filter(s => s.world === world).map(s => <li key={s.id}><button className="data" onClick={() => chooseSite(s)} onMouseEnter={e => peek(s, e)} onFocus={e => peek(s, e)}>
+                <span>{s.name}</span><small className="fig">{coord(s.lat, 'N', 'S')} {coord(s.lon, 'E', 'W')}</small></button></li>)}
             </ul>
+            <p className="lbl grp">Famous sites · overview only</p>
+            <ul className="sites">
+              {FAMOUS.filter(s => s.world === world).map(s => <li key={s.id}><button onClick={() => chooseSite(s)} onMouseEnter={e => peek(s, e)} onFocus={e => peek(s, e)}>
+                <span>{s.name}</span><small className="fig">{coord(s.lat, 'N', 'S')} {coord(s.lon, 'E', 'W')}</small></button></li>)}
+            </ul>
+            </div>
           </>)}
 
-          {step === 'test' && (<>
+          {step === 'test' && site?.famous && (<>
+            <h2>{site.name}</h2>
+            <p>{site.what}</p>
+            <p className="lbl">Not in the analogue model yet: no search for places on Earth for this site. Pick one of the {SITES.filter(s => s.world === world).length} sites with analogue data to run a test.</p>
+          </>)}
+
+          {step === 'test' && !site?.famous && (<>
             <h2>What do you want to test?</h2>
             {model && (
               <figure className="panel-model" key={model.src}>
@@ -443,13 +518,16 @@ export default function App() {
             </ul>
           </>)}
 
-          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, HOMES[0])} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} />}
+          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, HOMES[0])} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} onPeek={peekPlace} onLeave={() => setPeekRes(null)} />}
 
           {step === 'card' && result && <PlaceCard data={data} picked={picked} site={site} test={{ name: TEST_EN[testId].name }} testId={testId} onJump={jump} />}
 
           <p className="lbl foot">POLENTA by FVG Station · NASA, ESA and JAXA data · export of {new Date(EXPORTED_AT).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
         </section>}
       </div>
+
+      {step === 'site' && peekSite && peekPos && <PeekCard s={peekSite} pos={peekPos} />}
+      {step === 'results' && data && peekRes != null && data.results[peekRes] && peekPos && <ResultPeek data={data} i={peekRes} mode={mode} base={base.name} pos={peekPos} />}
 
       <div className={'picker' + (step === 'planet' ? '' : ' off')}>
           {Object.entries(PLANETS).map(([w, p]) => (
@@ -485,4 +563,50 @@ export default function App() {
       </div>}
     </>
   )
+}
+
+// schedina accanto alla lista dei siti: immagine, cos'è, i numeri principali
+// immagine dall'orbita: ritaglio 512×288 delle stesse tile della mappa, centrato sul sito (s.pos, coordinate della mappa;
+// la Luna è già ruotata, quindi anche al Polo Sud niente distorsione). z 7: ~170 km di larghezza sulla Luna, ~330 su Marte
+const ORBIT = new Map(), ORBIT_SRC = { moon: 'NASA LRO WAC · Moon Trek', mars: 'NASA/USGS Viking MDIM 2.1' }
+const orbitImg = s => {
+  if (!ORBIT.has(s.id)) ORBIT.set(s.id, (async () => {
+    const z = 7, n = 2 ** z, W = 512, H = 288, [lon, lat] = s.pos
+    const x0 = Math.round(((lon + 180) / 360) * n * 256 - W / 2) // pixel interi: niente righe sottili tra le tile
+    const y0 = Math.round(((1 - Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360)) / Math.PI) / 2) * n * 256 - H / 2)
+    const tile = (x, y) => s.world === 'moon' ? trekTile(z, x, y)
+      : fetch(`/mars-tiles/${z}/${x}/${n - 1 - y}.png`).then(r => r.ok ? r.blob() : Promise.reject(r.status)).then(createImageBitmap) // TMS: y rovesciata
+    const c = document.createElement('canvas'), g = c.getContext('2d')
+    c.width = W; c.height = H
+    const jobs = []
+    for (let ty = Math.floor(y0 / 256); ty <= Math.floor((y0 + H) / 256); ty++) for (let tx = Math.floor(x0 / 256); tx <= Math.floor((x0 + W) / 256); tx++)
+      if (ty >= 0 && ty < n) jobs.push(tile(((tx % n) + n) % n, ty).then(b => g.drawImage(b, tx * 256 - x0, ty * 256 - y0)))
+    const ok = (await Promise.allSettled(jobs)).some(j => j.status === 'fulfilled')
+    if (!ok) throw new Error('no tiles')
+    return c.toDataURL('image/jpeg', 0.85)
+  })().catch(e => { ORBIT.delete(s.id); throw e })) // al prossimo passaggio si riprova
+  return ORBIT.get(s.id)
+}
+const BLURB = {
+  malapert_massif: 'Mountain on the rim of the South Pole region, candidate landing area for Artemis III. Long shadows, Sun always low.',
+  haworth: 'Large crater next to the South Pole, candidate area for Artemis III. Permanently shadowed floor, possible ice.',
+  nobile_rim_1: 'Rim of Nobile crater near the South Pole, candidate area for Artemis III.',
+  aristarchus_plateau: 'Volcanic plateau with pyroclastic deposits and basalts, far from the pole: dry, equatorial regolith.',
+  phoenix: 'Arctic plains where the Phoenix lander found ice a few centimetres under the surface (2008).',
+  gale: 'Crater with layered sediments, explored by the Curiosity rover since 2012.',
+}
+function PeekCard({ s, pos }) {
+  const t = TARGETS[s.id]
+  const rows = t ? [[label('slope_p90'), val('slope_p90', t.values.slope_p90)], [label('rock_class'), val('rock_class', t.values.rock_class)],
+    ['Mean temperature', t.card?.t_mean_c != null ? `${Math.round(t.card.t_mean_c)} °C` : '—'], [label('permafrost_share'), val('permafrost_share', t.values.permafrost_share)]] : []
+  const [img, setImg] = useState(null)
+  useEffect(() => { let on = true; setImg(null); orbitImg(s).then(u => on && setImg(u), () => {}); return () => { on = false } }, [s])
+  return (<aside className="peek glass" style={pos} aria-live="polite">
+    <figure>{img && <img src={img} alt={`${s.name} from orbit`} />}<figcaption>{ORBIT_SRC[s.world]}</figcaption></figure>
+    <p className="lbl fig">{coord(s.lat, 'N', 'S')} {coord(s.lon, 'E', 'W')}</p>
+    <h3>{s.name}</h3>
+    <p>{s.what || BLURB[s.id]}</p>
+    {rows.length > 0 && <dl>{rows.map(([k, v]) => <div key={k}><dt>{k}</dt><dd className="fig">{v}</dd></div>)}</dl>}
+    {s.famous && <p className="lbl">Overview only: not in the analogue model yet.</p>}
+  </aside>)
 }

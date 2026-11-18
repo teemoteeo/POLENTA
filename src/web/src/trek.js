@@ -19,7 +19,9 @@ worker.onmessage = ({ data }) => {
   calls.delete(data.id)
   if (data.error) c[1](new Error(data.error)); else c[0](data.result)
 }
-addProtocol('trek', ({ url }) => new Promise((res, rej) => {
-  calls.set(++seq, [d => res({ data: d }), rej])
-  worker.postMessage({ tile: url, id: seq })
-}))
+// tile della Luna ruotata come ImageBitmap: la usa la mappa e la schedina dei siti (orbitImg in App.jsx)
+export const trekTile = (z, x, y) => new Promise((res, rej) => {
+  calls.set(++seq, [res, rej])
+  worker.postMessage({ tile: `trek://moon/${z}/${x}/${y}`, id: seq })
+})
+addProtocol('trek', ({ url }) => trekTile(...url.slice(12).split('/')).then(d => ({ data: d })))
