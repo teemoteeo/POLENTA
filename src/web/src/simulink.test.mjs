@@ -141,7 +141,11 @@ for (const site of targets) {
       assert.deepEqual(t.soil.range.grain_density, [2300, 3200]); assert.deepEqual(t.soil.range.d50, [4e-5, 1.3e-4])
       // controllo incrociato: Lunar Sourcebook Tabella 9.5 p.492, porosità 30-60 cm 44%, 0-60 cm 46%
       assert(Math.abs(t.physical.porosity_0_2m - (1 - t.physical.bulk_density_0_2m / 3100)) < 1e-5 && t.physical.porosity_0_2m > 0.40 && t.physical.porosity_0_2m < 0.48)
-    } else assert(Number.isNaN(t.soil.K) && Number.isNaN(t.soil.grain_density) && t.soil.status.K === 'not measured' && Number.isNaN(t.physical.porosity_0_2m))
+    } else {
+      // Marte: densità dei grani come ipotesi dichiarata (Moore 1991, USGS OFR 91-568 Tab. 6); K e D50 ancora senza fonte
+      assert(t.soil.grain_density === 2800 && t.soil.status.grain_density === 'assumed' && t.soil.source.grain_density.includes('DECLARED ASSUMPTION'))
+      assert(Number.isNaN(t.soil.K) && t.soil.status.K === 'not measured' && t.physical.porosity_0_2m > 0.3 && t.physical.porosity_0_2m < 0.6)
+    }
     assert(a.soil.grain_density === 2700 && a.soil.status.grain_density === 'literature' && !a.soil.source.grain_density.includes('texture class'), `${where}: densità dei grani della Terra`)
     if (Number.isFinite(a.physical.bulk_density_0_2m)) assert(a.physical.porosity_0_2m > 0 && a.physical.porosity_0_2m < 1)
     assert.equal(t.solar_day_s, { moon: 2551390, mars: 88774.9 }[site.world]); assert.equal(a.solar_day_s, 86400)
