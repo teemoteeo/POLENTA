@@ -94,6 +94,15 @@ def score(feats: pd.DataFrame, test: dict, target: dict, rules: dict) -> dict:
             continue                                # già applicato ai pixel (maschera)
         if p in feats.columns:
             ok &= passes(feats[p], rule)
+    # filtri che valgono solo quando il sito ha quel parametro > 0 (tests.yaml: filtri_se_sito_positivo).
+    # ISRU: se il sito ha ghiaccio, un posto terrestre senza ghiaccio non è un analogo per estrarlo; con la sola
+    # distanza un deserto caldo prendeva 0,999 sul ghiaccio per Malapert (target p10-p90 [0,007, 0,666], 19/11).
+    # Per Gale e Aristarchus (ghiaccio 0) il filtro non si applica.
+    for p, rule in (test.get("filtri_se_sito_positivo") or {}).items():
+        t = target.get(p)
+        lo = min(t) if isinstance(t, (list, tuple)) else t
+        if p in feats.columns and lo is not None and lo > 0:
+            ok &= passes(feats[p], rule)
     total = np.where(ok, total, np.nan)
     return {"total": total, "kappa": kappa, "s": S, "gaps": gaps, "used": usable,
             "missing": [p for p in w_all if p not in usable]}

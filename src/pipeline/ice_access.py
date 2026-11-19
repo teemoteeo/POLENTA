@@ -3,8 +3,9 @@
 Definizione (decisione del team, 18/11/2026: architettura Artemis):
   per un punto di atterraggio P, ice_share(P) = area con ghiaccio stabile entro D_MAX dalla superficie, dentro il cerchio
   di raggio R_KM attorno a P, divisa per l'area del cerchio. Il punto di atterraggio vero non è noto: è un punto
-  qualunque dentro la regione candidata Artemis, quindi il valore del sito è l'intervallo [p10, p90] di ice_share(P)
-  su tutti i P della regione (campionati sui centri dei triangoli Diviner, ~500 m).
+  qualunque dentro la regione candidata Artemis: si calcola ice_share(P) su tutti i P della regione (campionati sui
+  centri dei triangoli Diviner, ~500 m). Il valore del sito in siti_e_pesi.csv è la mediana (atterraggio tipico,
+  scelta del team 19/11/2026); [p10, p90] è la dispersione, riportata nella Reference.
 
   R_KM = 10   raggio d'azione dell'LTV con equipaggio, vincolato dal ritorno a piedi (~5 h):
               NASA EVA-EXP-0075 "Exploration EVA System Concept of Operations" (NTRS 20200001071), valore TBR.

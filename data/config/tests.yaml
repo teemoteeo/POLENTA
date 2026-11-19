@@ -114,5 +114,9 @@ tests:
       atmosphere_wind: 0.00
     filtri:
       ndvi: "< 0.2"
+    # 19/11 (Rocco): se il sito ha ghiaccio (valore > 0: Luna polare, Phoenix), un posto senza permafrost non è un
+    # analogo per estrarre acqua dal ghiaccio ed è escluso. Per Gale e Aristarchus (ghiaccio 0) non si applica.
+    filtri_se_sito_positivo:
+      permafrost_share: "> 0"
     indoor: [vacuum, cryo_psr, agglutinates]
     validazione: []

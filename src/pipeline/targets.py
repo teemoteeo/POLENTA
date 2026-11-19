@@ -13,6 +13,7 @@ di Rocco sono diverse dalle nostre si converte, e la conversione va dichiarata:
   dell'inerzia termica apparente;
 - ice_area_share → permafrost_share: stessa grandezza (quota di area con ghiaccio stabile vicino alla superficie),
   nessuna conversione. Luna polare: ice_access.py (Diviner); Marte e Aristarchus: letteratura (vedi Reference).
+  Luna polare: il valore è la mediana sui punti di atterraggio della regione (19/11; p10-p90 nella Reference).
   Le celle "a – b" sono già un intervallo [a, b]. subsurface_ice (wt%) resta solo nella card, come informazione.
 """
 import json
