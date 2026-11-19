@@ -148,18 +148,62 @@ export function sourceFor(text, siteId, world) {
   return kept.map(p => (p.label ? `${p.label}: ` : '') + p.text.trim().replace(/;$/, '')).join('; ')
 }
 
-// per ogni parametro: la riga del sito se c'è, altrimenti quella del pianeta ('*'), altrimenti NaN
-function soilFor(world, siteId, soil) {
-  const none = world === 'earth' ? 'not measured: no Bekker-Wong data for Earth hexagons, measure on site (bevameter, shear vane)'
+// Classe di tessitura USDA da sabbia e argilla (%; limo = resto). Regole del triangolo USDA: Soil Science Division Staff
+// (2017), Soil Survey Manual, USDA Handbook 18, cap. 3. Dati mancanti → ''.
+export function textureClass(sand, clay) {
+  if (!Number.isFinite(sand) || !Number.isFinite(clay)) return ''
+  const silt = 100 - sand - clay
+  if (silt + 1.5 * clay < 15) return 'sand'
+  if (silt + 2 * clay < 30) return 'loamy sand'
+  if (clay >= 40) return sand > 45 ? 'sandy clay' : silt >= 40 ? 'silty clay' : 'clay'
+  if (clay >= 35 && sand > 45) return 'sandy clay'
+  if (clay >= 27) return sand > 45 ? 'sandy clay loam' : sand > 20 ? 'clay loam' : 'silty clay loam'
+  if (clay >= 20 && silt < 28 && sand > 45) return 'sandy clay loam'
+  if (silt >= 80 && clay < 12) return 'silt'
+  if (silt >= 50) return 'silt loam'
+  if (clay >= 7 && silt >= 28 && sand <= 52) return 'loam'
+  return 'sandy loam'
+}
+
+// soil_by_texture.csv → { usda: { cls, value, range, unit, source, status } }: Bekker-Wong per classe di tessitura (Terra)
+export function parseTexture(csv) {
+  const [head, ...rows] = parseCsv(csv)
+  const out = {}
+  const n = x => (x === '' || x == null ? NaN : Number(x))
+  for (const r of rows) {
+    const { texture_class, usda_classes, param, value, lo, hi, unit, source, status } = Object.fromEntries(head.map((h, i) => [h, r[i]]))
+    for (const u of usda_classes.split(';').map(x => x.trim())) {
+      const s = (out[u] ??= { cls: texture_class, value: {}, range: {}, unit: {}, source: {}, status: {} })
+      s.value[param] = n(value); s.range[param] = [n(lo), n(hi)]; s.unit[param] = unit; s.source[param] = source; s.status[param] = status
+    }
+  }
+  return out
+}
+
+const EARTH_SOIL_NOTE = 'Estimated from the soil texture class, not measured at this place. The reference soils were moist (moisture 18-62%), '
+  + 'the analogues are dry, and kc, kphi depend strongly on moisture: for more precision measure on site (bevameter, shear test) '
+  + 'and replace these values with your own dataset.'
+
+// per ogni parametro: la riga del sito se c'è, altrimenti quella del pianeta ('*'), altrimenti NaN.
+// Terra: stima dalla classe di tessitura (texture = { sand, clay, table }), se c'è; altrimenti NaN.
+function soilFor(world, siteId, soil, texture) {
+  let rows = soil[world] || {}, order = [siteId, '*'], basis = ''
+  let none = world === 'earth' ? 'not measured: no Bekker-Wong data for this Earth place, measure on site (bevameter, shear vane)'
     : 'missing in soil_mechanics.csv'
-  const rows = soil[world] || {}
-  const pick = k => [rows[siteId], rows['*']].find(s => s && k in s.value)
+  if (world === 'earth') {
+    const cls = textureClass(texture?.sand, texture?.clay)
+    const t = cls && texture.table?.[cls]
+    basis = cls ? `USDA texture class ${cls} (SoilGrids 0-5 cm: sand ${texture.sand}%, clay ${texture.clay}%, USDA Soil Survey Manual 2017 triangle)` : ''
+    if (t) { rows = { earth: t }; order = ['earth'] }
+    else if (cls) none = `not measured: ${basis} has no measured reference soil in Wong (2010); measure on site (bevameter, shear vane)`
+  }
+  const pick = k => order.map(o => rows[o]).find(s => s && k in s.value)
   const by = f => map(SOIL, ([k, , , m], name) => f(pick(k), k, m, name))
   return {
     ...by((s, k, m) => (s ? round(num(s.value[k]) * m) : NaN)),
     range: by((s, k, m) => (s ? s.range[k].map(x => round(num(x) * m)) : [NaN, NaN])),
     units: map(SOIL, ([, , u]) => u),
-    source: by((s, k) => (s ? s.source[k] : none)),
+    source: by((s, k) => (s ? (world === 'earth' ? `${basis} -> ${s.source[k]} ${EARTH_SOIL_NOTE}` : s.source[k]) : none)),
     status: by((s, k) => (s ? s.status[k] : 'not measured')),
   }
 }
@@ -172,7 +216,7 @@ function rangeType(p, source, siteId) {
   return 'literature value +/- stated uncertainty'
 }
 
-function core({ role, site, testId, name, world, lat, lon, params, raw, units, soil, exportedAt, dataVersion = '', rockName = c => c,
+function core({ role, site, testId, name, world, lat, lon, params, raw, units, soil, texture, exportedAt, dataVersion = '', rockName = c => c,
   physical = {}, physicalSource = {}, sources = {}, earth = false }) {
   const numeric = params.filter(p => !CATEGORICAL.has(p))
   const si = p => SI[units[p]] ? SI[units[p]][0] : units[p] || ''
@@ -192,7 +236,7 @@ function core({ role, site, testId, name, world, lat, lon, params, raw, units, s
       : sourceFor(sources[p], site.id, world) || 'missing'])),
     rock_class: typeof raw.rock_class === 'string' ? raw.rock_class : '',
     rock_class_name: typeof raw.rock_class === 'string' ? rockName(raw.rock_class) : '',
-    soil: soilFor(world, site.id, soil),
+    soil: soilFor(world, site.id, soil, texture),
     physical: map(PHYSICAL, ([c, d, , f]) => round(f(num(physical[earth ? d : c])))),
     physical_units: map(PHYSICAL, ([, , u]) => u),
     physical_source: map(PHYSICAL, ([c, d, , , src]) => (earth ? (d ? physicalSource[src] || '' : 'not measured for Earth hexagons')
@@ -230,7 +274,8 @@ export function buildAnalogue(site, testId, result, displayName, ctx) {
   const d = result.dossier || {}
   return {
     ...core({ role: 'analogue', site, testId, name: displayName, world: 'earth', lat: result.lat, lon: result.lon, params, raw: result.values || {},
-      ...ctx, physical: d, physicalSource: EARTH_SOURCE, earth: true }),
+      ...ctx, physical: d, physicalSource: EARTH_SOURCE, earth: true,
+      texture: { sand: num(d.sand_pct), clay: num(d.clay_pct), table: ctx.soilTexture } }),
     match: {
       score: num(result.score), kappa: num(result.kappa),
       s: Object.fromEntries(result.plan.rows.map(r => [field(r.p), num(r.s)])),
@@ -311,14 +356,15 @@ if isfield(polenta_analogue.match.s, 'rock_class')
         polenta_analogue.match.s.rock_class, polenta_analogue.match.state.rock_class);
 end
 
-fprintf('\\nBekker-Wong soil, target (analogue: not measured on Earth hexagons)\\n');
+fprintf('\\nBekker-Wong soil\\n  %-15s %-11s %27s %27s\\n', 'parameter', 'unit', 'target  value [min max]', 'analogue  value [min max]');
 b = fieldnames(polenta_target.soil.units);
 for i = 1:numel(b)
     k = b{i};
-    r = polenta_target.soil.range.(k);
-    fprintf('  %-15s %11.4g %-11s [%11.4g %11.4g]  %s\\n', k, polenta_target.soil.(k), polenta_target.soil.units.(k), r(1), r(2), ...
-        polenta_target.soil.status.(k));
+    r = polenta_target.soil.range.(k); ra = polenta_analogue.soil.range.(k);
+    fprintf('  %-15s %-11s %9.4g [%7.4g %7.4g] %9.4g [%7.4g %7.4g]\\n', k, polenta_target.soil.units.(k), polenta_target.soil.(k), r(1), r(2), ...
+        polenta_analogue.soil.(k), ra(1), ra(2));
 end
+fprintf('  status: target %s; analogue %s\\n', polenta_target.soil.status.kc, polenta_analogue.soil.status.kc);
 
 fprintf('\\nPhysical quantities\\n%-18s %-20s %12s %12s\\n', 'quantity', 'unit', 'target', 'analogue');
 q = fieldnames(polenta_target.physical);
@@ -395,11 +441,16 @@ ${rows(Object.keys(t.values), k => t.units[k], k => t.range_type[k])}
 BEKKER-WONG SOIL (target)
 ${rows(Object.keys(t.soil.units), k => t.soil.units[k], k => `${t.soil[k]} [${t.soil.range[k].join(' ')}] ${t.soil.status[k]}`)}
 
+BEKKER-WONG SOIL (analogue)
+${rows(Object.keys(a.soil.units), k => a.soil.units[k], k => `${a.soil[k]} [${a.soil.range[k].join(' ')}] ${a.soil.status[k]}`)}
+  Earth values are estimated from the soil texture class (sand and clay from SoilGrids, USDA triangle) using the bevameter
+  and shear tests of Wong (2010) on moist soils: see SOURCES.txt. NaN when the texture is missing or no reference soil exists.
+
 PHYSICAL QUANTITIES
 ${rows(Object.keys(t.physical), k => t.physical_units[k], k => t.physical_notes[k])}
 
 LIMITS
-  - The Earth analogue has no measured Bekker-Wong parameters: measure them on site (bevameter, shear vane).
+  - The Earth analogue Bekker-Wong parameters are estimates by soil texture class, not measurements: for more precision measure\n    on site (bevameter, shear test) and replace them with your own dataset. kc and kphi depend strongly on moisture.
   - Parameters listed in notes are matching indices: target and Earth are measured with different instruments.
   - Elevations of different bodies use different datums and cannot be compared.
   - Earth values are means over the H3 cells of the place (resolution 5, about 253 km^2 each; list in site.h3_cells)

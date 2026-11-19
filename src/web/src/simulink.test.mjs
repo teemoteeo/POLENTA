@@ -6,7 +6,7 @@ import assert from 'assert'
 import { load } from 'js-yaml'
 import { plan } from './campaign.js'
 import { ROCK } from './names.js'
-import { parseUnits, parseSoil, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA } from './simulink.js'
+import { parseUnits, parseSoil, parseTexture, textureClass, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA } from './simulink.js'
 import { crc32 } from './zip.js'
 
 const root = '../../data'
@@ -14,7 +14,8 @@ const tests = load(fs.readFileSync(`${root}/config/tests.yaml`, 'utf8')).tests
 const targets = JSON.parse(fs.readFileSync(`${root}/export/targets.json`))
 const units = parseUnits(fs.readFileSync(`${root}/config/params.csv`, 'utf8'))
 const soilCsv = parseSoil(fs.readFileSync(`${root}/config/soil_mechanics.csv`, 'utf8'))
-const ctx = { units, soil: soilCsv, exportedAt: 'test', dataVersion: 'test', rockName: c => ROCK[c] || c, targets: Object.fromEntries(targets.map(t => [t.id, t])) }
+const soilTexture = parseTexture(fs.readFileSync(`${root}/config/soil_by_texture.csv`, 'utf8'))
+const ctx = { units, soil: soilCsv, soilTexture, exportedAt: 'test', dataVersion: 'test', rockName: c => ROCK[c] || c, targets: Object.fromEntries(targets.map(t => [t.id, t])) }
 const out = process.env.OUT
 const keys = o => Object.keys(o).sort().join(',')
 const NAME_MAX = 31
@@ -26,6 +27,18 @@ const SITE_UNITS = new Set(['1', 'month', 'month number (1-12)', 'h/day', 'm s^-
 // le unità del CSV del suolo sono quelle che la conversione si aspetta
 for (const w of Object.values(soilCsv)) for (const s of Object.values(w)) for (const [k, u] of Object.entries(s.unit)) {
   assert.equal(u, SOIL_CSV_UNITS[k], `soil_mechanics.csv: unità di ${k} = ${u}, la conversione in SI si aspetta ${SOIL_CSV_UNITS[k]}`)
+}
+
+// triangolo USDA: un punto per classe (sabbia %, argilla %)
+for (const [sand, clay, cls] of [[90, 5, 'sand'], [80, 5, 'loamy sand'], [65, 10, 'sandy loam'], [40, 20, 'loam'], [20, 15, 'silt loam'],
+  [5, 5, 'silt'], [30, 35, 'clay loam'], [10, 30, 'silty clay loam'], [60, 25, 'sandy clay loam'], [50, 45, 'sandy clay'],
+  [5, 50, 'silty clay'], [20, 60, 'clay']]) assert.equal(textureClass(sand, clay), cls, `tessitura ${sand}/${clay}`)
+assert.equal(textureClass(NaN, 10), '')
+// tabella per tessitura: unità attese, valori nell'intervallo, ogni classe con i 5 parametri
+for (const [u, t] of Object.entries(soilTexture)) {
+  for (const [k, unit] of Object.entries(t.unit)) assert.equal(unit, SOIL_CSV_UNITS[k], `soil_by_texture ${u} ${k}`)
+  for (const [k, v] of Object.entries(t.value)) assert(t.range[k][0] <= v && v <= t.range[k][1], `soil_by_texture ${u} ${k} fuori intervallo`)
+  assert.equal(Object.keys(t.value).length, 5, `soil_by_texture ${u}: parametri mancanti`)
 }
 
 // i nomi dei campi MATLAB stanno nei 31 caratteri e non hanno simboli
@@ -99,7 +112,12 @@ for (const site of targets) {
     if ('rock_cover' in t.values) assert(t.values.rock_cover <= 1)
 
     // suolo: SI, valori nell'intervallo, NaN solo se non misurato, fonte presente
-    assert(Number.isNaN(a.soil.kc), 'la Terra non ha Bekker-Wong misurato')
+    // Terra: suolo stimato dalla classe di tessitura se il dossier ha sabbia e argilla, altrimenti NaN
+    const cls = textureClass(r.dossier?.sand_pct, r.dossier?.clay_pct)
+    if (cls && soilTexture[cls]) {
+      assert(Number.isFinite(a.soil.kc) && a.soil.status.kc === 'estimated (texture class)' && a.soil.source.kc.includes(cls), `${where}: suolo stimato mancante`)
+      assert(a.soil.source.n.includes('Wong J.Y. (2010)') && a.soil.source.n.includes('measure on site'))
+    } else assert(Number.isNaN(a.soil.kc) && a.soil.status.kc === 'not measured', `${where}: suolo senza tessitura non NaN`)
     for (const k of ['range', 'units', 'source', 'status']) assert.equal(keys(t.soil[k]), keys(a.soil[k]), `soil.${k}`)
     for (const [k, [lo, hi]] of Object.entries(t.soil.range)) {
       if (Number.isNaN(t.soil[k])) { assert.equal(t.soil.status[k], 'not measured', `${site.id} ${k}: NaN senza stato`); continue }
@@ -153,4 +171,18 @@ for (const site of targets) {
   }
 }
 assert.equal(n, 18, `coppie sito × test: ${n}`)
+
+// Terra con tessitura nel dossier (come dal prossimo export): franco sabbioso e argilla
+{
+  const site = targets[0], testId = 'rover_mobility'
+  const r = JSON.parse(fs.readFileSync(`${root}/export/sites/${site.id}__${testId}.json`)).results[0]
+  const with_ = (sand, clay) => buildPackage(site, testId, { ...r, dossier: { ...r.dossier, sand_pct: sand, clay_pct: clay }, plan: plan(r, tests[testId].requisiti) }, r.name, ctx).analogue.soil
+  const sl = with_(65, 10)
+  assert.equal(sl.n, 0.65); assert.equal(sl.kc, 10500); assert.equal(sl.kphi, 880000); assert.equal(sl.cohesion, 3000); assert.equal(sl.friction_angle, 29.45)
+  assert.deepEqual(sl.range.kc, [3300, 259000])
+  assert.equal(sl.status.kphi, 'estimated (texture class)')
+  assert(sl.source.kc.includes('sandy loam') && sl.source.kc.includes('sand 65%'))
+  const cl = with_(20, 60)
+  assert(Number.isNaN(cl.kc) && cl.status.kc === 'not measured' && cl.source.kc.includes('clay'))
+}
 console.log('ok')
