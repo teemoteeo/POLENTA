@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/mars-tiles/:path*", "destination": "https://s3-eu-west-1.amazonaws.com/whereonmars.cartodb.net/viking_mdim21_global/:path*" }
+    { "source": "/mars-tiles/:path*", "destination": "https://s3-eu-west-1.amazonaws.com/whereonmars.cartodb.net/viking_mdim21_global/:path*" },
+    { "source": "/trek/:path*", "destination": "https://trek.nasa.gov/tiles/:path*" }
   ]
 }

@@ -43,7 +43,7 @@ const STYLE = {
     esri: { type: 'raster', tileSize: 256, maxzoom: 19, attribution: 'Esri World Imagery',
       tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'] },
     // NASA Moon Trek ridisegnato al volo (trek.js): la Luna ha il Polo Sud sull'equatore
-    moon: { type: 'raster', tileSize: 256, maxzoom: 8, attribution: 'NASA Moon Trek · LRO WAC', tiles: ['trek://moon/{z}/{x}/{y}'] },
+    moon: { type: 'raster', tileSize: 256, maxzoom: 12, attribution: 'NASA Moon Trek · LROC WAC/NAC · Kaguya TC', tiles: ['trek://moon/{z}/{x}/{y}'] },
     // Marte: Viking MDIM 2.1 a colori (NASA/USGS) già in tile web standard, servito da OpenPlanetaryMap
     mars: { type: 'raster', tileSize: 256, maxzoom: 7, scheme: 'tms', attribution: 'NASA/USGS Viking MDIM 2.1 · OpenPlanetaryMap',
       tiles: [location.origin + '/mars-tiles/{z}/{x}/{y}.png'] }, // proxy: S3 non manda CORS (vite.config.js, vercel.json)

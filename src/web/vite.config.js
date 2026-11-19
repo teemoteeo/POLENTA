@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // /mars-tiles: le tile di Marte su S3 non hanno CORS, passano dal nostro dominio (in produzione: rewrite in vercel.json)
-  server: { fs: { allow: ['../..'] }, proxy: { '/mars-tiles': { target: 'https://s3-eu-west-1.amazonaws.com', changeOrigin: true, rewrite: p => p.replace('/mars-tiles', '/whereonmars.cartodb.net/viking_mdim21_global') } } },
+  server: { fs: { allow: ['../..'] }, proxy: { '/mars-tiles': { target: 'https://s3-eu-west-1.amazonaws.com', changeOrigin: true, rewrite: p => p.replace('/mars-tiles', '/whereonmars.cartodb.net/viking_mdim21_global') },
+    '/trek': { target: 'https://trek.nasa.gov', changeOrigin: true, rewrite: p => p.replace('/trek', '/tiles') } } }, // tile della Luna (trekWorker.js)
   optimizeDeps: { exclude: ['maplibre-gl'] }, // il worker di maplibre v6 non passa dal pre-bundle di vite
 })
