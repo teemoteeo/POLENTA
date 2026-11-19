@@ -44,10 +44,12 @@ function clean(o, where) {
 const onlyNumbers = o => (typeof o === 'number' ? true : Array.isArray(o) ? o.every(x => typeof x === 'number') : Object.values(o).every(onlyNumbers))
 
 // sourceFor: tiene solo la parte del sito
-assert.equal(sourceFor('Luna: A; Marte: B; Aristarchus: C', 'haworth', 'moon'), 'Luna: A')
-assert.equal(sourceFor('Luna: A; Marte: B; Aristarchus: C', 'aristarchus_plateau', 'moon'), 'Aristarchus: C')
-assert.equal(sourceFor('Luna: A; Marte: B', 'aristarchus_plateau', 'moon'), 'Luna: A')
-assert.equal(sourceFor('Def X; Luna polare: A; Phoenix: B; Gale: C; Marte: D', 'gale', 'mars'), 'Def X; Gale: C; Marte: D')
+assert.equal(sourceFor('Moon: A; Mars: B; Aristarchus: C', 'haworth', 'moon'), 'Moon: A')
+assert.equal(sourceFor('Polar Moon: A; Aristarchus: C; Mars: D', 'haworth', 'moon'), 'Polar Moon: A')
+assert.equal(sourceFor('Luna: A; Marte: B', 'haworth', 'moon'), 'Luna: A')
+assert.equal(sourceFor('Moon: A; Mars: B; Aristarchus: C', 'aristarchus_plateau', 'moon'), 'Aristarchus: C')
+assert.equal(sourceFor('Moon: A; Mars: B', 'aristarchus_plateau', 'moon'), 'Moon: A')
+assert.equal(sourceFor('Def X; Polar Moon: A; Phoenix: B; Gale: C; Mars: D', 'gale', 'mars'), 'Def X; Gale: C; Mars: D')
 assert.equal(sourceFor('senza etichette', 'gale', 'mars'), 'senza etichette')
 
 let n = 0
@@ -78,7 +80,7 @@ for (const site of targets) {
       assert(lo <= hi || Number.isNaN(lo), `${where} ${k}: intervallo rovesciato`)
       assert(Number.isNaN(t.values[k]) || (t.values[k] >= lo && t.values[k] <= hi))
       assert(t.range_type[k] && t.source[k] && t.source[k] !== 'missing', `${where} ${k}: tipo di intervallo o fonte mancante`)
-      assert(!/Marte|Phoenix|Gale/.test(t.source[k]) || site.world === 'mars' || /^calcolato|^Definizione/.test(t.source[k]), `${where} ${k}: fonte di Marte su un sito lunare`)
+      assert(!/Marte|Mars:|Phoenix|Gale/.test(t.source[k]) || site.world === 'mars' || /^(calcolato|computed by POLENTA|Definizione|Definition)/.test(t.source[k]), `${where} ${k}: fonte di Marte su un sito lunare`)
     }
     for (const [k, u] of Object.entries(t.physical_units)) assert(SI_UNITS.has(u), `physical ${k}: unità ${u}`)
     for (const [k, u] of Object.entries(t.soil.units)) assert(SI_UNITS.has(u), `soil ${k}: unità ${u}`)

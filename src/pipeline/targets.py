@@ -126,8 +126,8 @@ def site_targets(feats: pd.DataFrame) -> list[dict]:
             for p, half in (("slope_p90", 1.0), ("roughness", 0.2), ("crater_density", mine["crater_density_sigma"])):
                 card[f"{p}_literature"] = round(float(np.mean(values[p])), 3)
                 values[p] = [max(0.0, mine[p] - half), mine[p] + half]
-                sources[p] = (f"calcolato da noi: LOLA LDEM_80S_20M (PDS) → 30 m, stessa definizione della Terra "
-                              f"(lunar.py), regione USGS {mine['area_km2']:.0f} km². Letteratura: {sources.get(p, '')}")
+                sources[p] = (f"computed by POLENTA: LOLA LDEM_80S_20M (PDS) resampled to 30 m, same definition as on Earth "
+                              f"(lunar.py), USGS region {mine['area_km2']:.0f} km2. Literature: {sources.get(p, '')}")
         dims = df["Dimensione (challenge)"] if "Dimensione (challenge)" in df else pd.Series(dtype=str)
         values = {k: ([round(x, 4) for x in v] if isinstance(v, list) else v) for k, v in values.items()}
         out.append({"id": sid, "name": col.split(" (")[0], "lat": lat, "lon": lon, "world": world, "mock": False,

@@ -129,9 +129,9 @@ export function toSI(unit, x) {
 export const slug = s => s.normalize('NFKD').replace(/[^\x00-\x7f]/g, '').toLowerCase()
   .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'place'
 
-// Le Reference della matrice coprono più siti ("Luna: …; Marte: …; Aristarchus: …"): nel pacchetto resta solo la parte del
+// Le Reference della matrice coprono più siti ("Moon: …; Mars: …; Aristarchus: …"; prima dell'export del 19/11 in italiano): nel pacchetto resta solo la parte del
 // sito, più il testo senza etichetta (definizioni comuni). Se nessuna etichetta corrisponde, resta tutto il testo.
-const LABEL = /(?:^|;\s*)(Luna polare|Luna|Marte|Aristarchus|Phoenix|Gale)\b[^:;]{0,40}:\s*/g
+const LABEL = /(?:^|;\s*)(Polar Moon|Moon|Mars|Aristarchus|Phoenix|Gale|Luna polare|Luna|Marte)\b[^:;]{0,40}:\s*/g
 export function sourceFor(text, siteId, world) {
   if (!text) return ''
   const cuts = [...text.matchAll(LABEL)]
@@ -140,9 +140,9 @@ export function sourceFor(text, siteId, world) {
   if (cuts[0].index > 0) parts.push({ label: null, text: text.slice(0, cuts[0].index) })
   cuts.forEach((m, i) => parts.push({ label: m[1], text: text.slice(m.index + m[0].length, i + 1 < cuts.length ? cuts[i + 1].index : text.length) }))
   const has = l => parts.some(p => p.label === l)
-  const want = world === 'mars' ? ['Marte', siteId === 'phoenix' ? 'Phoenix' : 'Gale']
-    : siteId === 'aristarchus_plateau' ? [has('Aristarchus') ? 'Aristarchus' : 'Luna']
-      : [has('Luna polare') ? 'Luna polare' : 'Luna']
+  const want = world === 'mars' ? ['Mars', 'Marte', siteId === 'phoenix' ? 'Phoenix' : 'Gale']
+    : siteId === 'aristarchus_plateau' ? (has('Aristarchus') ? ['Aristarchus'] : ['Moon', 'Luna'])
+      : (has('Polar Moon') || has('Luna polare') ? ['Polar Moon', 'Luna polare'] : ['Moon', 'Luna'])
   const kept = parts.filter(p => p.label === null || want.includes(p.label))
   if (!kept.some(p => p.label)) return text
   return kept.map(p => (p.label ? `${p.label}: ` : '') + p.text.trim().replace(/;$/, '')).join('; ')
@@ -166,7 +166,7 @@ function soilFor(world, siteId, soil) {
 
 // che cosa rappresenta l'intervallo di ogni parametro del target
 function rangeType(p, source, siteId) {
-  if (/^calcolato da noi/i.test(source)) return 'computed by POLENTA from LOLA at 30 m (same definition as on Earth) +/- fixed tolerance'
+  if (/^(computed by POLENTA|calcolato da noi)/i.test(source)) return 'computed by POLENTA from LOLA at 30 m (same definition as on Earth) +/- fixed tolerance'
   if (p === 'permafrost_share' && POLAR.has(siteId)) return 'median over the USGS Artemis landing region (point value); p10-p90 spread in the source'
   if (p === 'grain_proxy') return 'literature thermal inertia +/- uncertainty, converted to the Earth index (comparison only)'
   return 'literature value +/- stated uncertainty'
