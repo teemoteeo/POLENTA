@@ -16,7 +16,10 @@ import textureCsv from '../../../data/config/soil_by_texture.csv?raw'
 import { parseUnits, parseSoil, parseTexture } from './simulink.js'
 import { rock } from './i18n.js'
 
-export const TESTS = loadYaml(testsRaw).tests
+const TESTS_FILE = loadYaml(testsRaw)
+export const TESTS = TESTS_FILE.tests
+// regole del voto (tests.yaml) per il paragrafo Method del report
+export const RULES = { tau: TESTS_FILE.tau, break_below: TESTS_FILE.break_below, kappa_min: TESTS_FILE.kappa_min }
 export const EXPORTED_AT = manifest.generated_at
 export const MANIFEST = manifest
 // sensors: sensore di ogni parametro: Terra (pipeline), Luna e Marte (Rocco, sensori_per_parametro_e_pianeta.csv)

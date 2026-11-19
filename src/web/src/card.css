@@ -120,4 +120,6 @@
 /* match alto (da 85% in su): verde, salta all'occhio */
 :root { --good: #3ddc84; }
 .vals .vm.hi { color: var(--good); font-weight: 700; }
-.report-row{margin:8px 0 4px}
+/* i due download della scheda: bordo arancione come gli accenti del sito */
+.copy-row .tag.dl{border-color:var(--accent);color:var(--ink)}
+.copy-row .tag.dl:hover{background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:var(--accent)}

@@ -160,12 +160,12 @@ The README describes the full pipeline (section *Run the pipeline*).
 
 ## What you get out
 
-- **Simulink package (.zip):** one per place, from the place card. It holds the target and the Earth analogue with the same fields in SI units, `init_polenta.m`, `README.txt` and `SOURCES.txt`.
-- **Trade-off table (.csv):** one per list, from the results list (Best on Earth, Unexplored or Near you). There is one row per place × parameter, with:
-  - weight, similarity and state;
-  - the place value and the target range in SI;
-  - the range type and the target source;
-  - the Earth sensor, with whether the 30 m terrain is exact or estimated;
-  - the data commit.
+Each place card has two download buttons. Both cover the chosen site (Moon or Mars) and the chosen place on Earth.
+- **Data report (.html).** A document in the style of a scientific paper. It opens in any browser and prints to PDF.
+  - **Summary:** similarity, κ, and the share of the test that holds, is partial or breaks.
+  - **Tables:** locations; matched parameters (weight, target range, place value, similarity, state); physical properties; Bekker-Wong soil mechanics with status; field conditions.
+  - **Method and limitations.**
+  - **Numbered references:** each value carries its citation, and DOIs are links.
+- **Simulink package (.zip).** The same values in SI units as MATLAB structs: target and analogue with the same fields, `init_polenta.m`, `README.txt` and `SOURCES.txt`.
 
-  It is UTF-8 with BOM and RFC 4180 quoting, so it opens in Excel, `pandas.read_csv` and MATLAB `readtable`.
+The two downloads are built by the same code (`buildTarget` / `buildAnalogue` in `simulink.js`), so the report and the `.mat` files always show the same numbers.

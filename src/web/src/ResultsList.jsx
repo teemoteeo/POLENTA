@@ -1,18 +1,9 @@
 import './card.css'
 import { pct, km, blockNotes } from './format.js'
-import { placeName, label } from './i18n.js'
+import { placeName } from './i18n.js'
 import { HOMES, RADII } from './homes.js'
-import { SIMULINK_CTX, sensor } from './data.js'
-import { download } from './simulink.js'
-import { reportRows, reportCsv, reportName } from './report.js'
 
-// report di trade-off (TODO [11]): la lista che si sta guardando, in CSV, con pesi, voti, valori SI e fonti
-function getReport(site, testId, testName, data, list) {
-  const rows = reportRows(site, testId, testName, data, list, { ...SIMULINK_CTX, label, placeName, earthSource: p => sensor(p, 'earth')?.full })
-  download(reportName(site, testId, list), reportCsv(rows), 'text/csv;charset=utf-8')
-}
-
-export default function ResultsList({ site, testId, testName, data, mode, onMode, home, onHome, onPick, onPeek, onLeave, radius, onRadius }) {
+export default function ResultsList({ data, mode, onMode, home, onHome, onPick, onPeek, onLeave, radius, onRadius }) {
   const near = mode === 'near'
   const base = home.name
   return (<div className="reslist">
@@ -45,10 +36,6 @@ export default function ResultsList({ site, testId, testName, data, mode, onMode
         </li>
       ))}
     </ul>
-    {data.results.length > 0 && <p className="copy-row report-row">
-      <button type="button" className="tag copy" onClick={() => getReport(site, testId, testName, data, { mode, base: home, radius })}
-        title="One row per place and parameter: weight, similarity, place value and target range in SI units, sources">Trade-off table (.csv)</button>
-    </p>}
     </>}
     <p className="lbl disclaimer">Model output, not a site survey: 30 m terrain and ~1 km satellite data averaged over ~250 km² hexagons; lunar and Martian values from literature and LOLA. Check the place before planning a campaign. See Method & data for limits.</p>
   </div>)

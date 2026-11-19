@@ -8,8 +8,8 @@ import { plan } from './campaign.js'
 import { ROCK } from './names.js'
 import { parseUnits, parseSoil, parseTexture, textureClass, asciiText, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA } from './simulink.js'
 import { crc32 } from './zip.js'
-import { reportRows, reportCsv, reportName, COLUMNS, STATE } from './report.js'
-import { parseCsv, toSI } from './simulink.js'
+import { buildReport, reportName, fmt, unit } from './report.js'
+import { HOLDS } from './campaign.js'
 
 const root = '../../data'
 const tests = load(fs.readFileSync(`${root}/config/tests.yaml`, 'utf8')).tests
@@ -195,56 +195,39 @@ assert.equal(n, 18, `coppie sito × test: ${n}`)
   const cl = with_(20, 60)
   assert(Number.isNaN(cl.kc) && cl.status.kc === 'not measured' && cl.source.kc.includes('clay'))
 }
-// Report di trade-off (report.js): per ogni sito × test, i primi 5 di Best on Earth e di Near Turin (3000 km)
+// Report dei dati (report.js): per ogni sito × test, il primo posto. HTML ben formato, ogni parametro con le sue fonti,
+// solo SI, niente fonti dell'altro corpo celeste, bibliografia numerata senza voci mancanti.
+assert.equal(fmt(5.4e-8), '5.4 × 10<sup>−8</sup>'); assert.equal(fmt(0.308), '0.308'); assert.equal(fmt(-12.345678), '−12.35')
+assert(fmt(NaN).includes('n/a'))
+assert.equal(unit('kg m^-3'), 'kg m<sup>−3</sup>'); assert.equal(unit('N m^-(n+1)'), 'N m<sup>−(n+1)</sup>'); assert.equal(unit('1'), '–')
 {
   const sensors = JSON.parse(fs.readFileSync(`${root}/config/sensors.json`))
-  const rctx = { ...ctx, label: p => p, placeName: n => n, earthSource: p => sensors[p]?.earth }
-  const TURIN = { id: 'turin', name: 'Turin', lat: 45.0703, lon: 7.6869 }
-  const toSIu = (p, x) => toSI(units[p], x)[1]
-  let n = 0
+  const rules = load(fs.readFileSync(`${root}/config/tests.yaml`, 'utf8'))
+  const rctx = { ...ctx, label: p => p, placeName: n => n, earthSource: p => sensors[p]?.earth,
+    rules: { tau: rules.tau, break_below: rules.break_below, kappa_min: rules.kappa_min, holds: HOLDS } }
   for (const site of targets) for (const testId of Object.keys(tests)) {
-    const w = tests[testId].requisiti
-    const best = JSON.parse(fs.readFileSync(`${root}/export/sites/${site.id}__${testId}.json`)).results.slice(0, 5)
-    const nearF = `${root}/export/near/turin__${site.id}__${testId}.json`
-    const near = fs.existsSync(nearF) ? (JSON.parse(fs.readFileSync(nearF)).results_by_radius?.['3000'] || []).slice(0, 5) : []
-    for (const [list, rs] of [[{ mode: 'earth', base: TURIN, radius: 3000 }, best], [{ mode: 'near', base: TURIN, radius: 3000 }, near]]) {
-      if (!rs.length) continue
-      const data = { results: rs.map(r => ({ ...r, plan: plan(r, w) })) }
-      const rows = reportRows(site, testId, 'Test', data, list, rctx)
-      const where = `report ${site.id} ${testId} ${list.mode}`
-      const nParams = Object.values(w).filter(x => x > 0).length
-      assert.equal(rows.length, rs.length * nParams, `${where}: righe`)
-      // CSV: BOM, intestazione, ogni riga con tutte le colonne, ritorno identico dopo la lettura
-      const csv = reportCsv(rows)
-      assert(csv.startsWith('﻿') && reportName(site, testId, list).endsWith('.csv'))
-      const back = parseCsv(csv.slice(1))
-      assert.deepEqual(back[0], COLUMNS, `${where}: intestazione`)
-      assert.equal(back.length, rows.length + 1)
-      for (const b of back) assert.equal(b.length, COLUMNS.length, `${where}: colonne`)
-      for (const [i, r] of rows.entries()) {
-        const at = `${where} #${r.rank} ${r.param}`
-        assert.equal(back[i + 1][COLUMNS.indexOf('target_source')], String(r.target_source ?? ''), `${at}: virgolette`)
-        assert(Object.values(STATE).includes(r.state), `${at}: stato ${r.state}`)
-        assert(r.unit === 'class' || SI_UNITS.has(r.unit), `${at}: unità ${r.unit}`)
-        assert(r.earth_source, `${at}: fonte Terra`)
-        assert(r.target_source && r.target_source !== 'missing', `${at}: fonte del target`)
-        if (site.world === 'moon') assert(!/(^|; )(Mars|Marte|Phoenix|Gale)\b/.test(r.target_source), `${at}: fonte di Marte su un sito lunare`)
-        if (site.world === 'mars') assert(!/(^|; )(Moon|Luna|Polar Moon|Aristarchus)\b/.test(r.target_source), `${at}: fonte della Luna su Marte`)
-        if (r.unit !== 'class') {
-          assert(r.target_min <= r.target_max, `${at}: intervallo`)
-          const raw = rs[r.rank - 1].values[r.param]
-          if (r.state !== STATE.nodata && typeof raw === 'number') assert(Math.abs(r.place_value - toSIu(r.param, raw)) <= 1e-9 * Math.max(1, Math.abs(r.place_value)), `${at}: valore SI`)
-        }
-        if (r.state !== STATE.nodata) assert(r.similarity >= 0 && r.similarity <= 1, `${at}: voto`)
-      }
-      // i pesi di ogni posto sommano a 1, come in tests.yaml
-      for (const rank of new Set(rows.map(r => r.rank))) {
-        const tot = rows.filter(r => r.rank === rank).reduce((t, r) => t + r.weight, 0)
-        assert(Math.abs(tot - 1) < 1e-9, `${where} #${rank}: pesi ${tot}`)
-      }
-      n += rows.length
-    }
+    const r = JSON.parse(fs.readFileSync(`${root}/export/sites/${site.id}__${testId}.json`)).results[0]
+    const result = { ...r, plan: plan(r, tests[testId].requisiti) }
+    const html = buildReport(site, testId, 'Rover mobility', result, rctx)
+    const where = `report ${site.id} ${testId}`
+    assert(reportName(site, testId, r.name).endsWith('.html'))
+    assert(html.startsWith('<!doctype html>') && html.trim().endsWith('</html>'), `${where}: documento`)
+    for (const tag of ['table', 'tr', 'td', 'section', 'figure', 'ol', 'ul', 'sup', 'sub'])
+      assert.equal((html.match(new RegExp(`<${tag}[ >]`, 'g')) || []).length, (html.match(new RegExp(`</${tag}>`, 'g')) || []).length, `${where}: <${tag}> non chiuso`)
+    assert(!/undefined|NaN|\[object/.test(html.replace(/<span class="na">n\/a<\/span>/g, '')), `${where}: valore non formattato`)
+    for (const p of result.plan.rows.map(x => x.p)) assert(html.includes(`<code>${p}</code>`), `${where}: manca ${p}`)
+    for (let n = 1; n <= 5; n++) assert(html.includes(`<b>Table ${n}.</b>`), `${where}: tabella ${n}`)
+    // ogni citazione [n] ha la sua voce in bibliografia, e ogni voce è citata
+    const refs = (html.split('<section class="refs">')[1].match(/<li>/g) || []).length
+    const cited = new Set([...html.matchAll(/class="cite">\[([\d, ]+)\]/g)].flatMap(m => m[1].split(', ').map(Number)))
+    assert(refs > 0 && cited.size === refs && Math.max(...cited) === refs, `${where}: bibliografia ${refs} voci, ${cited.size} citate`)
+    const bib = html.split('<section class="refs">')[1]
+    if (site.world === 'moon') assert(!/(^|; |<li>)(Mars|Marte|Phoenix|Gale):/.test(bib), `${where}: fonte di Marte su un sito lunare`)
+    if (site.world === 'mars') assert(!/(^|; |<li>)(Moon|Luna|Polar Moon|Aristarchus):/.test(bib), `${where}: fonte della Luna su Marte`)
+    // colonna Unit delle tabelle 2-5: solo unità SI (angoli in gradi) o di calendario
+    const ok = new Set([...SI_UNITS, ...SITE_UNITS, 'class', 'month number', 'h/day', 'nW cm^-2 sr^-1'].map(unit).concat(['h day<sup>−1</sup>', 'nW cm<sup>−2</sup> sr<sup>−1</sup>', 'm s<sup>−1</sup>']))
+    for (const tab of html.split('<b>Table ').slice(2)) for (const m of tab.split('</table>')[0].matchAll(/<tr><td>.*?<\/td><td>(.*?)<\/td>/g))
+      assert(ok.has(m[1]), `${where}: unità ${m[1]}`)
   }
-  assert(n > 0)
 }
 console.log('ok')

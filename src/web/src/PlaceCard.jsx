@@ -3,8 +3,10 @@ import { coord, num, pct, km, H3_KM2, blockNotes } from './format.js'
 import { label, dimension, placeName, facilityName } from './i18n.js'
 import { val, join, names, verdict, brief, warnText } from './brief.js'
 import { useState } from 'react'
-import { sensor, SIMULINK_CTX } from './data.js'
+import { sensor, SIMULINK_CTX, RULES } from './data.js'
 import { buildPackage, download } from './simulink.js'
+import { buildReport, reportName } from './report.js'
+import { HOLDS } from './campaign.js'
 
 export { brief, verdict }
 
@@ -37,15 +39,21 @@ function CopyBrief({ text }) {
   </p>)
 }
 
-// MATLAB / Simulink: un pacchetto .zip dal posto mostrato (simulink.js): i due .mat, init_polenta.m, README e fonti.
-// Il pacchetto si costruisce al clic, non a ogni render della card.
-function SimulinkExport({ site, testId, result }) {
+// Download del posto mostrato: il pacchetto MATLAB / Simulink (.zip: i due .mat, init_polenta.m, README e fonti) e il
+// report dei dati in stile articolo (report.js). Si costruiscono al clic, non a ogni render della card.
+function Downloads({ site, testId, testName, result }) {
   const name = placeName(result.name)
-  const get = () => { const p = buildPackage(site, testId, result, name, SIMULINK_CTX); download(p.names.zip, p.zip, 'application/zip') }
+  const zip = () => { const p = buildPackage(site, testId, result, name, SIMULINK_CTX); download(p.names.zip, p.zip, 'application/zip') }
+  const report = () => {
+    const html = buildReport(site, testId, testName, result, { ...SIMULINK_CTX, label, placeName, rules: { ...RULES, holds: HOLDS },
+      earthSource: p => sensor(p, 'earth')?.full })
+    download(reportName(site, testId, name), html, 'text/html;charset=utf-8')
+  }
   return (<>
-    <p className="lbl">MATLAB / Simulink: target and Earth analogue with the same fields in SI units, a script that loads both, README and sources.</p>
+    <p className="lbl">Data for {site.name} and this place: a report with tables, method and references (opens in the browser, prints to PDF), and a MATLAB / Simulink package with the same values in SI units.</p>
     <p className="copy-row">
-      <button type="button" className="tag copy" onClick={get}>Simulink package (.zip)</button>
+      <button type="button" className="tag copy dl" onClick={report}>Data report (.html)</button>
+      <button type="button" className="tag copy dl" onClick={zip}>Simulink package (.zip)</button>
     </p>
   </>)
 }
@@ -175,7 +183,7 @@ export default function PlaceCard({ data, picked, site, test, testId, onJump }) 
 
     {sims.length > 0 && <p className="lbl">Regolith simulants for this terrain: {join(sims)}</p>}
     <p className="lbl">No cost figures: the plan counts what can be measured — share covered, facilities, km.</p>
-    <SimulinkExport site={site} testId={testId} result={result} />
+    <Downloads site={site} testId={testId} testName={test.name} result={result} />
     <p className="lbl disclaimer">Limits: values are averages over a ~250 km² hexagon from 30 m terrain and ~1 km satellite data; Earth ground ice is a MODIS temperature proxy; rock type is coarse (GLiM, ~55 km); Mars and Aristarchus terrain come from literature; Antarctica is not covered. Verify on site before planning.</p>
   </div>)
 }
