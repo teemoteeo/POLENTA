@@ -6,7 +6,7 @@ import assert from 'assert'
 import { load } from 'js-yaml'
 import { plan } from './campaign.js'
 import { ROCK } from './names.js'
-import { parseUnits, parseSoil, parseTexture, textureClass, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA } from './simulink.js'
+import { parseUnits, parseSoil, parseTexture, textureClass, asciiText, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA } from './simulink.js'
 import { crc32 } from './zip.js'
 
 const root = '../../data'
@@ -21,13 +21,16 @@ const keys = o => Object.keys(o).sort().join(',')
 const NAME_MAX = 31
 
 // unità ammesse: solo SI (angoli in gradi), più quelle di calendario e indice del dossier di campo
-const SI_UNITS = new Set(['deg', 'm', 'm^-2', '1', 'kg m^-3', 'K', 'Pa', 'N m^-(n+1)', 'N m^-(n+2)', 'J m^-2 K^-1 s^-0.5', 'm s^-1'])
+const SI_UNITS = new Set(['deg', 'm', 'm^-2', '1', 'K^-1', 'kg m^-3', 'K', 'Pa', 'N m^-(n+1)', 'N m^-(n+2)', 'J m^-2 K^-1 s^-0.5', 'm s^-1'])
 const SITE_UNITS = new Set(['1', 'month', 'month number (1-12)', 'h/day', 'm s^-1', 'nW cm^-2 sr^-1'])
 
 // le unità del CSV del suolo sono quelle che la conversione si aspetta
 for (const w of Object.values(soilCsv)) for (const s of Object.values(w)) for (const [k, u] of Object.entries(s.unit)) {
   assert.equal(u, SOIL_CSV_UNITS[k], `soil_mechanics.csv: unità di ${k} = ${u}, la conversione in SI si aspetta ${SOIL_CSV_UNITS[k]}`)
 }
+
+// testo ASCII nei .mat
+assert.equal(asciiText('Martínez ± 2° §3 → kN/m⁻²'), 'Martinez +/- 2 deg sec. 3 -> kN/m^-^2')
 
 // triangolo USDA: un punto per classe (sabbia %, argilla %)
 for (const [sand, clay, cls] of [[90, 5, 'sand'], [80, 5, 'loamy sand'], [65, 10, 'sandy loam'], [40, 20, 'loam'], [20, 15, 'silt loam'],

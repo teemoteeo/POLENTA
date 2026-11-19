@@ -32,8 +32,9 @@ const COORDINATES = 'planetocentric latitude and east-positive longitude (-180..
 const POLAR = new Set(['malapert_massif', 'haworth', 'nobile_rim_1'])
 
 // unità di params.csv → [unità SI, fattore, offset]. Un'unità che non è qui fa fallire il test: va aggiunta con la sua conversione.
+// ATI = inerzia termica apparente (1 - albedo) / ΔT, quindi K^-1 (surface.py).
 export const SI = {
-  deg: ['deg', 1], m: ['m', 1], 'n/km2': ['m^-2', 1e-6], 'frac 0-1': ['1', 1], ATI: ['1', 1], 'g/cm3': ['kg m^-3', 1000],
+  deg: ['deg', 1], m: ['m', 1], 'n/km2': ['m^-2', 1e-6], 'frac 0-1': ['1', 1], ATI: ['K^-1', 1], 'g/cm3': ['kg m^-3', 1000],
   '%': ['1', 0.01], '°C': ['K', 1, 273.15], '-1..1': ['1', 1], 'g/kg': ['1', 1e-3],
 }
 
@@ -261,7 +262,7 @@ export function buildTarget(site, testId, result, ctx) {
 // Terra: grandezze fisiche dal dossier del posto (pipeline: export.physical e surface.site_dossier). Inerzia termica SI,
 // massi, ghiaccio e FeO non hanno un equivalente misurato sulla Terra: restano NaN.
 export const EARTH_SOURCE = {
-  atmosphere_wind: 'MERRA-2 2023 (Gelaro et al. 2017, doi:10.1175/JCLI-D-16-0758.1), one hour per day: mean wind speed at 10 m; air density = PS / (287.05 * T2M), dry air',
+  atmosphere_wind: 'MERRA-2 2023 (Gelaro et al. 2017, doi:10.1175/JCLI-D-16-0758.1), the 00 UTC hour of every day: mean wind speed at 10 m; air density = PS / (287.05 * T2M), dry air',
   elevation: 'NASADEM (below 60 N) and JAXA AW3D30 (above), heights above the EGM96 geoid, mean over the hexagon (30 m where computed, else 90 m or 500 m)',
   temperature: 'MODIS MOD11A2 2021-2023 land surface temperature: mean = (median day + median night) / 2; half range = (max day - min night) / 2',
   density_profile_0_2m: 'SoilGrids 2.0 bdod (Poggio et al. 2021, doi:10.5194/soil-7-217-2021), 6 layers 0-200 cm weighted by thickness, 250 m pixel',
@@ -313,8 +314,14 @@ export const fileNames = (site, testId, displayName) => {
     readme: 'README.txt', sources: 'SOURCES.txt', zip: `${base}__${slug(displayName)}.zip`, folder: `${base}__${slug(displayName)}` }
 }
 
-export const targetMat = t => matFile({ polenta_target: t, polenta_target_num: numericOnly(t) }, `POLENTA ${SCHEMA} target ${t.site_id} ${t.test_id}`)
-export const analogueMat = a => matFile({ polenta_analogue: a, polenta_analogue_num: numericOnly(a) }, `POLENTA ${SCHEMA} analogue ${a.site_id} ${a.test_id}`)
+// Testo dei .mat solo ASCII: MATLAB legge l'UTF-16, ma Octave, scipy e le console Windows non sempre (Martínez → Mart?nez).
+const ASCII = { '±': '+/-', '°': ' deg', '§': 'sec. ', '→': '->', '–': '-', '—': '-', '’': "'", '‘': "'", '“': '"', '”': '"', '×': 'x',
+  '²': '^2', '³': '^3', '⁻': '^-', '¹': '1', '½': '1/2', 'µ': 'u', 'Δ': 'delta ' }
+export const asciiText = s => s.replace(/[^\x00-\x7f]/g, c => ASCII[c] ?? c.normalize('NFKD').replace(/[^\x00-\x7f]/g, '') ?? '')
+const asciiDeep = x => (typeof x === 'string' ? asciiText(x) : Array.isArray(x) ? x : x && typeof x === 'object' ? map(x, asciiDeep) : x)
+
+export const targetMat = t => matFile({ polenta_target: asciiDeep(t), polenta_target_num: numericOnly(t) }, `POLENTA ${SCHEMA} target ${t.site_id} ${t.test_id}`)
+export const analogueMat = a => matFile({ polenta_analogue: asciiDeep(a), polenta_analogue_num: numericOnly(a) }, `POLENTA ${SCHEMA} analogue ${a.site_id} ${a.test_id}`)
 
 const mstr = s => `'${String(s).replace(/'/g, "''")}'`
 
@@ -426,7 +433,8 @@ STRUCT FIELDS (same in target and analogue)
   notes.<p>              warnings: parameters that are only matching indices, not physical quantities
   rock_class, rock_class_name   lithology (target) or GLiM class (Earth)
   soil                   Bekker-Wong parameters: value, soil.range, soil.units, soil.source, soil.status
-                         status: measured | inferred (model fit to rover data) | literature | not measured
+                         status: measured | inferred (model fit to rover data) | literature | literature [NV] (not yet
+                         checked against the source) | estimated (texture class, Earth only) | not measured
   physical.<q>           physical quantities for models, physical_units, physical_source, physical_notes
   elevation_datum        reference surface of physical.elevation (differs between bodies)
 
