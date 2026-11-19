@@ -128,12 +128,15 @@ def dossier(data: dict, feats: pd.DataFrame) -> None:
 def physical(row) -> dict:
     """Dalla riga delle feature: quota (m, DEM migliore disponibile), temperatura superficiale media (MODIS MOD11A2,
     (giorno + notte) / 2 delle mediane) e semi-escursione (max giorno − min notte) / 2, la stessa forma
-    "media ± escursione" della riga temperature della matrice."""
+    "media ± escursione" della riga temperature della matrice. Tessitura: sabbia e argilla SoilGrids 0-5 cm (%)."""
     f = lambda c: float(row[c]) if c in row and pd.notna(row[c]) else None
     tmin, tmax = f("t_min_c"), f("t_max_c")
     return {"elevation_m": round(f("elevation_m")) if f("elevation_m") is not None else None,
             "lst_mean_c": round(f("lst_mean_c"), 1) if f("lst_mean_c") is not None else None,
-            "lst_half_range_c": round((tmax - tmin) / 2, 1) if tmin is not None and tmax is not None else None}
+            "lst_half_range_c": round((tmax - tmin) / 2, 1) if tmin is not None and tmax is not None else None,
+            # tessitura SoilGrids 0-5 cm (%), per la stima di Bekker-Wong per classe di suolo nell'export Simulink
+            "sand_pct": round(f("sand_pct"), 1) if f("sand_pct") is not None else None,
+            "clay_pct": round(f("clay_pct"), 1) if f("clay_pct") is not None else None}
 
 
 # Isole artiche dove GeoNames (città con più di 1.000 abitanti) non ha centri: lì la "città più vicina" è a

@@ -24,6 +24,10 @@
 * [10] **Export Mesh, Dati Geospaziali & Simulink:** (Simulink .mat + init_polenta.m: fatto, vedi README; restano .stl/.obj/.geotiff) Esportare le griglie del terreno ad alta risoluzione in formati standard CAD/GIS (es. `.stl`, `.obj`, `.geotiff`) e dataset ambientali/traiettorie in formati compatibili con **Simulink** (es. `.mat` / script di inizializzazione) per simulazioni di dinamica di volo e controllo.
 * [11] **Report di Trade-Off Automatico:** Generare una scheda tecnica esportabile (PDF/CSV) con pesi, fonti dati e punteggi per revisioni di progetto.
 
+** Dati e test (da fare con rigore, dopo l'export Simulink)**
+
+* [14] **Bivio ISRU: ghiaccio / terreno.** Dividere isru_subsurface in due test: "ISRU ghiaccio" (come l'attuale, con il filtro sui posti senza permafrost) e "ISRU terreno" (scavo, sinterizzazione, ossigeno: pesa roccia/FeO, granulometria e densità, niente ghiaccio). Con il ghiaccio nessun posto supera 0,28 (export 70ad283): probabilmente la campagna ISRU richiede due posti. Da fare: pesi decisi da Rocco nella matrice, nuova colonna in siti_e_pesi.csv e test in tests.yaml, scelta nell'app, export e confronto prima/dopo.
+
 ** Personalizzazione Demo per la Visita**
 
 * [12] **Preset "TAS / Argonaut":** Creare e precaricare nella pipeline un profilo dedicato ai parametri tipici di un lander lunare europeo da mostrare dal vivo durante l'incontro.
