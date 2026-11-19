@@ -67,6 +67,8 @@ assert.equal(sourceFor('Moon: A; Mars: B; Aristarchus: C', 'aristarchus_plateau'
 assert.equal(sourceFor('Moon: A; Mars: B', 'aristarchus_plateau', 'moon'), 'Moon: A')
 assert.equal(sourceFor('Def X; Polar Moon: A; Phoenix: B; Gale: C; Mars: D', 'gale', 'mars'), 'Def X; Gale: C; Mars: D')
 assert.equal(sourceFor('senza etichette', 'gale', 'mars'), 'senza etichette')
+// testo calcolato da noi con la letteratura dopo: resta il preambolo, la parte di Marte va via
+assert.equal(sourceFor('computed by POLENTA: X. Literature: Moon: A; Mars: B', 'haworth', 'moon'), 'computed by POLENTA: X. Literature: Moon: A')
 
 let n = 0
 for (const site of targets) {
@@ -157,6 +159,7 @@ for (const site of targets) {
     const rd = files['README.txt']
     for (const k of [...Object.keys(t.values), ...Object.keys(t.physical), ...Object.keys(t.soil.units)]) assert(rd.includes(k), `README: manca ${k}`)
     assert(files['SOURCES.txt'].includes(t.body_source))
+    assert(files['SOURCES.txt'].includes(`BEKKER-WONG SOIL - ${a.name} (Earth)`) && files['SOURCES.txt'].includes(a.soil.source.kc))
     const z = pkg.zip, zv = new DataView(z.buffer)
     assert.equal(zv.getUint32(0, true), 0x04034b50)
     const eocd = z.length - 22

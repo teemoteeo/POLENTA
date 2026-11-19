@@ -131,7 +131,8 @@ export const slug = s => s.normalize('NFKD').replace(/[^\x00-\x7f]/g, '').toLowe
   .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'place'
 
 // Le Reference della matrice coprono più siti ("Moon: …; Mars: …; Aristarchus: …"; prima dell'export del 19/11 in italiano): nel pacchetto resta solo la parte del
-// sito, più il testo senza etichetta (definizioni comuni). Se nessuna etichetta corrisponde, resta tutto il testo.
+// sito, più il testo senza etichetta (definizioni comuni, es. "computed by POLENTA ... Literature: Moon: …").
+// Solo se non resta niente si tiene tutto il testo.
 const LABEL = /(?:^|;\s*)(Polar Moon|Moon|Mars|Aristarchus|Phoenix|Gale|Luna polare|Luna|Marte)\b[^:;]{0,40}:\s*/g
 export function sourceFor(text, siteId, world) {
   if (!text) return ''
@@ -145,7 +146,7 @@ export function sourceFor(text, siteId, world) {
     : siteId === 'aristarchus_plateau' ? (has('Aristarchus') ? ['Aristarchus'] : ['Moon', 'Luna'])
       : (has('Polar Moon') || has('Luna polare') ? ['Polar Moon', 'Luna polare'] : ['Moon', 'Luna'])
   const kept = parts.filter(p => p.label === null || want.includes(p.label))
-  if (!kept.some(p => p.label)) return text
+  if (!kept.length) return text                      // nessuna parte pertinente: meglio tutto il testo che niente
   return kept.map(p => (p.label ? `${p.label}: ` : '') + p.text.trim().replace(/;$/, '')).join('; ')
 }
 
@@ -483,6 +484,8 @@ export function sourcesText(t, a) {
     block(`PHYSICAL QUANTITIES - ${t.name}`, t.physical_source),
     '',
     block(`PHYSICAL QUANTITIES - ${a.name} (Earth)`, earthPhys),
+    '',
+    block(`BEKKER-WONG SOIL - ${a.name} (Earth)`, map(a.soil.source, (s, k) => `[${a.soil.status[k]}] ${s}`)),
     '',
     block('EARTH MATCHED PARAMETERS', { all: 'POLENTA pipeline on Google Earth Engine: per-parameter products and methods in the repository README and data/config/params.csv' }),
     '',
