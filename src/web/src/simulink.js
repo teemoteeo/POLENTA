@@ -330,6 +330,7 @@ fprintf('Elevation datum: target %s; analogue %s\\n', polenta_target.elevation_d
 n = fieldnames(polenta_target.notes);
 for i = 1:numel(n), fprintf('Note on %s: %s\\n', n{i}, polenta_target.notes.(n{i})); end
 fprintf('\\n');
+clear target_file analogue_file here p b q n i k r   % only the four polenta_* variables stay in the workspace
 
 % In Simulink, numbers only (no text fields), same names and units as above:
 %   Constant block value: polenta_target_num.soil.kphi, polenta_target_num.gravity_m_s2, polenta_analogue_num.physical.t_mean ...
