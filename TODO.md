@@ -28,6 +28,10 @@
 
 * [14] **Bivio ISRU: ghiaccio / terreno.** Dividere isru_subsurface in due test: "ISRU ghiaccio" (come l'attuale, con il filtro sui posti senza permafrost) e "ISRU terreno" (scavo, sinterizzazione, ossigeno: pesa roccia/FeO, granulometria e densità, niente ghiaccio). Con il ghiaccio nessun posto supera 0,28 (export 70ad283): probabilmente la campagna ISRU richiede due posti. Da fare: pesi decisi da Rocco nella matrice, nuova colonna in siti_e_pesi.csv e test in tests.yaml, scelta nell'app, export e confronto prima/dopo.
 
+* [15] **Raffinamento a convergenza.** Ogni export raffina a 30 m i nuovi candidati, che possono entrare nelle classifiche: ripetere il raffinamento finché non compaiono candidati nuovi, così l'export dipende solo dalla configurazione (Edoardo, 19/11). Fino ad allora si pubblica con --no-refine l'anteprima controllata.
+* [16] **Terreno di Marte con la stessa definizione della Terra.** Per la Luna pendenza, rugosità e crateri sono calcolati da noi su LOLA (lunar.py); per Phoenix e Gale sono ancora valori di letteratura (HiRISE/CTX) con definizioni diverse. Segnale: per Phoenix × rover tutti i posti prendono 0,01-0,04 sulla rugosità. Da calcolare su DTM HiRISE/CTX con la definizione terrestre.
+* [17] **Pendenza per test.** Rover: pendenza sul terreno percorribile (soglia dal limite del rover Artemis, fonte NASA) e quota di area percorribile; lidar: pendenza su tutta la regione. Stessa definizione su Luna e Terra (vedi discussione del 19/11).
+
 ** Personalizzazione Demo per la Visita**
 
 * [12] **Preset "TAS / Argonaut":** Creare e precaricare nella pipeline un profilo dedicato ai parametri tipici di un lander lunare europeo da mostrare dal vivo durante l'incontro.
