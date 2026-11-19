@@ -23,6 +23,11 @@ GRID_RES_DEG = 0.05   # passo dei raster scaricati da GEE (~5,5 km all'equatore)
 H3_RES = 5            # risoluzione delle celle esagonali (~250 km² l'una)
 BASELINE_M = 30       # distanza di misura comune Terra/Luna per pendenze, rugosità, crateri
 SLOPE_BASELINES_M = (30, 60, 120, 240)    # scale per l'esponente di Hurst
+# Terreno percorribile dal rover: pendenza sotto 20°, requisito del Lunar Terrain Vehicle Artemis ("safely traverse up and
+# down 20° slopes", Creager et al. 2025, NASA NTRS 20250003470, §1.3 p.5). Test rover: pendenza p90 sul terreno
+# percorribile e quota di area percorribile (TODO [17], 19/11). 15° solo per controllo, Luna: Wueller et al. 2025.
+TRAV_SLOPE_DEG = 20
+TRAV_CHECK_DEG = 15
 YEARS = ("2021-01-01", "2024-01-01")      # periodo dei compositi MODIS
 MAX_CELLS_EXPORT = 10_000   # esagoni nella heat map di ogni sito × test (~2,5 milioni di km²)
 # Maschera "suolo nudo o vegetazione rada", applicata al pixel da 1 km.

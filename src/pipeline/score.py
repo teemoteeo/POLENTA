@@ -24,7 +24,7 @@ PHYSICAL = {"permafrost_share"}
 # Terreno: percentili solo sul campione casuale fisso a 30 m esatto (features.ref_sample), come promette fine.py.
 # Su tutti gli esagoni la base mescolava esatti e stime e cambiava a ogni export, perché ogni export aggiunge
 # candidati al 30 m; i crateri, che esistono solo al 30 m, avevano per base campione + candidati (19/11).
-REF_SAMPLE = {"slope_p90", "roughness", "crater_density"}
+REF_SAMPLE = {"slope_p90", "roughness", "crater_density", "slope_trav_p90", "trav_share"}
 
 
 def s_param(x: np.ndarray, lo: float, hi: float, tau: float, eps: float, physical: bool = False,

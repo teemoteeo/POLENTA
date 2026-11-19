@@ -37,6 +37,15 @@ def _logtan(deg):
     return np.log(np.tan(np.radians(np.clip(deg, 0.05, 89))))
 
 
+def _logit(p):
+    p = np.clip(np.asarray(p, dtype=float), 1e-3, 1 - 1e-3)
+    return np.log(p / (1 - p))
+
+
+def _expit(v):
+    return 1 / (1 + np.exp(-np.asarray(v, dtype=float)))
+
+
 def design(df: pd.DataFrame) -> np.ndarray:
     """Le grandezze da cui si stima il 30 m (i valori mancanti vanno bene: il modello li gestisce)."""
     X = df[INPUTS].to_numpy(float)
@@ -46,6 +55,10 @@ def design(df: pd.DataFrame) -> np.ndarray:
 TARGETS = {   # grandezza a 30 m → (trasformazione, inversa)
     "slope_p90_30": (_logtan, lambda v: np.degrees(np.arctan(np.exp(v)))),
     "roughness_30": (lambda v: np.log(v + EPS), lambda v: np.exp(v) - EPS),
+    # terreno percorribile (TODO [17]): pendenza limitata a 0-20° e quota limitata a 0-1, in scala logit
+    "slope_trav_p90_30": (lambda v: _logit(np.clip(v, 0, config.TRAV_SLOPE_DEG) / config.TRAV_SLOPE_DEG),
+                          lambda v: config.TRAV_SLOPE_DEG * _expit(v)),
+    "trav_share_30": (_logit, _expit),
 }
 
 
@@ -70,7 +83,7 @@ def main() -> int:
             "r2_cv": float(1 - ((y - pred) ** 2).sum() / ((y - y.mean()) ** 2).sum()),
             "median_abs_err": float(np.median(err)), "p90_abs_err": float(np.quantile(err, 0.9)), "n": int(len(d)),
         }
-        unit = "°" if "slope" in target else " m"
+        unit = "°" if "slope" in target else "" if "share" in target else " m"
         print(f"{target:<14} R² (validazione incrociata) = {r['r2_cv']:.3f} | errore mediano {r['median_abs_err']:.2f}{unit} "
               f"| 90% degli errori sotto {r['p90_abs_err']:.2f}{unit} | su {r['n']} esagoni")
     joblib.dump(models, MODELS)
@@ -86,6 +99,9 @@ def apply(feats: pd.DataFrame) -> pd.DataFrame:
     ok = feats[REQUIRED].notna().all(1).to_numpy()
     X = design(feats.loc[ok])
     for target, (_, inv) in TARGETS.items():
+        if target not in models:                     # modelli addestrati prima di questa grandezza: rifare --step calibrate
+            print(f"   calibrazione senza {target}: rilanciare calibrate.py")
+            continue
         col = target.replace("_30", "_est")
         feats[col] = np.nan
         feats.loc[ok, col] = np.maximum(0, inv(models[target].predict(X)))

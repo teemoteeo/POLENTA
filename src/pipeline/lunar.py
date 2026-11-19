@@ -3,6 +3,9 @@ usate sulla Terra (fine.py), così Terra e Luna si confrontano alla pari (docs/b
 
 - DEM LOLA a 20 m delle zone dei siti (stereografica polare) → media su pixel da 30 m, la baseline della Terra;
 - slope_p90: pendenza al 90° percentile;
+- slope_trav_p90, trav_share: pendenza al 90° percentile dei soli pixel sotto config.TRAV_SLOPE_DEG (20°, requisito LTV)
+  e quota di pixel sotto la soglia (test rover, TODO [17]); check_15deg: lo stesso a 15°, solo per il confronto con
+  Wueller et al. 2025 (pendenza delle aree percorribili sotto 15°: Malapert 13,5°);
 - roughness: scarto quadratico della quota dalla media su un cerchio di 150 m;
 - crater_density: punti più bassi entro 300 m (con 1 cm di rumore: un solo minimo per fondo piatto), almeno 20 m
   sotto il bordo più alto dello stesso cerchio, per km². Solo dove il cerchio è tutto dentro il DEM.
@@ -90,20 +93,29 @@ def main() -> int:
             continue
         area = (m & t["full"]).sum() * px_km2                                # area dove il detector vede tutto
         n = int((t["crater"] & m).sum())
+        s = t["slope"][inside]
+        s = s[np.isfinite(s)]
+        trav = lambda deg: {"p90": round(float(np.percentile(s[s < deg], 90)), 2) if (s < deg).any() else None,
+                            "share": round(float((s < deg).mean()), 3)}
+        tr, t15 = trav(config.TRAV_SLOPE_DEG), trav(config.TRAV_CHECK_DEG)
         res[sid] = {
             "covered": round(float(inside.sum() / m.sum()), 3), "area_km2": round(float(area), 1),
             "slope_p90": round(float(np.nanpercentile(t["slope"][inside], 90)), 2),
             "roughness": round(float(np.sqrt(np.nanmean(t["relief_sq"][inside]))), 2),
             "crater_density": round(n / area, 3) if area else None,
             "crater_density_sigma": round(np.sqrt(max(n, 1)) / area, 3) if area else None, "n_craters": n,
+            "slope_trav_p90": tr["p90"], "trav_share": tr["share"],
+            "check_15deg": {"slope_p90": t15["p90"], "share": t15["share"]},
         }
     OUT.write_text(json.dumps({"source": "LOLA 20 m → 30 m, stesse definizioni della Terra (lunar.py)",
                                "regions": res}, indent=1))
-    print(f"{'regione':<22}{'copertura':>10}{'area km²':>10}{'p90 °':>8}{'rug. m':>8}{'crateri/km²':>13}{'n':>5}")
+    print(f"{'regione':<22}{'copertura':>10}{'area km²':>10}{'p90 °':>8}{'rug. m':>8}{'crateri/km²':>13}{'n':>5}"
+          f"{'p90<20°':>9}{'quota<20°':>10}{'p90<15°':>9}{'quota<15°':>10}")
     for sid, r in res.items():
         if r.get("area_km2"):
             print(f"{sid:<22}{r['covered']:>10.2f}{r['area_km2']:>10.0f}{r['slope_p90']:>8.1f}{r['roughness']:>8.2f}"
-                  f"{r['crater_density']:>9.3f} ± {r['crater_density_sigma']:.3f}{r['n_craters']:>5}")
+                  f"{r['crater_density']:>9.3f} ± {r['crater_density_sigma']:.3f}{r['n_craters']:>5}"
+                  f"{r['slope_trav_p90']:>9.1f}{r['trav_share']:>10.2f}{r['check_15deg']['slope_p90']:>9.1f}{r['check_15deg']['share']:>10.2f}")
         else:
             print(f"{sid:<22}{r['covered']:>10.2f}   (fuori dal DEM)")
     return 0

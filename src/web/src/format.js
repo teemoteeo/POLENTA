@@ -1,6 +1,6 @@
 // valori fisici dell'export: [unità, moltiplicatore, decimali] (params.csv). grain_proxy: inerzia termica, si confronta per percentile
 export const UNIT = {
-  slope_p90: ['°', 1, 1], roughness: [' m', 1, 1], crater_density: ['/km²', 1, 2], rock_cover: ['%', 100, 1], low_sun_frac: ['%', 100, 0],
+  slope_p90: ['°', 1, 1], slope_trav_p90: ['°', 1, 1], trav_share: ['%', 100, 0], roughness: [' m', 1, 1], crater_density: ['/km²', 1, 2], rock_cover: ['%', 100, 1], low_sun_frac: ['%', 100, 0],
   albedo: ['', 1, 2], grain_proxy: ['', 1, 3], bulk_density_0_5: [' g/cm³', 1, 2], permafrost_share: ['%', 100, 0],
 }
 export const num = (v, d = 1) => (v == null ? '—' : v.toLocaleString('en-US', { maximumFractionDigits: d })) // la pipeline lascia null dove non ha il dato

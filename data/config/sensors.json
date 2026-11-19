@@ -4,6 +4,16 @@
   "mars": "MRO CTX & HiRISE (Stereo DTM)",
   "earth": "NASADEM (SRTM radar) · JAXA ALOS AW3D30 above 60°N"
  },
+ "slope_trav_p90": {
+  "moon": "LRO LOLA (Lunar Orbiter Laser Altimeter)",
+  "mars": "MRO CTX & HiRISE (Stereo DTM)",
+  "earth": "NASADEM (SRTM radar) · JAXA ALOS AW3D30 above 60°N"
+ },
+ "trav_share": {
+  "moon": "LRO LOLA (Lunar Orbiter Laser Altimeter)",
+  "mars": "MRO CTX & HiRISE (Stereo DTM)",
+  "earth": "NASADEM (SRTM radar) · JAXA ALOS AW3D30 above 60°N"
+ },
  "roughness": {
   "moon": "LRO LOLA (Lunar Orbiter Laser Altimeter)",
   "mars": "MRO HiRISE & CTX (Stereo DTM)",

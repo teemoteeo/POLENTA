@@ -12,6 +12,8 @@ Per ogni esagono, con reduceRegions sul suo poligono a 30 m:
 - slope_p90_30, slope_med_30/60/120/240 → retta di Hurst (pendenza contro scala)
 - roughness_30: scarto quadratico medio della quota attorno alla media su 150 m
 - crater_density: minimi locali entro 300 m, almeno 20 m sotto il bordo, per km² di area valida
+- slope_trav_p90_30, trav_share_30: pendenza al 90° percentile dei soli pixel sotto config.TRAV_SLOPE_DEG (20°, LTV) e
+  quota di pixel sotto la soglia (test rover, TODO [17])
 Output: data/raw/interim/fine.parquet (si aggiunge a ogni esecuzione: si può interrompere e riprendere).
 """
 import time
@@ -43,6 +45,9 @@ def image(full: bool = True) -> ee.Image:
     for L in (BASELINES if full else BASELINES[:1]):
         dL = d30 if L == 30 else d30.reduceResolution(ee.Reducer.mean(), maxPixels=1024).reproject(crs="EPSG:4326", scale=L)
         bands.append(ee.Terrain.slope(dL).rename(f"slope_{L}"))
+    # terreno percorribile (config.TRAV_SLOPE_DEG): pendenza dei soli pixel sotto la soglia e quota di pixel sotto la soglia
+    s30 = bands[0]
+    bands += [s30.updateMask(s30.lt(config.TRAV_SLOPE_DEG)).rename("slope_trav"), s30.lt(config.TRAV_SLOPE_DEG).rename("trav")]
     relief = d30.subtract(d30.focalMean(150, "circle", "meters"))
     # Cratere = minimo locale entro 300 m, almeno 20 m sotto il bordo più alto, fuori dai laghi (JRC).
     # Con soglie più basse (150 m, 3-10 m) si contava il rumore del DEM sulle piane. Un fondo piatto (lago, conca,
@@ -80,6 +85,8 @@ def reduce_batch(img: ee.Image, cells: list[str], retries: int = 3) -> list[dict
         p = f["properties"]
         row = {"h3": p["h3"], "n_px": p.get("slope_30_count")}
         row["slope_p90_30"] = p.get("slope_30_p90")
+        row["slope_trav_p90_30"] = p.get("slope_trav_p90")        # p90 della pendenza sul terreno percorribile
+        row["trav_share_30"] = p.get("trav_mean")                 # quota di pixel con pendenza sotto la soglia
         for L in BASELINES:
             row[f"slope_med_{L}"] = p.get(f"slope_{L}_p50")   # None per le bande non calcolate (full=False)
         rs = p.get("relief_sq_mean")
@@ -144,8 +151,21 @@ def main(batch: int = 20, workers: int | None = None, limit: int | None = None, 
     ee.data.setDeadline(DEADLINE_MS)
     todo = select_cells(n_sample=n_sample, scope=scope)
     done = pd.read_parquet(OUT) if OUT.exists() else pd.DataFrame(columns=["h3"])
+    # esagoni calcolati prima del terreno percorribile (19/11): si rifanno, così tutti hanno le stesse grandezze
+    # (solo quelli con terreno valido: senza pixel validi anche la quota resta vuota e non serve rifarli a ogni giro)
+    has_terrain = done["slope_p90_30"].notna() if "slope_p90_30" in done else pd.Series(False, index=done.index)
+    old = done.loc[has_terrain & (done["trav_share_30"].isna() if "trav_share_30" in done else True), "h3"]
+    if len(old):
+        print(f"   {len(old)} esagoni senza terreno percorribile: si ricalcolano")
+    done_ok = done[~done["h3"].isin(old)]
+    # si rifanno esattamente quelli già in cache (con il loro ruolo), anche se --n-sample non è quello dell'estrazione:
+    # così il campione di riferimento resta lo stesso insieme di esagoni ('rest' solo con --scope all)
+    redo = done[done["h3"].isin(old)][["h3", "role"]]
+    if scope != "all":
+        redo = redo[redo["role"] != "rest"]
+    todo = pd.concat([todo, redo], ignore_index=True).drop_duplicates("h3", keep="last")
     skip = set(FAILED.read_text().split()) if FAILED.exists() else set()
-    todo = todo[~todo["h3"].isin(done["h3"]) & ~todo["h3"].isin(skip)]
+    todo = todo[~todo["h3"].isin(done_ok["h3"]) & ~todo["h3"].isin(skip)]
     if limit:
         todo = todo.head(limit)
     print(f"esagoni da calcolare a 30 m: {len(todo)} (già fatti: {len(done)}); ruoli: {todo['role'].value_counts().to_dict()}")

@@ -73,7 +73,8 @@ def main() -> int:
         # il campione casuale fisso (fine.py, seed 0): la base dei percentili di terreno in score.py, che così
         # non cambia quando l'export aggiunge candidati al 30 m. Solo gli esagoni con pendenza, rugosità e crateri
         # tutti calcolati: la stessa base per i tre parametri (19/11)
-        ref = (fine["role"] == "sample") & fine[["slope_p90_30", "roughness_30", "crater_density"]].notna().all(axis=1)
+        terrain = [c for c in ("slope_p90_30", "roughness_30", "crater_density", "slope_trav_p90_30", "trav_share_30") if c in fine]
+        ref = (fine["role"] == "sample") & fine[terrain].notna().all(axis=1)
         cells["ref_sample"] = cells["h3"].isin(fine.loc[ref, "h3"])
         fine = fine.drop(columns=["role", "n_px"], errors="ignore")
         cells = cells.merge(fine.add_suffix("_fine").rename(columns={"h3_fine": "h3"}), on="h3", how="left")
@@ -120,6 +121,12 @@ def main() -> int:
         cells["slope_p90"] = cells["slope_p90_30_fine"].fillna(cells["slope_p90_est"])
         cells["roughness"] = cells["roughness_30_fine"].fillna(cells["roughness_est"])
         cells["crater_density"] = cells["crater_density_fine"]       # nessuna stima: solo dove c'è il 30 m
+        # terreno percorribile (test rover, TODO [17]): esatto dove c'è il 30 m, altrimenti la stima dal 500 m
+        for p in ("slope_trav_p90", "trav_share"):
+            fine_col, est_col = f"{p}_30_fine", f"{p}_est"
+            if fine_col in cells or est_col in cells:
+                cells[p] = cells.get(fine_col, pd.Series(np.nan, index=cells.index)).fillna(
+                    cells.get(est_col, pd.Series(np.nan, index=cells.index)))
         cells["terrain_src"] = np.where(exact, "30m", np.where(cells["slope_p90"].notna(), "est", None))
         used["slope_p90"] = used["roughness"] = f"30 m esatto su {exact.sum():,}, stima dal 500 m sul resto"
 

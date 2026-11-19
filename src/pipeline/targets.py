@@ -123,12 +123,19 @@ def site_targets(feats: pd.DataFrame) -> list[dict]:
         # catalogo) restano nella card come letteratura: non sono confrontabili con quelli terrestri.
         mine = LUNAR.get(sid) if world == "moon" else None
         if mine and mine.get("area_km2"):
-            for p, half in (("slope_p90", 1.0), ("roughness", 0.2), ("crater_density", mine["crater_density_sigma"])):
-                card[f"{p}_literature"] = round(float(np.mean(values[p])), 3)
-                values[p] = [max(0.0, mine[p] - half), mine[p] + half]
+            for p, half in (("slope_p90", 1.0), ("roughness", 0.2), ("crater_density", mine["crater_density_sigma"]),
+                            ("slope_trav_p90", 1.0), ("trav_share", 0.05)):   # terreno percorribile: TODO [17]
+                if mine.get(p) is None:                          # lunar_terrain.json di prima: rifare --step lunar
+                    continue
+                if np.isfinite(values.get(p, [np.nan])[0]):
+                    card[f"{p}_literature"] = round(float(np.mean(values[p])), 3)
+                top = 1.0 if p == "trav_share" else np.inf
+                values[p] = [max(0.0, mine[p] - half), min(top, mine[p] + half)]
                 sources[p] = (f"computed by POLENTA: LOLA LDEM_80S_20M (PDS) resampled to 30 m, same definition as on Earth "
                               f"(lunar.py), USGS region {mine['area_km2']:.0f} km2. Literature: {sources.get(p, '')}")
         dims = df["Dimensione (challenge)"] if "Dimensione (challenge)" in df else pd.Series(dtype=str)
+        # niente intervalli vuoti nel JSON (es. terreno percorribile dei siti LOLA prima di --step lunar): il parametro manca
+        values = {k: v for k, v in values.items() if not (isinstance(v, list) and not np.isfinite(v).all())}
         values = {k: ([round(x, 4) for x in v] if isinstance(v, list) else v) for k, v in values.items()}
         out.append({"id": sid, "name": col.split(" (")[0], "lat": lat, "lon": lon, "world": world, "mock": False,
                     "values": values, "card": card,

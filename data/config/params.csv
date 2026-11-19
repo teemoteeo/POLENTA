@@ -1,5 +1,7 @@
 param,dimension,unit,tipo,ruolo,luna,terra,terra_ok,stato
 slope_p90,terrain,deg,num,score,Luna: DEM polari LOLA a 30 m; Marte: DTM CTX (20 m) o HiRISE (non MOLA: ~460 m),NASADEM + AW3D30 a 30 m (esatto sui candidati; stima calibrata dal 500 m sul resto),si,mvp
+slope_trav_p90,terrain,deg,num,score,"Luna: DEM polari LOLA a 30 m, pendenza dei soli pixel sotto 20° (lunar.py); Aristarchus e Marte: ricavata da slope_p90 (p90 < 20°)","NASADEM + AW3D30 a 30 m, pixel sotto 20° (esatto sui candidati; stima calibrata dal 500 m sul resto)",si,mvp
+trav_share,terrain,frac 0-1,num,score,"Luna: quota di pixel LOLA a 30 m sotto 20° (lunar.py); Aristarchus e Marte: almeno 0,9 (p90 < 20°)","quota di pixel NASADEM + AW3D30 a 30 m sotto 20° (esatto sui candidati; stima calibrata dal 500 m sul resto)",si,mvp
 roughness,terrain,m,num,score,stessa formula sul DEM lunare o marziano: scarto della quota dalla media su 150 m,scarto quadratico della quota dalla media su 150 m (30 m),si,mvp
 crater_density,terrain,n/km2,num,score,stesso detector sul DEM a 30 m (LOLA; CTX/HiRISE per Marte),conche entro 300 m almeno 20 m sotto il bordo; gruppi connessi contano 1; laghi esclusi (JRC GSW),si,mvp
 rock_cover,terrain,frac 0-1,num,score,abbondanza di rocce Diviner (Luna) / THEMIS-TES (Marte),SoilGrids cfvo 0-5 cm,parziale,mvp
