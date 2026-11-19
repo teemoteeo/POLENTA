@@ -13,7 +13,8 @@ const PHYS_NAME = {
 }
 const SOIL_NAME = { cohesion: ['Cohesion', '<i>c</i>'], friction_angle: ['Internal friction angle', 'φ'], kc: ['Cohesive modulus', '<i>k</i><sub>c</sub>'],
   kphi: ['Frictional modulus', '<i>k</i><sub>φ</sub>'], n: ['Sinkage exponent', '<i>n</i>'], K: ['Shear deformation modulus', '<i>K</i>'],
-  grain_density: ['Grain density', 'ρ<sub>s</sub>'], d50: ['Median grain size', '<i>D</i><sub>50</sub>'] }
+  grain_density: ['Grain density', 'ρ<sub>s</sub>'], d50: ['Median grain size', '<i>D</i><sub>50</sub>'],
+  Kw: ['Shear displacement at peak (loams)', '<i>K</i><sub>w</sub>'], Kr: ['Residual / peak shear ratio (loams)', '<i>K</i><sub>r</sub>'] }
 
 export const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 // unità SI scritte come nel pacchetto ('kg m^-3', 'N m^-(n+1)') → con apici; '1' (adimensionale) → trattino

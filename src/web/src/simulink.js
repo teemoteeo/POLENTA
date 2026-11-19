@@ -70,6 +70,8 @@ const SOIL = {
   K: ['K_cm', 'cm', 'm', 0.01],                         // modulo di scorrimento (Janosi-Hanamoto): serve per trazione e slittamento
   grain_density: ['grain_density_g_cm3', 'g/cm3', 'kg m^-3', 1000],   // densità dei grani (specific gravity × densità dell'acqua)
   d50: ['d50_um', 'um', 'm', 1e-6],                     // diametro mediano dei grani
+  Kw: ['Kw_cm', 'cm', 'm', 0.01],                       // franchi: spostamento al picco di taglio (Wong 2010, Eqn 5.5)
+  Kr: ['Kr', '-', '1', 1],                              // franchi: rapporto taglio residuo / di picco (Wong 2010, Eqn 5.5)
 }
 export const SOIL_CSV_UNITS = Object.fromEntries(Object.values(SOIL).map(([k, u]) => [k, u]))
 const CATEGORICAL = new Set(['rock_class'])
@@ -210,13 +212,34 @@ function soilFor(world, siteId, soil, texture) {
   }
   const pick = k => order.map(o => rows[o]).find(s => s && k in s.value)
   const by = f => map(SOIL, ([k, , , m], name) => f(pick(k), k, m, name))
-  return {
+  const res = {
     ...by((s, k, m) => (s ? round(num(s.value[k]) * m) : NaN)),
     range: by((s, k, m) => (s ? s.range[k].map(x => round(num(x) * m)) : [NaN, NaN])),
     units: map(SOIL, ([, , u]) => u),
     source: by((s, k) => (s ? (world === 'earth' && s === rows.texture ? `${basis} -> ${s.source[k]} ${EARTH_SOIL_NOTE}` : s.source[k]) : none)),
     status: by((s, k) => (s ? s.status[k] : 'not measured')),
   }
+  // Terra: D50 stimato dalle frazioni di sabbia, limo e argilla (decisione di Rocco, 20/11: stima dichiarata)
+  if (world === 'earth' && !Number.isFinite(res.d50)) {
+    const d = d50FromTexture(texture?.sand, texture?.clay)
+    if (Number.isFinite(d)) {
+      res.d50 = round(d * 1e-6); res.range.d50 = [res.d50, res.d50]; res.status.d50 = 'estimated (texture fractions)'
+      res.source.d50 = `estimated from the SoilGrids 0-5 cm fractions (sand ${texture.sand}%, silt ${round(100 - texture.sand - texture.clay)}%, clay ${texture.clay}%) `
+        + 'with the USDA size limits clay < 2 um, silt 2-50 um, sand 50-2000 um (Soil Survey Manual 2017, ch. 3): the cumulative distribution is '
+        + 'interpolated linearly in log(size) inside the class that contains 50%. Fine earth only (< 2 mm, coarse fragments excluded). Not measured at the place'
+    }
+  }
+  return res
+}
+
+// D50 (um) dalle frazioni di tessitura (%): interpolazione log-lineare sui limiti USDA 2, 50, 2000 um. Argilla >= 50%: NaN
+// (sotto 2 um non c'è un limite inferiore nei dati).
+export function d50FromTexture(sand, clay) {
+  if (!Number.isFinite(sand) || !Number.isFinite(clay)) return NaN
+  const silt = 100 - sand - clay
+  if (silt < 0 || clay >= 50) return NaN
+  if (clay + silt >= 50) return 2 * (50 / 2) ** ((50 - clay) / silt)
+  return 50 * (2000 / 50) ** ((50 - clay - silt) / sand)
 }
 
 // che cosa rappresenta l'intervallo di ogni parametro del target
@@ -381,7 +404,8 @@ export const PHYSICAL_NAME = {
 }
 export const SOIL_NAME = { cohesion: 'Soil cohesion c', friction_angle: 'Soil internal friction angle phi', kc: 'Bekker cohesive modulus kc',
   kphi: 'Bekker frictional modulus kphi', n: 'Bekker sinkage exponent n', K: 'Shear deformation modulus K (Janosi-Hanamoto)',
-  grain_density: 'Grain density (specific gravity x water density)', d50: 'Median grain size D50' }
+  grain_density: 'Grain density (specific gravity x water density)', d50: 'Median grain size D50',
+  Kw: 'Shear displacement at peak Kw (Wong, loams)', Kr: 'Residual to peak shear stress ratio Kr (Wong, loams)' }
 export const INFO_COLUMNS = ['field', 'group', 'quantity', 'unit', 'target', 'target_min', 'target_max', 'analogue', 'analogue_min', 'analogue_max',
   'weight', 'similarity', 'state', 'target_status', 'analogue_status', 'range_type', 'target_source', 'analogue_source', 'note']
 const TERRAIN_30M = new Set(['slope_p90', 'slope_trav_p90', 'trav_share', 'roughness', 'crater_density'])
@@ -428,7 +452,8 @@ export function flatten(site, testId, result, t, a, ctx) {
       analogue: a.soil[k], analogue_min: a.soil.range[k][0], analogue_max: a.soil.range[k][1],
       target_status: t.soil.status[k], analogue_status: a.soil.status[k], target_source: t.soil.source[k], analogue_source: a.soil.source[k],
       note: k === 'kc' || k === 'kphi' || k === 'n' ? 'kc, kphi and n come from one pressure-sinkage fit: use them together'
-        : k === 'K' ? 'shear stress tau = (c + p tan phi) (1 - exp(-j/K)), j = shear displacement: with c and phi gives thrust and slip' : '' })
+        : k === 'K' ? 'Janosi-Hanamoto: tau = (c + p tan phi) (1 - exp(-j/K)), j = shear displacement: with c and phi gives thrust and slip. NaN with status not applicable: use Kw and Kr'
+          : k === 'Kw' || k === 'Kr' ? 'Wong (2010) Eqn 5.5, soils with a peak (loams): tau = (c + p tan phi) Kr [1 + (1/(Kr (1 - 1/e)) - 1) exp(1 - j/Kw)] [1 - exp(-j/Kw)]. Use instead of K when K is not applicable' : '' })
   }
   if (new Set(rows.map(r => r.field)).size !== rows.length) throw new Error('nomi di campo ripetuti nel .mat')
 

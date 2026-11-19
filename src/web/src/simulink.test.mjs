@@ -6,7 +6,7 @@ import assert from 'assert'
 import { load } from 'js-yaml'
 import { plan } from './campaign.js'
 import { ROCK } from './names.js'
-import { parseUnits, parseSoil, parseTexture, textureClass, asciiText, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA, INFO_COLUMNS, fieldName } from './simulink.js'
+import { parseUnits, parseSoil, parseTexture, textureClass, asciiText, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA, INFO_COLUMNS, fieldName, d50FromTexture } from './simulink.js'
 import { crc32 } from './zip.js'
 import { buildReport, reportName, fmt, unit } from './report.js'
 
@@ -42,8 +42,8 @@ assert.equal(textureClass(NaN, 10), '')
 // tabella per tessitura: unità attese, valori nell'intervallo, ogni classe con i 5 parametri di Bekker più K (Janosi-Hanamoto)
 for (const [u, t] of Object.entries(soilTexture)) {
   for (const [k, unit] of Object.entries(t.unit)) assert.equal(unit, SOIL_CSV_UNITS[k], `soil_by_texture ${u} ${k}`)
-  for (const [k, v] of Object.entries(t.value)) assert(Number.isNaN(v) ? t.status[k] === 'not measured' : t.range[k][0] <= v && v <= t.range[k][1], `soil_by_texture ${u} ${k} fuori intervallo`)
-  assert.deepEqual(Object.keys(t.value).sort(), ['K_cm', 'cohesion_kPa', 'friction_angle_deg', 'kc', 'kphi', 'n'].sort(), `soil_by_texture ${u}: parametri mancanti`)
+  for (const [k, v] of Object.entries(t.value)) assert(Number.isNaN(v) ? ['not measured', 'not applicable'].includes(t.status[k]) : t.range[k][0] <= v && v <= t.range[k][1], `soil_by_texture ${u} ${k} fuori intervallo`)
+  assert.deepEqual(Object.keys(t.value).sort(), ['K_cm', 'Kw_cm', 'Kr', 'cohesion_kPa', 'friction_angle_deg', 'kc', 'kphi', 'n'].sort(), `soil_by_texture ${u}: parametri mancanti`)
 }
 
 // i nomi dei campi MATLAB stanno nei 31 caratteri e non hanno simboli
@@ -131,7 +131,7 @@ for (const site of targets) {
     } else assert(Number.isNaN(a.soil.kc) && a.soil.status.kc === 'not measured', `${where}: suolo senza tessitura non NaN`)
     for (const k of ['range', 'units', 'source', 'status']) assert.equal(keys(t.soil[k]), keys(a.soil[k]), `soil.${k}`)
     for (const [k, [lo, hi]] of Object.entries(t.soil.range)) {
-      if (Number.isNaN(t.soil[k])) { assert.equal(t.soil.status[k], 'not measured', `${site.id} ${k}: NaN senza stato`); continue }
+      if (Number.isNaN(t.soil[k])) { assert(['not measured', 'not applicable'].includes(t.soil.status[k]), `${site.id} ${k}: NaN senza stato`); continue }
       assert(lo <= t.soil[k] && t.soil[k] <= hi, `${site.id} soil ${k}: valore fuori intervallo`)
       assert(t.soil.source[k].length > 20, `${site.id} soil ${k}: fonte mancante`)
     }
@@ -161,6 +161,7 @@ for (const site of targets) {
     assert(a.soil.grain_density === 2700 && a.soil.status.grain_density === 'literature' && !a.soil.source.grain_density.includes('texture class'), `${where}: densità dei grani della Terra`)
     if (Number.isFinite(a.physical.bulk_density_0_2m)) assert(a.physical.porosity_0_2m > 0 && a.physical.porosity_0_2m < 1)
     assert.equal(t.solar_day_s, { moon: 2551390, mars: 88774.9 }[site.world]); assert.equal(a.solar_day_s, 86400)
+    assert(Number.isNaN(t.soil.Kw) && t.soil.status.Kw === 'not applicable' && Number.isFinite(t.soil.K), `${where}: Luna e Marte usano K (Janosi)`)
     // pressione: Luna 0 (vuoto), Marte da Martinez et al. 2017 Fig. 3 con l'intervallo stagionale, Terra dalla quota (US Standard Atmosphere 1976)
     assert.equal(t.physical.pressure, { malapert_massif: 0, haworth: 0, nobile_rim_1: 0, aristarchus_plateau: 0, phoenix: 790, gale: 830 }[site.id], `${where}: pressione`)
     if (site.id === 'gale') assert.deepEqual(t.physical_range.pressure, [735, 925])
@@ -253,8 +254,17 @@ assert.equal(n, 18, `coppie sito × test: ${n}`)
   // K di Janosi-Hanamoto: solo la sabbia (Wong 2010 Tab. 5.1); i franchi hanno Kw e Kr di un'altra equazione (Tab. 5.2): NaN dichiarato
   const sa = with_(90, 5)
   assert(sa.K === 0.0114 && sa.status.K === 'estimated (texture class)' && sa.source.K.includes('Table 5.1 p.124'))
-  assert(Number.isNaN(sl.K) && sl.status.K === 'not measured' && sl.source.K.includes('Kw and Kr'))
+  assert(Number.isNaN(sl.K) && sl.status.K === 'not applicable' && sl.source.K.includes('Kw and Kr'))
   assert(sl.grain_density === 2700)
+  // franchi: Kw e Kr di Wong (Eqn 5.5, Tab. 5.2), K non applicabile; sabbia: il contrario
+  assert(sl.Kw === 0.042 && sl.Kr === 0.4715 && sl.status.Kw === 'estimated (texture class)' && sl.status.K === 'not applicable' && sl.source.K.includes('use Kw and Kr'))
+  const lo = with_(40, 20)
+  assert(lo.Kw === 0.038 && lo.Kr === 0.439 && Number.isNaN(lo.K))
+  assert(Number.isNaN(sa.Kw) && sa.status.Kw === 'not applicable' && sa.K === 0.0114)
+  // D50 della Terra stimato dalle frazioni (USDA 2, 50, 2000 um, interpolazione log-lineare)
+  assert(Math.abs(d50FromTexture(65, 10) - 50 * 40 ** (15 / 65)) < 1e-9 && Math.abs(d50FromTexture(20, 15) - 2 * 25 ** (35 / 65)) < 1e-9)
+  assert(Number.isNaN(d50FromTexture(20, 60)) && Number.isNaN(d50FromTexture(NaN, 10)))
+  assert(Math.abs(sl.d50 - 1.1716e-4) < 1e-7 && sl.status.d50 === 'estimated (texture fractions)' && sl.source.d50.includes('silt 25%'))
   const cl = with_(20, 60)
   assert(Number.isNaN(cl.kc) && cl.status.kc === 'not measured' && cl.source.kc.includes('clay'))
 }
