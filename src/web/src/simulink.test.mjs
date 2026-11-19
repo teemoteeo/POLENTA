@@ -9,7 +9,6 @@ import { ROCK } from './names.js'
 import { parseUnits, parseSoil, parseTexture, textureClass, asciiText, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA } from './simulink.js'
 import { crc32 } from './zip.js'
 import { buildReport, reportName, fmt, unit } from './report.js'
-import { HOLDS } from './campaign.js'
 
 const root = '../../data'
 const tests = load(fs.readFileSync(`${root}/config/tests.yaml`, 'utf8')).tests
@@ -202,9 +201,7 @@ assert(fmt(NaN).includes('n/a'))
 assert.equal(unit('kg m^-3'), 'kg m<sup>−3</sup>'); assert.equal(unit('N m^-(n+1)'), 'N m<sup>−(n+1)</sup>'); assert.equal(unit('1'), '–')
 {
   const sensors = JSON.parse(fs.readFileSync(`${root}/config/sensors.json`))
-  const rules = load(fs.readFileSync(`${root}/config/tests.yaml`, 'utf8'))
-  const rctx = { ...ctx, label: p => p, placeName: n => n, earthSource: p => sensors[p]?.earth,
-    rules: { tau: rules.tau, break_below: rules.break_below, kappa_min: rules.kappa_min, holds: HOLDS } }
+  const rctx = { ...ctx, label: p => p, placeName: n => n, earthSource: p => sensors[p]?.earth }
   for (const site of targets) for (const testId of Object.keys(tests)) {
     const r = JSON.parse(fs.readFileSync(`${root}/export/sites/${site.id}__${testId}.json`)).results[0]
     const result = { ...r, plan: plan(r, tests[testId].requisiti) }
@@ -212,10 +209,11 @@ assert.equal(unit('kg m^-3'), 'kg m<sup>−3</sup>'); assert.equal(unit('N m^-(n
     const where = `report ${site.id} ${testId}`
     assert(reportName(site, testId, r.name).endsWith('.html'))
     assert(html.startsWith('<!doctype html>') && html.trim().endsWith('</html>'), `${where}: documento`)
-    for (const tag of ['table', 'tr', 'td', 'section', 'figure', 'ol', 'ul', 'sup', 'sub'])
+    for (const tag of ['table', 'tr', 'td', 'section', 'figure', 'ol', 'ul', 'sup', 'sub', 'div'])
       assert.equal((html.match(new RegExp(`<${tag}[ >]`, 'g')) || []).length, (html.match(new RegExp(`</${tag}>`, 'g')) || []).length, `${where}: <${tag}> non chiuso`)
     assert(!/undefined|NaN|\[object/.test(html.replace(/<span class="na">n\/a<\/span>/g, '')), `${where}: valore non formattato`)
-    for (const p of result.plan.rows.map(x => x.p)) assert(html.includes(`<code>${p}</code>`), `${where}: manca ${p}`)
+    for (const p of result.plan.rows.map(x => x.p)) assert(html.includes(`<tr><td>${p}`), `${where}: manca ${p}`)
+    assert(!/commit|Method/.test(html), `${where}: niente commit né metodo`)
     for (let n = 1; n <= 5; n++) assert(html.includes(`<b>Table ${n}.</b>`), `${where}: tabella ${n}`)
     // ogni citazione [n] ha la sua voce in bibliografia, e ogni voce è citata
     const refs = (html.split('<section class="refs">')[1].match(/<li>/g) || []).length

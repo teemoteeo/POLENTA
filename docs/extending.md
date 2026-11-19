@@ -161,11 +161,10 @@ The README describes the full pipeline (section *Run the pipeline*).
 ## What you get out
 
 Each place card has two download buttons. Both cover the chosen site (Moon or Mars) and the chosen place on Earth.
-- **Data report (.html).** A document in the style of a scientific paper. It opens in any browser and prints to PDF.
-  - **Summary:** similarity, κ, and the share of the test that holds, is partial or breaks.
-  - **Tables:** locations; matched parameters (weight, target range, place value, similarity, state); physical properties; Bekker-Wong soil mechanics with status; field conditions.
-  - **Method and limitations.**
-  - **Numbered references:** each value carries its citation, and DOIs are links.
+- **Data report (.html).** A short document that opens in any browser and prints to PDF. It holds:
+  - the key figures: similarity, weight with data, and the share that holds, is partial or breaks;
+  - five tables: locations; matched parameters (weight, target range, place value, similarity, state); physical properties; Bekker-Wong soil mechanics with status; field conditions;
+  - notes and numbered references, with DOIs as links.
 - **Simulink package (.zip).** The same values in SI units as MATLAB structs: target and analogue with the same fields, `init_polenta.m`, `README.txt` and `SOURCES.txt`.
 
 The two downloads are built by the same code (`buildTarget` / `buildAnalogue` in `simulink.js`), so the report and the `.mat` files always show the same numbers.

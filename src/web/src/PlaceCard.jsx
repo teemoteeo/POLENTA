@@ -3,10 +3,9 @@ import { coord, num, pct, km, H3_KM2, blockNotes } from './format.js'
 import { label, dimension, placeName, facilityName } from './i18n.js'
 import { val, join, names, verdict, brief, warnText } from './brief.js'
 import { useState } from 'react'
-import { sensor, SIMULINK_CTX, RULES } from './data.js'
+import { sensor, SIMULINK_CTX } from './data.js'
 import { buildPackage, download } from './simulink.js'
 import { buildReport, reportName } from './report.js'
-import { HOLDS } from './campaign.js'
 
 export { brief, verdict }
 
@@ -45,12 +44,12 @@ function Downloads({ site, testId, testName, result }) {
   const name = placeName(result.name)
   const zip = () => { const p = buildPackage(site, testId, result, name, SIMULINK_CTX); download(p.names.zip, p.zip, 'application/zip') }
   const report = () => {
-    const html = buildReport(site, testId, testName, result, { ...SIMULINK_CTX, label, placeName, rules: { ...RULES, holds: HOLDS },
+    const html = buildReport(site, testId, testName, result, { ...SIMULINK_CTX, label, placeName,
       earthSource: p => sensor(p, 'earth')?.full })
     download(reportName(site, testId, name), html, 'text/html;charset=utf-8')
   }
   return (<>
-    <p className="lbl">Data for {site.name} and this place: a report with tables, method and references (opens in the browser, prints to PDF), and a MATLAB / Simulink package with the same values in SI units.</p>
+    <p className="lbl">Data for {site.name} and this place: a report with tables and references (opens in the browser, prints to PDF), and a MATLAB / Simulink package with the same values in SI units.</p>
     <p className="copy-row">
       <button type="button" className="tag copy dl" onClick={report}>Data report (.html)</button>
       <button type="button" className="tag copy dl" onClick={zip}>Simulink package (.zip)</button>
