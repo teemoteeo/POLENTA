@@ -1,0 +1,95 @@
+diff --git a/README.md b/README.md
+index 19c2c4c..239aa88 100644
+--- a/README.md
++++ b/README.md
+@@ -35,7 +35,7 @@ The **Benchmark** sheet shows the whole matrix, 6 sites × 3 tests, with the top
+ - **Terrain resolution:** global screening at 500 m, exact 30 m values on known sites, a random sample and the candidates; a gradient-boosting model calibrates 500 m to 30 m on the rest, with the error declared.
+ - **Validation:** known test sites (Etna, Black Point, Cinder Lake, Death Valley and others in `data/config/known_sites.csv`) must come out near the top. Their percentiles are exported in `data/export/validation.json`.
+ 
+-Parameters in the score: 90th percentile slope, roughness, crater density, boulder cover, regolith grain size (thermal inertia proxy), albedo, low-angle sunlight, surface density, rock type, ground ice.
++Parameters in the score: 90th percentile slope (rover test: 90th percentile slope of the drivable ground below 20°, the Artemis LTV requirement, plus the drivable area share; ISRU: drivable area share), roughness, crater density, boulder cover, regolith grain size (thermal inertia proxy), albedo, low-angle sunlight, surface density, rock type, ground ice.
+ 
+ ## MATLAB / Simulink export
+ 
+diff --git a/data/config/siti_e_pesi.csv b/data/config/siti_e_pesi.csv
+index 86d51b1..8b65d7a 100644
+--- a/data/config/siti_e_pesi.csv
++++ b/data/config/siti_e_pesi.csv
+@@ -1,7 +1,7 @@
+ Parametro (ID),Dimensione (challenge),Definizione e Unità,Malapert Massif (Luna),Haworth (Luna),Nobile Rim 1 (Luna),Aristarchus Plateau (Luna),Phoenix (Marte),Gale (Marte),Peso Rover (rover_mobility),Peso LiDAR (flight_hda_lidar),Peso ISRU (isru_subsurface),Reference
+-slope_p90,Topografia,Pendenza 90° percentile su DEM 30 m (°),13.5 ± 1.5 °,12.0 ± 1.5 °,11.5 ± 1.0 °,3.2 ± 0.8 °,10.0 ± 1.5 °,6.5 ± 1.5 °,0.35,0.2,0.1,"Moon: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25] & Barker et al. (2023) LOLA LDEM; Mars: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y"
+-slope_trav_p90,Topografia,"Pendenza 90° percentile del terreno percorribile (pixel sotto 20°, requisito LTV) su DEM 30 m (°)",LOLA (lunar.py),LOLA (lunar.py),LOLA (lunar.py),3.2 ± 0.8 °,10.0 ± 1.5 °,6.5 ± 1.5 °,0.0,0.0,0.0,"Threshold 20 deg = LTV requirement, Creager et al. (2025) Best Practices for the Testing of Planetary Roving Vehicle Mobility Systems and Tires, NASA NTRS 20250003470, sec. 1.3 p.5: the Lunar Terrain Vehicle 'is required to safely traverse up and down 20 deg slopes'; Polar Moon: computed by POLENTA from LOLA LDEM_80S_20M resampled to 30 m (lunar.py): 90th percentile of the slope of the pixels below 20 deg, same definition as on Earth (fine.py), +/- 1 deg tolerance; check at 15 deg against Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 (slope of the traversable areas below 15 deg); Aristarchus: derived from slope_p90 (3.2 +/- 0.8 deg): with p90 below 20 deg at least 90% of the terrain is traversable and the traversable p90 is close to the overall p90 (equal if no slope exceeds 20 deg); Mars: derived in the same way from slope_p90 (Phoenix 10.0 +/- 1.5 deg, Gale 6.5 +/- 1.5 deg)"
+-trav_share,Topografia,Quota di area percorribile: pixel con pendenza sotto 20° (requisito LTV) su DEM 30 m (fraz. 0-1),LOLA (lunar.py),LOLA (lunar.py),LOLA (lunar.py),0.90 – 1.00,0.90 – 1.00,0.90 – 1.00,0.0,0.0,0.0,"Threshold 20 deg = LTV requirement, Creager et al. (2025) Best Practices for the Testing of Planetary Roving Vehicle Mobility Systems and Tires, NASA NTRS 20250003470, sec. 1.3 p.5: the Lunar Terrain Vehicle 'is required to safely traverse up and down 20 deg slopes'; Polar Moon: computed by POLENTA from LOLA at 30 m (lunar.py): share of pixels with slope below 20 deg, same definition as on Earth (fine.py), +/- 0.05 tolerance; Aristarchus: slope_p90 3.2 +/- 0.8 deg is below 20 deg, so at least 90% of the terrain is below 20 deg by definition of the 90th percentile: 0.90-1.00; Mars: the same from slope_p90 (Phoenix 10.0 +/- 1.5 deg, Gale 6.5 +/- 1.5 deg): 0.90-1.00"
++slope_p90,Topografia,Pendenza 90° percentile su DEM 30 m (°),13.5 ± 1.5 °,12.0 ± 1.5 °,11.5 ± 1.0 °,3.2 ± 0.8 °,10.0 ± 1.5 °,6.5 ± 1.5 °,0.0,0.2,0.0,"Moon: LRO LOLA DEM 30 m, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25] & Barker et al. (2023) LOLA LDEM; Mars: MRO CTX/HiRISE DTM, Arvidson et al. (2008) DOI:10.1029/2007JE003021 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y"
++slope_trav_p90,Topografia,"Pendenza 90° percentile del terreno percorribile (pixel sotto 20°, requisito LTV) su DEM 30 m (°)",LOLA (lunar.py),LOLA (lunar.py),LOLA (lunar.py),3.2 ± 0.8 °,10.0 ± 1.5 °,6.5 ± 1.5 °,0.25,0.0,0.0,"Threshold 20 deg = LTV requirement, Creager et al. (2025) Best Practices for the Testing of Planetary Roving Vehicle Mobility Systems and Tires, NASA NTRS 20250003470, sec. 1.3 p.5: the Lunar Terrain Vehicle 'is required to safely traverse up and down 20 deg slopes'; Polar Moon: computed by POLENTA from LOLA LDEM_80S_20M resampled to 30 m (lunar.py): 90th percentile of the slope of the pixels below 20 deg, same definition as on Earth (fine.py), +/- 1 deg tolerance; check at 15 deg against Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 (slope of the traversable areas below 15 deg); Aristarchus: derived from slope_p90 (3.2 +/- 0.8 deg): with p90 below 20 deg at least 90% of the terrain is traversable and the traversable p90 is close to the overall p90 (equal if no slope exceeds 20 deg); Mars: derived in the same way from slope_p90 (Phoenix 10.0 +/- 1.5 deg, Gale 6.5 +/- 1.5 deg)"
++trav_share,Topografia,Quota di area percorribile: pixel con pendenza sotto 20° (requisito LTV) su DEM 30 m (fraz. 0-1),LOLA (lunar.py),LOLA (lunar.py),LOLA (lunar.py),0.90 – 1.00,0.90 – 1.00,0.90 – 1.00,0.1,0.0,0.1,"Threshold 20 deg = LTV requirement, Creager et al. (2025) Best Practices for the Testing of Planetary Roving Vehicle Mobility Systems and Tires, NASA NTRS 20250003470, sec. 1.3 p.5: the Lunar Terrain Vehicle 'is required to safely traverse up and down 20 deg slopes'; Polar Moon: computed by POLENTA from LOLA at 30 m (lunar.py): share of pixels with slope below 20 deg, same definition as on Earth (fine.py), +/- 0.05 tolerance; Aristarchus: slope_p90 3.2 +/- 0.8 deg is below 20 deg, so at least 90% of the terrain is below 20 deg by definition of the 90th percentile: 0.90-1.00; Mars: the same from slope_p90 (Phoenix 10.0 +/- 1.5 deg, Gale 6.5 +/- 1.5 deg): 0.90-1.00"
+ roughness,Topografia,Scarto quota dalla media su baseline 150 m (m),4.2 ± 0.8 m,3.6 ± 0.7 m,3.1 ± 0.5 m,0.8 ± 0.2 m,1.2 ± 0.3 m,1.8 ± 0.4 m,0.15,0.15,0.0,"Moon: LRO LOLA 150 m baseline, Smith et al. (2017) Icarus 283 & Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 Tab.1 [W25]; Mars: MRO HiRISE/CTX DTM, Heet et al. (2009) DOI:10.1029/2009JE003416 & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y"
+ crater_density,Topografia,"Conche <=300 m, profondità >=20 m (km⁻²)",1.8 ± 0.4 km⁻²,2.4 ± 0.5 km⁻²,2.1 ± 0.4 km⁻²,0.45 ± 0.15 km⁻²,0.15 ± 0.05 km⁻²,0.35 ± 0.10 km⁻²,0.05,0.3,0.0,"Moon: LRO LOLA/LROC NAC crater catalog, Wueller et al. (2025), JGR Planets 130(10) DOI:10.1029/2025JE009127 §6 [W25] & Robbins (2019) JGR Planets; Mars: MRO CTX/HiRISE, Arvidson et al. (2008) & Golombek et al. (2012) DOI:10.1007/s11214-012-9916-y"
+ rock_cover,Geologia e materiali di superficie,Copertura areale sassi e massi (%),0.6 ± 0.2 %,0.5 ± 0.2 %,0.4 ± 0.1 %,0.2 ± 0.1 %,3.0 ± 1.0 %,4.0 ± 2.0 %,0.15,0.25,0.05,"Moon: LRO Diviner Rock Abundance, Bandfield et al. (2011) DOI:10.1029/2011JE003866; Mars: MGS TES & MRO HiRISE CFA, Golombek et al. (2012) DOI:10.1555/mars.2012.0001"
+diff --git a/data/config/tests.yaml b/data/config/tests.yaml
+index 0509c0c..8ff6ad8 100644
+--- a/data/config/tests.yaml
++++ b/data/config/tests.yaml
+@@ -40,8 +40,12 @@ tests:
+     aziende: [TAS-I (rover ETNA/ULS), ALTEC, AIKO, PoliTo]
+     # 14/11 20:00 (Edo): bulk_density tolto dal punteggio: la densità della regolite si
+     # riproduce in vasca di simulante (indoor: soil_density). Vedi docs/proposta-finale.md §7.
++    # 19/11 (Rocco, TODO [17]): la pendenza del rover è quella del terreno percorribile (pixel sotto 20°, requisito LTV,
++    # Creager et al. 2025, NASA NTRS 20250003470 §1.3 p.5) più la quota di area percorribile; stesso peso totale di prima (0,35).
+     requisiti:   # dalla matrice di Rocco (data/config/siti_e_pesi.csv); 0 = non conta per questo test
+-      slope_p90: 0.35
++      slope_trav_p90: 0.25
++      trav_share: 0.10
++      slope_p90: 0.00
+       roughness: 0.15
+       rock_cover: 0.15
+       grain_proxy: 0.15
+@@ -69,9 +73,11 @@ tests:
+     requisiti:   # dalla matrice di Rocco (data/config/siti_e_pesi.csv); 0 = non conta per questo test
+       crater_density: 0.30
+       rock_cover: 0.25
+-      slope_p90: 0.20
++      slope_p90: 0.20      # il lidar deve vedere anche le zone ripide: pendenza su tutta la regione
+       roughness: 0.15
+       albedo: 0.05
++      slope_trav_p90: 0.00
++      trav_share: 0.00
+       rock_class: 0.05
+       grain_proxy: 0.00
+       low_sun_frac: 0.00
+@@ -102,7 +108,9 @@ tests:
+       bulk_density_0_5: 0.20
+       grain_proxy: 0.15
+       rock_class: 0.15
+-      slope_p90: 0.10
++      trav_share: 0.10     # 19/11 (Rocco): per impianti e scavo conta quanto terreno è praticabile (prima slope_p90 0,10)
++      slope_p90: 0.00
++      slope_trav_p90: 0.00
+       rock_cover: 0.05
+       roughness: 0.00
+       crater_density: 0.00
+diff --git a/src/web/src/Sheets.jsx b/src/web/src/Sheets.jsx
+index 9f168d6..b6d505a 100644
+--- a/src/web/src/Sheets.jsx
++++ b/src/web/src/Sheets.jsx
+@@ -97,6 +97,7 @@ const LIMITS = [
+   'Some hexagons have only 6-10% bare ground (farmland, or volcanoes like Etna where the real site is small). See the bare-ground warning.',
+   'The lidar heat map is sparse (~3,800 hexagons): craters only exist where we computed exact 30 m terrain. The top places still come from all over the Earth.',
+   'Mars and Aristarchus terrain values come from the literature.',
++  'Rover slopes are those of the drivable ground: the 90th percentile of the slope below 20° (the Artemis rover requirement) and the share of drivable area, computed the same way on LOLA and on Earth. The lidar test keeps the slope of the whole region. Aristarchus and Mars: derived from their slope (below 20°, so at least 90% drivable).',
+   'Ground ice is the share of area with stable ice within 1 m of the surface. Polar Moon: within 10 km of the landing point (Artemis rover range), from LRO Diviner, as the median over the USGS landing region. Earth: MODIS proxy (mean annual temperature below −1 °C), an approximation of ice within 1 m. ISRU test: when the site has ice, Earth places without permafrost are excluded; more ice than the site is penalised too (we look for analogues, not for the most ice).',
+   'Rock type (GLiM) is coarse: ~55 km cells, so Etna or the Eifel do not show.',
+   'No Antarctica: MODIS NDVI does not cover it.',
+diff --git a/src/web/src/simulink.js b/src/web/src/simulink.js
+index 90b5f86..8e1ed32 100644
+--- a/src/web/src/simulink.js
++++ b/src/web/src/simulink.js
+@@ -79,7 +79,7 @@ const COMPARISON_ONLY = {
+ // della Terra come per la Luna (LOLA, lunar.py): il confronto è indicativo (TODO [16]).
+ const MARS_TERRAIN = 'Mars: literature value from HiRISE/CTX terrain models, with a resolution and definition different from the Earth '
+   + 'calculation (30 m DEM); not recomputed with the Earth definition as done for the Moon (LOLA). Treat the match as indicative'
+-const MARS_TERRAIN_PARAMS = new Set(['slope_p90', 'roughness', 'crater_density'])
++const MARS_TERRAIN_PARAMS = new Set(['slope_p90', 'roughness', 'crater_density', 'slope_trav_p90', 'trav_share'])
+ const noteFor = (p, world) => [COMPARISON_ONLY[p], world === 'mars' && MARS_TERRAIN_PARAMS.has(p) ? MARS_TERRAIN : ''].filter(Boolean).join('. ')
+ 
+ // params.csv → { param: unità }. Solo le prime tre colonne: le successive sono testo libero.
