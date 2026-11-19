@@ -28,7 +28,7 @@ export const sensor = (p, world) => {
 // valori dei 6 siti target (Luna e Marte): schedina al passaggio del mouse
 export const TARGETS = Object.fromEntries(targets.map(t => [t.id, t]))
 // export MATLAB / Simulink (simulink.js): unità dei parametri e Bekker-Wong per Luna e Marte
-export const SIMULINK_CTX = { units: parseUnits(paramsCsv), soil: parseSoil(soilCsv), soilTexture: parseTexture(textureCsv), exportedAt: manifest.generated_at, dataVersion: `manifest ${manifest.version}`, rockName: rock, targets: TARGETS }
+export const SIMULINK_CTX = { units: parseUnits(paramsCsv), soil: parseSoil(soilCsv), soilTexture: parseTexture(textureCsv), exportedAt: manifest.generated_at, dataVersion: `POLENTA commit ${typeof __POLENTA_COMMIT__ === 'string' ? __POLENTA_COMMIT__ : 'unknown'} (teemoteeo/POLENTA)`, rockName: rock, targets: TARGETS }
 export const VALIDATION = validation // percentile dei siti di test noti per sito × test (pipeline)
 
 // Siti scelti dal team: human_docs/coordinate_6_siti_frontend.csv (stessi id di data/export/targets.json).

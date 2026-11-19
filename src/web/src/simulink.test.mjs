@@ -103,6 +103,8 @@ for (const site of targets) {
     for (const [k, u] of Object.entries(t.physical_units)) assert(SI_UNITS.has(u), `physical ${k}: unità ${u}`)
     for (const [k, u] of Object.entries(t.soil.units)) assert(SI_UNITS.has(u), `soil ${k}: unità ${u}`)
     for (const [k, u] of Object.entries(site_units)) assert(SITE_UNITS.has(u) && k in field, `site ${k}: unità ${u}`)
+    for (const k of ['slope_p90', 'roughness', 'crater_density'].filter(k => k in t.values))
+      assert.equal(site.world === 'mars', /Mars: literature value/.test(t.notes[k] || ''), `${where} ${k}: nota su Marte`)
     assert.equal(t.gravity_m_s2, BODY[site.world].gravity)
     assert.equal(a.gravity_m_s2, 9.80665)
     assert(t.elevation_datum && a.elevation_datum && t.elevation_datum !== a.elevation_datum)
