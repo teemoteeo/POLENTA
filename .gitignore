@@ -17,6 +17,7 @@ archive/
 human_docs/
 docs/*
 !docs/pitch/
+!docs/extending.md
 data/datasets_links.md
 
 # outside the project

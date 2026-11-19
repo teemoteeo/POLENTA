@@ -27,4 +27,3 @@
 ** Personalizzazione Demo per la Visita**
 
 * [12] **Preset "TAS / Argonaut":** Creare e precaricare nella pipeline un profilo dedicato ai parametri tipici di un lander lunare europeo da mostrare dal vivo durante l'incontro.
-* [13] **Architettura "Plugin-Ready":** Documentare o predisporre un file di configurazione pulito per mostrare come integrare facilmente modelli proprietari dei loro sensori o sottosistemi.

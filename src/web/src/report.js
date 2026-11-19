@@ -55,7 +55,8 @@ export function reportRows(site, testId, testName, data, list, ctx) {
         target_min: lo, target_max: hi, similarity: row.s, state: STATE[row.state] || row.state,
         target_range_type: cat ? 'rock class of the target; similarity from the GLiM class table (data/config/rock_similarity.csv)' : t.range_type[f] || '',
         target_source: cat ? sourceFor(ctx.targets?.[site.id]?.sources?.rock_class, site.id, site.world) : t.source[f] || '',
-        earth_source: src ? (TERRAIN.has(p) && terrain ? `${src}; ${terrain}` : src) : '',
+        // crateri: nessuna stima dal 500 m (features.py), esistono solo dove c'è il 30 m
+        earth_source: src ? (TERRAIN.has(p) && terrain ? `${src}; ${p === 'crater_density' && r.dossier?.terrain_src !== '30m' ? 'computed at 30 m only' : terrain}` : src) : '',
         note: (t.notes[f] || '').replace('use physical.thermal_inertia', 'physical thermal inertia in the Simulink package'),
       })
     }
