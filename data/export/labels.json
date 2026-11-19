@@ -79,7 +79,7 @@
  },
  "permafrost_share": {
   "label": "ghiaccio nel suolo",
-  "definition": "Quota di area (0-1) con ghiaccio d'acqua termicamente stabile entro 1 m di profondità, entro 10 km dal punto di atterraggio (raggio LTV Artemis); Luna polare: intervallo p10–p90 su tutti i punti di atterraggio della regione USGS; Marte: punto di atterraggio noto",
+  "definition": "Quota di area (0-1) con ghiaccio d'acqua termicamente stabile entro 1 m di profondità, entro 10 km dal punto di atterraggio (raggio LTV Artemis); Luna polare: mediana su tutti i punti di atterraggio della regione USGS (atterraggio tipico; p10–p90 nella Reference); Marte: punto di atterraggio noto",
   "dimension": "Acqua, ghiaccio e permafrost",
   "unit": "quota di area con ghiaccio nel suolo (0-1)"
  },
