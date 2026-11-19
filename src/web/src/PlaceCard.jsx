@@ -4,7 +4,7 @@ import { label, dimension, placeName, facilityName } from './i18n.js'
 import { val, join, names, verdict, brief, warnText } from './brief.js'
 import { useState } from 'react'
 import { sensor, SIMULINK_CTX } from './data.js'
-import { buildTarget, buildAnalogue, fileNames, targetMat, analogueMat, initScript, download } from './simulink.js'
+import { buildPackage, download } from './simulink.js'
 
 export { brief, verdict }
 
@@ -37,18 +37,15 @@ function CopyBrief({ text }) {
   </p>)
 }
 
-// MATLAB / Simulink: tre file dal posto mostrato (simulink.js). I nomi dei .mat sono quelli che init_polenta.m carica.
+// MATLAB / Simulink: un pacchetto .zip dal posto mostrato (simulink.js): i due .mat, init_polenta.m, README e fonti.
+// Il pacchetto si costruisce al clic, non a ogni render della card.
 function SimulinkExport({ site, testId, result }) {
   const name = placeName(result.name)
-  const names = fileNames(site, testId, name)
-  const t = buildTarget(site, testId, result, SIMULINK_CTX)
-  const a = buildAnalogue(site, testId, result, name, SIMULINK_CTX)
+  const get = () => { const p = buildPackage(site, testId, result, name, SIMULINK_CTX); download(p.names.zip, p.zip, 'application/zip') }
   return (<>
-    <p className="lbl">MATLAB / Simulink: target and Earth analogue with the same fields, plus a script that loads both.</p>
+    <p className="lbl">MATLAB / Simulink: target and Earth analogue with the same fields in SI units, a script that loads both, README and sources.</p>
     <p className="copy-row">
-      <button type="button" className="tag copy" onClick={() => download(names.target, targetMat(t))}>Target .mat</button>
-      <button type="button" className="tag copy" onClick={() => download(names.analogue, analogueMat(a))}>Analogue .mat</button>
-      <button type="button" className="tag copy" onClick={() => download(names.init, initScript(names, t, a), 'text/plain')}>init_polenta.m</button>
+      <button type="button" className="tag copy" onClick={get}>Simulink package (.zip)</button>
     </p>
   </>)
 }

@@ -108,6 +108,7 @@ def site_targets(feats: pd.DataFrame) -> list[dict]:
                 values["permafrost_share"] = [lo, hi]
             elif p == "temperature":
                 card["t_mean_c"], card["t_range_c"] = round(v - 273.15, 1), s
+                card["t_mean_k"] = v                                    # valore esatto della matrice (export Simulink in K)
             elif p == "atmosphere_wind":
                 rho, wind = raw.split("|")
                 card["air_density_kgm3"], card["wind_ms"] = parse(rho)[0], parse(wind)[0]
