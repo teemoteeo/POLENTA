@@ -142,9 +142,11 @@ for (const site of targets) {
       // controllo incrociato: Lunar Sourcebook Tabella 9.5 p.492, porosità 30-60 cm 44%, 0-60 cm 46%
       assert(Math.abs(t.physical.porosity_0_2m - (1 - t.physical.bulk_density_0_2m / 3100)) < 1e-5 && t.physical.porosity_0_2m > 0.40 && t.physical.porosity_0_2m < 0.48)
     } else {
-      // Marte: densità dei grani come ipotesi dichiarata (Moore 1991, USGS OFR 91-568 Tab. 6); K e D50 ancora senza fonte
+      // Marte: densità dei grani come ipotesi dichiarata (Moore 1991, USGS OFR 91-568 Tab. 6); D50 ancora senza fonte
       assert(t.soil.grain_density === 2800 && t.soil.status.grain_density === 'assumed' && t.soil.source.grain_density.includes('DECLARED ASSUMPTION'))
-      assert(Number.isNaN(t.soil.K) && t.soil.status.K === 'not measured' && t.physical.porosity_0_2m > 0.3 && t.physical.porosity_0_2m < 0.6)
+      // K di Janosi-Hanamoto da altri suoli marziani (Zhou et al. 2014, Tab. III: Opportunity a Meridiani), stesso modello della Luna
+      assert(t.soil.K === 0.015 && t.soil.range.K[0] === 0.012 && t.soil.range.K[1] === 0.025 && t.soil.source.K.includes('NOT measured at this site'))
+      assert(t.physical.porosity_0_2m > 0.3 && t.physical.porosity_0_2m < 0.6)
     }
     assert(a.soil.grain_density === 2700 && a.soil.status.grain_density === 'literature' && !a.soil.source.grain_density.includes('texture class'), `${where}: densità dei grani della Terra`)
     if (Number.isFinite(a.physical.bulk_density_0_2m)) assert(a.physical.porosity_0_2m > 0 && a.physical.porosity_0_2m < 1)
