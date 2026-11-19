@@ -21,12 +21,12 @@ export const UNITS_CONVENTION = 'SI units; angles in degrees; dimensionless frac
 
 // corpo celeste: gravità superficiale, raggio medio, riferimento delle quote
 export const BODY = {
-  moon: { gravity: 1.62, radius: 1737400, datum: 'LOLA reference sphere of radius 1737.4 km',
-    source: 'NASA NSSDCA Moon Fact Sheet (nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html): surface gravity 1.62 m/s^2, volumetric mean radius 1737.4 km' },
-  mars: { gravity: 3.71, radius: 3389500, datum: 'MGS MOLA areoid',
-    source: 'NASA NSSDCA Mars Fact Sheet (nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html): surface gravity 3.71 m/s^2, volumetric mean radius 3389.5 km' },
-  earth: { gravity: 9.80665, radius: 6371000, datum: 'EGM96 geoid (about mean sea level): NASADEM below 60 N, JAXA AW3D30 above',
-    source: 'standard gravity 9.80665 m/s^2 (3rd CGPM, 1901); volumetric mean radius 6371.0 km, NASA NSSDCA Earth Fact Sheet' },
+  moon: { gravity: 1.62, radius: 1737400, solar_day: 29.53 * 86400, datum: 'LOLA reference sphere of radius 1737.4 km',
+    source: 'NASA NSSDCA Moon Fact Sheet (nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html): surface gravity 1.62 m/s^2, volumetric mean radius 1737.4 km, synodic period (solar day) 29.53 days' },
+  mars: { gravity: 3.71, radius: 3389500, solar_day: 24.6597 * 3600, datum: 'MGS MOLA areoid',
+    source: 'NASA NSSDCA Mars Fact Sheet (nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html): surface gravity 3.71 m/s^2, volumetric mean radius 3389.5 km, length of day (solar day) 24.6597 h' },
+  earth: { gravity: 9.80665, radius: 6371000, solar_day: 86400, datum: 'EGM96 geoid (about mean sea level): NASADEM below 60 N, JAXA AW3D30 above',
+    source: 'standard gravity 9.80665 m/s^2 (3rd CGPM, 1901); volumetric mean radius 6371.0 km and length of day 24.0000 h, NASA NSSDCA Earth Fact Sheet' },
 }
 const COORDINATES = 'planetocentric latitude and east-positive longitude (-180..180), degrees'
 const POLAR = new Set(['malapert_massif', 'haworth', 'nobile_rim_1'])
@@ -67,6 +67,9 @@ const SOIL = {
   kc: ['kc', 'kN/m^(n+1)', 'N m^-(n+1)', 1000],
   kphi: ['kphi', 'kN/m^(n+2)', 'N m^-(n+2)', 1000],
   n: ['n', '-', '1', 1],
+  K: ['K_cm', 'cm', 'm', 0.01],                         // modulo di scorrimento (Janosi-Hanamoto): serve per trazione e slittamento
+  grain_density: ['grain_density_g_cm3', 'g/cm3', 'kg m^-3', 1000],   // densità dei grani (specific gravity × densità dell'acqua)
+  d50: ['d50_um', 'um', 'm', 1e-6],                     // diametro mediano dei grani
 }
 export const SOIL_CSV_UNITS = Object.fromEntries(Object.values(SOIL).map(([k, u]) => [k, u]))
 const CATEGORICAL = new Set(['rock_class'])
@@ -202,8 +205,8 @@ function soilFor(world, siteId, soil, texture) {
     const cls = textureClass(texture?.sand, texture?.clay)
     const t = cls && texture.table?.[cls]
     basis = cls ? `USDA texture class ${cls} (SoilGrids 0-5 cm: sand ${texture.sand}%, clay ${texture.clay}%, USDA Soil Survey Manual 2017 triangle)` : ''
-    if (t) { rows = { earth: t }; order = ['earth'] }
-    else if (cls) none = `not measured: ${basis} has no measured reference soil in Wong (2010); measure on site (bevameter, shear vane)`
+    rows = { texture: t, '*': soil.earth?.['*'] }; order = ['texture', '*']
+    if (!t && cls) none = `not measured: ${basis} has no measured reference soil in Wong (2010); measure on site (bevameter, shear vane)`
   }
   const pick = k => order.map(o => rows[o]).find(s => s && k in s.value)
   const by = f => map(SOIL, ([k, , , m], name) => f(pick(k), k, m, name))
@@ -211,7 +214,7 @@ function soilFor(world, siteId, soil, texture) {
     ...by((s, k, m) => (s ? round(num(s.value[k]) * m) : NaN)),
     range: by((s, k, m) => (s ? s.range[k].map(x => round(num(x) * m)) : [NaN, NaN])),
     units: map(SOIL, ([, , u]) => u),
-    source: by((s, k) => (s ? (world === 'earth' ? `${basis} -> ${s.source[k]} ${EARTH_SOIL_NOTE}` : s.source[k]) : none)),
+    source: by((s, k) => (s ? (world === 'earth' && s === rows.texture ? `${basis} -> ${s.source[k]} ${EARTH_SOIL_NOTE}` : s.source[k]) : none)),
     status: by((s, k) => (s ? s.status[k] : 'not measured')),
   }
 }
@@ -230,10 +233,10 @@ function core({ role, site, testId, name, world, lat, lon, params, raw, units, s
   const si = p => SI[units[p]] ? SI[units[p]][0] : units[p] || ''
   const range = Object.fromEntries(numeric.map(p => [field(p), asRange(raw[p]).map(x => toSI(units[p], x)[1])]))
   const body = BODY[world]
-  return {
+  const out = {
     schema: SCHEMA, role, site_id: site.id, test_id: testId, name, world,
     lat_deg: round(num(lat)), lon_deg: round(num(lon)), coordinates: COORDINATES,
-    gravity_m_s2: body.gravity, body_radius_m: body.radius, body_source: body.source,
+    gravity_m_s2: body.gravity, body_radius_m: body.radius, solar_day_s: round(body.solar_day), body_source: body.source,
     units_convention: UNITS_CONVENTION, data_export: exportedAt || '', data_version: dataVersion,
     values: map(range, ([a, b]) => round((a + b) / 2)),
     range,
@@ -253,7 +256,16 @@ function core({ role, site, testId, name, world, lat, lon, params, raw, units, s
     elevation_datum: body.datum,
     notes: Object.fromEntries(params.filter(p => noteFor(p, site.world)).map(p => [field(p), noteFor(p, site.world)])),
   }
+  // porosità 0-2 m ricavata: n = 1 - densità apparente / densità dei grani (Lunar Sourcebook §9.1.4 p.483)
+  const gd = out.soil.grain_density
+  out.physical.porosity_0_2m = round(1 - out.physical.bulk_density_0_2m / gd)
+  out.physical_units.porosity_0_2m = '1'
+  out.physical_source.porosity_0_2m = Number.isFinite(out.physical.porosity_0_2m) ? POROSITY_SOURCE : ''
+  out.physical_notes.porosity_0_2m = 'void fraction of the soil, derived from bulk_density_0_2m and soil grain_density'
+  return out
 }
+const POROSITY_SOURCE = 'derived: porosity = 1 - bulk density / grain density (relation in Carrier Olhoeft & Mendell (1991) Lunar Sourcebook '
+  + 'ch. 9, sec. 9.1.4 p.483), with bulk_density_0_2m and soil grain_density of this site'
 
 // result: un posto della card (data.results[i], con plan); site: SITES[i]; ctx: { units, soil, exportedAt, targets, rockName }
 export function buildTarget(site, testId, result, ctx) {
@@ -336,7 +348,7 @@ const asciiDeep = x => (typeof x === 'string' ? asciiText(x) : Array.isArray(x) 
 
 // unità SI → suffisso del nome del campo; '' dove l'unità è 1 o dipende da n (kc, kphi)
 const SUFFIX = { deg: '_deg', m: '_m', 'm^-2': '_per_m2', K: '_K', 'kg m^-3': '_kg_m3', Pa: '_Pa', 'm s^-1': '_m_s', 'm s^-2': '_m_s2',
-  'K^-1': '_per_K', 'J m^-2 K^-1 s^-0.5': '_tiu', 1: '', 'N m^-(n+1)': '', 'N m^-(n+2)': '' }
+  'K^-1': '_per_K', 'J m^-2 K^-1 s^-0.5': '_tiu', s: '_s', 1: '', 'N m^-(n+1)': '', 'N m^-(n+2)': '' }
 export const fieldName = (key, u) => {
   if (!(u in SUFFIX)) throw new Error(`unità senza suffisso: ${u} (${key})`)
   return checkName(`${key}${SUFFIX[u]}`)
@@ -347,9 +359,11 @@ export const PHYSICAL_NAME = {
   subsurface_ice: ['subsurface_ice', 'Subsurface water ice (mass fraction)'], t_mean: ['t_mean', 'Mean surface temperature'],
   t_half_range: ['t_half_range', 'Surface temperature half range'], bulk_density_0_2m: ['bulk_density_0_2m', 'Bulk density, 0-2 m'],
   feo: ['feo', 'FeO (mass fraction)'], elevation: ['elevation', 'Elevation'], air_density: ['air_density', 'Air density'], wind: ['wind', 'Wind speed'],
+  porosity_0_2m: ['porosity_0_2m', 'Porosity, 0-2 m (derived)'],
 }
 export const SOIL_NAME = { cohesion: 'Soil cohesion c', friction_angle: 'Soil internal friction angle phi', kc: 'Bekker cohesive modulus kc',
-  kphi: 'Bekker frictional modulus kphi', n: 'Bekker sinkage exponent n' }
+  kphi: 'Bekker frictional modulus kphi', n: 'Bekker sinkage exponent n', K: 'Shear deformation modulus K (Janosi-Hanamoto)',
+  grain_density: 'Grain density (specific gravity x water density)', d50: 'Median grain size D50' }
 export const INFO_COLUMNS = ['field', 'group', 'quantity', 'unit', 'target', 'target_min', 'target_max', 'analogue', 'analogue_min', 'analogue_max',
   'weight', 'similarity', 'state', 'target_status', 'analogue_status', 'range_type', 'target_source', 'analogue_source', 'note']
 const TERRAIN_30M = new Set(['slope_p90', 'slope_trav_p90', 'trav_share', 'roughness', 'crater_density'])
@@ -370,6 +384,7 @@ export function flatten(site, testId, result, t, a, ctx) {
   loc('lon_deg', 'Longitude (east-positive, -180..180)', 'deg', t.lon_deg, a.lon_deg)
   loc('gravity_m_s2', 'Surface gravity', 'm s^-2', t.gravity_m_s2, a.gravity_m_s2, t.body_source, a.body_source)
   loc('radius_m', 'Mean body radius', 'm', t.body_radius_m, a.body_radius_m, t.body_source, a.body_source)
+  loc('solar_day_s', 'Length of the solar day', 's', t.solar_day_s, a.solar_day_s, t.body_source, a.body_source)
 
   const plan = Object.fromEntries(result.plan.rows.map(r => [r.p, r]))
   const terrain = a.site?.terrain_src === '30m' ? 'exact (30 m)' : a.site?.terrain_src ? 'estimated from 500 m (calibrated)' : ''
@@ -393,7 +408,8 @@ export function flatten(site, testId, result, t, a, ctx) {
       target: t.soil[k], target_min: t.soil.range[k][0], target_max: t.soil.range[k][1],
       analogue: a.soil[k], analogue_min: a.soil.range[k][0], analogue_max: a.soil.range[k][1],
       target_status: t.soil.status[k], analogue_status: a.soil.status[k], target_source: t.soil.source[k], analogue_source: a.soil.source[k],
-      note: k === 'kc' || k === 'kphi' || k === 'n' ? 'kc, kphi and n come from one pressure-sinkage fit: use them together' : '' })
+      note: k === 'kc' || k === 'kphi' || k === 'n' ? 'kc, kphi and n come from one pressure-sinkage fit: use them together'
+        : k === 'K' ? 'shear stress tau = (c + p tan phi) (1 - exp(-j/K)), j = shear displacement: with c and phi gives thrust and slip' : '' })
   }
   if (new Set(rows.map(r => r.field)).size !== rows.length) throw new Error('nomi di campo ripetuti nel .mat')
 
@@ -402,7 +418,7 @@ export function flatten(site, testId, result, t, a, ctx) {
   const meta = {
     schema: SCHEMA, site: t.name, site_id: site.id, site_world: t.world, test: testId, place: a.name, place_country: a.site.country,
     similarity_score: a.match.score, kappa: a.match.kappa,
-    units: `${UNITS_CONVENTION}. The unit is in each field name: _deg, _m, _per_m2, _K, _kg_m3, _Pa, _m_s, _m_s2, _per_K, _tiu (J m^-2 K^-1 s^-0.5); no suffix = dimensionless, except soil_kc (N m^-(n+1)) and soil_kphi (N m^-(n+2))`,
+    units: `${UNITS_CONVENTION}. The unit is in each field name: _deg, _m, _s, _per_m2, _K, _kg_m3, _Pa, _m_s, _m_s2, _per_K, _tiu (J m^-2 K^-1 s^-0.5); no suffix = dimensionless, except soil_kc (N m^-(n+1)) and soil_kphi (N m^-(n+2))`,
     nan: 'NaN means no data, never zero',
     coordinates: COORDINATES, target_elevation_datum: t.elevation_datum, analogue_elevation_datum: a.elevation_datum,
     target_rock_class: t.rock_class_name, analogue_rock_class: a.rock_class_name,
@@ -493,7 +509,7 @@ VARIABLES
 
 UNITS
   ${UNITS_CONVENTION}. The unit is in the field name:
-  _deg degrees, _m metres, _per_m2 per square metre, _K kelvin, _kg_m3 kg m^-3, _Pa pascal, _m_s m s^-1, _m_s2 m s^-2,
+  _deg degrees, _m metres, _s seconds, _per_m2 per square metre, _K kelvin, _kg_m3 kg m^-3, _Pa pascal, _m_s m s^-1, _m_s2 m s^-2,
   _per_K K^-1, _tiu thermal inertia units (J m^-2 K^-1 s^-0.5). No suffix: dimensionless (fractions 0-1), except
   soil_kc in N m^-(n+1) and soil_kphi in N m^-(n+2), whose units depend on the sinkage exponent soil_n.
 

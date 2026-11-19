@@ -9,10 +9,11 @@ const WORLD = { moon: 'Moon', mars: 'Mars', earth: 'Earth' }
 const PHYS_NAME = {
   thermal_inertia: 'Thermal inertia', rock_cover: 'Rock (boulder) cover', subsurface_ice: 'Subsurface water ice',
   t_mean: 'Mean surface temperature', t_half_range: 'Surface temperature half range', bulk_density_0_2m: 'Bulk density, 0-2 m',
-  feo: 'FeO', elevation: 'Elevation', air_density: 'Air density', wind: 'Wind speed',
+  feo: 'FeO', elevation: 'Elevation', air_density: 'Air density', wind: 'Wind speed', porosity_0_2m: 'Porosity, 0-2 m (derived)',
 }
 const SOIL_NAME = { cohesion: ['Cohesion', '<i>c</i>'], friction_angle: ['Internal friction angle', 'φ'], kc: ['Cohesive modulus', '<i>k</i><sub>c</sub>'],
-  kphi: ['Frictional modulus', '<i>k</i><sub>φ</sub>'], n: ['Sinkage exponent', '<i>n</i>'] }
+  kphi: ['Frictional modulus', '<i>k</i><sub>φ</sub>'], n: ['Sinkage exponent', '<i>n</i>'], K: ['Shear deformation modulus', '<i>K</i>'],
+  grain_density: ['Grain density', 'ρ<sub>s</sub>'], d50: ['Median grain size', '<i>D</i><sub>50</sub>'] }
 
 export const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 // unità SI scritte come nel pacchetto ('kg m^-3', 'N m^-(n+1)') → con apici; '1' (adimensionale) → trattino
@@ -72,6 +73,7 @@ export function buildReport(site, testId, testName, result, ctx) {
     ['Coordinates', latlon(t.lat_deg, t.lon_deg), latlon(a.lat_deg, a.lon_deg)],
     ['Surface gravity (m s<sup>−2</sup>)', `${fmt(t.gravity_m_s2)} ${cite(t.body_source)}`, `${fmt(a.gravity_m_s2)} ${cite(a.body_source)}`],
     ['Mean radius (m)', String(t.body_radius_m), String(a.body_radius_m)],          // intero: il raggio ha 5 cifre significative
+    ['Solar day (s)', String(t.solar_day_s), String(a.solar_day_s)],
     ['Elevation datum', esc(t.elevation_datum), esc(a.elevation_datum)],
     ['Area', '–', `${(result.h3_cells || []).length} H3 cells, resolution 5 (~253 km<sup>2</sup> each)${result.country ? `; ${esc(result.country)}` : ''}`],
   ])

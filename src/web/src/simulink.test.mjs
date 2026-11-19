@@ -22,7 +22,7 @@ const keys = o => Object.keys(o).sort().join(',')
 const NAME_MAX = 31
 
 // unità ammesse: solo SI (angoli in gradi), più quelle di calendario e indice del dossier di campo
-const SI_UNITS = new Set(['deg', 'm', 'm s^-2', 'm^-2', '1', 'K^-1', 'kg m^-3', 'K', 'Pa', 'N m^-(n+1)', 'N m^-(n+2)', 'J m^-2 K^-1 s^-0.5', 'm s^-1'])
+const SI_UNITS = new Set(['deg', 'm', 's', 'm s^-2', 'm^-2', '1', 'K^-1', 'kg m^-3', 'K', 'Pa', 'N m^-(n+1)', 'N m^-(n+2)', 'J m^-2 K^-1 s^-0.5', 'm s^-1'])
 const SITE_UNITS = new Set(['1', 'month', 'month number (1-12)', 'h/day', 'm s^-1', 'nW cm^-2 sr^-1'])
 
 // le unità del CSV del suolo sono quelle che la conversione si aspetta
@@ -135,6 +135,16 @@ for (const site of targets) {
     if (site.world === 'moon') assert(t.soil.cohesion >= 100 && t.soil.kphi >= 1e5, `${site.id}: suolo non in Pa e N/m^(n+2)`)
     if (site.world === 'mars') assert(Number.isFinite(t.soil.cohesion) && Number.isFinite(t.soil.friction_angle), `${site.id}: c e phi mancanti`)
     if (site.id === 'aristarchus_plateau') assert.equal(t.soil.friction_angle, 31)
+    // K, densità dei grani, D50 (Lunar Sourcebook cap. 9), porosità ricavata, giorno solare (NSSDCA)
+    if (site.world === 'moon') {
+      assert(t.soil.K === 0.018 && t.soil.grain_density === 3100 && t.soil.d50 === 7e-5, `${where}: K, densità dei grani o D50 della Luna`)
+      assert.deepEqual(t.soil.range.grain_density, [2300, 3200]); assert.deepEqual(t.soil.range.d50, [4e-5, 1.3e-4])
+      // controllo incrociato: Lunar Sourcebook Tabella 9.5 p.492, porosità 30-60 cm 44%, 0-60 cm 46%
+      assert(Math.abs(t.physical.porosity_0_2m - (1 - t.physical.bulk_density_0_2m / 3100)) < 1e-5 && t.physical.porosity_0_2m > 0.40 && t.physical.porosity_0_2m < 0.48)
+    } else assert(Number.isNaN(t.soil.K) && Number.isNaN(t.soil.grain_density) && t.soil.status.K === 'not measured' && Number.isNaN(t.physical.porosity_0_2m))
+    assert(a.soil.grain_density === 2700 && a.soil.status.grain_density === 'literature' && !a.soil.source.grain_density.includes('texture class'), `${where}: densità dei grani della Terra`)
+    if (Number.isFinite(a.physical.bulk_density_0_2m)) assert(a.physical.porosity_0_2m > 0 && a.physical.porosity_0_2m < 1)
+    assert.equal(t.solar_day_s, { moon: 2551390, mars: 88774.9 }[site.world]); assert.equal(a.solar_day_s, 86400)
 
     // Terra: ogni grandezza del dossier finisce nel .mat, convertita
     assert(Number.isNaN(a.physical.thermal_inertia) && Number.isNaN(a.physical.feo) && a.physical.wind >= 0)
@@ -165,7 +175,7 @@ for (const site of targets) {
     }
     for (const x of F.info) {
       assert(SI_UNITS.has(x.unit), `${where} ${x.field}: unità ${x.unit}`)
-      assert.equal(x.field, fieldName(x.field.replace(/_(deg|m|per_m2|K|kg_m3|Pa|m_s|m_s2|per_K|tiu)$/, ''), x.unit), `${where} ${x.field}: suffisso dell'unità`)
+      assert.equal(x.field, fieldName(x.field.replace(/_(deg|m|s|per_m2|K|kg_m3|Pa|m_s|m_s2|per_K|tiu)$/, ''), x.unit), `${where} ${x.field}: suffisso dell'unità`)
       if (x.group === 'matched') assert(x.weight > 0 && x.target_source && x.analogue_source && x.range_type, `${where} ${x.field}: peso o fonti`)
       if (Number.isFinite(x.target) && x.group !== 'location') assert(x.target_source, `${where} ${x.field}: fonte del target`)
     }
