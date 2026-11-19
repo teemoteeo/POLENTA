@@ -30,7 +30,7 @@
 
 * [15] **Raffinamento a convergenza.** Ogni export raffina a 30 m i nuovi candidati, che possono entrare nelle classifiche: ripetere il raffinamento finché non compaiono candidati nuovi, così l'export dipende solo dalla configurazione (Edoardo, 19/11). Fino ad allora si pubblica con --no-refine l'anteprima controllata.
 * [16] **Terreno di Marte con la stessa definizione della Terra.** Per la Luna pendenza, rugosità e crateri sono calcolati da noi su LOLA (lunar.py); per Phoenix e Gale sono ancora valori di letteratura (HiRISE/CTX) con definizioni diverse. Segnale: per Phoenix × rover tutti i posti prendono 0,01-0,04 sulla rugosità. Da calcolare su DTM HiRISE/CTX con la definizione terrestre.
-* [17] **Pendenza per test.** Rover: pendenza sul terreno percorribile (soglia dal limite del rover Artemis, fonte NASA) e quota di area percorribile; lidar: pendenza su tutta la regione. Stessa definizione su Luna e Terra (vedi discussione del 19/11).
+* [17] **Pendenza per test.** Rover: pendenza sul terreno percorribile e quota di area percorribile, soglia 20° = requisito LTV ("safely traverse up and down 20° slopes", Creager et al. 2025, NASA NTRS 20250003470, §1.3 p.5); calcolare anche a 15° per verificare il 13,5° di Wueller 2025; lidar: pendenza su tutta la regione. Stessa definizione su Luna e Terra (approvato da Rocco il 19/11).
 
 ** Personalizzazione Demo per la Visita**
 
