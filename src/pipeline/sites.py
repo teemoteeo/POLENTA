@@ -41,8 +41,13 @@ def km(a_lat, a_lon, b_lat, b_lon) -> float:
 def components(cells: list[str]) -> list[list[str]]:
     """Gruppi di esagoni che si toccano (vicini diretti sulla griglia H3)."""
     left, groups = set(cells), []
-    while left:
-        stack, comp = [left.pop()], []
+    # ordine fisso: con left.pop() l'ordine del set cambiava a ogni processo Python (PYTHONHASHSEED) e, tra posti a
+    # pari voto, cambiavano ordine e posti scelti da un export all'altro (13 liste Near you su 108, 19/11)
+    for start in sorted(cells):
+        if start not in left:
+            continue
+        left.remove(start)
+        stack, comp = [start], []
         while stack:
             c = stack.pop()
             comp.append(c)
@@ -69,7 +74,7 @@ def build(feats: pd.DataFrame, site_id: str, test_id: str, test: dict, target: d
     idx = feats.reset_index().set_index("h3")["index"]
     sites = []
     for comp in components(best["h3"].tolist()):
-        sub = best.set_index("h3").loc[comp].sort_values("score", ascending=False)
+        sub = best.set_index("h3").loc[comp].sort_values(["score", "h3"], ascending=[False, True])   # pari voto: per id H3
         top = sub.index[0]                           # la cella migliore va per prima in h3_cells
         # voto del posto = voto della sua cella migliore, la stessa di cui l'export mostra params e values. Con la mediana
         # della zona lo stesso posto valeva meno in un raggio piccolo di Near you (Bin Qirdan 36 a 1.500 km, 46 a 3.000;
@@ -77,7 +82,7 @@ def build(feats: pd.DataFrame, site_id: str, test_id: str, test: dict, target: d
         sites.append({"cells": sub.index.tolist(), "score": float(sub["score"].iloc[0]), "h3": top,
                       "lat": float(sub.loc[top, "lat"]), "lon": float(sub.loc[top, "lon"]),
                       "kappa": float(sub.loc[top, "kappa"])})
-    sites.sort(key=lambda s: -s["score"])
+    sites.sort(key=lambda s: (-s["score"], s["h3"]))   # pari voto: per id H3, non per ordine di arrivo
     chosen = []
     for s in sites:                                  # al massimo un sito ogni 100 km
         if all(km(s["lat"], s["lon"], c["lat"], c["lon"]) > 100 for c in chosen):

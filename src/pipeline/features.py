@@ -69,7 +69,13 @@ def main() -> int:
     # fase a 30 m (fine.py): per gli esagoni calcolati, i valori esatti alla baseline comune con LOLA
     fine_path = config.INTERIM / "fine.parquet"
     if fine_path.exists():
-        fine = pd.read_parquet(fine_path).drop(columns=["role", "n_px"], errors="ignore")
+        fine = pd.read_parquet(fine_path)
+        # il campione casuale fisso (fine.py, seed 0): la base dei percentili di terreno in score.py, che così
+        # non cambia quando l'export aggiunge candidati al 30 m. Solo gli esagoni con pendenza, rugosità e crateri
+        # tutti calcolati: la stessa base per i tre parametri (19/11)
+        ref = (fine["role"] == "sample") & fine[["slope_p90_30", "roughness_30", "crater_density"]].notna().all(axis=1)
+        cells["ref_sample"] = cells["h3"].isin(fine.loc[ref, "h3"])
+        fine = fine.drop(columns=["role", "n_px"], errors="ignore")
         cells = cells.merge(fine.add_suffix("_fine").rename(columns={"h3_fine": "h3"}), on="h3", how="left")
         used["fine_30m"] = f"{fine['h3'].nunique():,} esagoni"
 

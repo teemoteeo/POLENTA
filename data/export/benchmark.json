@@ -4,8 +4,8 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "Sfera a vuoto da 60 ft, NASA Langley",
     "Moon-Mars test site, DLR",
+    "Sfera a vuoto da 60 ft, NASA Langley",
     "LUNA (DLR + ESA)"
    ]
   },
@@ -14,8 +14,9 @@
    "best_new": "r01",
    "facility": [
     "Mars Terrain Simulator e centro lunare ALTEC",
-    "Campo di prova di Huailai (CASC)",
     "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Moon-Mars test site, DLR",
+    "LUNA (DLR + ESA)",
     "Swamp Works, NASA KSC"
    ]
   },
@@ -63,8 +64,8 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "Sfera a vuoto da 60 ft, NASA Langley",
     "Moon-Mars test site, DLR",
+    "Sfera a vuoto da 60 ft, NASA Langley",
     "LUNA (DLR + ESA)"
    ]
   },
@@ -120,8 +121,8 @@
    "best": "r01",
    "best_new": "r01",
    "facility": [
-    "LUNA (DLR + ESA)",
-    "Sfera a vuoto da 60 ft, NASA Langley"
+    "Sfera a vuoto da 60 ft, NASA Langley",
+    "LUNA (DLR + ESA)"
    ]
   },
   "rover_mobility": {

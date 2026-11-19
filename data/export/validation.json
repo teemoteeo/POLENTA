@@ -5,7 +5,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.035,
-    "percentile": 36
+    "percentile": 39
    },
    {
     "id": "etna_cisternazza",
@@ -28,20 +28,20 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.11,
-    "percentile": 80
+    "score": 0.131,
+    "percentile": 88
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.223,
+    "score": 0.224,
     "percentile": 96
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
-    "score": 0.06,
-    "percentile": 59
+    "score": 0.066,
+    "percentile": 64
    },
    {
     "id": "huailai",
@@ -61,7 +61,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.077,
-    "percentile": 89
+    "percentile": 90
    },
    {
     "id": "etna_cisternazza",
@@ -73,25 +73,25 @@
     "id": "teide",
     "name": "Teide, Tenerife",
     "score": 0.066,
-    "percentile": 84
+    "percentile": 85
    },
    {
     "id": "black_point",
     "name": "Black Point Lava Flow, Arizona",
-    "score": 0.059,
-    "percentile": 76
+    "score": 0.067,
+    "percentile": 86
    },
    {
     "id": "sp_crater",
     "name": "SP Crater / San Francisco Volcanic Field, Arizona",
-    "score": 0.082,
-    "percentile": 90
+    "score": 0.071,
+    "percentile": 88
    },
    {
     "id": "meteor_crater",
     "name": "Meteor Crater, Arizona",
-    "score": 0.074,
-    "percentile": 88
+    "score": 0.077,
+    "percentile": 90
    },
    {
     "id": "rye_colorado",
@@ -102,8 +102,8 @@
    {
     "id": "kumtag",
     "name": "Deserto di Kumtag, Cina",
-    "score": 0.037,
-    "percentile": 49
+    "score": 0.039,
+    "percentile": 52
    },
    {
     "id": "tottori",
@@ -150,8 +150,8 @@
    {
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
-    "score": 0.032,
-    "percentile": 30
+    "score": 0.031,
+    "percentile": 34
    },
    {
     "id": "etna_cisternazza",
@@ -174,20 +174,20 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.226,
-    "percentile": 95
+    "score": 0.235,
+    "percentile": 96
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.067,
-    "percentile": 63
+    "score": 0.075,
+    "percentile": 71
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
     "score": 0.028,
-    "percentile": 23
+    "percentile": 28
    },
    {
     "id": "huailai",
@@ -206,8 +206,8 @@
    {
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
-    "score": 0.063,
-    "percentile": 77
+    "score": 0.06,
+    "percentile": 74
    },
    {
     "id": "etna_cisternazza",
@@ -218,26 +218,26 @@
    {
     "id": "teide",
     "name": "Teide, Tenerife",
-    "score": 0.042,
-    "percentile": 55
+    "score": 0.039,
+    "percentile": 51
    },
    {
     "id": "black_point",
     "name": "Black Point Lava Flow, Arizona",
-    "score": 0.065,
-    "percentile": 79
+    "score": 0.072,
+    "percentile": 83
    },
    {
     "id": "sp_crater",
     "name": "SP Crater / San Francisco Volcanic Field, Arizona",
-    "score": 0.207,
-    "percentile": 100
+    "score": 0.18,
+    "percentile": 99
    },
    {
     "id": "meteor_crater",
     "name": "Meteor Crater, Arizona",
-    "score": 0.08,
-    "percentile": 85
+    "score": 0.082,
+    "percentile": 87
    },
    {
     "id": "rye_colorado",
@@ -248,8 +248,8 @@
    {
     "id": "kumtag",
     "name": "Deserto di Kumtag, Cina",
-    "score": 0.032,
-    "percentile": 44
+    "score": 0.034,
+    "percentile": 46
    },
    {
     "id": "tottori",
@@ -297,7 +297,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.035,
-    "percentile": 34
+    "percentile": 38
    },
    {
     "id": "etna_cisternazza",
@@ -320,20 +320,20 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.147,
-    "percentile": 88
+    "score": 0.167,
+    "percentile": 92
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.185,
-    "percentile": 93
+    "score": 0.19,
+    "percentile": 94
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
-    "score": 0.046,
-    "percentile": 50
+    "score": 0.054,
+    "percentile": 57
    },
    {
     "id": "huailai",
@@ -353,7 +353,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.077,
-    "percentile": 90
+    "percentile": 91
    },
    {
     "id": "etna_cisternazza",
@@ -364,26 +364,26 @@
    {
     "id": "teide",
     "name": "Teide, Tenerife",
-    "score": 0.063,
-    "percentile": 82
+    "score": 0.064,
+    "percentile": 84
    },
    {
     "id": "black_point",
     "name": "Black Point Lava Flow, Arizona",
-    "score": 0.059,
-    "percentile": 77
+    "score": 0.068,
+    "percentile": 87
    },
    {
     "id": "sp_crater",
     "name": "SP Crater / San Francisco Volcanic Field, Arizona",
-    "score": 0.08,
-    "percentile": 91
+    "score": 0.073,
+    "percentile": 90
    },
    {
     "id": "meteor_crater",
     "name": "Meteor Crater, Arizona",
-    "score": 0.075,
-    "percentile": 89
+    "score": 0.079,
+    "percentile": 91
    },
    {
     "id": "rye_colorado",
@@ -394,8 +394,8 @@
    {
     "id": "kumtag",
     "name": "Deserto di Kumtag, Cina",
-    "score": 0.035,
-    "percentile": 49
+    "score": 0.038,
+    "percentile": 53
    },
    {
     "id": "tottori",
@@ -443,7 +443,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.015,
-    "percentile": 17
+    "percentile": 16
    },
    {
     "id": "etna_cisternazza",
@@ -466,14 +466,14 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.1,
-    "percentile": 77
+    "score": 0.092,
+    "percentile": 80
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.04,
-    "percentile": 42
+    "score": 0.049,
+    "percentile": 63
    },
    {
     "id": "death_valley",
@@ -511,25 +511,25 @@
     "id": "teide",
     "name": "Teide, Tenerife",
     "score": 0.02,
-    "percentile": 41
+    "percentile": 38
    },
    {
     "id": "black_point",
     "name": "Black Point Lava Flow, Arizona",
     "score": 0.028,
-    "percentile": 53
+    "percentile": 50
    },
    {
     "id": "sp_crater",
     "name": "SP Crater / San Francisco Volcanic Field, Arizona",
     "score": 0.035,
-    "percentile": 60
+    "percentile": 57
    },
    {
     "id": "meteor_crater",
     "name": "Meteor Crater, Arizona",
-    "score": 0.138,
-    "percentile": 84
+    "score": 0.152,
+    "percentile": 87
    },
    {
     "id": "rye_colorado",
@@ -541,7 +541,7 @@
     "id": "kumtag",
     "name": "Deserto di Kumtag, Cina",
     "score": 0.012,
-    "percentile": 7
+    "percentile": 6
    },
    {
     "id": "tottori",
@@ -588,8 +588,8 @@
    {
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
-    "score": 0.017,
-    "percentile": 2
+    "score": 0.014,
+    "percentile": 1
    },
    {
     "id": "etna_cisternazza",
@@ -612,20 +612,20 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.16,
-    "percentile": 87
+    "score": 0.254,
+    "percentile": 93
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.066,
-    "percentile": 44
+    "score": 0.072,
+    "percentile": 52
    },
    {
     "id": "death_valley",
     "name": "Death Valley, California",
-    "score": 0.027,
-    "percentile": 10
+    "score": 0.024,
+    "percentile": 8
    },
    {
     "id": "huailai",
@@ -644,8 +644,8 @@
    {
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
-    "score": 0.027,
-    "percentile": 22
+    "score": 0.021,
+    "percentile": 9
    },
    {
     "id": "etna_cisternazza",
@@ -656,26 +656,26 @@
    {
     "id": "teide",
     "name": "Teide, Tenerife",
-    "score": 0.027,
-    "percentile": 23
+    "score": 0.025,
+    "percentile": 16
    },
    {
     "id": "black_point",
     "name": "Black Point Lava Flow, Arizona",
-    "score": 0.058,
-    "percentile": 56
+    "score": 0.096,
+    "percentile": 80
    },
    {
     "id": "sp_crater",
     "name": "SP Crater / San Francisco Volcanic Field, Arizona",
-    "score": 0.121,
-    "percentile": 90
+    "score": 0.12,
+    "percentile": 89
    },
    {
     "id": "meteor_crater",
     "name": "Meteor Crater, Arizona",
-    "score": 0.025,
-    "percentile": 18
+    "score": 0.031,
+    "percentile": 23
    },
    {
     "id": "rye_colorado",
@@ -686,8 +686,8 @@
    {
     "id": "kumtag",
     "name": "Deserto di Kumtag, Cina",
-    "score": 0.12,
-    "percentile": 90
+    "score": 0.187,
+    "percentile": 98
    },
    {
     "id": "tottori",
@@ -758,14 +758,14 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.75,
+    "score": 0.722,
     "percentile": 97
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
     "score": 0.234,
-    "percentile": 79
+    "percentile": 81
    },
    {
     "id": "death_valley",
@@ -809,19 +809,19 @@
     "id": "black_point",
     "name": "Black Point Lava Flow, Arizona",
     "score": 0.2,
-    "percentile": 64
+    "percentile": 61
    },
    {
     "id": "sp_crater",
     "name": "SP Crater / San Francisco Volcanic Field, Arizona",
-    "score": 0.188,
+    "score": 0.197,
     "percentile": 61
    },
    {
     "id": "meteor_crater",
     "name": "Meteor Crater, Arizona",
-    "score": 0.219,
-    "percentile": 68
+    "score": 0.226,
+    "percentile": 69
    },
    {
     "id": "rye_colorado",
@@ -833,7 +833,7 @@
     "id": "kumtag",
     "name": "Deserto di Kumtag, Cina",
     "score": 0.227,
-    "percentile": 71
+    "percentile": 69
    },
    {
     "id": "tottori",
@@ -859,7 +859,7 @@
     "id": "mauna_kea",
     "name": "Mauna Kea, Hawaii",
     "score": 0.243,
-    "percentile": 47
+    "percentile": 46
    },
    {
     "id": "hi_seas",

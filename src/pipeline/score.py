@@ -21,14 +21,20 @@ from . import config
 # permafrost_share è 0 per l'85% degli esagoni: in percentile tutti quelli con un po' di permafrost finivano
 # schiacciati nel 10% più alto (7,5% di permafrost prendeva 0,98 contro un target 42-100%, 15/11 01:55).
 PHYSICAL = {"permafrost_share"}
+# Terreno: percentili solo sul campione casuale fisso a 30 m esatto (features.ref_sample), come promette fine.py.
+# Su tutti gli esagoni la base mescolava esatti e stime e cambiava a ogni export, perché ogni export aggiunge
+# candidati al 30 m; i crateri, che esistono solo al 30 m, avevano per base campione + candidati (19/11).
+REF_SAMPLE = {"slope_p90", "roughness", "crater_density"}
 
 
-def s_param(x: np.ndarray, lo: float, hi: float, tau: float, eps: float, physical: bool = False) -> tuple[np.ndarray, float]:
-    """Voto 0-1 per un parametro numerico; restituisce anche il gap fisico se la Luna è fuori dalla Terra."""
+def s_param(x: np.ndarray, lo: float, hi: float, tau: float, eps: float, physical: bool = False,
+            ref: np.ndarray | None = None) -> tuple[np.ndarray, float]:
+    """Voto 0-1 per un parametro numerico; restituisce anche il gap fisico se la Luna è fuori dalla Terra.
+    ref: maschera degli esagoni su cui calcolare i percentili (default: tutti)."""
     if physical:
         D = np.maximum(0, np.maximum(lo - x, x - hi))
         return np.where(np.isfinite(x), np.maximum(eps, np.exp(-(D / (2 * tau)) ** 2)), np.nan), 0.0
-    earth = x[np.isfinite(x)]
+    earth = x[np.isfinite(x) & (True if ref is None else ref)]
     q = np.sort(earth)
     # percentile medio sulle parità (mid-rank): con "≤ v" un parametro con molti valori uguali (permafrost_share
     # è 0 per l'85% degli esagoni) metteva tutti quegli esagoni vicino al target (voto 0,94 senza permafrost, 15/11)
@@ -73,7 +79,9 @@ def score(feats: pd.DataFrame, test: dict, target: dict, rules: dict) -> dict:
             S[p] = s_rock(feats[p], t)
         else:
             lo, hi = (t, t) if not isinstance(t, (list, tuple)) else t
-            S[p], gaps[p] = s_param(feats[p].to_numpy(dtype=float), lo, hi, tau, eps, physical=p in PHYSICAL)
+            # senza fine.parquet non c'è il campione: percentili su tutti gli esagoni, come prima
+            ref = feats["ref_sample"].to_numpy() if p in REF_SAMPLE and "ref_sample" in feats else None
+            S[p], gaps[p] = s_param(feats[p].to_numpy(dtype=float), lo, hi, tau, eps, physical=p in PHYSICAL, ref=ref)
     w = np.array([w_all[p] for p in usable])
     M = np.column_stack([S[p] for p in usable]) if usable else np.empty((len(feats), 0))
     avail = np.isfinite(M)
