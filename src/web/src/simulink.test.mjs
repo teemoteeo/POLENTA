@@ -6,7 +6,7 @@ import assert from 'assert'
 import { load } from 'js-yaml'
 import { plan } from './campaign.js'
 import { ROCK } from './names.js'
-import { parseUnits, parseSoil, parseTexture, textureClass, asciiText, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA } from './simulink.js'
+import { parseUnits, parseSoil, parseTexture, textureClass, asciiText, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA, INFO_COLUMNS, fieldName } from './simulink.js'
 import { crc32 } from './zip.js'
 import { buildReport, reportName, fmt, unit } from './report.js'
 
@@ -22,7 +22,7 @@ const keys = o => Object.keys(o).sort().join(',')
 const NAME_MAX = 31
 
 // unità ammesse: solo SI (angoli in gradi), più quelle di calendario e indice del dossier di campo
-const SI_UNITS = new Set(['deg', 'm', 'm^-2', '1', 'K^-1', 'kg m^-3', 'K', 'Pa', 'N m^-(n+1)', 'N m^-(n+2)', 'J m^-2 K^-1 s^-0.5', 'm s^-1'])
+const SI_UNITS = new Set(['deg', 'm', 'm s^-2', 'm^-2', '1', 'K^-1', 'kg m^-3', 'K', 'Pa', 'N m^-(n+1)', 'N m^-(n+2)', 'J m^-2 K^-1 s^-0.5', 'm s^-1'])
 const SITE_UNITS = new Set(['1', 'month', 'month number (1-12)', 'h/day', 'm s^-1', 'nW cm^-2 sr^-1'])
 
 // le unità del CSV del suolo sono quelle che la conversione si aspetta
@@ -151,23 +151,48 @@ for (const site of targets) {
     const tn = numericOnly(t)
     assert(onlyNumbers(tn) && Object.is(tn.soil.kphi, t.soil.kphi) && Object.is(tn.physical.t_mean, t.physical.t_mean) && !('name' in tn))
 
-    // pacchetto: cinque file, .mat validi, script e README coerenti, zip leggibile
-    const files = Object.fromEntries(pkg.files.map(x => [x.name, x.data]))
-    for (const b of [files[pkg.names.target], files[pkg.names.analogue]]) {
-      assert.equal(b.length % 8, 0)
-      assert.equal(String.fromCharCode(b[126], b[127]), 'IM')
+    // pacchetto (schema 3): struct piatte, stessi campi, solo numeri, unità nel nome
+    const F = pkg.flat
+    assert.deepEqual(Object.keys(F.target), Object.keys(F.analogue), `${where}: campi diversi tra target e analogue`)
+    assert.deepEqual(Object.keys(F.target), Object.keys(F.target_range))
+    assert.deepEqual(F.info.map(x => x.field), Object.keys(F.target), `${where}: info non è una riga per campo`)
+    for (const x of F.info) assert.deepEqual(Object.keys(x), INFO_COLUMNS, `${where}: colonne di info`)
+    for (const [k, v] of Object.entries(F.target)) {
+      assert(typeof v === 'number' && typeof F.analogue[k] === 'number', `${where} ${k}: non è un numero`)
+      assert(/^[A-Za-z][A-Za-z0-9_]*$/.test(k) && k.length <= NAME_MAX, `${where}: nome ${k}`)
+      const [lo, hi] = F.target_range[k]
+      assert(Number.isNaN(v) || (lo <= v && v <= hi), `${where} ${k}: fuori intervallo`)
     }
+    for (const x of F.info) {
+      assert(SI_UNITS.has(x.unit), `${where} ${x.field}: unità ${x.unit}`)
+      assert.equal(x.field, fieldName(x.field.replace(/_(deg|m|per_m2|K|kg_m3|Pa|m_s|m_s2|per_K|tiu)$/, ''), x.unit), `${where} ${x.field}: suffisso dell'unità`)
+      if (x.group === 'matched') assert(x.weight > 0 && x.target_source && x.analogue_source && x.range_type, `${where} ${x.field}: peso o fonti`)
+      if (Number.isFinite(x.target) && x.group !== 'location') assert(x.target_source, `${where} ${x.field}: fonte del target`)
+    }
+    // stessi numeri del modello interno: gravità, suolo, temperatura, valori del voto
+    assert.equal(F.target.gravity_m_s2, t.gravity_m_s2); assert.equal(F.analogue.gravity_m_s2, 9.80665)
+    assert(Object.is(F.target.soil_kc, t.soil.kc) && Object.is(F.analogue.soil_kc, a.soil.kc) && Object.is(F.target.t_mean_K, t.physical.t_mean))
+    assert(Object.is(F.analogue.boulder_cover, a.physical.rock_cover) && 'thermal_inertia_tiu' in F.target)
+    for (const p of Object.keys(t.values)) assert(Object.is(F.analogue[fieldName(p, t.units[p])], a.values[p]), `${where} ${p}`)
+    assert(F.meta.site === t.name && F.meta.test === testId && F.meta.similarity_score === r.score && F.meta.target_rock_class)
+    names(F.target, where); names(F.meta, where); clean(F.target, where); clean(F.analogue, where)
+
+    // file: un .mat valido, script e README coerenti, zip con quattro file
+    const files = Object.fromEntries(pkg.files.map(x => [x.name, x.data]))
+    const b = files[pkg.names.mat]
+    assert.equal(b.length % 8, 0)
+    assert.equal(String.fromCharCode(b[126], b[127]), 'IM')
     const m = files['init_polenta.m']
-    assert(m.includes(pkg.names.target) && m.includes(pkg.names.analogue) && m.includes('polenta_target_num'))
+    assert(m.includes(pkg.names.mat) && m.includes('struct2table') && !m.includes('polenta_target'))
     const rd = files['README.txt']
-    for (const k of [...Object.keys(t.values), ...Object.keys(t.physical), ...Object.keys(t.soil.units)]) assert(rd.includes(k), `README: manca ${k}`)
-    assert(files['SOURCES.txt'].includes(t.body_source))
-    assert(files['SOURCES.txt'].includes(`BEKKER-WONG SOIL - ${a.name} (Earth)`) && files['SOURCES.txt'].includes(a.soil.source.kc))
+    for (const k of Object.keys(F.target)) assert(rd.includes(k), `README: manca ${k}`)
+    assert(/^[\x00-\x7f]*$/.test(rd) && /^[\x00-\x7f]*$/.test(files['SOURCES.txt']), `${where}: testo non ASCII`)
+    assert(files['SOURCES.txt'].includes(asciiText(t.body_source)) && files['SOURCES.txt'].includes(asciiText(a.soil.source.kc)))
     const z = pkg.zip, zv = new DataView(z.buffer)
     assert.equal(zv.getUint32(0, true), 0x04034b50)
     const eocd = z.length - 22
     assert.equal(zv.getUint32(eocd, true), 0x06054b50)
-    assert.equal(zv.getUint16(eocd + 10, true), 5)
+    assert.equal(zv.getUint16(eocd + 10, true), 4)
     // primo file: CRC e dati corrispondono
     const nameLen = zv.getUint16(26, true), size = zv.getUint32(18, true)
     assert.equal(crc32(z.subarray(30 + nameLen, 30 + nameLen + size)), zv.getUint32(14, true))

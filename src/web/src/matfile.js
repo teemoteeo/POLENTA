@@ -4,6 +4,7 @@
 //   array di numeri          → double 1×n
 //   string                   → char 1×n (UTF-16)
 //   oggetto semplice         → struct 1×1, campi nell'ordine delle chiavi
+//   array di oggetti         → struct array 1×n, stessi campi in ogni elemento (in MATLAB: struct2table)
 // Formato: MathWorks, "MAT-File Format" (Level 5): intestazione da 128 byte, poi elementi miMATRIX allineati a 8 byte.
 
 const mi = { INT8: 1, INT32: 5, UINT32: 6, DOUBLE: 9, UINT16: 4, MATRIX: 14 }
@@ -49,6 +50,18 @@ function matrix(name, value) {
   const nameEl = element(mi.INT8, ascii(name))
   let body
   if (value === null || value === undefined || typeof value === 'number') value = [value ?? NaN]
+  if (Array.isArray(value) && value.length && value.every(x => x && typeof x === 'object' && !Array.isArray(x))) {
+    // struct array 1×n: nomi dei campi una volta, poi gli elementi uno dopo l'altro, ciascuno con tutti i campi
+    const keys = Object.keys(value[0]).map(checkName)
+    for (const x of value) if (Object.keys(x).join() !== keys.join()) throw new Error(`struct array "${name}": campi diversi tra gli elementi`)
+    const len = Math.max(...keys.map(k => k.length), 0) + 1
+    const names = new Uint8Array(len * keys.length)
+    keys.forEach((k, i) => names.set(ascii(k), i * len))
+    body = [...head(mx.STRUCT), element(mi.INT32, int32s([1, value.length])), nameEl,
+      element(mi.INT32, int32s([len])), element(mi.INT8, names),
+      ...value.flatMap(x => keys.map(k => matrix('', x[k])))]
+    return element(mi.MATRIX, concat(body))
+  }
   if (Array.isArray(value)) {
     if (!value.every(x => x === null || typeof x === 'number')) throw new Error(`array non numerico in "${name}"`)
     const b = new Uint8Array(8 * value.length), v = new DataView(b.buffer)

@@ -26,30 +26,27 @@ Earth places have no measured soil mechanics. Their Bekker-Wong values in the Si
 - **How the class is found:** the SoilGrids sand and clay of the top 5 cm give the USDA texture class.
 - **Where the values come from:** for each class, `data/config/soil_by_texture.csv` holds the bevameter and shear tests of Wong (2010), Tables 4.1, 5.1 and 5.2.
 
-The reference soils were moist, while the analogue places are dry. If you measure the soil on site (bevameter, shear vane), replace the estimate with your values after loading the package. Keep the units of `polenta_analogue.soil.units`:
+The reference soils were moist, while the analogue places are dry. If you measure the soil on site (bevameter, shear vane), replace the estimate with your values after loading the package. Keep the units in the field names (the same as `info.unit`):
 
 | Field | Unit |
 |---|---|
-| `cohesion` | Pa |
-| `friction_angle` | deg |
-| `kc` | N m^-(n+1) |
-| `kphi` | N m^-(n+2) |
-| `n` | 1 |
+| `soil_cohesion_Pa` | Pa |
+| `soil_friction_angle_deg` | deg |
+| `soil_kc` | N m^-(n+1) |
+| `soil_kphi` | N m^-(n+2) |
+| `soil_n` | 1 |
 
 ```matlab
-init_polenta                                    % loads polenta_target, polenta_analogue and the _num structs
-s = polenta_analogue.soil;
-s.cohesion = 1200;        s.range.cohesion = [900 1500];          % Pa
-s.friction_angle = 33;    s.range.friction_angle = [31 35];       % deg
-s.kc = 2.1e4; s.kphi = 1.1e6; s.n = 0.9;                          % from your bevameter fit (same test)
-for k = {'cohesion','friction_angle','kc','kphi','n'}
-    s.status.(k{1}) = 'measured';
-    s.source.(k{1}) = 'Our bevameter campaign, 2027-05-12, plate 0.1 m, report XYZ-123 p.4';
-end
-polenta_analogue.soil = s;
-for k = {'cohesion','friction_angle','kc','kphi','n'}                % the numbers-only copy used by Simulink
-    polenta_analogue_num.soil.(k{1}) = s.(k{1});
-    polenta_analogue_num.soil.range.(k{1}) = s.range.(k{1});
+init_polenta                                     % loads target, analogue, target_range, info, meta
+analogue.soil_cohesion_Pa        = 1200;         % Pa
+analogue.soil_friction_angle_deg = 33;           % deg
+analogue.soil_kc = 2.1e4; analogue.soil_kphi = 1.1e6; analogue.soil_n = 0.9;   % from your bevameter fit (same test)
+src = 'Our bevameter campaign, 2027-05-12, plate 0.1 m, report XYZ-123 p.4';
+for k = {'soil_cohesion_Pa','soil_friction_angle_deg','soil_kc','soil_kphi','soil_n'}
+    i = strcmp(info.field, k{1});
+    info.analogue(i) = analogue.(k{1});
+    info.analogue_status{i} = 'measured';
+    info.analogue_source{i} = src;
 end
 ```
 
@@ -165,6 +162,6 @@ Each place card has two download buttons. Both cover the chosen site (Moon or Ma
   - the key figures: similarity, weight with data, and the share that holds, is partial or breaks;
   - five tables: locations; matched parameters (weight, target range, place value, similarity, state); physical properties; Bekker-Wong soil mechanics with status; field conditions;
   - notes and numbered references, with DOIs as links.
-- **Simulink package (.zip).** The same values in SI units as MATLAB structs: target and analogue with the same fields, `init_polenta.m`, `README.txt` and `SOURCES.txt`.
+- **Simulink package (.zip).** One `.mat` with flat structs: `target` and `analogue` (same fields, numbers only, unit in the field name), `target_range`, `info` (one row per field with unit, similarity, weight, state and sources) and `meta`; plus `init_polenta.m`, `README.txt` and `SOURCES.txt`.
 
 The two downloads are built by the same code (`buildTarget` / `buildAnalogue` in `simulink.js`), so the report and the `.mat` files always show the same numbers.

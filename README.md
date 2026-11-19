@@ -39,21 +39,62 @@ Parameters in the score: 90th percentile slope, roughness, crater density, bould
 
 ## MATLAB / Simulink export
 
-Every place card has one button, **Simulink package (.zip)**. The package is built in the browser from the same data the card shows, so it always matches the place on screen (Best on Earth, Unexplored or Near you). It unzips to one folder:
+Every place card has two buttons, built in the browser from the same data the card shows, so they always match the place on screen (Best on Earth, Unexplored or Near you):
+- **Data report (.html):** the chosen site and the place on Earth in one short document, with tables and numbered references. It prints to PDF.
+- **Simulink package (.zip):** the same values for MATLAB and Simulink, in the folder described below.
 
-| File | MATLAB variables | Content |
-|---|---|---|
-| `polenta_<site>__<test>__target.mat` | `polenta_target`, `polenta_target_num` | The Moon or Mars site |
-| `polenta_<site>__<test>__<place>.mat` | `polenta_analogue`, `polenta_analogue_num` | The place on Earth |
-| `init_polenta.m` | | Loads both files, checks they belong together, prints the comparison with units |
-| `README.txt` | | Every field, its unit and meaning, what NaN and the ranges mean, how to use it in Simulink |
-| `SOURCES.txt` | | The source of every number, only the part that applies to the site |
+| File | Content |
+|---|---|
+| `polenta_<site>__<test>__<place>.mat` | All the data, in five variables (below) |
+| `init_polenta.m` | Loads the file, turns `info` into a table, prints the comparison with units |
+| `README.txt` | Variables, every field with its unit, how to use them in Simulink |
+| `SOURCES.txt` | The source of every field, for the site and for the place on Earth |
 
-**Units** (schema `polenta-simulink-2`): SI throughout, angles in degrees, dimensionless fractions 0-1 with unit `1`. Temperatures in K, densities in kg m^-3, cohesion in Pa, crater density in m^-2, Bekker-Wong `kc` and `kphi` in N m^-(n+1) and N m^-(n+2). Every group of numbers has its units next to it (`units`, `soil.units`, `physical_units`, `site_units`), and the conversions from the source units are in `src/web/src/simulink.js` (`SI`, `PHYSICAL`, `SOIL`). `polenta_*_num` is the same struct with numbers only, ready for a Simulink Constant block or `Simulink.Bus.createObject`. Text fields in the `.mat` are ASCII only (accents and symbols such as ± are spelled out), so MATLAB, Octave and Python read them the same way.
+The `.mat` uses flat structs, one level deep (schema `polenta-simulink-3`):
+- **`target` and `analogue`:** the site and the place on Earth.
+  - Each has one field per quantity, with the same names in both.
+  - They hold numbers only, so they work directly as a Simulink Constant block value (`target.soil_kc`) or as a bus (`Simulink.Bus.createObject(target)`).
+- **`target_range`:** `[min max]` for each target field.
+- **`info`:** one row per field. In MATLAB it becomes a table. Its columns:
+  - `group`: location, matched, physical or soil;
+  - `quantity` and `unit`;
+  - target and analogue values with their ranges;
+  - `weight` and `similarity`;
+  - `state`: holds, partial or breaks;
+  - status, range type, sources and notes.
+- **`meta`:** site, test, place, similarity and κ, elevation datums, rock classes, H3 cells, and field logistics (snow-free months, low-angle Sun, bare ground, night lights, protected area).
 
-Both structs share one schema: `name`, `world`, `lat_deg`, `lon_deg` (planetocentric, east-positive), `gravity_m_s2` and `body_radius_m` (NASA NSSDCA fact sheets; Earth: standard gravity 9.80665), `values.<param>`, `range.<param>` (`[min max]`), `units.<param>`, `range_type.<param>` (literature value +/- uncertainty, computed from LOLA +/- tolerance, or median over the landing region), `source.<param>`, `rock_class` with `rock_class_name`, `soil` (Bekker-Wong `cohesion`, `friction_angle`, `kc`, `kphi`, `n`, with `range`, `units`, `source`, `status`), `physical` (thermal inertia, rock cover, subsurface ice, mean temperature and half range, density 0-2 m, FeO, elevation, air density, wind) with `physical_units`, `physical_source`, `physical_notes`, and `elevation_datum` (LOLA sphere, MOLA areoid or EGM96 geoid: heights of different bodies are not comparable). On Earth the physical quantities come from the place dossier: elevation (NASADEM / AW3D30), surface temperature (MODIS MOD11A2), soil density 0-2 m (SoilGrids, 6 layers), air density and wind (MERRA-2); thermal inertia, rock cover, ice and FeO have no measured Earth equivalent and stay `NaN`. `notes` flags parameters that are matching indices, not physical quantities (`grain_proxy`, `rock_cover`). `polenta_analogue` adds `match` (score, kappa, per-parameter similarity, state and weight) and `site` (country, H3 cells, field dossier, with `site_units`). `NaN` means no data, never zero. `data_export` is the date of the pipeline export and `data_version` the repository commit the app was built from (Vercel: `VERCEL_GIT_COMMIT_SHA`; locally `git rev-parse`, with `-dirty` for uncommitted changes), so every package traces back to its code and data. For Phoenix and Gale, `notes` flags slope, roughness and craters as literature values with a definition different from the Earth one (not yet recomputed as for the Moon).
+Fields:
+- **Location:** `lat_deg`, `lon_deg` (planetocentric, east-positive), `gravity_m_s2`, `radius_m` (NASA NSSDCA fact sheets; Earth: standard gravity 9.80665).
+- **Matched:** the parameters of the chosen test.
+- **Physical:** `thermal_inertia_tiu`, `boulder_cover`, `subsurface_ice`, `t_mean_K`, `t_half_range_K`, `bulk_density_0_2m_kg_m3`, `feo`, `elevation_m`, `air_density_kg_m3`, `wind_m_s`.
+- **Soil:** `soil_cohesion_Pa`, `soil_friction_angle_deg`, `soil_kc`, `soil_kphi`, `soil_n`.
 
-Bekker-Wong values come from `data/config/soil_mechanics.csv`, one row per site and parameter (`site` = `*` applies to the whole world), with `[lo, hi]` and a status: `measured` (in situ at that site), `inferred` (model fit to rover data at that site), `literature` (checked against the source, not specific to the site), `literature [NV]` (not yet checked) or `not measured` (`NaN`). Central value: the authors' value if given, else the median of the measured values. Mars: Phoenix cohesion and friction angle measured by the lander arm (Shaw et al. 2009), Gale inferred from Curiosity drives (Arvidson et al. 2014); `kc`, `kphi` and `n` are not constrained by measurements and stay `NaN`. Moon: the Apollo rover (LRV) trafficability set, Lunar Sourcebook Table 9.14 (Carrier et al. 1991, after Costes et al. 1972), with the Apollo range for cohesion and friction angle (Table 9.11, confirmed by NASA SP-330); Aristarchus uses the friction angle of pyroclastic deposits (31 deg, Bickel et al. 2019). Earth places have no measured soil mechanics: their `soil` is estimated from the soil texture class (`status` = `estimated (texture class)`). Sand and clay of the top 5 cm (SoilGrids) give the USDA texture class (Soil Survey Manual 2017 triangle); `data/config/soil_by_texture.csv` gives, per class, the bevameter and shear tests of Wong (2010), *Terramechanics and Off-Road Vehicle Engineering*, 2nd ed., Tables 4.1, 5.1 and 5.2 (sand, sandy loam, loam, clay loam of Eastern Ontario): `n`, `kc`, `kphi` from the single test with the best fit (so the three belong together), cohesion and friction angle as the median of the tests, ranges as min-max. Clays have no reference soil and stay `NaN`. The reference soils were moist and the analogues are dry: for more precision measure on site and replace the values with your own dataset. The code is in `src/web/src/simulink.js` (schema, units, package), `src/web/src/matfile.js` (MAT Level 5 writer) and `src/web/src/zip.js` (zip writer). `node src/simulink.test.mjs` checks every site × test pair (schema, SI units, conversions, ranges, sources, zip), and with `OUT=<dir>` it also writes the packages.
+**Units:** SI throughout, angles in degrees, and the unit is in the field name:
+
+| Suffix | Unit |
+|---|---|
+| `_deg` | degrees |
+| `_m` | metres |
+| `_per_m2` | per square metre |
+| `_K` | kelvin |
+| `_kg_m3` | kg m^-3 |
+| `_Pa` | pascal |
+| `_m_s` | m s^-1 |
+| `_m_s2` | m s^-2 |
+| `_per_K` | K^-1 |
+| `_tiu` | thermal inertia units, J m^-2 K^-1 s^-0.5 |
+
+No suffix means dimensionless (fractions 0-1). The exceptions are `soil_kc` and `soil_kphi`, in N m^-(n+1) and N m^-(n+2): their units depend on `soil_n`.
+
+**Reading the values:**
+- `rock_cover` and `grain_proxy` are matching indices. For physics, use `boulder_cover` and `thermal_inertia_tiu`.
+- `NaN` means no data, never zero.
+- Elevations of different bodies use different datums (`meta`) and are not comparable.
+- Text in the `.mat` is ASCII only, so MATLAB, Octave and Python read it the same way.
+- For Phoenix and Gale, `info.note` flags slope, roughness and craters as literature values with a definition different from the Earth one.
+
+Bekker-Wong values come from `data/config/soil_mechanics.csv`, one row per site and parameter (`site` = `*` applies to the whole world), with `[lo, hi]` and a status: `measured` (in situ at that site), `inferred` (model fit to rover data at that site), `literature` (checked against the source, not specific to the site), `literature [NV]` (not yet checked) or `not measured` (`NaN`). Central value: the authors' value if given, else the median of the measured values. Mars: Phoenix cohesion and friction angle measured by the lander arm (Shaw et al. 2009), Gale inferred from Curiosity drives (Arvidson et al. 2014); `kc`, `kphi` and `n` are not constrained by measurements and stay `NaN`. Moon: the Apollo rover (LRV) trafficability set, Lunar Sourcebook Table 9.14 (Carrier et al. 1991, after Costes et al. 1972), with the Apollo range for cohesion and friction angle (Table 9.11, confirmed by NASA SP-330); Aristarchus uses the friction angle of pyroclastic deposits (31 deg, Bickel et al. 2019). Earth places have no measured soil mechanics: their `soil` is estimated from the soil texture class (`status` = `estimated (texture class)`). Sand and clay of the top 5 cm (SoilGrids) give the USDA texture class (Soil Survey Manual 2017 triangle); `data/config/soil_by_texture.csv` gives, per class, the bevameter and shear tests of Wong (2010), *Terramechanics and Off-Road Vehicle Engineering*, 2nd ed., Tables 4.1, 5.1 and 5.2 (sand, sandy loam, loam, clay loam of Eastern Ontario): `n`, `kc`, `kphi` from the single test with the best fit (so the three belong together), cohesion and friction angle as the median of the tests, ranges as min-max. Clays have no reference soil and stay `NaN`. The reference soils were moist and the analogues are dry: for more precision measure on site and replace the values with your own dataset. The code is in `src/web/src/simulink.js` (schema, units, package), `src/web/src/report.js` (data report), `src/web/src/matfile.js` (MAT Level 5 writer, with struct arrays) and `src/web/src/zip.js` (zip writer). `node src/simulink.test.mjs` checks every site × test pair (schema, SI units, conversions, ranges, sources, zip), and with `OUT=<dir>` it also writes the packages.
 
 ## Data
 

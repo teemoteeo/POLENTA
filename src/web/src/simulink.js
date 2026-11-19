@@ -2,21 +2,21 @@
 // Così il file corrisponde sempre al posto che si sta guardando, anche in Unexplored e Near you (dove l'indice in classifica cambia).
 //
 // Un pacchetto .zip per sito × test × posto (cartella polenta_<sito>__<test>__<posto>/):
-//   polenta_<sito>__<test>__target.mat     variabili polenta_target   e polenta_target_num   (Luna o Marte)
-//   polenta_<sito>__<test>__<posto>.mat    variabili polenta_analogue e polenta_analogue_num (esagono sulla Terra)
-//   init_polenta.m                         carica i due file e stampa il confronto, con le unità
-//   README.txt                             campi, unità, significato di NaN e degli intervalli, uso in Simulink
-//   SOURCES.txt                            fonte di ogni numero (pagina e tabella dove le abbiamo verificate)
+//   polenta_<sito>__<test>__<posto>.mat   variabili target, analogue, target_range, info, meta (flatten, sotto)
+//   init_polenta.m                        carica il .mat, fa di info una table e stampa il confronto
+//   README.txt                            variabili, unità, campi, uso in Simulink
+//   SOURCES.txt                           fonte di ogni campo, per il sito e per la Terra
 //
-// Unità (schema polenta-simulink-2): tutto in SI, angoli in gradi; frazioni adimensionali 0-1 con unità '1'.
-// Ogni gruppo di numeri ha accanto la struct delle unità (units, soil.units, physical_units, site_units).
-// polenta_*_num è la stessa struct con i soli numeri: si può passare direttamente a Simulink (Constant, bus).
-// Target e analogue hanno lo stesso schema, campo per campo; solo l'analogue ha in più match e site.
+// Schema polenta-simulink-3 (20/11, Rocco: "troppe struct una dentro l'altra"): struct piatte, un livello solo.
+// target e analogue hanno gli stessi campi, solo numeri, con l'unità nel nome (slope_p90_deg, soil_cohesion_Pa): si passano
+// così come sono a Simulink. Unità SI, angoli in gradi; frazioni 0-1 senza suffisso. Testo e fonti stanno in info e meta.
+// buildTarget / buildAnalogue restano il modello interno (lo usa anche il report): flatten lo porta nel formato del .mat.
 
 import { matFile } from './matfile.js'
 import { zipFiles } from './zip.js'
+import { PARAM_EN } from './names.js'
 
-export const SCHEMA = 'polenta-simulink-2'
+export const SCHEMA = 'polenta-simulink-3'
 export const UNITS_CONVENTION = 'SI units; angles in degrees; dimensionless fractions 0-1 have unit 1'
 
 // corpo celeste: gravità superficiale, raggio medio, riferimento delle quote
@@ -57,7 +57,7 @@ const PHYSICAL_NOTE = {
   t_mean: 'mean surface temperature',
   t_half_range: 'half of the surface temperature excursion (mean +/- this value)',
   feo: 'FeO mass fraction of the regolith',
-  elevation: 'height above the body datum (see elevation_datum): Moon, Mars and Earth heights are not comparable',
+  elevation: 'height above the body datum: Moon, Mars and Earth heights are not comparable',
 }
 
 // Bekker-Wong: campo → [parametro in soil_mechanics.csv, unità nel CSV, unità SI, fattore]
@@ -316,201 +316,227 @@ export function numericOnly(x) {
 }
 
 export const fileNames = (site, testId, displayName) => {
-  const base = `polenta_${site.id}__${testId}`
-  return { target: `${base}__target.mat`, analogue: `${base}__${slug(displayName)}.mat`, init: 'init_polenta.m',
-    readme: 'README.txt', sources: 'SOURCES.txt', zip: `${base}__${slug(displayName)}.zip`, folder: `${base}__${slug(displayName)}` }
+  const base = `polenta_${site.id}__${testId}__${slug(displayName)}`
+  return { mat: `${base}.mat`, init: 'init_polenta.m', readme: 'README.txt', sources: 'SOURCES.txt', zip: `${base}.zip`, folder: base }
 }
 
 // Testo dei .mat solo ASCII: MATLAB legge l'UTF-16, ma Octave, scipy e le console Windows non sempre (Martínez → Mart?nez).
 const ASCII = { '±': '+/-', '°': ' deg', '§': 'sec. ', '→': '->', '–': '-', '—': '-', '’': "'", '‘': "'", '“': '"', '”': '"', '×': 'x',
   '²': '^2', '³': '^3', '⁻': '^-', '¹': '1', '½': '1/2', 'µ': 'u', 'Δ': 'delta ' }
 export const asciiText = s => s.replace(/[^\x00-\x7f]/g, c => ASCII[c] ?? c.normalize('NFKD').replace(/[^\x00-\x7f]/g, '') ?? '')
-const asciiDeep = x => (typeof x === 'string' ? asciiText(x) : Array.isArray(x) ? x : x && typeof x === 'object' ? map(x, asciiDeep) : x)
+const asciiDeep = x => (typeof x === 'string' ? asciiText(x) : Array.isArray(x) ? x.map(asciiDeep) : x && typeof x === 'object' ? map(x, asciiDeep) : x)
 
-export const targetMat = t => matFile({ polenta_target: asciiDeep(t), polenta_target_num: numericOnly(t) }, `POLENTA ${SCHEMA} target ${t.site_id} ${t.test_id}`)
-export const analogueMat = a => matFile({ polenta_analogue: asciiDeep(a), polenta_analogue_num: numericOnly(a) }, `POLENTA ${SCHEMA} analogue ${a.site_id} ${a.test_id}`)
+// --- Il pacchetto (schema polenta-simulink-3): un .mat con struct piatte, un livello solo -------------------------------
+// target, analogue   un campo per grandezza, solo numeri, stessi nomi; l'unità è nel nome (slope_p90_deg, soil_cohesion_Pa)
+// target_range       [min max] di ogni campo del target, stessi nomi
+// info               una riga per campo (struct array; in MATLAB init_polenta lo trasforma in table): unità, valori, voto,
+//                    peso, stato, fonti, note
+// meta               testo e logistica: sito, test, posto, data dell'export, riferimenti delle quote, roccia, campo
+// Così in Simulink: Constant = target.soil_kc; Simulink.Bus.createObject(target) per un bus.
+
+// unità SI → suffisso del nome del campo; '' dove l'unità è 1 o dipende da n (kc, kphi)
+const SUFFIX = { deg: '_deg', m: '_m', 'm^-2': '_per_m2', K: '_K', 'kg m^-3': '_kg_m3', Pa: '_Pa', 'm s^-1': '_m_s', 'm s^-2': '_m_s2',
+  'K^-1': '_per_K', 'J m^-2 K^-1 s^-0.5': '_tiu', 1: '', 'N m^-(n+1)': '', 'N m^-(n+2)': '' }
+export const fieldName = (key, u) => {
+  if (!(u in SUFFIX)) throw new Error(`unità senza suffisso: ${u} (${key})`)
+  return checkName(`${key}${SUFFIX[u]}`)
+}
+// grandezze fisiche: nome nel .mat e nome per esteso. rock_cover fisico = massi (il rock_cover del voto è un indice)
+export const PHYSICAL_NAME = {
+  thermal_inertia: ['thermal_inertia', 'Thermal inertia'], rock_cover: ['boulder_cover', 'Boulder cover'],
+  subsurface_ice: ['subsurface_ice', 'Subsurface water ice (mass fraction)'], t_mean: ['t_mean', 'Mean surface temperature'],
+  t_half_range: ['t_half_range', 'Surface temperature half range'], bulk_density_0_2m: ['bulk_density_0_2m', 'Bulk density, 0-2 m'],
+  feo: ['feo', 'FeO (mass fraction)'], elevation: ['elevation', 'Elevation'], air_density: ['air_density', 'Air density'], wind: ['wind', 'Wind speed'],
+}
+export const SOIL_NAME = { cohesion: 'Soil cohesion c', friction_angle: 'Soil internal friction angle phi', kc: 'Bekker cohesive modulus kc',
+  kphi: 'Bekker frictional modulus kphi', n: 'Bekker sinkage exponent n' }
+export const INFO_COLUMNS = ['field', 'group', 'quantity', 'unit', 'target', 'target_min', 'target_max', 'analogue', 'analogue_min', 'analogue_max',
+  'weight', 'similarity', 'state', 'target_status', 'analogue_status', 'range_type', 'target_source', 'analogue_source', 'note']
+const TERRAIN_30M = new Set(['slope_p90', 'slope_trav_p90', 'trav_share', 'roughness', 'crater_density'])
+const MAT_NAME_MAX = 31
+const checkName = n => { if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(n) || n.length > MAT_NAME_MAX) throw new Error(`nome non valido: ${n}`); return n }
+
+// dal modello interno (buildTarget / buildAnalogue) alle variabili del .mat
+export function flatten(site, testId, result, t, a, ctx) {
+  const rows = []
+  // colonne di info, in quest'ordine (le colonne della table in MATLAB)
+  const add = r => {
+    const x = { target_min: r.target, target_max: r.target, analogue_min: r.analogue, analogue_max: r.analogue, weight: NaN, similarity: NaN,
+      state: '', target_status: '', analogue_status: '', range_type: '', target_source: '', analogue_source: '', note: '', ...r }
+    rows.push(Object.fromEntries(INFO_COLUMNS.map(c => [c, x[c]])))
+  }
+  const loc = (field, quantity, unit, tv, av, ts = '', as = '') => add({ field, group: 'location', quantity, unit, target: tv, analogue: av, target_source: ts, analogue_source: as })
+  loc('lat_deg', 'Latitude (planetocentric)', 'deg', t.lat_deg, a.lat_deg)
+  loc('lon_deg', 'Longitude (east-positive, -180..180)', 'deg', t.lon_deg, a.lon_deg)
+  loc('gravity_m_s2', 'Surface gravity', 'm s^-2', t.gravity_m_s2, a.gravity_m_s2, t.body_source, a.body_source)
+  loc('radius_m', 'Mean body radius', 'm', t.body_radius_m, a.body_radius_m, t.body_source, a.body_source)
+
+  const plan = Object.fromEntries(result.plan.rows.map(r => [r.p, r]))
+  const terrain = a.site?.terrain_src === '30m' ? 'exact (30 m)' : a.site?.terrain_src ? 'estimated from 500 m (calibrated)' : ''
+  for (const p of Object.keys(t.values)) {
+    const r = plan[p] || {}
+    const es = ctx.earthSource?.(p)
+    add({ field: fieldName(p, t.units[p]), group: 'matched', quantity: PARAM_EN[p] || p, unit: t.units[p],
+      target: t.values[p], target_min: t.range[p][0], target_max: t.range[p][1], analogue: a.values[p],
+      weight: num(r.w), similarity: num(r.s), state: r.state || '', range_type: t.range_type[p],
+      analogue_status: TERRAIN_30M.has(p) ? (p === 'crater_density' && a.site?.terrain_src !== '30m' ? 'computed at 30 m only' : terrain) : '',
+      target_source: t.source[p], analogue_source: es || a.source[p], note: t.notes[p] || '' })
+  }
+  for (const k of Object.keys(t.physical)) {
+    const [key, q] = PHYSICAL_NAME[k] || [k, k]
+    add({ field: fieldName(key, t.physical_units[k]), group: 'physical', quantity: q, unit: t.physical_units[k],
+      target: t.physical[k], analogue: a.physical[k], target_source: t.physical_source[k], analogue_source: a.physical_source[k],
+      note: [t.physical_notes[k], k === 'elevation' ? `target datum: ${t.elevation_datum}; Earth datum: ${a.elevation_datum}` : ''].filter(Boolean).join('. ') })
+  }
+  for (const k of Object.keys(t.soil.units)) {
+    add({ field: fieldName(`soil_${k}`, t.soil.units[k]), group: 'soil', quantity: SOIL_NAME[k], unit: t.soil.units[k],
+      target: t.soil[k], target_min: t.soil.range[k][0], target_max: t.soil.range[k][1],
+      analogue: a.soil[k], analogue_min: a.soil.range[k][0], analogue_max: a.soil.range[k][1],
+      target_status: t.soil.status[k], analogue_status: a.soil.status[k], target_source: t.soil.source[k], analogue_source: a.soil.source[k],
+      note: k === 'kc' || k === 'kphi' || k === 'n' ? 'kc, kphi and n come from one pressure-sinkage fit: use them together' : '' })
+  }
+  if (new Set(rows.map(r => r.field)).size !== rows.length) throw new Error('nomi di campo ripetuti nel .mat')
+
+  const by = f => Object.fromEntries(rows.map(r => [r.field, f(r)]))
+  const d = result.dossier || {}
+  const meta = {
+    schema: SCHEMA, site: t.name, site_id: site.id, site_world: t.world, test: testId, place: a.name, place_country: a.site.country,
+    similarity_score: a.match.score, kappa: a.match.kappa,
+    units: `${UNITS_CONVENTION}. The unit is in each field name: _deg, _m, _per_m2, _K, _kg_m3, _Pa, _m_s, _m_s2, _per_K, _tiu (J m^-2 K^-1 s^-0.5); no suffix = dimensionless, except soil_kc (N m^-(n+1)) and soil_kphi (N m^-(n+2))`,
+    nan: 'NaN means no data, never zero',
+    coordinates: COORDINATES, target_elevation_datum: t.elevation_datum, analogue_elevation_datum: a.elevation_datum,
+    target_rock_class: t.rock_class_name, analogue_rock_class: a.rock_class_name,
+    data_export: t.data_export, data_version: t.data_version,
+    h3_cells: a.site.h3_cells, terrain_30m: terrain, known_test_site: a.site.known || 'no',
+    snow_free_months: a.site.snow_free_months, best_month: a.site.best_month, low_sun_h_per_day: a.site.low_sun_hours,
+    bare_ground_share: a.site.valid_share, night_lights_nW_cm2_sr: a.site.night_lights, protected_area: a.site.protected_area || 'no',
+    snow_free_mask: d.snow_free_mask || '',
+  }
+  return { target: by(r => r.target), analogue: by(r => r.analogue), target_range: by(r => [r.target_min, r.target_max]), info: rows, meta }
+}
+
+export const packageMat = (f, t) => matFile({ target: f.target, analogue: f.analogue, target_range: f.target_range, info: asciiDeep(f.info), meta: asciiDeep(f.meta) },
+  `POLENTA ${SCHEMA} ${t.site_id} ${t.test_id}`)
 
 const mstr = s => `'${String(s).replace(/'/g, "''")}'`
 
-export function initScript(names, target, analogue) {
-  return `% init_polenta.m - generated by POLENTA (${SCHEMA})
-% Site: ${target.name} (${target.world}) | Test: ${target.test_id} | Earth analogue: ${analogue.name}
-% Data export: ${target.data_export} | Code: ${target.data_version}
-% Units: ${UNITS_CONVENTION}. Every group of numbers has its units next to it (units, soil.units, physical_units).
-% NaN means no data: check it before using a value. Field list and meaning: README.txt. Sources: SOURCES.txt.
-% Put this script next to the two .mat files and run it.
+export function initScript(names, f) {
+  const m = f.meta
+  return `% init_polenta.m - POLENTA (${SCHEMA})
+% ${asciiText(m.site)} (${m.site_world}) vs ${asciiText(m.place)} (Earth), test ${m.test}. Data export ${m.data_export}.
+% Run it next to ${names.mat}. It loads five variables:
+%   target, analogue   one field per quantity, numbers only, same names; the unit is in the name (soil_cohesion_Pa)
+%   target_range       [min max] of each target field
+%   info               one row per field: unit, values, similarity, weight, state, sources, notes (a table in MATLAB)
+%   meta               site, test, place, datums, rock class, field logistics
+% In Simulink: Constant block value target.soil_kc, analogue.t_mean_K ...; Simulink.Bus.createObject(target) for a bus.
+% NaN means no data, never zero.
 
-target_file   = ${mstr(names.target)};
-analogue_file = ${mstr(names.analogue)};
 here = fileparts(mfilename('fullpath'));
 if isempty(here), here = pwd; end
-if exist(fullfile(here, target_file), 'file') ~= 2,   error('POLENTA:missing', 'Missing %s next to init_polenta.m', target_file);   end
-if exist(fullfile(here, analogue_file), 'file') ~= 2, error('POLENTA:missing', 'Missing %s next to init_polenta.m', analogue_file); end
-load(fullfile(here, target_file),   'polenta_target',   'polenta_target_num');
-load(fullfile(here, analogue_file), 'polenta_analogue', 'polenta_analogue_num');
-if ~strcmp(polenta_target.schema, polenta_analogue.schema) || ~strcmp(polenta_target.test_id, polenta_analogue.test_id)
-    error('POLENTA:mismatch', 'Target and analogue come from different exports or tests.');
-end
+mat = fullfile(here, ${mstr(names.mat)});
+if exist(mat, 'file') ~= 2, error('POLENTA:missing', 'Missing %s next to init_polenta.m', mat); end
+load(mat, 'target', 'analogue', 'target_range', 'info', 'meta');
+tbl = exist('struct2table', 'file') > 0;   % MATLAB R2013b+: info becomes a table; in Octave it stays a struct array
+if tbl, info = struct2table(info(:)); end
 
-fprintf('\\nPOLENTA  %s (%s, g = %.4g m/s^2)  vs  %s (Earth, g = %.6g m/s^2)\\n', polenta_target.name, polenta_target.world, ...
-    polenta_target.gravity_m_s2, polenta_analogue.name, polenta_analogue.gravity_m_s2);
-fprintf('Similarity %.0f/100, data on %.0f%% of the weight. Units: %s\\n\\n', 100 * polenta_analogue.match.score, ...
-    100 * polenta_analogue.match.kappa, polenta_target.units_convention);
-
-fprintf('Matched parameters\\n%-16s %-9s %25s %12s %6s  %s\\n', 'parameter', 'unit', 'target [min max]', 'analogue', 's', 'state');
-p = fieldnames(polenta_target.values);
-for i = 1:numel(p)
-    k = p{i};
-    r = polenta_target.range.(k);
-    fprintf('%-16s %-9s [%11.4g %11.4g] %12.4g %6.2f  %s\\n', k, polenta_target.units.(k), r(1), r(2), ...
-        polenta_analogue.values.(k), polenta_analogue.match.s.(k), polenta_analogue.match.state.(k));
+fprintf('\\nPOLENTA  %s (%s)  vs  %s (Earth)  |  test %s  |  similarity %.0f/100, data on %.0f%% of the weight\\n', ...
+    meta.site, meta.site_world, meta.place, meta.test, 100 * meta.similarity_score, 100 * meta.kappa);
+fprintf('%-26s %-20s %12s %25s %12s %6s  %s\\n', 'field', 'unit', 'target', '[min max]', 'analogue', 's', 'state');
+f = fieldnames(target);
+for i = 1:numel(f)
+    k = f{i}; r = target_range.(k);
+    if tbl, row = info(strcmp(info.field, k), :); u = row.unit{1}; s = row.similarity; st = row.state{1};
+    else, row = info(strcmp({info.field}, k)); u = row.unit; s = row.similarity; st = row.state; end
+    fprintf('%-26s %-20s %12.4g [%11.4g %11.4g] %12.4g %6.2f  %s\\n', k, u, target.(k), r(1), r(2), analogue.(k), s, st);
 end
-if isfield(polenta_analogue.match.s, 'rock_class')
-    fprintf('%-16s %-9s %25s   %s (s = %.2f, %s)\\n', 'rock_class', '-', polenta_target.rock_class_name, polenta_analogue.rock_class_name, ...
-        polenta_analogue.match.s.rock_class, polenta_analogue.match.state.rock_class);
-end
-
-fprintf('\\nBekker-Wong soil\\n  %-15s %-11s %27s %27s\\n', 'parameter', 'unit', 'target  value [min max]', 'analogue  value [min max]');
-b = fieldnames(polenta_target.soil.units);
-for i = 1:numel(b)
-    k = b{i};
-    r = polenta_target.soil.range.(k); ra = polenta_analogue.soil.range.(k);
-    fprintf('  %-15s %-11s %9.4g [%7.4g %7.4g] %9.4g [%7.4g %7.4g]\\n', k, polenta_target.soil.units.(k), polenta_target.soil.(k), r(1), r(2), ...
-        polenta_analogue.soil.(k), ra(1), ra(2));
-end
-fprintf('  status: target %s; analogue %s\\n', polenta_target.soil.status.kc, polenta_analogue.soil.status.kc);
-
-fprintf('\\nPhysical quantities\\n%-18s %-20s %12s %12s\\n', 'quantity', 'unit', 'target', 'analogue');
-q = fieldnames(polenta_target.physical);
-for i = 1:numel(q)
-    k = q{i};
-    fprintf('%-18s %-20s %12.4g %12.4g\\n', k, polenta_target.physical_units.(k), polenta_target.physical.(k), polenta_analogue.physical.(k));
-end
-fprintf('Elevation datum: target %s; analogue %s\\n', polenta_target.elevation_datum, polenta_analogue.elevation_datum);
-n = fieldnames(polenta_target.notes);
-for i = 1:numel(n), fprintf('Note on %s: %s\\n', n{i}, polenta_target.notes.(n{i})); end
-fprintf('\\n');
-clear target_file analogue_file here p b q n i k r   % only the four polenta_* variables stay in the workspace
-
-% In Simulink, numbers only (no text fields), same names and units as above:
-%   Constant block value: polenta_target_num.soil.kphi, polenta_target_num.gravity_m_s2, polenta_analogue_num.physical.t_mean ...
-%   Bus: Simulink.Bus.createObject(polenta_target_num) creates a bus object from the struct.
+fprintf('Rock class: target %s; analogue %s\\n', meta.target_rock_class, meta.analogue_rock_class);
+fprintf('Sources and notes: info (e.g. info(strcmp(info.field, ''soil_kc''), :)) and SOURCES.txt\\n\\n');
+clear here mat tbl f i k r row u s st
 `
 }
 
-// README del pacchetto: campi, unità e significato, generati dalle struct vere (così non possono andare fuori sincrono)
-export function readme(names, t, a) {
-  const pad = (s, n) => String(s).padEnd(n)
-  const rows = (keys, unit, note = () => '') => keys.map(k => `  ${pad(k, 20)} ${pad(unit(k), 20)} ${note(k)}`.trimEnd()).join('\n')
-  return `POLENTA - MATLAB / Simulink package (${SCHEMA})
-Site: ${t.name} (${t.world}) | Test: ${t.test_id} | Earth analogue: ${a.name} (${a.lat_deg}, ${a.lon_deg})
-Data export: ${t.data_export} | Code: ${t.data_version}
+export function readme(names, f) {
+  const m = f.meta
+  const rows = f.info.map(r => `  ${r.field.padEnd(26)} ${r.unit.padEnd(20)} ${r.quantity}`).join('\n')
+  return asciiText(`POLENTA - MATLAB / Simulink package (${SCHEMA})
+Site: ${m.site} (${m.site_world}) | Test: ${m.test} | Earth analogue: ${m.place}${m.place_country ? `, ${m.place_country}` : ''}
+Data export: ${m.data_export}
 
 FILES
-  ${names.target}   variables polenta_target, polenta_target_num (the site on the ${t.world})
-  ${names.analogue}   variables polenta_analogue, polenta_analogue_num (the place on Earth)
-  init_polenta.m   loads both files and prints the comparison with units
+  ${names.mat}   all the data (five variables, below)
+  init_polenta.m   loads the file, turns info into a table and prints the comparison
   README.txt       this file
   SOURCES.txt      the source of every number
 
 QUICK START
-  1. Unzip, open MATLAB in this folder, run init_polenta.
-  2. Use polenta_target / polenta_analogue to read values with their units, sources and notes.
-  3. In Simulink use polenta_target_num / polenta_analogue_num: same structure, numbers only
-     (Constant block value e.g. polenta_target_num.soil.kphi; Simulink.Bus.createObject for a bus).
+  Unzip, open MATLAB in this folder, run init_polenta. Then:
+    target.slope_p90_deg            a number (the centre of the target range)
+    target_range.slope_p90_deg      [min max]
+    analogue.slope_p90_deg          the value at the place on Earth
+    info                            one row per field: unit, values, similarity, weight, state, sources, notes
+  In Simulink use target and analogue directly: they hold numbers only, one level deep.
+    Constant block value: target.soil_kc, analogue.t_mean_K, target.gravity_m_s2
+    Bus: Simulink.Bus.createObject(target)
+
+VARIABLES
+  target         one field per quantity of the ${m.site_world} site. Numbers only.
+  analogue       the same fields for the place on Earth. Numbers only.
+  target_range   [min max] of each target field (literature uncertainty, computed tolerance or median: see info.range_type).
+  info           one row per field (struct array; a table after init_polenta): field, group (location, matched, physical,
+                 soil), quantity, unit, target, target_min, target_max, analogue, analogue_min, analogue_max, weight and
+                 similarity (0-1, matched parameters only), state (holds, partial, breaks), target_status and
+                 analogue_status, range_type, target_source, analogue_source, note.
+  meta           text and field logistics: site, test, place, similarity score, kappa (share of the weight with data),
+                 elevation datums, rock classes, H3 cells, terrain source, snow-free months, best month, low-angle Sun
+                 hours, bare-ground share, night lights, protected area.
 
 UNITS
-  ${UNITS_CONVENTION}.
-  Every number has its unit in the struct next to it: units.<p>, soil.units.<p>, physical_units.<p>, site_units.<p>.
-  Temperatures are in kelvin. Densities in kg m^-3. Cohesion in Pa. Bekker-Wong kc and kphi in N m^-(n+1) and N m^-(n+2),
-  where n is the sinkage exponent: their units depend on n, use the three together.
+  ${UNITS_CONVENTION}. The unit is in the field name:
+  _deg degrees, _m metres, _per_m2 per square metre, _K kelvin, _kg_m3 kg m^-3, _Pa pascal, _m_s m s^-1, _m_s2 m s^-2,
+  _per_K K^-1, _tiu thermal inertia units (J m^-2 K^-1 s^-0.5). No suffix: dimensionless (fractions 0-1), except
+  soil_kc in N m^-(n+1) and soil_kphi in N m^-(n+2), whose units depend on the sinkage exponent soil_n.
 
 NaN
   NaN means no data. It is never a zero. Check isnan() before using a value.
 
-STRUCT FIELDS (same in target and analogue)
-  schema, role, site_id, test_id, name, world
-  lat_deg, lon_deg       ${t.coordinates}
-  gravity_m_s2           surface gravity (m s^-2), body_radius_m mean radius (m), body_source their source
-  values.<p>             value of each matched parameter (target: centre of range; analogue: measured value)
-  range.<p>              [min max] (analogue: [v v])
-  units.<p>              unit of values and range
-  range_type.<p>         what the range means (literature uncertainty, computed tolerance, median ...)
-  source.<p>             where the number comes from (full list in SOURCES.txt)
-  notes.<p>              warnings: parameters that are only matching indices, not physical quantities
-  rock_class, rock_class_name   lithology (target) or GLiM class (Earth)
-  soil                   Bekker-Wong parameters: value, soil.range, soil.units, soil.source, soil.status
-                         status: measured | inferred (model fit to rover data) | literature | literature [NV] (not yet
-                         checked against the source) | estimated (texture class, Earth only) | not measured
-  physical.<q>           physical quantities for models, physical_units, physical_source, physical_notes
-  elevation_datum        reference surface of physical.elevation (differs between bodies)
+FIELDS
+${rows}
 
-  analogue only:
-  match                  score (0-1), kappa (share of the weight with data), s.<p> per-parameter similarity,
-                         state.<p>, weight.<p>
-  site                   field logistics (country, H3 cells, snow-free months, ...), units in site_units
-
-MATCHED PARAMETERS (${t.test_id})
-${rows(Object.keys(t.values), k => t.units[k], k => t.range_type[k])}
-
-BEKKER-WONG SOIL (target)
-${rows(Object.keys(t.soil.units), k => t.soil.units[k], k => `${t.soil[k]} [${t.soil.range[k].join(' ')}] ${t.soil.status[k]}`)}
-
-BEKKER-WONG SOIL (analogue)
-${rows(Object.keys(a.soil.units), k => a.soil.units[k], k => `${a.soil[k]} [${a.soil.range[k].join(' ')}] ${a.soil.status[k]}`)}
-  Earth values are estimated from the soil texture class (sand and clay from SoilGrids, USDA triangle) using the bevameter
-  and shear tests of Wong (2010) on moist soils: see SOURCES.txt. NaN when the texture is missing or no reference soil exists.
-
-PHYSICAL QUANTITIES
-${rows(Object.keys(t.physical), k => t.physical_units[k], k => t.physical_notes[k])}
-
-LIMITS
-  - The Earth analogue Bekker-Wong parameters are estimates by soil texture class, not measurements: for more precision measure\n    on site (bevameter, shear test) and replace them with your own dataset. kc and kphi depend strongly on moisture.
-  - Parameters listed in notes are matching indices: target and Earth are measured with different instruments.
-  - Elevations of different bodies use different datums and cannot be compared.
-  - Earth values are means over the H3 cells of the place (resolution 5, about 253 km^2 each; list in site.h3_cells)
-    or over the pixels of the stated product.
-`
+NOTES
+  - Matched parameters are those of the chosen test; rock_cover and grain_proxy are matching indices (see info.note):
+    for physics use boulder_cover and thermal_inertia_tiu.
+  - Earth soil (soil_*) is estimated from the soil texture class, not measured: for design values measure on site
+    (bevameter, shear test) and replace them.
+  - Elevations of different bodies use different datums (meta) and cannot be compared.
+  - Earth values are means over the H3 cells of the place (resolution 5, about 253 km^2 each; meta.h3_cells).
+`)
 }
 
-// SOURCES.txt: tutte le fonti del pacchetto, raggruppate
-export function sourcesText(t, a) {
-  const block = (title, o) => `${title}\n` + Object.entries(o).map(([k, s]) => `  ${k}: ${s || 'missing'}`).join('\n')
-  const earthPhys = Object.fromEntries(Object.entries(a.physical_source).filter(([, s]) => s && !s.startsWith('not measured')))
-  return [
-    `POLENTA - sources (${SCHEMA}). Site: ${t.name}; Earth analogue: ${a.name}`,
+export function sourcesText(f) {
+  const m = f.meta
+  const by = g => f.info.filter(r => r.group === g).map(r => `  ${r.field}\n    ${m.site}: ${r.target_source || '-'}\n    Earth: ${r.analogue_source || '-'}`).join('\n')
+  return asciiText([
+    `POLENTA - sources (${SCHEMA}). Site: ${m.site}; Earth analogue: ${m.place}`,
     'Full references with all sites: data/config/siti_e_pesi.csv and data/config/soil_mechanics.csv in the POLENTA repository.',
-    '',
-    block('BODY CONSTANTS', { [t.world]: t.body_source, earth: a.body_source }),
-    '',
-    block(`MATCHED PARAMETERS - ${t.name}`, t.source),
-    '',
-    block(`BEKKER-WONG SOIL - ${t.name}`, map(t.soil.source, (s, k) => `[${t.soil.status[k]}] ${s}`)),
-    '',
-    block(`PHYSICAL QUANTITIES - ${t.name}`, t.physical_source),
-    '',
-    block(`PHYSICAL QUANTITIES - ${a.name} (Earth)`, earthPhys),
-    '',
-    block(`BEKKER-WONG SOIL - ${a.name} (Earth)`, map(a.soil.source, (s, k) => `[${a.soil.status[k]}] ${s}`)),
-    '',
-    block('EARTH MATCHED PARAMETERS', { all: 'POLENTA pipeline on Google Earth Engine: per-parameter products and methods in the repository README and data/config/params.csv' }),
-    '',
-  ].join('\n')
+    '', 'LOCATION AND BODY', by('location'), '', 'MATCHED PARAMETERS', by('matched'), '', 'PHYSICAL QUANTITIES', by('physical'),
+    '', 'SOIL MECHANICS', by('soil'), '',
+  ].join('\n'))
 }
 
-// il pacchetto completo: un .zip con i cinque file in una cartella
+// il pacchetto completo: un .zip con quattro file in una cartella. target e analogue (modello interno) servono anche al report
 export function buildPackage(site, testId, result, displayName, ctx) {
   const names = fileNames(site, testId, displayName)
   const t = buildTarget(site, testId, result, ctx)
   const a = buildAnalogue(site, testId, result, displayName, ctx)
+  const flat = flatten(site, testId, result, t, a, ctx)
   const files = [
-    { name: names.target, data: targetMat(t) },
-    { name: names.analogue, data: analogueMat(a) },
-    { name: names.init, data: initScript(names, t, a) },
-    { name: names.readme, data: readme(names, t, a) },
-    { name: names.sources, data: sourcesText(t, a) },
+    { name: names.mat, data: packageMat(flat, t) },
+    { name: names.init, data: initScript(names, flat) },
+    { name: names.readme, data: readme(names, flat) },
+    { name: names.sources, data: sourcesText(flat) },
   ]
-  return { names, target: t, analogue: a, files, zip: zipFiles(files.map(f => ({ name: `${names.folder}/${f.name}`, data: f.data }))) }
+  return { names, target: t, analogue: a, flat, files, zip: zipFiles(files.map(f => ({ name: `${names.folder}/${f.name}`, data: f.data }))) }
 }
 
 // scarica bytes o testo come file
