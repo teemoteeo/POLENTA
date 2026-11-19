@@ -297,5 +297,165 @@
   "capacity": "crateri costruiti di ~10 m per i sensori di Chandrayaan-2 e 3",
   "source": "https://www.isro.gov.in/Making_Chandrayaan3_ISRO_culture.html",
   "km_client": 7241
+ },
+ {
+  "id": "polimi_isru",
+  "name": "Dimostratore ISRU, Politecnico di Milano",
+  "place": "Milano",
+  "country": "Italy",
+  "lat": 45.478,
+  "lon": 9.227,
+  "type": "laboratorio regolite",
+  "covers": [
+   "bulk_density_0_5"
+  ],
+  "capacity": "estrazione di ossigeno e acqua da simulante NU-LHT-2M (riduzione carbotermica); partner di ricerca [NV]",
+  "source": "https://mdpi.com/2226-4310/11/4/295",
+  "km_client": 129
+ },
+ {
+  "id": "dlr_moon_mars_site",
+  "name": "Moon-Mars test site, DLR",
+  "place": "Oberpfaffenhofen",
+  "country": "Germany",
+  "lat": 48.087,
+  "lon": 11.278,
+  "type": "campo all'aperto",
+  "covers": [
+   "slope_p90",
+   "rock_cover",
+   "roughness"
+  ],
+  "capacity": "1.500 m² di terreno Luna-Marte per rover e robotica [NV]",
+  "source": "https://elib.dlr.de/204209/1/Moon_Mars_Testsite_iSpaRo2024_elib.pdf",
+  "km_client": 433
+ },
+ {
+  "id": "cnes_serom",
+  "name": "Mars Yard SEROM, CNES",
+  "place": "Tolosa",
+  "country": "France",
+  "lat": 43.563,
+  "lon": 1.484,
+  "type": "campo all'aperto",
+  "covers": [
+   "rock_cover",
+   "roughness"
+  ],
+  "capacity": "4.000 m² all'aperto per rover",
+  "source": "https://elib.dlr.de/204209/1/Moon_Mars_Testsite_iSpaRo2024_elib.pdf",
+  "km_client": 521
+ },
+ {
+  "id": "unilu_lunalab",
+  "name": "LunaLab, Università del Lussemburgo",
+  "place": "Lussemburgo",
+  "country": "Luxembourg",
+  "lat": 49.627,
+  "lon": 6.159,
+  "type": "luce radente",
+  "covers": [
+   "low_sun_frac",
+   "rock_cover",
+   "roughness"
+  ],
+  "capacity": "80 m² con 20 t di ghiaia basaltica e luce lunare; navigazione dei rover",
+  "source": "https://www.uni.lu/snt-en/facilities/lunalab/",
+  "km_client": 520
+ },
+ {
+  "id": "einstein_elevator",
+  "name": "Einstein-Elevator, Leibniz Universität",
+  "place": "Hannover",
+  "country": "Germany",
+  "lat": 52.42,
+  "lon": 9.6,
+  "type": "torre a caduta",
+  "covers": [
+   "gravity_1_6"
+  ],
+  "capacity": "4 s a 1/6 g o 0 g, fino a 300 lanci al giorno; regolite fusa a gravità lunare (MOONRISE)",
+  "source": "https://www.lzh.de/en/node/22558",
+  "km_client": 829
+ },
+ {
+  "id": "estec_mars_yard",
+  "name": "Mars Yard, ESA ESTEC Planetary Robotics Lab",
+  "place": "Noordwijk",
+  "country": "Netherlands",
+  "lat": 52.218,
+  "lon": 4.42,
+  "type": "vasca di simulante",
+  "covers": [
+   "rock_cover",
+   "roughness"
+  ],
+  "capacity": "terreno marziano indoor per la navigazione dei rover",
+  "source": "https://esa.int/ESA_Multimedia/Images/2023/05/Mars_corner",
+  "km_client": 830
+ },
+ {
+  "id": "dfki_exploration_hall",
+  "name": "Space Exploration Hall, DFKI",
+  "place": "Brema",
+  "country": "Germany",
+  "lat": 53.106,
+  "lon": 8.851,
+  "type": "vasca di simulante",
+  "covers": [
+   "slope_p90",
+   "low_sun_frac",
+   "soil_density"
+  ],
+  "capacity": "cratere di 105 m² con bordo di 4,5 m e luce lunare; vasca di sabbia 7×7 m",
+  "source": "https://robotik.dfki-bremen.de/en/research/research-facilities-labs/multifunctional-hall",
+  "km_client": 898
+ },
+ {
+  "id": "airbus_mars_yard",
+  "name": "Mars Yard, Airbus",
+  "place": "Stevenage",
+  "country": "United Kingdom",
+  "lat": 51.906,
+  "lon": -0.205,
+  "type": "vasca di simulante",
+  "covers": [
+   "rock_cover",
+   "roughness",
+   "soil_density"
+  ],
+  "capacity": "superficie marziana indoor con sabbia e rocce, costruita per ExoMars",
+  "source": "https://www.euronews.com/2014/03/27/new-mars-rover-playground-unveiled-in-the-uk-",
+  "km_client": 956
+ },
+ {
+  "id": "ou_large_mars_chamber",
+  "name": "Large Mars Chamber, Open University",
+  "place": "Milton Keynes",
+  "country": "United Kingdom",
+  "lat": 52.025,
+  "lon": -0.709,
+  "type": "camera a vuoto",
+  "covers": [
+   "permafrost_share"
+  ],
+  "capacity": "0,8-1.000 mbar, chili di simulante, ghiaccio di CO2 e salamoie",
+  "source": "https://university.open.ac.uk/research-groups/astrobiology/facilities/environmental-simulations/large-mars-chamber",
+  "km_client": 989
+ },
+ {
+  "id": "gmv_tres_cantos",
+  "name": "Sito di test GMV",
+  "place": "Tres Cantos",
+  "country": "Spain",
+  "lat": 40.6,
+  "lon": -3.71,
+  "type": "campo all'aperto",
+  "covers": [
+   "roughness"
+  ],
+  "capacity": "primi test del rover LUCID (ESA) per la localizzazione al Polo Sud [NV]",
+  "source": "https://www.gmv.com/en/communication/news/gmv-working-future-lunar-exploration",
+  "km_client": 1053
  }
 ]

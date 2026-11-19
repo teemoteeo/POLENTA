@@ -5,8 +5,8 @@
    "best_new": "r01",
    "facility": [
     "Sfera a vuoto da 60 ft, NASA Langley",
-    "LUNA (DLR + ESA)",
-    "Rock Yard, NASA JSC"
+    "Moon-Mars test site, DLR",
+    "LUNA (DLR + ESA)"
    ]
   },
   "rover_mobility": {
@@ -24,8 +24,7 @@
    "best_new": "r01",
    "facility": [
     "TVAC \"sporca\" ALTEC (in arrivo)",
-    "Mars Terrain Simulator e centro lunare ALTEC",
-    "Campo ALHAT, Shuttle Landing Facility KSC"
+    "Moon-Mars test site, DLR"
    ]
   }
  },
@@ -53,8 +52,8 @@
    "best_new": "r01",
    "facility": [
     "TVAC \"sporca\" ALTEC (in arrivo)",
-    "Mars Terrain Simulator e centro lunare ALTEC",
-    "Campo ALHAT, Shuttle Landing Facility KSC"
+    "Moon-Mars test site, DLR",
+    "Large Mars Chamber, Open University"
    ]
   }
  },
@@ -64,8 +63,8 @@
    "best_new": "r01",
    "facility": [
     "Sfera a vuoto da 60 ft, NASA Langley",
-    "LUNA (DLR + ESA)",
-    "Rock Yard, NASA JSC"
+    "Moon-Mars test site, DLR",
+    "LUNA (DLR + ESA)"
    ]
   },
   "rover_mobility": {
@@ -74,9 +73,9 @@
    "facility": [
     "Mars Terrain Simulator e centro lunare ALTEC",
     "TVAC \"sporca\" ALTEC (in arrivo)",
+    "Moon-Mars test site, DLR",
     "LUNA (DLR + ESA)",
-    "Swamp Works, NASA KSC",
-    "Rock Yard, NASA JSC"
+    "Swamp Works, NASA KSC"
    ]
   },
   "isru_subsurface": {
@@ -84,8 +83,7 @@
    "best_new": "r01",
    "facility": [
     "TVAC \"sporca\" ALTEC (in arrivo)",
-    "Mars Terrain Simulator e centro lunare ALTEC",
-    "Campo ALHAT, Shuttle Landing Facility KSC"
+    "Moon-Mars test site, DLR"
    ]
   }
  },
@@ -130,8 +128,8 @@
    "facility": [
     "LUNA (DLR + ESA)",
     "TVAC \"sporca\" ALTEC (in arrivo)",
-    "Swamp Works, NASA KSC",
-    "Rock Yard, NASA JSC"
+    "Moon-Mars test site, DLR",
+    "Swamp Works, NASA KSC"
    ]
   },
   "isru_subsurface": {
@@ -139,7 +137,7 @@
    "best_new": "r01",
    "facility": [
     "TVAC \"sporca\" ALTEC (in arrivo)",
-    "Campo ALHAT, Shuttle Landing Facility KSC"
+    "Moon-Mars test site, DLR"
    ]
   }
  },

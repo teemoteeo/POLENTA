@@ -79,9 +79,15 @@
  },
  "permafrost_share": {
   "label": "ghiaccio nel suolo",
-  "definition": "Contenuto di ghiaccio / WEH nel sottosuolo (wt%); Luna polare: nelle zone in ombra perenne vicine al sito (scenario B, dom 00:45); Aristarchus: al sito",
+  "definition": "Quota di area (0-1) con ghiaccio d'acqua termicamente stabile entro 1 m di profondità, entro 10 km dal punto di atterraggio (raggio LTV Artemis); Luna polare: intervallo p10–p90 su tutti i punti di atterraggio della regione USGS; Marte: punto di atterraggio noto",
   "dimension": "Acqua, ghiaccio e permafrost",
-  "unit": "quota di area con permafrost (0-1)"
+  "unit": "quota di area con ghiaccio nel suolo (0-1)"
+ },
+ "subsurface_ice": {
+  "label": "subsurface_ice",
+  "definition": "SOLO INFORMATIVO (non entra nel voto: il voto usa ice_area_share). Contenuto di ghiaccio / WEH nel sottosuolo (wt%); Luna polare: nelle zone in ombra perenne vicine al sito (scenario B, dom 00:45); Aristarchus: al sito; Gale: idrogeno legato ai minerali, non ghiaccio",
+  "dimension": "Acqua, ghiaccio e permafrost",
+  "unit": ""
  },
  "gravity_1_6": {
   "label": "gravità a 1/6",

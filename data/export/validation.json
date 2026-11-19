@@ -5,7 +5,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.035,
-    "percentile": 37
+    "percentile": 36
    },
    {
     "id": "etna_cisternazza",
@@ -28,8 +28,8 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.11,
-    "percentile": 81
+    "score": 0.111,
+    "percentile": 80
    },
    {
     "id": "mojave_lspg",
@@ -40,7 +40,7 @@
    {
     "id": "death_valley",
     "name": "Death Valley, California",
-    "score": 0.06,
+    "score": 0.061,
     "percentile": 59
    },
    {
@@ -102,7 +102,7 @@
    {
     "id": "kumtag",
     "name": "Deserto di Kumtag, Cina",
-    "score": 0.036,
+    "score": 0.037,
     "percentile": 49
    },
    {
@@ -122,14 +122,14 @@
    {
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
-    "score": 0.023,
-    "percentile": 25
+    "score": 0.112,
+    "percentile": 28
    },
    {
     "id": "mauna_kea",
     "name": "Mauna Kea, Hawaii",
-    "score": 0.048,
-    "percentile": 66
+    "score": 0.231,
+    "percentile": 71
    },
    {
     "id": "hi_seas",
@@ -151,7 +151,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.032,
-    "percentile": 31
+    "percentile": 30
    },
    {
     "id": "etna_cisternazza",
@@ -187,7 +187,7 @@
     "id": "death_valley",
     "name": "Death Valley, California",
     "score": 0.028,
-    "percentile": 24
+    "percentile": 23
    },
    {
     "id": "huailai",
@@ -230,7 +230,7 @@
    {
     "id": "sp_crater",
     "name": "SP Crater / San Francisco Volcanic Field, Arizona",
-    "score": 0.206,
+    "score": 0.207,
     "percentile": 100
    },
    {
@@ -268,14 +268,14 @@
    {
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
-    "score": 0.022,
+    "score": 0.067,
     "percentile": 24
    },
    {
     "id": "mauna_kea",
     "name": "Mauna Kea, Hawaii",
-    "score": 0.038,
-    "percentile": 50
+    "score": 0.116,
+    "percentile": 53
    },
    {
     "id": "hi_seas",
@@ -297,7 +297,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.035,
-    "percentile": 35
+    "percentile": 34
    },
    {
     "id": "etna_cisternazza",
@@ -321,12 +321,12 @@
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
     "score": 0.147,
-    "percentile": 89
+    "percentile": 88
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
-    "score": 0.184,
+    "score": 0.185,
     "percentile": 93
    },
    {
@@ -414,14 +414,14 @@
    {
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
-    "score": 0.023,
-    "percentile": 26
+    "score": 0.094,
+    "percentile": 29
    },
    {
     "id": "mauna_kea",
     "name": "Mauna Kea, Hawaii",
-    "score": 0.043,
-    "percentile": 61
+    "score": 0.175,
+    "percentile": 66
    },
    {
     "id": "hi_seas",
@@ -443,7 +443,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.015,
-    "percentile": 17
+    "percentile": 16
    },
    {
     "id": "etna_cisternazza",
@@ -467,13 +467,13 @@
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
     "score": 0.099,
-    "percentile": 78
+    "percentile": 77
    },
    {
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
     "score": 0.04,
-    "percentile": 43
+    "percentile": 42
    },
    {
     "id": "death_valley",
@@ -589,7 +589,7 @@
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
     "score": 0.017,
-    "percentile": 3
+    "percentile": 2
    },
    {
     "id": "etna_cisternazza",
@@ -619,7 +619,7 @@
     "id": "mojave_lspg",
     "name": "Mojave (LSPG, Xodiac)",
     "score": 0.066,
-    "percentile": 46
+    "percentile": 45
    },
    {
     "id": "death_valley",
@@ -657,7 +657,7 @@
     "id": "teide",
     "name": "Teide, Tenerife",
     "score": 0.027,
-    "percentile": 22
+    "percentile": 23
    },
    {
     "id": "black_point",
@@ -686,7 +686,7 @@
    {
     "id": "kumtag",
     "name": "Deserto di Kumtag, Cina",
-    "score": 0.12,
+    "score": 0.121,
     "percentile": 90
    },
    {
@@ -758,7 +758,7 @@
    {
     "id": "rogers_lakebed",
     "name": "Rogers Dry Lake, Edwards AFB",
-    "score": 0.747,
+    "score": 0.75,
     "percentile": 97
    },
    {
@@ -852,14 +852,14 @@
    {
     "id": "etna_piano_concazze",
     "name": "Etna, Piano delle Concazze",
-    "score": 0.212,
-    "percentile": 44
+    "score": 0.243,
+    "percentile": 45
    },
    {
     "id": "mauna_kea",
     "name": "Mauna Kea, Hawaii",
-    "score": 0.212,
-    "percentile": 45
+    "score": 0.243,
+    "percentile": 47
    },
    {
     "id": "hi_seas",
