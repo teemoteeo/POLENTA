@@ -204,6 +204,12 @@ for (const site of targets) {
       if (x.group === 'matched') assert(x.weight > 0 && x.target_source && x.analogue_source && x.range_type, `${where} ${x.field}: peso o fonti`)
       if (Number.isFinite(x.target) && x.group !== 'location') assert(x.target_source, `${where} ${x.field}: fonte del target`)
     }
+    // ogni NaN ha uno stato che dice perché (soil: not measured / not applicable; physical: physicalStatus)
+    for (const x of F.info) {
+      if (Number.isNaN(x.target) && x.group !== 'matched') assert(x.target_status, `${where} ${x.field}: NaN del target senza stato`)
+      if (Number.isNaN(x.analogue) && x.group !== 'matched') assert(x.analogue_status, `${where} ${x.field}: NaN della Terra senza stato`)
+      if (Number.isNaN(x.analogue) && x.group === 'matched') assert(x.state === 'nodata' || x.analogue_status, `${where} ${x.field}: parametro senza dato e senza stato`)
+    }
     // stessi numeri del modello interno: gravità, suolo, temperatura, valori del voto
     assert.equal(F.target.gravity_m_s2, t.gravity_m_s2); assert.equal(F.analogue.gravity_m_s2, 9.80665)
     assert(Object.is(F.target.soil_kc, t.soil.kc) && Object.is(F.analogue.soil_kc, a.soil.kc) && Object.is(F.target.t_mean_K, t.physical.t_mean))

@@ -412,6 +412,15 @@ const TERRAIN_30M = new Set(['slope_p90', 'slope_trav_p90', 'trav_share', 'rough
 const MAT_NAME_MAX = 31
 const checkName = n => { if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(n) || n.length > MAT_NAME_MAX) throw new Error(`nome non valido: ${n}`); return n }
 
+// stato di una grandezza fisica: vuoto se c'è il valore; se è NaN, il perché (ogni NaN del pacchetto ha uno stato)
+export function physicalStatus(k, v, source = '') {
+  if (Number.isFinite(v)) return ''
+  if (source.startsWith('not measured')) return 'not measured (no Earth equivalent)'
+  if (k === 'porosity_0_2m') return 'not computed (bulk density or grain density missing)'
+  if (k === 'pressure') return 'not computed (elevation missing)'
+  return 'no data at this place'
+}
+
 // dal modello interno (buildTarget / buildAnalogue) alle variabili del .mat
 export function flatten(site, testId, result, t, a, ctx) {
   const rows = []
@@ -443,6 +452,8 @@ export function flatten(site, testId, result, t, a, ctx) {
     const [key, q] = PHYSICAL_NAME[k] || [k, k]
     add({ field: fieldName(key, t.physical_units[k]), group: 'physical', quantity: q, unit: t.physical_units[k],
       target: t.physical[k], analogue: a.physical[k],
+      target_status: physicalStatus(k, t.physical[k], t.physical_source[k]),
+      analogue_status: physicalStatus(k, a.physical[k], a.physical_source[k]),
       ...(t.physical_range?.[k] ? { target_min: t.physical_range[k][0], target_max: t.physical_range[k][1] } : {}), target_source: t.physical_source[k], analogue_source: a.physical_source[k],
       note: [t.physical_notes[k], k === 'elevation' ? `target datum: ${t.elevation_datum}; Earth datum: ${a.elevation_datum}` : ''].filter(Boolean).join('. ') })
   }
