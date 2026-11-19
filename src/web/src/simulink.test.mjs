@@ -38,11 +38,11 @@ for (const [sand, clay, cls] of [[90, 5, 'sand'], [80, 5, 'loamy sand'], [65, 10
   [5, 5, 'silt'], [30, 35, 'clay loam'], [10, 30, 'silty clay loam'], [60, 25, 'sandy clay loam'], [50, 45, 'sandy clay'],
   [5, 50, 'silty clay'], [20, 60, 'clay']]) assert.equal(textureClass(sand, clay), cls, `tessitura ${sand}/${clay}`)
 assert.equal(textureClass(NaN, 10), '')
-// tabella per tessitura: unità attese, valori nell'intervallo, ogni classe con i 5 parametri
+// tabella per tessitura: unità attese, valori nell'intervallo, ogni classe con i 5 parametri di Bekker più K (Janosi-Hanamoto)
 for (const [u, t] of Object.entries(soilTexture)) {
   for (const [k, unit] of Object.entries(t.unit)) assert.equal(unit, SOIL_CSV_UNITS[k], `soil_by_texture ${u} ${k}`)
-  for (const [k, v] of Object.entries(t.value)) assert(t.range[k][0] <= v && v <= t.range[k][1], `soil_by_texture ${u} ${k} fuori intervallo`)
-  assert.equal(Object.keys(t.value).length, 5, `soil_by_texture ${u}: parametri mancanti`)
+  for (const [k, v] of Object.entries(t.value)) assert(Number.isNaN(v) ? t.status[k] === 'not measured' : t.range[k][0] <= v && v <= t.range[k][1], `soil_by_texture ${u} ${k} fuori intervallo`)
+  assert.deepEqual(Object.keys(t.value).sort(), ['K_cm', 'cohesion_kPa', 'friction_angle_deg', 'kc', 'kphi', 'n'].sort(), `soil_by_texture ${u}: parametri mancanti`)
 }
 
 // i nomi dei campi MATLAB stanno nei 31 caratteri e non hanno simboli
@@ -226,6 +226,11 @@ assert.equal(n, 18, `coppie sito × test: ${n}`)
   assert.deepEqual(sl.range.kc, [3300, 259000])
   assert.equal(sl.status.kphi, 'estimated (texture class)')
   assert(sl.source.kc.includes('sandy loam') && sl.source.kc.includes('sand 65%'))
+  // K di Janosi-Hanamoto: solo la sabbia (Wong 2010 Tab. 5.1); i franchi hanno Kw e Kr di un'altra equazione (Tab. 5.2): NaN dichiarato
+  const sa = with_(90, 5)
+  assert(sa.K === 0.0114 && sa.status.K === 'estimated (texture class)' && sa.source.K.includes('Table 5.1 p.124'))
+  assert(Number.isNaN(sl.K) && sl.status.K === 'not measured' && sl.source.K.includes('Kw and Kr'))
+  assert(sl.grain_density === 2700)
   const cl = with_(20, 60)
   assert(Number.isNaN(cl.kc) && cl.status.kc === 'not measured' && cl.source.kc.includes('clay'))
 }
