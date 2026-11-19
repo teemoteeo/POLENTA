@@ -120,3 +120,4 @@
 /* match alto (da 85% in su): verde, salta all'occhio */
 :root { --good: #3ddc84; }
 .vals .vm.hi { color: var(--good); font-weight: 700; }
+.report-row{margin:8px 0 4px}

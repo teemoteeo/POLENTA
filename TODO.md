@@ -17,7 +17,6 @@
 ** Interoperabilità & Export Ingegneristico**
 
 * [10] **Export Mesh e Dati Geospaziali:** Esportare le griglie del terreno ad alta risoluzione in formati standard CAD/GIS (`.stl`, `.obj`, `.geotiff`).
-* [11] **Report di Trade-Off Automatico:** Generare una scheda tecnica esportabile (PDF/CSV) con pesi, fonti dati e punteggi per revisioni di progetto.
 
 ** Dati e test (da fare con rigore)**
 

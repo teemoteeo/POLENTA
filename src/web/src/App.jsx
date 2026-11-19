@@ -518,7 +518,7 @@ export default function App() {
             </ul>
           </>)}
 
-          {step === 'results' && (data || mode === 'near') && <ResultsList data={data} mode={mode} onMode={m => setNear(m, HOMES[0])} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} onPeek={peekPlace} onLeave={() => setPeekRes(null)} />}
+          {step === 'results' && (data || mode === 'near') && <ResultsList site={site} testId={testId} testName={TEST_EN[testId].name} data={data} mode={mode} onMode={m => setNear(m, HOMES[0])} home={base} onHome={h => setNear('near', h)} radius={radius} onRadius={r => { if (r === radius) return; flyNear.current = true; setPicked(0); setRadius(r) }} onPick={choosePlace} onPeek={peekPlace} onLeave={() => setPeekRes(null)} />}
 
           {step === 'card' && result && <PlaceCard data={data} picked={picked} site={site} test={{ name: TEST_EN[testId].name }} testId={testId} onJump={jump} />}
 

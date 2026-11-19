@@ -8,6 +8,8 @@ import { plan } from './campaign.js'
 import { ROCK } from './names.js'
 import { parseUnits, parseSoil, parseTexture, textureClass, asciiText, buildPackage, numericOnly, sourceFor, SI, SOIL_CSV_UNITS, BODY, SCHEMA } from './simulink.js'
 import { crc32 } from './zip.js'
+import { reportRows, reportCsv, reportName, COLUMNS, STATE } from './report.js'
+import { parseCsv, toSI } from './simulink.js'
 
 const root = '../../data'
 const tests = load(fs.readFileSync(`${root}/config/tests.yaml`, 'utf8')).tests
@@ -192,5 +194,57 @@ assert.equal(n, 18, `coppie sito × test: ${n}`)
   assert(sl.source.kc.includes('sandy loam') && sl.source.kc.includes('sand 65%'))
   const cl = with_(20, 60)
   assert(Number.isNaN(cl.kc) && cl.status.kc === 'not measured' && cl.source.kc.includes('clay'))
+}
+// Report di trade-off (report.js): per ogni sito × test, i primi 5 di Best on Earth e di Near Turin (3000 km)
+{
+  const sensors = JSON.parse(fs.readFileSync(`${root}/config/sensors.json`))
+  const rctx = { ...ctx, label: p => p, placeName: n => n, earthSource: p => sensors[p]?.earth }
+  const TURIN = { id: 'turin', name: 'Turin', lat: 45.0703, lon: 7.6869 }
+  const toSIu = (p, x) => toSI(units[p], x)[1]
+  let n = 0
+  for (const site of targets) for (const testId of Object.keys(tests)) {
+    const w = tests[testId].requisiti
+    const best = JSON.parse(fs.readFileSync(`${root}/export/sites/${site.id}__${testId}.json`)).results.slice(0, 5)
+    const nearF = `${root}/export/near/turin__${site.id}__${testId}.json`
+    const near = fs.existsSync(nearF) ? (JSON.parse(fs.readFileSync(nearF)).results_by_radius?.['3000'] || []).slice(0, 5) : []
+    for (const [list, rs] of [[{ mode: 'earth', base: TURIN, radius: 3000 }, best], [{ mode: 'near', base: TURIN, radius: 3000 }, near]]) {
+      if (!rs.length) continue
+      const data = { results: rs.map(r => ({ ...r, plan: plan(r, w) })) }
+      const rows = reportRows(site, testId, 'Test', data, list, rctx)
+      const where = `report ${site.id} ${testId} ${list.mode}`
+      const nParams = Object.values(w).filter(x => x > 0).length
+      assert.equal(rows.length, rs.length * nParams, `${where}: righe`)
+      // CSV: BOM, intestazione, ogni riga con tutte le colonne, ritorno identico dopo la lettura
+      const csv = reportCsv(rows)
+      assert(csv.startsWith('﻿') && reportName(site, testId, list).endsWith('.csv'))
+      const back = parseCsv(csv.slice(1))
+      assert.deepEqual(back[0], COLUMNS, `${where}: intestazione`)
+      assert.equal(back.length, rows.length + 1)
+      for (const b of back) assert.equal(b.length, COLUMNS.length, `${where}: colonne`)
+      for (const [i, r] of rows.entries()) {
+        const at = `${where} #${r.rank} ${r.param}`
+        assert.equal(back[i + 1][COLUMNS.indexOf('target_source')], String(r.target_source ?? ''), `${at}: virgolette`)
+        assert(Object.values(STATE).includes(r.state), `${at}: stato ${r.state}`)
+        assert(r.unit === 'class' || SI_UNITS.has(r.unit), `${at}: unità ${r.unit}`)
+        assert(r.earth_source, `${at}: fonte Terra`)
+        assert(r.target_source && r.target_source !== 'missing', `${at}: fonte del target`)
+        if (site.world === 'moon') assert(!/(^|; )(Mars|Marte|Phoenix|Gale)\b/.test(r.target_source), `${at}: fonte di Marte su un sito lunare`)
+        if (site.world === 'mars') assert(!/(^|; )(Moon|Luna|Polar Moon|Aristarchus)\b/.test(r.target_source), `${at}: fonte della Luna su Marte`)
+        if (r.unit !== 'class') {
+          assert(r.target_min <= r.target_max, `${at}: intervallo`)
+          const raw = rs[r.rank - 1].values[r.param]
+          if (r.state !== STATE.nodata && typeof raw === 'number') assert(Math.abs(r.place_value - toSIu(r.param, raw)) <= 1e-9 * Math.max(1, Math.abs(r.place_value)), `${at}: valore SI`)
+        }
+        if (r.state !== STATE.nodata) assert(r.similarity >= 0 && r.similarity <= 1, `${at}: voto`)
+      }
+      // i pesi di ogni posto sommano a 1, come in tests.yaml
+      for (const rank of new Set(rows.map(r => r.rank))) {
+        const tot = rows.filter(r => r.rank === rank).reduce((t, r) => t + r.weight, 0)
+        assert(Math.abs(tot - 1) < 1e-9, `${where} #${rank}: pesi ${tot}`)
+      }
+      n += rows.length
+    }
+  }
+  assert(n > 0)
 }
 console.log('ok')
