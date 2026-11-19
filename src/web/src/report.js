@@ -9,7 +9,7 @@ const WORLD = { moon: 'Moon', mars: 'Mars', earth: 'Earth' }
 const PHYS_NAME = {
   thermal_inertia: 'Thermal inertia', rock_cover: 'Rock (boulder) cover', subsurface_ice: 'Subsurface water ice',
   t_mean: 'Mean surface temperature', t_half_range: 'Surface temperature half range', bulk_density_0_2m: 'Bulk density, 0-2 m',
-  feo: 'FeO', elevation: 'Elevation', air_density: 'Air density', wind: 'Wind speed', porosity_0_2m: 'Porosity, 0-2 m (derived)',
+  feo: 'FeO', elevation: 'Elevation', air_density: 'Air density', wind: 'Wind speed', porosity_0_2m: 'Porosity, 0-2 m (derived)', pressure: 'Surface pressure (daily mean)',
 }
 const SOIL_NAME = { cohesion: ['Cohesion', '<i>c</i>'], friction_angle: ['Internal friction angle', 'φ'], kc: ['Cohesive modulus', '<i>k</i><sub>c</sub>'],
   kphi: ['Frictional modulus', '<i>k</i><sub>φ</sub>'], n: ['Sinkage exponent', '<i>n</i>'], K: ['Shear deformation modulus', '<i>K</i>'],

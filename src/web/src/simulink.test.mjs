@@ -16,7 +16,8 @@ const targets = JSON.parse(fs.readFileSync(`${root}/export/targets.json`))
 const units = parseUnits(fs.readFileSync(`${root}/config/params.csv`, 'utf8'))
 const soilCsv = parseSoil(fs.readFileSync(`${root}/config/soil_mechanics.csv`, 'utf8'))
 const soilTexture = parseTexture(fs.readFileSync(`${root}/config/soil_by_texture.csv`, 'utf8'))
-const ctx = { units, soil: soilCsv, soilTexture, exportedAt: 'test', dataVersion: 'test', rockName: c => ROCK[c] || c, targets: Object.fromEntries(targets.map(t => [t.id, t])) }
+const sitePhysics = parseSoil(fs.readFileSync(`${root}/config/site_physics.csv`, 'utf8'))
+const ctx = { units, soil: soilCsv, soilTexture, sitePhysics, exportedAt: 'test', dataVersion: 'test', rockName: c => ROCK[c] || c, targets: Object.fromEntries(targets.map(t => [t.id, t])) }
 const out = process.env.OUT
 const keys = o => Object.keys(o).sort().join(',')
 const NAME_MAX = 31
@@ -58,6 +59,8 @@ function clean(o, where) {
   if (typeof o === 'number') { if (Number.isFinite(o)) assert.equal(o, Number(o.toPrecision(6)), `${where}: ${o} non arrotondato`); return }
   if (o && typeof o === 'object') for (const [k, v] of Object.entries(o)) clean(v, `${where}.${k}`)
 }
+// il .mat porta la pressione con l'intervallo del target
+const F_check = pkg => { const r = pkg.flat.info.find(x => x.field === 'pressure_Pa'); return r && r.unit === 'Pa' && r.target_min <= r.target && r.target <= r.target_max }
 const onlyNumbers = o => (typeof o === 'number' ? true : Array.isArray(o) ? o.every(x => typeof x === 'number') : Object.values(o).every(onlyNumbers))
 
 // sourceFor: tiene solo la parte del sito
@@ -158,6 +161,14 @@ for (const site of targets) {
     assert(a.soil.grain_density === 2700 && a.soil.status.grain_density === 'literature' && !a.soil.source.grain_density.includes('texture class'), `${where}: densità dei grani della Terra`)
     if (Number.isFinite(a.physical.bulk_density_0_2m)) assert(a.physical.porosity_0_2m > 0 && a.physical.porosity_0_2m < 1)
     assert.equal(t.solar_day_s, { moon: 2551390, mars: 88774.9 }[site.world]); assert.equal(a.solar_day_s, 86400)
+    // pressione: Luna 0 (vuoto), Marte da Martinez et al. 2017 Fig. 3 con l'intervallo stagionale, Terra dalla quota (US Standard Atmosphere 1976)
+    assert.equal(t.physical.pressure, { malapert_massif: 0, haworth: 0, nobile_rim_1: 0, aristarchus_plateau: 0, phoenix: 790, gale: 830 }[site.id], `${where}: pressione`)
+    if (site.id === 'gale') assert.deepEqual(t.physical_range.pressure, [735, 925])
+    if (site.id === 'gale') assert(t.soil.d50 === 1.2e-4 && t.soil.range.d50[1] === 4.14e-4, `${where}: D50 di Gale`)
+    if (site.id === 'phoenix') assert(Number.isNaN(t.soil.d50) && t.soil.status.d50 === 'not measured')
+    const h = a.physical.elevation
+    if (Number.isFinite(h)) assert(Math.abs(a.physical.pressure - 101325 * (1 - 0.0065 * h / 288.15) ** 5.25588) < 1 && a.physical_source.pressure.includes('Standard Atmosphere'))
+    assert(F_check(pkg))
 
     // Terra: ogni grandezza del dossier finisce nel .mat, convertita
     assert(Number.isNaN(a.physical.thermal_inertia) && Number.isNaN(a.physical.feo) && a.physical.wind >= 0)

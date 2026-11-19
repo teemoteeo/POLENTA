@@ -228,7 +228,7 @@ function rangeType(p, source, siteId) {
 }
 
 function core({ role, site, testId, name, world, lat, lon, params, raw, units, soil, texture, exportedAt, dataVersion = '', rockName = c => c,
-  physical = {}, physicalSource = {}, sources = {}, earth = false }) {
+  physical = {}, physicalSource = {}, sources = {}, earth = false, sitePhysics = {} }) {
   const numeric = params.filter(p => !CATEGORICAL.has(p))
   const si = p => SI[units[p]] ? SI[units[p]][0] : units[p] || ''
   const range = Object.fromEntries(numeric.map(p => [field(p), asRange(raw[p]).map(x => toSI(units[p], x)[1])]))
@@ -262,8 +262,26 @@ function core({ role, site, testId, name, world, lat, lon, params, raw, units, s
   out.physical_units.porosity_0_2m = '1'
   out.physical_source.porosity_0_2m = Number.isFinite(out.physical.porosity_0_2m) ? POROSITY_SOURCE : ''
   out.physical_notes.porosity_0_2m = 'void fraction of the soil, derived from bulk_density_0_2m and soil grain_density'
+  // pressione al suolo: Luna e Marte da site_physics.csv (con l'intervallo stagionale), Terra dalla quota con l'atmosfera standard
+  out.physical_range = {}
+  if (earth) {
+    const h = out.physical.elevation
+    out.physical.pressure = Number.isFinite(h) && h < 11000 ? round(101325 * (1 - 2.25577e-5 * h) ** 5.25588) : NaN
+    out.physical_source.pressure = Number.isFinite(out.physical.pressure) ? ISA_SOURCE : ''
+    out.physical_notes.pressure = 'estimated from the elevation with the standard atmosphere, not measured at the place'
+  } else {
+    const rows = sitePhysics[world] || {}
+    const r = [site.id, '*'].map(o => rows[o]).find(x => x && 'pressure_Pa' in x.value)
+    out.physical.pressure = r ? round(num(r.value.pressure_Pa)) : NaN
+    if (r) out.physical_range.pressure = r.range.pressure_Pa.map(x => round(num(x)))
+    out.physical_source.pressure = r ? `${r.source.pressure_Pa} [${r.status.pressure_Pa}]` : ''
+    out.physical_notes.pressure = 'daily mean surface pressure; the range is the seasonal one'
+  }
+  out.physical_units.pressure = 'Pa'
   return out
 }
+const ISA_SOURCE = 'estimated from the elevation with the U.S. Standard Atmosphere 1976 (NOAA/NASA/USAF, NOAA-S/T 76-1562), troposphere: '
+  + 'p = 101325 Pa (1 - 0.0065 h / 288.15)^5.25588. Not measured at the place (MERRA-2 surface pressure to be exported by the pipeline)'
 const POROSITY_SOURCE = 'derived: porosity = 1 - bulk density / grain density (relation in Carrier Olhoeft & Mendell (1991) Lunar Sourcebook '
   + 'ch. 9, sec. 9.1.4 p.483), with bulk_density_0_2m and soil grain_density of this site'
 
@@ -359,7 +377,7 @@ export const PHYSICAL_NAME = {
   subsurface_ice: ['subsurface_ice', 'Subsurface water ice (mass fraction)'], t_mean: ['t_mean', 'Mean surface temperature'],
   t_half_range: ['t_half_range', 'Surface temperature half range'], bulk_density_0_2m: ['bulk_density_0_2m', 'Bulk density, 0-2 m'],
   feo: ['feo', 'FeO (mass fraction)'], elevation: ['elevation', 'Elevation'], air_density: ['air_density', 'Air density'], wind: ['wind', 'Wind speed'],
-  porosity_0_2m: ['porosity_0_2m', 'Porosity, 0-2 m (derived)'],
+  porosity_0_2m: ['porosity_0_2m', 'Porosity, 0-2 m (derived)'], pressure: ['pressure', 'Surface pressure (daily mean)'],
 }
 export const SOIL_NAME = { cohesion: 'Soil cohesion c', friction_angle: 'Soil internal friction angle phi', kc: 'Bekker cohesive modulus kc',
   kphi: 'Bekker frictional modulus kphi', n: 'Bekker sinkage exponent n', K: 'Shear deformation modulus K (Janosi-Hanamoto)',
@@ -400,7 +418,8 @@ export function flatten(site, testId, result, t, a, ctx) {
   for (const k of Object.keys(t.physical)) {
     const [key, q] = PHYSICAL_NAME[k] || [k, k]
     add({ field: fieldName(key, t.physical_units[k]), group: 'physical', quantity: q, unit: t.physical_units[k],
-      target: t.physical[k], analogue: a.physical[k], target_source: t.physical_source[k], analogue_source: a.physical_source[k],
+      target: t.physical[k], analogue: a.physical[k],
+      ...(t.physical_range?.[k] ? { target_min: t.physical_range[k][0], target_max: t.physical_range[k][1] } : {}), target_source: t.physical_source[k], analogue_source: a.physical_source[k],
       note: [t.physical_notes[k], k === 'elevation' ? `target datum: ${t.elevation_datum}; Earth datum: ${a.elevation_datum}` : ''].filter(Boolean).join('. ') })
   }
   for (const k of Object.keys(t.soil.units)) {

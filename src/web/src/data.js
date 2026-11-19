@@ -13,6 +13,7 @@ import { plan, haversineKm } from './campaign.js'
 import paramsCsv from '../../../data/config/params.csv?raw'
 import soilCsv from '../../../data/config/soil_mechanics.csv?raw'
 import textureCsv from '../../../data/config/soil_by_texture.csv?raw'
+import sitePhysicsCsv from '../../../data/config/site_physics.csv?raw'
 import { parseUnits, parseSoil, parseTexture } from './simulink.js'
 import { rock } from './i18n.js'
 
@@ -28,7 +29,7 @@ export const sensor = (p, world) => {
 // valori dei 6 siti target (Luna e Marte): schedina al passaggio del mouse
 export const TARGETS = Object.fromEntries(targets.map(t => [t.id, t]))
 // export MATLAB / Simulink (simulink.js): unità dei parametri e Bekker-Wong per Luna e Marte
-export const SIMULINK_CTX = { units: parseUnits(paramsCsv), soil: parseSoil(soilCsv), soilTexture: parseTexture(textureCsv), exportedAt: manifest.generated_at, dataVersion: `POLENTA commit ${typeof __POLENTA_COMMIT__ === 'string' ? __POLENTA_COMMIT__ : 'unknown'} (teemoteeo/POLENTA)`, rockName: rock, targets: TARGETS,
+export const SIMULINK_CTX = { units: parseUnits(paramsCsv), soil: parseSoil(soilCsv), soilTexture: parseTexture(textureCsv), sitePhysics: parseSoil(sitePhysicsCsv), exportedAt: manifest.generated_at, dataVersion: `POLENTA commit ${typeof __POLENTA_COMMIT__ === 'string' ? __POLENTA_COMMIT__ : 'unknown'} (teemoteeo/POLENTA)`, rockName: rock, targets: TARGETS,
   earthSource: p => sensors[p]?.earth } // sensore della Terra per parametro (info.analogue_source)
 export const VALIDATION = validation // percentile dei siti di test noti per sito × test (pipeline)
 
