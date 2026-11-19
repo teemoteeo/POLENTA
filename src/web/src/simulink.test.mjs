@@ -166,7 +166,7 @@ for (const site of targets) {
     assert.equal(t.physical.pressure, { malapert_massif: 0, haworth: 0, nobile_rim_1: 0, aristarchus_plateau: 0, phoenix: 790, gale: 830 }[site.id], `${where}: pressione`)
     if (site.id === 'gale') assert.deepEqual(t.physical_range.pressure, [735, 925])
     if (site.id === 'gale') assert(t.soil.d50 === 1.2e-4 && t.soil.range.d50[1] === 4.14e-4, `${where}: D50 di Gale`)
-    if (site.id === 'phoenix') assert(Number.isNaN(t.soil.d50) && t.soil.status.d50 === 'not measured')
+    if (site.id === 'phoenix') assert(t.soil.d50 === 6e-5 && t.soil.status.d50 === 'estimated (published distribution)' && t.soil.source.d50.includes('Pike'))
     const h = a.physical.elevation
     if (Number.isFinite(h)) assert(Math.abs(a.physical.pressure - 101325 * (1 - 0.0065 * h / 288.15) ** 5.25588) < 1 && a.physical_source.pressure.includes('Standard Atmosphere'))
     assert(F_check(pkg))
