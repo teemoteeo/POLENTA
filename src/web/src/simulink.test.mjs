@@ -144,6 +144,13 @@ for (const site of targets) {
     } else {
       // Marte: densità dei grani come ipotesi dichiarata (Moore 1991, USGS OFR 91-568 Tab. 6); D50 ancora senza fonte
       assert(t.soil.grain_density === 2800 && t.soil.status.grain_density === 'assumed' && t.soil.source.grain_density.includes('DECLARED ASSUMPTION'))
+      // kc, kphi, n: suolo 1 di Zhou et al. 2014 Tab. III (Reece) convertito in Bekker con b = 0,16 m e g di Marte
+      const reece = (c, kc_, kp_, n, rho, g, b) => [c * kc_ * b ** (1 - n), rho * g * kp_ * b ** (1 - n)]
+      const [kc1, kp1] = reece(1500, 100, 1000, 1.1, 1600, 3.71, 0.16)
+      assert(Math.abs(t.soil.kc - kc1) / kc1 < 1e-3 && Math.abs(t.soil.kphi - kp1) / kp1 < 1e-3 && t.soil.n === 1.1, `${where}: kc, kphi di Marte`)
+      // la stessa conversione riproduce i valori di Bekker misurati sul simulante MMS (Agarwal et al., arXiv:1901.10667 Tab. 1: 846 e 6708 kN)
+      const [kcM, kpM] = reece(600, 677.5, 212.2, 1.4, 1550, 9.81, 0.16)
+      assert(Math.abs(kcM / 1000 - 846) < 1 && Math.abs(kpM / 1000 - 6708) / 6708 < 0.002)
       // K di Janosi-Hanamoto da altri suoli marziani (Zhou et al. 2014, Tab. III: Opportunity a Meridiani), stesso modello della Luna
       assert(t.soil.K === 0.015 && t.soil.range.K[0] === 0.012 && t.soil.range.K[1] === 0.025 && t.soil.source.K.includes('NOT measured at this site'))
       assert(t.physical.porosity_0_2m > 0.3 && t.physical.porosity_0_2m < 0.6)
