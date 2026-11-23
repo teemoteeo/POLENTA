@@ -40,8 +40,12 @@ tests:
     aziende: [TAS-I (rover ETNA/ULS), ALTEC, AIKO, PoliTo]
     # 14/11 20:00 (Edo): bulk_density tolto dal punteggio: la densità della regolite si
     # riproduce in vasca di simulante (indoor: soil_density). Vedi docs/proposta-finale.md §7.
+    # 19/11 (Rocco, TODO [17]): la pendenza del rover è quella del terreno percorribile (pixel sotto 20°, requisito LTV,
+    # Creager et al. 2025, NASA NTRS 20250003470 §1.3 p.5) più la quota di area percorribile; stesso peso totale di prima (0,35).
     requisiti:   # dalla matrice di Rocco (data/config/siti_e_pesi.csv); 0 = non conta per questo test
-      slope_p90: 0.35
+      slope_trav_p90: 0.25
+      trav_share: 0.10
+      slope_p90: 0.00
       roughness: 0.15
       rock_cover: 0.15
       grain_proxy: 0.15
@@ -69,9 +73,11 @@ tests:
     requisiti:   # dalla matrice di Rocco (data/config/siti_e_pesi.csv); 0 = non conta per questo test
       crater_density: 0.30
       rock_cover: 0.25
-      slope_p90: 0.20
+      slope_p90: 0.20      # il lidar deve vedere anche le zone ripide: pendenza su tutta la regione
       roughness: 0.15
       albedo: 0.05
+      slope_trav_p90: 0.00
+      trav_share: 0.00
       rock_class: 0.05
       grain_proxy: 0.00
       low_sun_frac: 0.00
@@ -102,7 +108,9 @@ tests:
       bulk_density_0_5: 0.20
       grain_proxy: 0.15
       rock_class: 0.15
-      slope_p90: 0.10
+      trav_share: 0.10     # 19/11 (Rocco): per impianti e scavo conta quanto terreno è praticabile (prima slope_p90 0,10)
+      slope_p90: 0.00
+      slope_trav_p90: 0.00
       rock_cover: 0.05
       roughness: 0.00
       crater_density: 0.00

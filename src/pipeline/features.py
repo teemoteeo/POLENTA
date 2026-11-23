@@ -127,6 +127,12 @@ def main() -> int:
             if fine_col in cells or est_col in cells:
                 cells[p] = cells.get(fine_col, pd.Series(np.nan, index=cells.index)).fillna(
                     cells.get(est_col, pd.Series(np.nan, index=cells.index)))
+        # il p90 dei soli pixel sotto 20° non può superare il p90 di tutti: lo supera di poco (fino a 0,2°) quando quasi tutto
+        # è percorribile, per il percentile a istogramma di Earth Engine (260 esagoni a 30 m, fase A 20/11). Vale anche per le stime.
+        if "slope_trav_p90" in cells:
+            over = cells["slope_trav_p90"] > cells["slope_p90"]
+            cells["slope_trav_p90"] = cells["slope_trav_p90"].clip(upper=cells["slope_p90"])
+            used["slope_trav_p90"] = f"limitata a slope_p90 su {over.sum():,} esagoni ({(over & exact).sum():,} a 30 m)"
         cells["terrain_src"] = np.where(exact, "30m", np.where(cells["slope_p90"].notna(), "est", None))
         used["slope_p90"] = used["roughness"] = f"30 m esatto su {exact.sum():,}, stima dal 500 m sul resto"
 

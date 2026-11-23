@@ -84,7 +84,7 @@ const COMPARISON_ONLY = {
 // della Terra come per la Luna (LOLA, lunar.py): il confronto è indicativo (TODO [16]).
 const MARS_TERRAIN = 'Mars: literature value from HiRISE/CTX terrain models, with a resolution and definition different from the Earth '
   + 'calculation (30 m DEM); not recomputed with the Earth definition as done for the Moon (LOLA). Treat the match as indicative'
-const MARS_TERRAIN_PARAMS = new Set(['slope_p90', 'roughness', 'crater_density'])
+const MARS_TERRAIN_PARAMS = new Set(['slope_p90', 'roughness', 'crater_density', 'slope_trav_p90', 'trav_share'])
 const noteFor = (p, world) => [COMPARISON_ONLY[p], world === 'mars' && MARS_TERRAIN_PARAMS.has(p) ? MARS_TERRAIN : ''].filter(Boolean).join('. ')
 
 // params.csv → { param: unità }. Solo le prime tre colonne: le successive sono testo libero.

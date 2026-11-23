@@ -97,6 +97,7 @@ const LIMITS = [
   'Some hexagons have only 6-10% bare ground (farmland, or volcanoes like Etna where the real site is small). See the bare-ground warning.',
   'The lidar heat map is sparse (~3,800 hexagons): craters only exist where we computed exact 30 m terrain. The top places still come from all over the Earth.',
   'Mars and Aristarchus terrain values come from the literature.',
+  'Rover slopes are those of the drivable ground: the 90th percentile of the slope below 20° (the Artemis rover requirement) and the share of drivable area, computed the same way on LOLA and on Earth. The lidar test keeps the slope of the whole region. Aristarchus and Mars: derived from their slope (below 20°, so at least 90% drivable).',
   'Ground ice is the share of area with stable ice within 1 m of the surface. Polar Moon: within 10 km of the landing point (Artemis rover range), from LRO Diviner, as the median over the USGS landing region. Earth: MODIS proxy (mean annual temperature below −1 °C), an approximation of ice within 1 m. ISRU test: when the site has ice, Earth places without permafrost are excluded; more ice than the site is penalised too (we look for analogues, not for the most ice).',
   'Rock type (GLiM) is coarse: ~55 km cells, so Etna or the Eifel do not show.',
   'No Antarctica: MODIS NDVI does not cover it.',

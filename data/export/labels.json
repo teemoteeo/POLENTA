@@ -5,6 +5,18 @@
   "dimension": "Topografia",
   "unit": "°"
  },
+ "slope_trav_p90": {
+  "label": "pendenze percorribili",
+  "definition": "Pendenza 90° percentile del terreno percorribile (pixel sotto 20°, requisito LTV) su DEM 30 m (°)",
+  "dimension": "Topografia",
+  "unit": "°"
+ },
+ "trav_share": {
+  "label": "area percorribile",
+  "definition": "Quota di area percorribile: pixel con pendenza sotto 20° (requisito LTV) su DEM 30 m (fraz. 0-1)",
+  "dimension": "Topografia",
+  "unit": "frazione 0-1"
+ },
  "roughness": {
   "label": "rugosità",
   "definition": "Scarto quota dalla media su baseline 150 m (m)",

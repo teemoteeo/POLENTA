@@ -12,6 +12,7 @@
    "grain_proxy",
    "bulk_density_0_5",
    "slope_p90",
+   "slope_trav_p90",
    "gravity_1_6"
   ],
   "capacity": "sala da 700 m² con simulante EAC-1A e basalto di cava, vasca profonda 3 m; offload di gravità e rampa previsti [NV]",
@@ -31,6 +32,7 @@
    "grain_proxy",
    "bulk_density_0_5",
    "slope_p90",
+   "slope_trav_p90",
    "low_sun_frac"
   ],
   "capacity": "terreno riconfigurabile; centro lunare in arrivo con rampa a 25° e luci a ~8°",
@@ -65,7 +67,8 @@
    "soil_density",
    "grain_proxy",
    "bulk_density_0_5",
-   "slope_p90"
+   "slope_p90",
+   "slope_trav_p90"
   ],
   "capacity": "vasche con simulanti GRC-1, LHS-1, BP-1 (VIPER, scavo)",
   "source": "docs/test-aziende.md",
@@ -323,6 +326,7 @@
   "type": "campo all'aperto",
   "covers": [
    "slope_p90",
+   "slope_trav_p90",
    "rock_cover",
    "roughness"
   ],
@@ -404,6 +408,7 @@
   "type": "vasca di simulante",
   "covers": [
    "slope_p90",
+   "slope_trav_p90",
    "low_sun_frac",
    "soil_density"
   ],

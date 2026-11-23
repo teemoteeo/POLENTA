@@ -20,7 +20,8 @@ from . import config
 # Frazioni 0-1 con un grosso blocco di valori uguali: si confrontano in distanza fisica, non in percentile.
 # permafrost_share è 0 per l'85% degli esagoni: in percentile tutti quelli con un po' di permafrost finivano
 # schiacciati nel 10% più alto (7,5% di permafrost prendeva 0,98 contro un target 42-100%, 15/11 01:55).
-PHYSICAL = {"permafrost_share"}
+# trav_share: 61% del campione ≥ 0,99, 26% esattamente 1 (fase A, 20/11).
+PHYSICAL = {"permafrost_share", "trav_share"}
 # Terreno: percentili solo sul campione casuale fisso a 30 m esatto (features.ref_sample), come promette fine.py.
 # Su tutti gli esagoni la base mescolava esatti e stime e cambiava a ogni export, perché ogni export aggiunge
 # candidati al 30 m; i crateri, che esistono solo al 30 m, avevano per base campione + candidati (19/11).

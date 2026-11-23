@@ -35,7 +35,7 @@ The **Benchmark** sheet shows the whole matrix, 6 sites × 3 tests, with the top
 - **Terrain resolution:** global screening at 500 m, exact 30 m values on known sites, a random sample and the candidates; a gradient-boosting model calibrates 500 m to 30 m on the rest, with the error declared.
 - **Validation:** known test sites (Etna, Black Point, Cinder Lake, Death Valley and others in `data/config/known_sites.csv`) must come out near the top. Their percentiles are exported in `data/export/validation.json`.
 
-Parameters in the score: 90th percentile slope, roughness, crater density, boulder cover, regolith grain size (thermal inertia proxy), albedo, low-angle sunlight, surface density, rock type, ground ice.
+Parameters in the score: 90th percentile slope (rover test: 90th percentile slope of the drivable ground below 20°, the Artemis LTV requirement, plus the drivable area share; ISRU: drivable area share), roughness, crater density, boulder cover, regolith grain size (thermal inertia proxy), albedo, low-angle sunlight, surface density, rock type, ground ice.
 
 ## MATLAB / Simulink export
 
