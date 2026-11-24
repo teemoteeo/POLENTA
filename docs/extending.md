@@ -117,7 +117,7 @@ Two kinds of files are involved.
 4. **`data/config/sensors.json`.** The instrument on each world (`earth`, `moon`, `mars`), shown in the card and in the trade-off CSV.
 5. **App labels.** `PARAM_EN` in `src/web/src/names.js` (display name), and `src/web/src/format.js` (display unit and decimals).
 6. **Export labels.** `EARTH_UNITS` and `GAP_LABELS` in `src/pipeline/export.py`.
-7. **Percentile scoring.** The score uses the distance in Earth percentiles. A parameter scored on physical distance instead goes in `PHYSICAL` in `src/pipeline/score.py`; today only `permafrost_share`.
+7. **Percentile scoring.** The score uses the distance in Earth percentiles. A parameter scored on physical distance instead goes in `PHYSICAL` in `src/pipeline/score.py`; today `permafrost_share` and `trav_share`, fractions where a large block of Earth values is equal (0 or 1) and percentiles would turn tiny physical differences into large distances.
 
 Terrain parameters computed at 30 m involve more steps:
 - `fine.py`: exact values on candidates and on the fixed sample;
